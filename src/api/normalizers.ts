@@ -112,3 +112,16 @@ export function toPreviewWordItem(word: VocabularyWord): PreviewWordItem {
     sentence: word.first_context_snippet,
   };
 }
+
+export function normalizeReadingProgress(raw: any): import("@/types/reader.types").ReadingProgress {
+  return {
+    user_id: raw.user_id ? String(raw.user_id) : undefined,
+    media_item_id: String(raw.media_item_id),
+    chapter_index: Number(raw.chapter_index || 1),
+    block_index: Number(raw.block_index || 0),
+    token_index: Number(raw.token_index || 0),
+    percentage: Number(raw.percentage || 0),
+    bookmarks: Array.isArray(raw.bookmarks) ? raw.bookmarks : [],
+    updated_at: raw.updated_at ? String(raw.updated_at) : undefined,
+  };
+}

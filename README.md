@@ -5,6 +5,7 @@ A Neo-Swiss brutalist **"Dense Faceted Index"** frontend for Spanish corpus-driv
 ---
 
 ## 1. Visual & Design System ("Dense Faceted Index")
+> See complete specification in [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md).
 - **Palette**: Pure paper (`#FFFFFF`), structural stone (`#F4F4F2` / `#F8F8F6`), crisp `1px solid #111111` ink hairlines, and electric volt (`#B8FF01`) accents for active states and comprehension highlights.
 - **Typography**: `Plus Jakarta Sans` (body), `Newsreader` (editorial headings), `JetBrains Mono` (tabular metrics, CEFR badges, IPA, and corpus ranks).
 

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>index /es — Reader Mockup (Neo-Swiss Green)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+      --volt: #B8FF01;
+      --ink: #111111;
+      --paper: #FFFFFF;
+      --bone: #F8F8F6;
+      --stone: #F4F4F2;
+      --hairline: #E2E2DF;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background-color: #FFFFFF;
+      color: #111111;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-serif {
+      font-family: 'Newsreader', Georgia, serif;
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Neo-Swiss brutalist hard drop-shadows */
+    .brutalist-card {
+      border: 1px solid #111111;
+      background-color: #FFFFFF;
+    }
+
+    .brutalist-shadow-sm {
+      box-shadow: 2px 2px 0px #111111;
+    }
+
+    .brutalist-shadow {
+      box-shadow: 4px 4px 0px #111111;
+    }
+
+    .brutalist-shadow-lg {
+      box-shadow: 6px 6px 0px #111111;
+    }
+
+    /* Word token interactive states */
+    .token-word {
+      cursor: pointer;
+      border-radius: 2px;
+      padding: 0 1px;
+      transition: background-color 0.1s ease, color 0.1s ease;
+    }
+
+    .token-word:hover {
+      background-color: #EAEAE6;
+    }
+
+    /* Known word: pure clean book ink */
+    .token-known {
+      color: #111111;
+    }
+
+    /* Learning word: Volt pill highlight */
+    .token-learning {
+      background-color: #B8FF01;
+      color: #111111;
+      font-weight: 600;
+    }
+
+    .token-learning:hover {
+      background-color: #a4e600;
+    }
+
+    /* Unknown word: subtle dotted underline */
+    .token-unknown {
+      color: #111111;
+      border-bottom: 2px dotted #888888;
+    }
+
+    .token-unknown:hover {
+      border-bottom-color: #111111;
+      background-color: #F4F4F2;
+    }
+
+    /* Selected word: active inverted block */
+    .token-selected {
+      background-color: #111111 !important;
+      color: #B8FF01 !important;
+      font-weight: 700 !important;
+      box-shadow: 2px 2px 0px #B8FF01;
+    }
+
+    /* Ruby glosses */
+    ruby {
+      ruby-position: over;
+    }
+
+    rt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 600;
+      color: #111111;
+      background-color: rgba(184, 255, 1, 0.7);
+      padding: 1px 3px;
+      border-radius: 2px;
+      user-select: none;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-white text-[#111111]">
+
+  <!-- TOP BAR (Sticky Neo-Swiss Header) -->
+  <header class="sticky top-0 z-30 border-b border-[#111111] bg-white">
+    <div class="max-w-[1440px] mx-auto px-6 h-14 flex items-center justify-between">
+      
+      <!-- Left: Brand + Exit -->
+      <div class="flex items-center gap-6">
+        <a href="#exit" class="flex items-center gap-1.5 font-mono text-sm font-bold tracking-tight">
+          <span>index</span>
+          <span class="bg-[#B8FF01] text-[#111111] px-1.5 py-0.5 text-xs font-bold border border-[#111111]">/es</span>
+        </a>
+        <div class="h-4 w-px bg-[#E2E2DF]"></div>
+        <button onclick="alert('Exit reader to catalogue')" class="font-mono text-xs text-[#666666] hover:text-[#111111] flex items-center gap-1 cursor-pointer">
+          ← Back to media
+        </button>
+      </div>
+
+      <!-- Center: Title & Chapter Dropdown -->
+      <div class="flex items-center gap-3">
+        <span class="font-serif font-bold text-sm text-[#111111] hidden md:inline">Cuatro</span>
+        <span class="text-[#888888] hidden md:inline">·</span>
+        <select id="chapterSelect" onchange="changeChapter(this.value)" class="border border-[#111111] bg-white px-3 py-1 font-mono text-xs font-medium cursor-pointer brutalist-shadow-sm focus:outline-none">
+          <option value="5">Cap. 5: Introducción (273 palabras)</option>
+          <option value="6" selected>Cap. 6: El Trasladado (12,112 palabras)</option>
+          <option value="7">Cap. 7: El Iniciado (13,547 palabras)</option>
+          <option value="8">Cap. 8: El Hijo (11,420 palabras)</option>
+        </select>
+      </div>
+
+      <!-- Right: Reading Specs & Toggles -->
+      <div class="flex items-center gap-3 font-mono text-xs">
+        
+        <!-- Stacked Dual-Tone Progress Gauge -->
+        <div class="hidden sm:flex items-center gap-2 border border-[#111111] px-2.5 py-1 bg-[#F8F8F6]">
+          <span class="text-[#555555]">FLOW</span>
+          <span class="font-bold tabular-nums">91%</span>
+          <span class="bg-[#B8FF01] text-[#111111] px-1 font-bold text-[10px] border border-[#111111]">+3.2%</span>
+          <div class="w-16 h-2 border border-[#111111] bg-white flex overflow-hidden">
+            <div class="h-full bg-[#111111]" style="width: 88%"></div>
+            <div class="h-full bg-[#B8FF01] border-l border-[#111111]/40" style="width: 6%"></div>
+          </div>
+        </div>
+
+        <!-- Ruby Toggle -->
+        <button id="rubyBtn" onclick="toggleRuby()" class="border border-[#111111] px-2.5 py-1 font-bold cursor-pointer transition-colors bg-[#B8FF01] text-[#111111]">
+          Ruby Gloss: ON
+        </button>
+
+        <!-- i+1 Toggle -->
+        <button id="iPlusOneBtn" onclick="toggleIPlusOne()" class="border border-[#111111] px-2.5 py-1 font-medium cursor-pointer transition-colors bg-white text-[#666666] hover:text-[#111111]">
+          i+1 Focus: OFF
+        </button>
+
+        <!-- Font Size Scale -->
+        <div class="hidden lg:flex items-center border border-[#111111]">
+          <button onclick="adjustFontSize(-1)" class="px-2 py-1 bg-white hover:bg-[#F4F4F2] border-r border-[#111111] font-bold">A-</button>
+          <button onclick="adjustFontSize(1)" class="px-2 py-1 bg-white hover:bg-[#F4F4F2] font-bold">A+</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN READING DESK -->
+  <main class="flex-1 max-w-[1440px] w-full mx-auto px-6 py-8 flex gap-8 relative items-start">
+
+    <!-- READING CANVAS COLUMN -->
+    <article class="flex-1 max-w-[740px] mx-auto transition-all select-text pb-28" id="proseContainer">
+
+      <!-- Chapter Header Plate -->
+      <div class="mb-10 pb-5 border-b-2 border-[#111111]">
+        <div class="flex items-center justify-between font-mono text-xs text-[#666666] uppercase tracking-wider mb-2">
+          <span>CAPÍTULO 06 · NOVELA</span>
+          <span>12,112 PALABRAS · 363 PÁRRAFOS</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-bold font-serif text-[#111111] tracking-tight">
+          EL TRASLADADO
+        </h1>
+        <div class="mt-3 flex items-center gap-2 font-mono text-xs text-[#555555]">
+          <span>Veronica Roth</span>
+          <span>·</span>
+          <span>Cuatro (Divergente #0)</span>
+          <span>·</span>
+          <span class="bg-[#B8FF01] text-[#111111] font-bold px-1.5 border border-[#111111]">B1 CEFR</span>
+        </div>
+      </div>
+
+      <!-- Paragraph 1 -->
+      <p class="font-serif text-[20px] leading-[1.9] text-[#111111] mb-6 sentence-block" data-block="1">
+        <span class="sentence" id="s1">
+          <span class="token-word token-known" onclick="inspect('salgo', 'salir', 'VERB', 'A1', 45, '[ˈsal.ɣo]', 'to leave, to go out', ['to leave, exit, depart', 'to go out (socially)', 'to turn out, result'])">Salgo</span>
+          <span> de </span>
+          <span class="token-word token-known" onclick="inspect('la', 'el', 'ART', 'A1', 1, '[la]', 'the', ['definite feminine article: the'])">la</span>
+          <span> </span>
+          <span class="token-word token-learning" onclick="inspect('simulación', 'simulación', 'NOUN', 'B2', 620, '[si.mu.laˈsjon]', 'simulation', ['simulation, mock test', 'pretense, feigning'])">simulación</span>
+          <span> con un </span>
+          <span class="token-word token-learning" onclick="inspect('grito', 'grito', 'NOUN', 'B1', 450, '[ˈɡɾi.to]', 'scream, cry', ['scream, shout, shriek', 'call, cry out loud'])">grito</span>
+          <span>. </span>
+        </span>
+        <span class="sentence" id="s2">
+          <span>Me </span>
+          <span class="token-word token-unknown" onclick="inspect('escuecen', 'escocer', 'VERB', 'C1', 952, '[es.koˈθeɾ]', 'sting, smart', ['to sting, to smart, to itch painfully', 'to cause burning sensation'])">escuecen</span>
+          <span> los </span>
+          <span class="token-word token-known" onclick="inspect('labios', 'labio', 'NOUN', 'A2', 456, '[ˈla.βjos]', 'lips', ['lip (fleshy anatomy of the mouth)'])">labios</span>
+          <span> y, cuando </span>
+          <span class="token-word token-learning" onclick="inspect('aparto', 'apartar', 'VERB', 'B1', 487, '[a.paɾˈtaɾ]', 'pull away', ['to move away, separate, pull back', 'to push aside'])">aparto</span>
+          <span> la mano, compruebo que tengo sangre en la punta de los dedos: debo de haberme mordido durante la prueba.</span>
+        </span>
+      </p>
+
+      <!-- Paragraph 2 -->
+      <p class="font-serif text-[20px] leading-[1.9] text-[#111111] mb-6 sentence-block" data-block="2">
+        <span class="sentence" id="s3">
+          <span>La </span>
+          <span class="token-word token-known" onclick="inspect('mujer', 'mujer', 'NOUN', 'A1', 58, '[muˈxeɾ]', 'woman', ['woman, adult female human', 'wife'])">mujer</span>
+          <span> osada que se encarga de la prueba de aptitud (se llama </span>
+          <span class="token-word token-unknown" onclick="inspect('Tori', 'Tori', 'PROPN', 'N/A', null, null, 'character name', ['Character name in Divergent novel'])">Tori</span>
+          <span>, según me ha dicho) me mira raro mientras se estira el cabello hacia atrás y se lo recoge en un moño. </span>
+        </span>
+        <span class="sentence" id="s4">
+          <span>Tiene los brazos completamente cubiertos de tinta: llamas, rayos de luz y alas de </span>
+          <span class="token-word token-unknown" onclick="inspect('halcón', 'halcón', 'NOUN', 'B2', 800, '[alˈkon]', 'falcon, hawk', ['falcon, bird of prey in Falconidae'])">halcón</span>
+          <span>.</span>
+        </span>
+      </p>
+
+      <!-- Paragraph 3 (Dialogue) -->
+      <p class="font-serif text-[20px] leading-[1.9] text-[#111111] mb-6 sentence-block pl-4 border-l-2 border-[#111111]" data-block="3">
+        <span class="sentence" id="s5">
+          <span>—Cuando </span>
+          <span class="token-word token-known" onclick="inspect('estabas', 'estar', 'VERB', 'A1', 3, '[esˈta.βas]', 'were', ['to be (temporary state, location)'])">estabas</span>
+          <span> en la </span>
+          <span class="token-word token-learning" onclick="inspect('simulación', 'simulación', 'NOUN', 'B2', 620, '[si.mu.laˈsjon]', 'simulation', ['simulation, mock test', 'pretense, feigning'])">simulación</span>
+          <span>…, ¿eras consciente de que no se trataba de algo real? —me pregunta Tori mientras apaga la máquina.</span>
+        </span>
+      </p>
+
+      <!-- Paragraph 4 -->
+      <p class="font-serif text-[20px] leading-[1.9] text-[#111111] mb-6 sentence-block" data-block="4">
+        <span class="sentence" id="s6">
+          <span>Su </span>
+          <span class="token-word token-known" onclick="inspect('tono', 'tono', 'NOUN', 'A2', 256, '[ˈto.no]', 'tone', ['tone of voice, pitch, shade'])">tono</span>
+          <span> es despreocupado, al igual que su expresión, pero se trata de una despreocupación premeditada, aprendida tras años de </span>
+          <span class="token-word token-known" onclick="inspect('práctica', 'práctica', 'NOUN', 'A2', 207, '[ˈpɾak.ti.ka]', 'practice', ['practice, practical experience'])">práctica</span>
+          <span>. Sé reconocerla en cuanto la veo; siempre la reconozco.</span>
+        </span>
+      </p>
+
+      <!-- Paragraph 5 (i+1 Demonstration Example) -->
+      <p class="font-serif text-[20px] leading-[1.9] text-[#111111] mb-6 sentence-block" data-block="5">
+        <span class="sentence" id="s7">
+          <span>De repente noto cómo me late el corazón. Es lo que mi padre dijo que sucedería: que me preguntarían si había sido consciente de que era una simulación. También me dijo lo que debía responder cuando lo hicieran.</span>
+        </span>
+      </p>
+
+      <p class="font-serif text-[20px] leading-[1.9] text-[#111111] mb-6 sentence-block pl-4 border-l-2 border-[#111111]" data-block="6">
+        <span class="sentence" id="s8">
+          <span>—No. Si lo hubiera sido, ¿crees que me habría mordido así el </span>
+          <span class="token-word token-known" onclick="inspect('labio', 'labio', 'NOUN', 'A2', 456, '[ˈla.βjo]', 'lip', ['lip (fleshy anatomy of the mouth)'])">labio</span>
+          <span>?</span>
+        </span>
+      </p>
+
+      <p class="font-serif text-[20px] leading-[1.9] text-[#111111] mb-6 sentence-block pl-4 border-l-2 border-[#111111]" data-block="7">
+        <span class="sentence" id="s9">
+          <span>—Felicidades. Has conseguido un resultado de Abnegación perfecto.</span>
+        </span>
+      </p>
+
+      <p class="font-serif text-[20px] leading-[1.9] text-[#111111] mb-6 sentence-block" data-block="8">
+        <span class="sentence" id="s10">
+          <span>Asiento con la cabeza, aunque la palabra «Abnegación» es como una </span>
+          <span class="token-word token-unknown" onclick="inspect('sentencia', 'sentencia', 'NOUN', 'B1', 496, '[senˈten.θja]', 'sentence, ruling', ['judicial sentence, ruling', 'verdict, judgment'])">sentencia</span>
+          <span> de muerte.</span>
+        </span>
+      </p>
+
+    </article>
+
+    <!-- RIGHT WORD INSPECTOR DOCK (Desktop Side Panel / Mobile Bottom Sheet) -->
+    <aside id="inspectorDock" class="w-[380px] shrink-0 sticky top-20 brutalist-card brutalist-shadow-lg p-5 z-20">
+      
+      <!-- Dock Eyebrow & Close -->
+      <div class="flex items-center justify-between border-b-2 border-[#111111] pb-3 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="font-mono text-xs font-bold uppercase tracking-wider text-[#111111]">// A CLOSER LOOK</span>
+          <span id="dockStatusChip" class="bg-[#B8FF01] text-[#111111] font-mono text-[10px] font-bold px-1.5 py-0.2 border border-[#111111]">
+            LEARNING
+          </span>
+        </div>
+        <button onclick="closeDock()" class="p-1 text-[#666666] hover:text-[#111111] font-mono text-xs font-bold cursor-pointer">
+          ✕ ESC
+        </button>
+      </div>
+
+      <!-- Lemma & Speaker -->
+      <div class="space-y-2 mb-4">
+        <div class="flex items-baseline justify-between gap-3">
+          <div class="flex items-baseline gap-2">
+            <h2 id="dockLemma" class="text-3xl font-bold font-serif text-[#111111]">simulación</h2>
+            <span id="dockPos" class="font-mono text-xs font-bold border border-[#111111] px-1.5 py-0.2 bg-[#F8F8F6]">NOUN</span>
+          </div>
+          <button onclick="speakWord()" title="Listen to pronunciation" class="bg-[#B8FF01] hover:bg-[#a4e600] text-[#111111] border border-[#111111] px-2 py-1 font-mono text-xs font-bold brutalist-shadow-sm flex items-center gap-1 cursor-pointer">
+            <span>🔊</span>
+            <span>PLAY</span>
+          </button>
+        </div>
+
+        <!-- Technical Badges -->
+        <div class="flex items-center gap-2 font-mono text-xs flex-wrap">
+          <span id="dockIpa" class="italic text-[#555555]">[si.mu.laˈsjon]</span>
+          <span>·</span>
+          <span id="dockCefr" class="bg-[#B8FF01] text-[#111111] border border-[#111111] px-1.5 font-bold">B2</span>
+          <span>·</span>
+          <span id="dockRank" class="text-[#666666] tabular-nums">#620 TubeLex</span>
+        </div>
+
+        <!-- Context Occurrence -->
+        <div class="bg-[#F8F8F6] border-l-2 border-[#111111] p-2 mt-2">
+          <div class="font-mono text-[10px] text-[#666666] uppercase">In your chapter:</div>
+          <div id="dockSurfaceContext" class="font-serif text-sm font-semibold text-[#111111]">
+            "Salgo de la <mark class="bg-[#B8FF01] text-[#111111] px-1">simulación</mark> con un grito..."
+          </div>
+        </div>
+      </div>
+
+      <!-- Kaikki Definitions List -->
+      <div class="border-t border-[#E2E2DF] pt-3 mb-5">
+        <div class="font-mono text-[11px] font-bold uppercase text-[#666666] mb-2 flex items-center justify-between">
+          <span>KAIKKI DEFINITIONS</span>
+          <span class="text-[10px] text-[#888888]">es → en</span>
+        </div>
+        <ol id="dockDefList" class="space-y-2 text-xs text-[#222222] font-sans leading-relaxed">
+          <li class="flex gap-2">
+            <span class="font-mono font-bold text-[#666666]">1.</span>
+            <span>simulation, mock test; artificial replica of an environment.</span>
+          </li>
+          <li class="flex gap-2">
+            <span class="font-mono font-bold text-[#666666]">2.</span>
+            <span>pretense, feigning; act of pretending or disguising reality.</span>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Pedagogical Actions (0ms Status Toggles) -->
+      <div class="border-t-2 border-[#111111] pt-4 space-y-2">
+        <div class="font-mono text-[10px] uppercase font-bold text-[#666666]">YOUR VOCABULARY LEDGER</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btnLearn" onclick="setWordStatus('learning')" class="py-2.5 px-3 bg-[#B8FF01] text-[#111111] border border-[#111111] font-mono text-xs font-bold brutalist-shadow-sm cursor-pointer">
+            ✓ Still Learning
+          </button>
+          <button id="btnKnown" onclick="setWordStatus('known')" class="py-2.5 px-3 bg-white text-[#111111] border border-[#111111] font-mono text-xs font-bold hover:bg-[#111111] hover:text-white cursor-pointer">
+            Mark Known
+          </button>
+        </div>
+        <button onclick="setWordStatus('unknown')" class="w-full text-center font-mono text-[11px] text-[#888888] hover:text-[#111111] py-1 cursor-pointer">
+          Reset to Unfamiliar / Default
+        </button>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- STICKY BOTTOM BAR (Paging & Progress) -->
+  <footer class="sticky bottom-0 z-30 border-t border-[#111111] bg-[#F8F8F6] h-12">
+    <div class="max-w-[1440px] mx-auto px-6 h-full flex items-center justify-between font-mono text-xs">
+      <button onclick="alert('Go to Chapter 5')" class="hover:underline flex items-center gap-1 cursor-pointer">
+        ← Anterior: Cap. 5
+      </button>
+
+      <div class="flex items-center gap-3">
+        <span class="text-[#666666]">Capítulo 6 de 14</span>
+        <span class="text-[#CCCCCC]">·</span>
+        <span class="font-bold tabular-nums">42% leído</span>
+        <div class="w-24 h-2 border border-[#111111] bg-white hidden sm:flex overflow-hidden">
+          <div class="h-full bg-[#111111]" style="width: 42%"></div>
+        </div>
+      </div>
+
+      <button onclick="alert('Go to Chapter 7')" class="hover:underline flex items-center gap-1 cursor-pointer font-semibold">
+        Siguiente: Cap. 7 (El Iniciado) →
+      </button>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIC (Live Mockup Interactions) -->
+  <script>
+    let showRuby = true;
+    let showIPlusOne = false;
+    let currentFontSize = 20;
+    let activeToken = 'simulación';
+
+    const WORD_DATA = {
+      'salgo': { lemma: 'salir', pos: 'VERB', cefr: 'A1', rank: 45, ipa: '[ˈsal.ɣo]', status: 'known', defs: ['to leave, exit, depart', 'to go out (socially)', 'to turn out, result'] },
+      'simulación': { lemma: 'simulación', pos: 'NOUN', cefr: 'B2', rank: 620, ipa: '[si.mu.laˈsjon]', status: 'learning', defs: ['simulation, mock test; artificial replica of an environment.', 'pretense, feigning; act of pretending or disguising reality.'] },
+      'grito': { lemma: 'grito', pos: 'NOUN', cefr: 'B1', rank: 450, ipa: '[ˈɡɾi.to]', status: 'learning', defs: ['scream, shout, shriek', 'call, cry out loud', 'loud vocal expression'] },
+      'escuecen': { lemma: 'escocer', pos: 'VERB', cefr: 'C1', rank: 952, ipa: '[es.koˈθeɾ]', status: 'unknown', defs: ['to sting, to smart, to itch painfully', 'to cause burning sensation', 'to rankle, cause annoyance'] },
+      'labios': { lemma: 'labio', pos: 'NOUN', cefr: 'A2', rank: 456, ipa: '[ˈla.βjos]', status: 'known', defs: ['lip (fleshy anatomy of the mouth)'] },
+      'aparto': { lemma: 'apartar', pos: 'VERB', cefr: 'B1', rank: 487, ipa: '[a.paɾˈtaɾ]', status: 'learning', defs: ['to move away, separate, pull back', 'to push aside, remove from position'] },
+      'mujer': { lemma: 'mujer', pos: 'NOUN', cefr: 'A1', rank: 58, ipa: '[muˈxeɾ]', status: 'known', defs: ['woman, adult female human', 'wife'] },
+      'Tori': { lemma: 'Tori', pos: 'PROPN', cefr: 'N/A', rank: null, ipa: null, status: 'unknown', defs: ['Proper name of the Dauntless proctor in Divergent'] },
+      'halcón': { lemma: 'halcón', pos: 'NOUN', cefr: 'B2', rank: 800, ipa: '[alˈkon]', status: 'unknown', defs: ['falcon, bird of prey in Falconidae family'] },
+      'sentencia': { lemma: 'sentencia', pos: 'NOUN', cefr: 'B1', rank: 496, ipa: '[senˈten.θja]', status: 'unknown', defs: ['judicial sentence, ruling', 'verdict, judgment', 'maxim, aphorism'] }
+    };
+
+    function inspect(surface, lemma, pos, cefr, rank, ipa, hint, defs) {
+      activeToken = surface;
+      document.querySelectorAll('.token-word').forEach(el => el.classList.remove('token-selected'));
+      
+      const currentWord = WORD_DATA[surface] || { lemma, pos, cefr, rank, ipa, status: 'unknown', defs };
+      
+      document.getElementById('dockLemma').textContent = currentWord.lemma;
+      document.getElementById('dockPos').textContent = currentWord.pos;
+      document.getElementById('dockCefr').textContent = currentWord.cefr;
+      document.getElementById('dockRank').textContent = currentWord.rank ? `#${currentWord.rank} TubeLex` : 'UNRANKED';
+      document.getElementById('dockIpa').textContent = currentWord.ipa || '—';
+      document.getElementById('dockSurfaceContext').innerHTML = `"... <mark class="bg-[#B8FF01] text-[#111111] px-1 font-bold">${surface}</mark> ..."`;
+
+      const defContainer = document.getElementById('dockDefList');
+      defContainer.innerHTML = currentWord.defs.map((d, i) => `
+        <li class="flex gap-2">
+          <span class="font-mono font-bold text-[#666666]">${i + 1}.</span>
+          <span>${d}</span>
+        </li>
+      `).join('');
+
+      updateDockStatusUI(currentWord.status);
+      document.getElementById('inspectorDock').style.display = 'block';
+    }
+
+    function updateDockStatusUI(status) {
+      const chip = document.getElementById('dockStatusChip');
+      const btnLearn = document.getElementById('btnLearn');
+      const btnKnown = document.getElementById('btnKnown');
+
+      if (status === 'learning') {
+        chip.textContent = 'LEARNING';
+        chip.className = 'bg-[#B8FF01] text-[#111111] font-mono text-[10px] font-bold px-1.5 py-0.2 border border-[#111111]';
+        btnLearn.className = 'py-2.5 px-3 bg-[#B8FF01] text-[#111111] border border-[#111111] font-mono text-xs font-bold brutalist-shadow-sm cursor-pointer';
+        btnKnown.className = 'py-2.5 px-3 bg-white text-[#111111] border border-[#111111] font-mono text-xs font-bold hover:bg-[#111111] hover:text-white cursor-pointer';
+      } else if (status === 'known') {
+        chip.textContent = 'KNOWN';
+        chip.className = 'bg-[#111111] text-white font-mono text-[10px] font-bold px-1.5 py-0.2 border border-[#111111]';
+        btnLearn.className = 'py-2.5 px-3 bg-white text-[#111111] border border-[#111111] font-mono text-xs font-bold hover:bg-[#B8FF01] cursor-pointer';
+        btnKnown.className = 'py-2.5 px-3 bg-[#111111] text-white border border-[#111111] font-mono text-xs font-bold brutalist-shadow-sm cursor-pointer';
+      } else {
+        chip.textContent = 'UNKNOWN';
+        chip.className = 'bg-white text-[#666666] font-mono text-[10px] font-bold px-1.5 py-0.2 border border-[#E2E2DF]';
+        btnLearn.className = 'py-2.5 px-3 bg-white text-[#111111] border border-[#111111] font-mono text-xs font-bold hover:bg-[#B8FF01] cursor-pointer';
+        btnKnown.className = 'py-2.5 px-3 bg-white text-[#111111] border border-[#111111] font-mono text-xs font-bold hover:bg-[#111111] hover:text-white cursor-pointer';
+      }
+    }
+
+    function setWordStatus(newStatus) {
+      if (WORD_DATA[activeToken]) {
+        WORD_DATA[activeToken].status = newStatus;
+      }
+      updateDockStatusUI(newStatus);
+
+      // Dynamically update word styling in canvas
+      document.querySelectorAll('.token-word').forEach(el => {
+        if (el.textContent.trim().toLowerCase() === activeToken.toLowerCase()) {
+          el.className = `token-word token-${newStatus}`;
+        }
+      });
+    }
+
+    function closeDock() {
+      document.getElementById('inspectorDock').style.display = 'none';
+      document.querySelectorAll('.token-word').forEach(el => el.classList.remove('token-selected'));
+    }
+
+    function toggleRuby() {
+      showRuby = !showRuby;
+      const btn = document.getElementById('rubyBtn');
+      if (showRuby) {
+        btn.textContent = 'Ruby Gloss: ON';
+        btn.className = 'border border-[#111111] px-2.5 py-1 font-bold cursor-pointer transition-colors bg-[#B8FF01] text-[#111111]';
+        renderRubyGlosses(true);
+      } else {
+        btn.textContent = 'Ruby Gloss: OFF';
+        btn.className = 'border border-[#111111] px-2.5 py-1 font-medium cursor-pointer transition-colors bg-white text-[#666666] hover:text-[#111111]';
+        renderRubyGlosses(false);
+      }
+    }
+
+    function renderRubyGlosses(enable) {
+      document.querySelectorAll('.token-word').forEach(el => {
+        const text = el.textContent.trim();
+        const info = WORD_DATA[text];
+        if (info && (info.status === 'learning' || info.status === 'unknown')) {
+          if (enable) {
+            el.innerHTML = `<ruby>${text}<rt>${info.defs[0].split(';')[0].slice(0, 18)}</rt></ruby>`;
+          } else {
+            el.innerHTML = text;
+          }
+        }
+      });
+    }
+
+    function toggleIPlusOne() {
+      showIPlusOne = !showIPlusOne;
+      const btn = document.getElementById('iPlusOneBtn');
+      if (showIPlusOne) {
+        btn.textContent = 'i+1 Focus: ON';
+        btn.className = 'border border-[#111111] px-2.5 py-1 font-bold cursor-pointer transition-colors bg-[#B8FF01] text-[#111111]';
+        document.getElementById('s2').classList.add('bg-[#B8FF01]/10', 'border-l-4', 'border-[#B8FF01]', 'pl-2', 'py-1', 'rounded-none');
+        document.getElementById('s10').classList.add('bg-[#B8FF01]/10', 'border-l-4', 'border-[#B8FF01]', 'pl-2', 'py-1', 'rounded-none');
+      } else {
+        btn.textContent = 'i+1 Focus: OFF';
+        btn.className = 'border border-[#111111] px-2.5 py-1 font-medium cursor-pointer transition-colors bg-white text-[#666666] hover:text-[#111111]';
+        document.getElementById('s2').classList.remove('bg-[#B8FF01]/10', 'border-l-4', 'border-[#B8FF01]', 'pl-2', 'py-1', 'rounded-none');
+        document.getElementById('s10').classList.remove('bg-[#B8FF01]/10', 'border-l-4', 'border-[#B8FF01]', 'pl-2', 'py-1', 'rounded-none');
+      }
+    }
+
+    function adjustFontSize(delta) {
+      currentFontSize = Math.max(16, Math.min(26, currentFontSize + delta));
+      document.querySelectorAll('#proseContainer p').forEach(p => {
+        p.style.fontSize = `${currentFontSize}px`;
+      });
+    }
+
+    function speakWord() {
+      if ('speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance(activeToken);
+        u.lang = 'es-ES';
+        window.speechSynthesis.speak(u);
+      } else {
+        alert('SpeechSynthesis not supported on this browser.');
+      }
+    }
+
+    // Keyboard ESC listener
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDock();
+    });
+
+    // Initialize with ruby on
+    renderRubyGlosses(true);
+  </script>
+</body>
+</html>

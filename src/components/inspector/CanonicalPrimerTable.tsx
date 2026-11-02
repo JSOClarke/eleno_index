@@ -77,13 +77,7 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#F8F8F6] border border-[#E2E2DF] p-2.5">
         <div className="flex flex-wrap items-center gap-2">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-            placeholder="Search canonical lemma..."
-            className="border border-[#111111] bg-white px-3 py-1 font-mono text-xs outline-none w-52"
-          />
+          <input type="text" value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="Search canonical lemma..." className="border border-[#111111] bg-white px-3 py-1 font-mono text-xs outline-none w-52" />
           {selectedChapter !== "all" && (
             <button type="button" onClick={onClearChapter} className="bg-[#B8FF01] text-[#111111] border border-[#111111] px-2.5 py-1 font-mono text-xs font-semibold cursor-pointer">
               Debut in {isEpisodeMode ? `EP.${selectedChapter}` : `CH.${selectedChapter}`} ×
@@ -91,16 +85,7 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
           )}
           <div className="flex items-center border border-[#111111] font-mono text-[11px]">
             {(["ALL", "UNKNOWN", "LEARNING", "KNOWN"] as const).map((st) => (
-              <button
-                key={st}
-                type="button"
-                onClick={() => { setStatusFilter(st); setPage(1); }}
-                className={`px-2 py-1 cursor-pointer transition-colors ${
-                  statusFilter === st ? "bg-[#111111] text-[#B8FF01] font-semibold" : "bg-white text-[#555555] hover:text-[#111111]"
-                }`}
-              >
-                {st} ({statusCounts[st]})
-              </button>
+              <button key={st} type="button" onClick={() => { setStatusFilter(st); setPage(1); }} className={`px-2 py-1 cursor-pointer transition-colors ${statusFilter === st ? "bg-[#111111] text-[#B8FF01] font-semibold" : "bg-white text-[#555555] hover:text-[#111111]"}`}>{st} ({statusCounts[st]})</button>
             ))}
           </div>
         </div>

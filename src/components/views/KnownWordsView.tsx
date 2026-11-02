@@ -40,17 +40,9 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
     if (currentCache) {
       setWords(currentCache.entries);
       const loadedSet = new Set(currentCache.entries.map((e) => e.canonical_id));
-      const missingNewWord = Object.entries(statusMap).some(
-        ([id, s]) => (s === "known" || s === "learning") && !loadedSet.has(id)
-      );
-      if (!missingNewWord) {
-        writeKnownDetailsCache(userId, statusMap, currentCache.entries);
-        setLoading(false);
-        return;
-      }
-    } else {
-      setLoading(true);
-    }
+      const hasMissing = Object.entries(statusMap).some(([id, s]) => (s === "known" || s === "learning") && !loadedSet.has(id));
+      if (!hasMissing) { writeKnownDetailsCache(userId, statusMap, currentCache.entries); setLoading(false); return; }
+    } else setLoading(true);
 
     let cancelled = false;
     fetchKnownWordsDetails(userId)
@@ -106,9 +98,7 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
           <input type="text" value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="Search tracked lemma..." className="border border-[#111111] bg-white px-3 py-1 font-mono text-xs outline-none w-52" />
           <div className="flex items-center border border-[#111111] font-mono text-[11px]">
             {(["ALL", "LEARNING", "KNOWN"] as const).map((st) => (
-              <button key={st} type="button" onClick={() => { setStateFilter(st); setPage(1); }} className={`px-2 py-1 cursor-pointer transition-colors ${stateFilter === st ? "bg-[#111111] text-[#B8FF01] font-semibold" : "bg-white text-[#555555] hover:text-[#111111]"}`}>
-                {st} ({counts[st]})
-              </button>
+              <button key={st} type="button" onClick={() => { setStateFilter(st); setPage(1); }} className={`px-2 py-1 cursor-pointer transition-colors ${stateFilter === st ? "bg-[#111111] text-[#B8FF01] font-semibold" : "bg-white text-[#555555] hover:text-[#111111]"}`}>{st} ({counts[st]})</button>
             ))}
           </div>
         </div>
@@ -138,13 +128,11 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
         </div>
 
         <div className="divide-y divide-[#E2E2DF]">
-          {loading ? (
-            <VocabTableSkeleton rows={10} variant="known" />
-          ) : slice.length === 0 ? (
+          {loading ? <VocabTableSkeleton rows={10} variant="known" /> : slice.length === 0 ? (
             <div className="p-8 text-center font-mono text-xs text-[#666666]">No matching canonical lemmas.</div>
-          ) : (
-            slice.map((w) => <KnownWordRow key={w.canonical_id} word={w} status={statusMap[w.canonical_id]} rankingSource={rankingSource} onSetWordStatus={onSetWordStatus} />)
-          )}
+          ) : slice.map((w) => (
+            <KnownWordRow key={w.canonical_id} word={w} status={statusMap[w.canonical_id]} rankingSource={rankingSource} onSetWordStatus={onSetWordStatus} />
+          ))}
         </div>
       </div>
 

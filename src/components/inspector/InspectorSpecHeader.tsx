@@ -41,9 +41,17 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
         >
           ← Back to Catalogue
         </Link>
-        <span className="font-mono text-xs text-[#666666]">
-          MEDIA ID: {item.id.slice(0, 8).toUpperCase()} · CHECKSUM VERIFIED
-        </span>
+        <div className="flex items-center gap-3">
+          <Link
+            to={`/read/${item.id}`}
+            className="rounded bg-[#B8FF01] border border-[#111111] px-3 py-1 font-mono text-xs font-bold text-[#111111] shadow-sm transition hover:bg-[#a6e600]"
+          >
+            Read Story →
+          </Link>
+          <span className="hidden font-mono text-xs text-[#666666] sm:inline">
+            MEDIA ID: {item.id.slice(0, 8).toUpperCase()}
+          </span>
+        </div>
       </div>
 
       <div className="grid grid-cols-12 gap-6 border border-[#111111] p-5 bg-white items-start">

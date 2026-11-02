@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AuthModal } from "@/components/layout/AuthModal";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { KnownWordsView } from "@/components/views/KnownWordsView";
@@ -9,11 +9,13 @@ import { useFilterState } from "@/hooks/useFilterState";
 import { useUserVocabulary } from "@/hooks/useUserVocabulary";
 import { CataloguePage } from "@/pages/CataloguePage";
 import { InspectorPage } from "@/pages/InspectorPage";
+import { ReaderPage } from "@/pages/ReaderPage";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 export const App: React.FC = () => {
   const auth = useAuth();
+  const location = useLocation();
   const userVocab = useUserVocabulary(auth.user);
   const catalogue = useCatalogueData(auth.user?.id, auth.loading);
   const filterState = useFilterState();
@@ -37,6 +39,22 @@ export const App: React.FC = () => {
     statusMap: userVocab.statusMap,
     onToggleWord: handleTogglePreviewWord,
   };
+
+  if (location.pathname.startsWith("/read/")) {
+    return (
+      <Routes>
+        <Route
+          path="/read/:mediaId"
+          element={
+            <ReaderPage
+              statusMap={userVocab.statusMap}
+              onSetWordStatus={userVocab.setWordStatus}
+            />
+          }
+        />
+      </Routes>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#111111]">
