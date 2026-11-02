@@ -8,3 +8,11 @@ input[type="checkbox"] {
   height: 14px;
   cursor: pointer;
 }
+
+ruby {
+  ruby-position: over;
+}
+
+rt {
+  ruby-position: over;
+}

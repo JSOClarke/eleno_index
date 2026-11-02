@@ -41,15 +41,17 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
 
     if (shouldShowRuby) {
       return (
-        <ruby
+        <span
           onClick={() => onSelect(surface, entry)}
-          className={`${styleClass} inline-flex flex-col items-center leading-none`}
+          className={styleClass}
         >
-          <span>{surface}</span>
-          <rt className="select-none font-mono text-[9px] font-bold text-[#111111] bg-[#B8FF01]/80 px-1 py-0.2 rounded-sm -translate-y-0.5">
-            {entry.hint}
-          </rt>
-        </ruby>
+          <ruby className="[ruby-position:over]">
+            {surface}
+            <rt className="select-none font-mono text-[10px] font-bold text-[#111111] bg-[#B8FF01]/90 px-1 py-[1px] rounded-sm -translate-y-0.5">
+              {entry.hint}
+            </rt>
+          </ruby>
+        </span>
       );
     }
 
