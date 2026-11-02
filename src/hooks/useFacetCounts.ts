@@ -18,6 +18,7 @@ export function useFacetCounts(
     const levels: Record<string, number> = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0 };
     const types: Record<string, number> = {
       "Reader / book": 0,
+      "Film / Subtitles": 0,
       "Short story": 0,
       "Lore / guide": 0,
     };

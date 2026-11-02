@@ -37,7 +37,8 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
       0
   );
   const vocabPct = Math.round(item.comprehension?.comprehension_percentage ?? 0);
-  const dialPct = formatPercent(m?.dialogue_ratio, 1);
+  const wpm = m?.words_per_minute ? Math.round(m.words_per_minute) : null;
+  const dialOrSpeedLabel = wpm ? `${wpm} WPM` : `${formatPercent(m?.dialogue_ratio, 1)} dialogue`;
   const subjPct = formatPercent(m?.verb_profile?.subjunctive_load, 1);
 
   return (
@@ -81,7 +82,7 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
                   {item.title}
                 </Link>
                 <div className="font-mono text-xs text-[#666666] mt-0.5">
-                  {formatCompactWords(m?.total_tokens || 0)} · {dialPct} dialogue · {subjPct} subj
+                  {formatCompactWords(m?.total_tokens || 0)} · {dialOrSpeedLabel} · {subjPct} subj
                 </div>
               </div>
               <div className="bg-[#F4F4F2] border border-[#E2E2DF] p-2.5 space-y-1.5">

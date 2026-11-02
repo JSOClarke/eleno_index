@@ -31,6 +31,10 @@ export interface MediaMetrics {
   coverage_90_lemmas?: number | null;
   coverage_95_lemmas?: number | null;
   coverage_98_lemmas?: number | null;
+  duration_seconds?: number | null;
+  speaking_seconds?: number | null;
+  speech_density?: number | null;
+  words_per_minute?: number | null;
   cefr_level: string | null;
   cefr_distribution: Record<string, number>;
   lexical_density: number | null;

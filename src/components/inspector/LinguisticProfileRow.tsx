@@ -14,6 +14,10 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({
   const cefr = metrics.cefr_level || "B1";
   const fh = (metrics.readability_score || 70).toFixed(1);
   const subjPct = formatPercent(metrics.verb_profile?.subjunctive_load, 1);
+  const wpm = metrics.words_per_minute ? Math.round(metrics.words_per_minute) : null;
+  const speechDensity = metrics.speech_density
+    ? `${metrics.speech_density.toFixed(1)}% speech density`
+    : "active speech cadence";
   const dialPct = formatPercent(metrics.dialogue_ratio, 1);
   const cov95 = metrics.coverage_95_lemmas || Math.round(metrics.unique_words_count * 0.42);
 
@@ -34,9 +38,15 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({
       </div>
 
       <div className="border border-[#E2E2DF] bg-white p-3.5">
-        <div className="text-[#777777] uppercase">Dialogue Share</div>
-        <div className="text-lg font-bold text-[#111111] mt-1">{dialPct}</div>
-        <div className="text-[#666666] mt-0.5">conversational lines</div>
+        <div className="text-[#777777] uppercase">
+          {wpm ? "Speaking Rate" : "Dialogue Share"}
+        </div>
+        <div className="text-lg font-bold text-[#111111] mt-1">
+          {wpm ? `${wpm} WPM` : dialPct}
+        </div>
+        <div className="text-[#666666] mt-0.5">
+          {wpm ? speechDensity : "conversational lines"}
+        </div>
       </div>
 
       <div className="border border-[#E2E2DF] bg-white p-3.5">

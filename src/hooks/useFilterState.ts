@@ -6,16 +6,24 @@ import type {
   ProfileFilterId,
 } from "@/types/filter.types";
 
+const LENGTH_LABELS: Record<LengthBucket, string> = {
+  under25k: "<25k words",
+  "25to80k": "25k–80k words",
+  "80k+": "80k+ words",
+};
+
+const PROFILE_LABELS: Record<ProfileFilterId, string> = {
+  dialogue20: "Dialogue 20%+",
+  fh70: "F-H 70+",
+  subj2: "Subjunctive rich",
+};
+
 export function useFilterState() {
   const [searchText, setSearchText] = useState("");
   const [customWords, setCustomWords] = useState<string[]>([]);
-  const [levels, setLevels] = useState<Set<string>>(() => new Set(["A2", "B1"]));
-  const [types, setTypes] = useState<Set<string>>(
-    () => new Set(["Reader / book", "Short story", "Lore / guide"])
-  );
-  const [lengths, setLengths] = useState<Set<LengthBucket>>(
-    () => new Set(["under25k", "25to80k", "80k+"])
-  );
+  const [levels, setLevels] = useState<Set<string>>(() => new Set());
+  const [types, setTypes] = useState<Set<string>>(() => new Set());
+  const [lengths, setLengths] = useState<Set<LengthBucket>>(() => new Set());
   const [profiles, setProfiles] = useState<Set<ProfileFilterId>>(() => new Set());
   const [savedIds, setSavedIds] = useState<Set<string>>(() => new Set());
   const [historyIds, setHistoryIds] = useState<Set<string>>(() => new Set());
@@ -65,30 +73,32 @@ export function useFilterState() {
   }, []);
 
   const tags = useMemo<CommandTag[]>(() => {
-    const list: CommandTag[] = [
-      { id: "author", key: "author", value: "J.K. Rowling" },
-    ];
+    const list: CommandTag[] = [];
     if (levels.size > 0) {
       list.push({ id: "levels", key: "level", value: Array.from(levels).join("–") });
     }
-    if (profiles.has("dialogue20")) {
-      list.push({ id: "dialogue20", key: "dialogue", value: "20%+" });
-    }
-    if (profiles.has("fh70")) {
-      list.push({ id: "fh70", key: "readability", value: "F-H 70+" });
-    }
-    customWords.forEach((w) => list.push({ id: `word:${w}`, key: "word", value: w }));
+    types.forEach((t) => list.push({ id: `type:${t}`, key: "type", value: t }));
+    lengths.forEach((l) =>
+      list.push({ id: `length:${l}`, key: "length", value: LENGTH_LABELS[l] })
+    );
+    profiles.forEach((p) =>
+      list.push({ id: `profile:${p}`, key: "profile", value: PROFILE_LABELS[p] })
+    );
+    customWords.forEach((w) => list.push({ id: `word:${w}`, key: "search", value: w }));
     return list;
-  }, [levels, profiles, customWords]);
+  }, [levels, types, lengths, profiles, customWords]);
 
   const removeTag = useCallback((id: string) => {
     if (id === "levels") setLevels(new Set());
-    else if (id === "dialogue20" || id === "fh70") {
-      setProfiles((prev) => {
-        const next = new Set(prev);
-        next.delete(id as ProfileFilterId);
-        return next;
-      });
+    else if (id.startsWith("type:")) {
+      const val = id.slice(5);
+      setTypes((prev) => { const n = new Set(prev); n.delete(val); return n; });
+    } else if (id.startsWith("length:")) {
+      const val = id.slice(7) as LengthBucket;
+      setLengths((prev) => { const n = new Set(prev); n.delete(val); return n; });
+    } else if (id.startsWith("profile:")) {
+      const val = id.slice(8) as ProfileFilterId;
+      setProfiles((prev) => { const n = new Set(prev); n.delete(val); return n; });
     } else if (id.startsWith("word:")) {
       const w = id.slice(5);
       setCustomWords((prev) => prev.filter((x) => x !== w));
@@ -96,7 +106,7 @@ export function useFilterState() {
   }, []);
 
   const addTag = useCallback((_key: string, value: string) => {
-    setCustomWords((prev) => [...prev, value]);
+    setCustomWords((prev) => (prev.includes(value) ? prev : [...prev, value]));
   }, []);
 
   const clearAll = useCallback(() => {

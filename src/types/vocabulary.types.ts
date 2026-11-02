@@ -16,6 +16,7 @@ export interface VocabularyWord {
   canonical_id: string;
   lemma: string;
   pos: string;
+  definitions: string[];
   frequency: number;
   first_occurrence_index: number;
   first_timestamp_ms: number | null;
@@ -32,6 +33,7 @@ export interface KnownWordEntry {
   updated_at: string | null;
   lemma: string;
   pos: string;
+  definitions: string[];
   cefr: string;
   global_rank: number | null;
   rankings: LexicalRanking[];

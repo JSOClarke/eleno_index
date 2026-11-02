@@ -1,6 +1,6 @@
 import type { KnownWordEntry, UserVocabStatus } from "@/types/vocabulary.types";
 
-const KNOWN_DETAILS_CACHE_PREFIX = "eleno_index_known_details_v1_";
+const KNOWN_DETAILS_CACHE_PREFIX = "eleno_index_known_details_v2_";
 
 interface CachedKnownDetails {
   signature: string;

@@ -59,6 +59,7 @@ export function normalizeVocabularyRow(row: any): VocabularyWord {
     canonical_id: String(row.canonical_id || ""),
     lemma: String(entity.lemma || ""),
     pos: String(entity.pos || "NOUN"),
+    definitions: Array.isArray(entity.definitions) ? entity.definitions : [],
     frequency: Number(row.frequency || 1),
     first_occurrence_index: Number(row.first_occurrence_index || 1),
     first_timestamp_ms: row.first_timestamp_ms ? Number(row.first_timestamp_ms) : null,

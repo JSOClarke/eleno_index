@@ -23,7 +23,8 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
   const fh = (m?.readability_score || 70).toFixed(1);
-  const dialPct = formatPercent(m?.dialogue_ratio, 1);
+  const wpm = m?.words_per_minute ? Math.round(m.words_per_minute) : null;
+  const dialOrWpm = wpm ? `${wpm} WPM` : `Dial ${formatPercent(m?.dialogue_ratio, 1)}`;
 
   const flowPct = Math.round(
     comprehension?.text_coverage_percentage ??
@@ -105,7 +106,7 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
               />
             </div>
             <div className="font-mono text-xs text-[#666666] mt-1.5">
-              F-H {fh} · Dial {dialPct}
+              F-H {fh} · {dialOrWpm}
             </div>
           </div>
         </div>

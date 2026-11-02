@@ -34,13 +34,16 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
     count: counts.levels[lvl] || 0,
   }));
 
-  const typeOptions = ["Reader / book", "Short story", "Lore / guide"].map(
-    (t) => ({
-      id: t,
-      label: t,
-      count: counts.types[t] || 0,
-    })
-  );
+  const typeOptions = [
+    "Reader / book",
+    "Film / Subtitles",
+    "Short story",
+    "Lore / guide",
+  ].map((t) => ({
+    id: t,
+    label: t,
+    count: counts.types[t] || 0,
+  }));
 
   const lengthOptions = [
     { id: "under25k", label: "Under 25k words", count: counts.lengths.under25k || 0 },

@@ -44,6 +44,7 @@ export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordE
       canonical_lexical_entity!inner (
         lemma,
         pos,
+        definitions,
         lexical_ranking (source, cefr, rank, count),
         lexical_pronunciation (transcriptions)
       )
@@ -81,6 +82,7 @@ export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordE
       updated_at: row.updated_at || null,
       lemma: String(entity.lemma || row.canonical_id || ""),
       pos: String(entity.pos || "NOUN"),
+      definitions: Array.isArray(entity.definitions) ? entity.definitions : [],
       cefr,
       global_rank: rank,
       rankings,

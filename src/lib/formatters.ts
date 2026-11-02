@@ -35,6 +35,11 @@ export function getLengthBucket(tokens: number): LengthBucket {
 }
 
 export function getMediaCategoryLabel(item: MediaCatalogItem): string {
+  const mType = (item.type || "").toLowerCase();
+  const fmt = (item.format || "").toLowerCase();
+  if (mType === "movie" || mType.startsWith("tv") || fmt === "srt" || fmt === "vtt") {
+    return "Film / Subtitles";
+  }
   const titleLower = item.title.toLowerCase();
   if (titleLower.includes("cuentos") || titleLower.includes("beedle")) {
     return "Short story";
@@ -50,6 +55,15 @@ export function getMediaCategoryLabel(item: MediaCatalogItem): string {
 }
 
 export function getMediaSubtypeLabel(item: MediaCatalogItem): string {
+  const mType = (item.type || "").toLowerCase();
+  const fmt = (item.format || "").toLowerCase();
+  if (mType === "movie" || mType.startsWith("tv") || fmt === "srt" || fmt === "vtt") {
+    const durMin = item.metrics?.duration_seconds
+      ? Math.round(item.metrics.duration_seconds / 60)
+      : null;
+    const label = mType.startsWith("tv") ? "TV EPISODE" : "FILM";
+    return durMin ? `${label} · ${durMin} MIN` : `${label} · SUBTITLES`;
+  }
   const t = item.title.toLowerCase();
   if (t.includes("piedra filosofal")) return "NOVEL · VOL. 1";
   if (t.includes("cámara secreta")) return "NOVEL · VOL. 2";
