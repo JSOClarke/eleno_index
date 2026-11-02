@@ -37,8 +37,11 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
     }
   };
 
+  const isEpisodeSnippet = /^\d+x\d+/i.test(word.first_context_snippet || "");
   const debutLabel = word.first_context_snippet
-    ? `Ch. ${word.first_occurrence_index} · ${word.first_context_snippet}`
+    ? isEpisodeSnippet
+      ? `Ep. ${word.first_occurrence_index} · ${word.first_context_snippet}`
+      : `Ch. ${word.first_occurrence_index} · ${word.first_context_snippet}`
     : `Chapter ${word.first_occurrence_index}`;
 
   const rankingEntry = word.rankings?.find((r) => r.source === rankingSource);

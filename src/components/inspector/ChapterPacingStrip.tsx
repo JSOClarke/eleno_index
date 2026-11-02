@@ -24,18 +24,19 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
             <div key={idx} className="w-24 h-24 shrink-0 border border-[#E2E2DF] bg-white animate-pulse" />
           ))}
         </div>
-        <div className="h-4 w-full bg-[#E2E2DF] animate-pulse" />
       </div>
     );
   }
-
   if (!chapters || chapters.length === 0) return null;
 
   const currentCh =
     selectedChapter === "all"
       ? chapters[0]
       : chapters.find((c) => c.chapter_index === selectedChapter) || chapters[0];
-  const maxTokens = Math.max(...chapters.map((c) => c.total_tokens || 1), 4000);
+  const isEpisode = /^\d+x\d+/i.test(chapters[0]?.chapter_title || "");
+  const unitUpper = isEpisode ? "EPISODE" : "CHAPTER";
+  const unitShort = isEpisode ? "EP" : "CH";
+  const maxTokens = Math.max(...chapters.map((c) => c.total_tokens || 1), 2000);
   const hasUserFlow = chapters.some((c) => c.user_comprehension !== undefined);
   const flowPct =
     currentCh.user_comprehension?.text_coverage_percentage ??
@@ -46,12 +47,12 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
     <div className="border border-[#E2E2DF] bg-[#F8F8F6] p-4 space-y-3.5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="font-mono text-xs uppercase tracking-wider text-[#111111] font-semibold">
-          CHAPTER PACING & DUAL COVERAGE ({chapters.length} CHAPTERS)
+          {unitUpper} PACING & DUAL COVERAGE ({chapters.length} {unitUpper}S)
         </div>
         <div className="flex flex-wrap items-center gap-4 font-mono text-[11px] text-[#555555]">
           <span className="inline-flex items-center gap-1.5">
             <span className="inline-block w-2.5 h-2.5 bg-white border border-[#111111]" />
-            Outline Height = Chapter Length
+            Outline Height = {isEpisode ? "Episode" : "Chapter"} Length
           </span>
           {hasUserFlow && (
             <span className="inline-flex items-center gap-1.5">
@@ -59,7 +60,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
               Solid Ink Fill = Known Flow %
             </span>
           )}
-          <span className="text-[#777777]">· Click chapter to filter table</span>
+          <span className="text-[#777777]">· Click {unitShort.toLowerCase()} to filter table</span>
         </div>
       </div>
 
@@ -74,8 +75,8 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
           }`}
         >
           <span className="font-mono text-[10px] font-bold">ALL</span>
-          <span className="font-mono text-xs font-bold leading-tight">Full Book</span>
-          <span className="font-mono text-[10px] text-[#555555]">{chapters.length} ch</span>
+          <span className="font-mono text-xs font-bold leading-tight">{isEpisode ? "Full Season" : "Full Book"}</span>
+          <span className="font-mono text-[10px] text-[#555555]">{chapters.length} {unitShort.toLowerCase()}</span>
         </button>
 
         {chapters.map((ch) => {
@@ -95,7 +96,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
               key={ch.id}
               type="button"
               onClick={() => onSelectChapter(active ? "all" : ch.chapter_index)}
-              title={`Chapter ${ch.chapter_index}: ${ch.chapter_title} (${formatNumber(ch.total_tokens)} words${chFlow !== null ? ` · ${chFlow.toFixed(1)}% reading flow` : ""})`}
+              title={`${ch.chapter_title} (${formatNumber(ch.total_tokens)} words${chFlow !== null ? ` · ${chFlow.toFixed(1)}% flow` : ""})`}
               className={`w-24 shrink-0 border p-2.5 text-left transition-all cursor-pointer ${
                 active
                   ? "border-[#111111] bg-[#B8FF01]"
@@ -103,7 +104,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
               }`}
             >
               <div className="flex items-center justify-between font-mono text-[10px]">
-                <span className="font-bold">CH.{ch.chapter_index}</span>
+                <span className="font-bold">{unitShort}.{ch.chapter_index}</span>
                 <span>{ch.cefr_level || "B1"}</span>
               </div>
               <div className="h-11 flex items-end mt-2 mb-1.5 border-b border-[#111111] px-1">
@@ -133,7 +134,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
       <div className="border-t border-[#E2E2DF] pt-2.5 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
         <div>
           <span className="font-bold text-[#111111]">
-            Chapter {currentCh.chapter_index}: {currentCh.chapter_title}
+            {isEpisode ? currentCh.chapter_title : `Chapter ${currentCh.chapter_index}: ${currentCh.chapter_title}`}
           </span>
           <span className="text-[#666666] ml-2">
             · {formatNumber(currentCh.total_tokens)} tokens · {formatNumber(currentCh.unique_words_count)} lemmas

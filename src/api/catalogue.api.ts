@@ -16,6 +16,7 @@ const BASE_CATALOGUE_SELECT = `
   cover_image_url,
   release_year,
   synopsis,
+  media_work(series_name, series_order),
   media_metrics(*)
 `;
 
@@ -77,6 +78,10 @@ export async function fetchBaseCatalogueItems(): Promise<MediaCatalogItem[]> {
       ? row.media_metrics[0] || null
       : row.media_metrics || null;
 
+    const work = Array.isArray(row.media_work)
+      ? row.media_work[0] || null
+      : row.media_work || null;
+
     return {
       id: row.id,
       type: row.type,
@@ -86,6 +91,11 @@ export async function fetchBaseCatalogueItems(): Promise<MediaCatalogItem[]> {
       format: row.format || "epub",
       cover_image_url: row.cover_image_url || null,
       release_year: row.release_year || null,
+      series_name: work?.series_name || null,
+      series_order:
+        work?.series_order !== null && work?.series_order !== undefined
+          ? Number(work.series_order)
+          : null,
       metrics,
       comprehension: null,
       previewWords: [],

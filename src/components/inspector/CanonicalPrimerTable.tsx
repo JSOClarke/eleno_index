@@ -47,6 +47,7 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const slice = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const isEpisodeMode = /^\d+x\d+/i.test(words[0]?.first_context_snippet || "");
 
   return (
     <div className="space-y-3">
@@ -65,27 +66,20 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
               onClick={onClearChapter}
               className="bg-[#B8FF01] text-[#111111] border border-[#111111] px-2.5 py-1 font-mono text-xs font-semibold cursor-pointer"
             >
-              Debut in CH.{selectedChapter} ×
+              Debut in {isEpisodeMode ? `EP.${selectedChapter}` : `CH.${selectedChapter}`} ×
             </button>
           )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
           <div className="flex items-center border border-[#111111]">
-            {(
-              [
-                ["tubelex_v2025", "TUBELEX"],
-                ["elelex_v2020", "ELELEX"],
-              ] as const
-            ).map(([src, label]) => (
+            {([["tubelex_v2025", "TUBELEX"], ["elelex_v2020", "ELELEX"]] as const).map(([src, label]) => (
               <button
                 key={src}
                 type="button"
                 onClick={() => setRankingSource(src)}
                 className={`px-2.5 py-1 cursor-pointer transition-colors ${
-                  rankingSource === src
-                    ? "bg-[#B8FF01] text-[#111111] font-semibold"
-                    : "bg-white text-[#666666] hover:text-[#111111]"
+                  rankingSource === src ? "bg-[#B8FF01] text-[#111111] font-semibold" : "bg-white text-[#666666] hover:text-[#111111]"
                 }`}
               >
                 {label}
@@ -100,9 +94,7 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
                 type="button"
                 onClick={() => { setPosFilter(pos); setPage(1); }}
                 className={`px-2.5 py-1 border cursor-pointer ${
-                  posFilter === pos
-                    ? "border-[#111111] bg-[#111111] text-white"
-                    : "border-[#CCCCCC] bg-white text-[#111111]"
+                  posFilter === pos ? "border-[#111111] bg-[#111111] text-white" : "border-[#CCCCCC] bg-white text-[#111111]"
                 }`}
               >
                 {pos}
@@ -119,10 +111,8 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
           <div className="col-span-1">POS</div>
           <div className="col-span-1">CEFR</div>
           <div className="col-span-1">FREQ</div>
-          <div className="col-span-1">
-            {rankingSource === "tubelex_v2025" ? "TUBELEX" : "ELELEX"}
-          </div>
-          <div className="col-span-2">DEBUT CHAPTER</div>
+          <div className="col-span-1">{rankingSource === "tubelex_v2025" ? "TUBELEX" : "ELELEX"}</div>
+          <div className="col-span-2">{isEpisodeMode ? "DEBUT EPISODE" : "DEBUT CHAPTER"}</div>
           <div className="col-span-2 text-right">ACTIONS</div>
         </div>
 

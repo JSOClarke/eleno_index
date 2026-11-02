@@ -52,10 +52,22 @@ export function getMediaSubtypeLabel(item: MediaCatalogItem): string {
     const durMin = item.metrics?.duration_seconds
       ? Math.round(item.metrics.duration_seconds / 60)
       : null;
-    const label = mType.startsWith("tv") ? "TV EPISODE" : "FILM";
-    if (durMin && item.release_year) return `${label} · ${item.release_year} · ${durMin}M`;
-    if (durMin) return `${label} · ${durMin} MIN`;
-    return `${label} · ${item.release_year || fmt}`;
+    const prefix = item.series_name
+      ? `${item.series_name.toUpperCase()}${item.series_order ? ` S${item.series_order}` : ""}`
+      : mType.startsWith("tv")
+      ? "TV SERIES"
+      : "FILM";
+    if (durMin && item.release_year) return `${prefix} · ${item.release_year} · ${durMin}M`;
+    if (durMin) return `${prefix} · ${durMin} MIN`;
+    return `${prefix} · ${item.release_year || fmt}`;
+  }
+  if (item.series_name) {
+    const orderTag =
+      item.series_order !== null && item.series_order !== undefined
+        ? ` #${Number.isInteger(item.series_order) ? item.series_order : item.series_order}`
+        : "";
+    const yearTag = item.release_year ? ` · ${item.release_year}` : "";
+    return `${item.series_name.toUpperCase()}${orderTag}${yearTag}`;
   }
   if (item.release_year) {
     return `BOOK · ${item.release_year}`;

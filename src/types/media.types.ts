@@ -105,6 +105,8 @@ export interface MediaCatalogItem {
   format: MediaFormat;
   cover_image_url: string | null;
   release_year: number | null;
+  series_name?: string | null;
+  series_order?: number | null;
   metrics: MediaMetrics | null;
   comprehension: MediaComprehensionStats | null;
   previewWords: PreviewWordItem[];
