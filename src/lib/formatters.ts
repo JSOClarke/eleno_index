@@ -40,44 +40,25 @@ export function getMediaCategoryLabel(item: MediaCatalogItem): string {
   if (mType === "movie" || mType.startsWith("tv") || fmt === "srt" || fmt === "vtt") {
     return "Film / Subtitles";
   }
-  const titleLower = item.title.toLowerCase();
-  if (titleLower.includes("cuentos") || titleLower.includes("beedle")) {
-    return "Short story";
-  }
-  if (
-    titleLower.includes("quidditch") ||
-    titleLower.includes("animales fantásticos") ||
-    titleLower.includes("hogwarts")
-  ) {
-    return "Lore / guide";
-  }
-  return "Reader / book";
+  if (mType === "podcast") return "Audio / Podcast";
+  if (mType === "article") return "Article / Text";
+  return "Book / Reader";
 }
 
 export function getMediaSubtypeLabel(item: MediaCatalogItem): string {
   const mType = (item.type || "").toLowerCase();
-  const fmt = (item.format || "").toLowerCase();
-  if (mType === "movie" || mType.startsWith("tv") || fmt === "srt" || fmt === "vtt") {
+  const fmt = (item.format || "epub").toUpperCase();
+  if (mType === "movie" || mType.startsWith("tv") || fmt === "SRT" || fmt === "VTT") {
     const durMin = item.metrics?.duration_seconds
       ? Math.round(item.metrics.duration_seconds / 60)
       : null;
     const label = mType.startsWith("tv") ? "TV EPISODE" : "FILM";
-    return durMin ? `${label} · ${durMin} MIN` : `${label} · SUBTITLES`;
+    if (durMin && item.release_year) return `${label} · ${item.release_year} · ${durMin}M`;
+    if (durMin) return `${label} · ${durMin} MIN`;
+    return `${label} · ${item.release_year || fmt}`;
   }
-  const t = item.title.toLowerCase();
-  if (t.includes("piedra filosofal")) return "NOVEL · VOL. 1";
-  if (t.includes("cámara secreta")) return "NOVEL · VOL. 2";
-  if (t.includes("prisionero de azkaban")) return "NOVEL · VOL. 3";
-  if (t.includes("cáliz de fuego")) return "NOVEL · VOL. 4";
-  if (t.includes("orden del fénix")) return "NOVEL · VOL. 5";
-  if (t.includes("misterio del príncipe")) return "NOVEL · VOL. 6";
-  if (t.includes("reliquias de la muerte")) return "NOVEL · VOL. 7";
-  if (t.includes("legado maldito")) return "STAGE PLAY · VOL. 8";
-  if (t.includes("beedle")) return "FOLKLORE ANTHOLOGY";
-  if (t.includes("quidditch")) return "COMPANION GUIDE";
-  if (t.includes("animales fantásticos")) return "MAGIZOOLOGY GUIDE";
-  if (t.includes("hogwarts")) return "POTTERMORE PRESENTS";
-  if (t.includes("vacante")) return "CONTEMPORARY NOVEL";
-  if (t.includes("cuco")) return "DETECTIVE NOVEL";
-  return `${item.format?.toUpperCase() || "EPUB"} · CORPUS`;
+  if (item.release_year) {
+    return `BOOK · ${item.release_year}`;
+  }
+  return `BOOK · ${fmt}`;
 }

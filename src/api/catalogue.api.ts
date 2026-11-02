@@ -81,7 +81,7 @@ export async function fetchBaseCatalogueItems(): Promise<MediaCatalogItem[]> {
       id: row.id,
       type: row.type,
       title: row.title,
-      creator: row.creator || "J.K. Rowling",
+      creator: row.creator || "Unknown Creator",
       language: row.language || "es",
       format: row.format || "epub",
       cover_image_url: row.cover_image_url || null,
@@ -92,7 +92,9 @@ export async function fetchBaseCatalogueItems(): Promise<MediaCatalogItem[]> {
       sampleSnippet:
         row.synopsis ||
         "«Texto auténtico indexado en el banco de oraciones del corpus español.»",
-      sampleSourceLabel: "CORPUS ARCHIVE · VERIFIED",
+      sampleSourceLabel: row.synopsis
+        ? `SYNOPSIS · ${String(row.format || "MEDIA").toUpperCase()}`
+        : "CORPUS ARCHIVE",
     };
   });
 }

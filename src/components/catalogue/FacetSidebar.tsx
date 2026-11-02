@@ -34,12 +34,7 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
     count: counts.levels[lvl] || 0,
   }));
 
-  const typeOptions = [
-    "Reader / book",
-    "Film / Subtitles",
-    "Short story",
-    "Lore / guide",
-  ].map((t) => ({
+  const typeOptions = ["Book / Reader", "Film / Subtitles"].map((t) => ({
     id: t,
     label: t,
     count: counts.types[t] || 0,
