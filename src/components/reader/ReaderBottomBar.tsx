@@ -22,14 +22,14 @@ export const ReaderBottomBar: React.FC<ReaderBottomBarProps> = ({
         onClick={onPrev}
         className="flex items-center gap-1 hover:underline disabled:opacity-40"
       >
-        ← Anterior
+        ← Previous
       </button>
       <div className="flex items-center gap-3">
         <span className="text-[#666666]">
-          Capítulo {chapterIndex} de {totalChapters}
+          Chapter {chapterIndex} of {totalChapters}
         </span>
         <span className="text-[#CCCCCC]">·</span>
-        <span className="font-bold tabular-nums">{percentage}% leído</span>
+        <span className="font-bold tabular-nums">{percentage}% read</span>
         <div className="hidden h-2 w-20 border border-[#111111] bg-white sm:flex overflow-hidden">
           <div className="h-full bg-[#111111]" style={{ width: `${percentage}%` }} />
         </div>
@@ -39,7 +39,7 @@ export const ReaderBottomBar: React.FC<ReaderBottomBarProps> = ({
         onClick={onNext}
         className="flex items-center gap-1 hover:underline disabled:opacity-40"
       >
-        Siguiente →
+        Next →
       </button>
     </div>
   </footer>

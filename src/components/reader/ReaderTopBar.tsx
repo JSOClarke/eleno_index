@@ -52,7 +52,7 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
           >
             {chapters.map((ch) => (
               <option key={ch.index} value={ch.index}>
-                Cap. {ch.index}: {ch.title} ({ch.token_count.toLocaleString()}w)
+                Ch. {ch.index}: {ch.title} ({ch.token_count.toLocaleString()}w)
               </option>
             ))}
           </select>

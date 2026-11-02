@@ -7,9 +7,9 @@ interface ReaderCanvasProps {
   blocks: ElenoReaderBlock[];
   lexicon: ElenoLexiconEntry[];
   statusMap: Record<string, UserVocabStatus>;
-  chapterTitle: string;
-  chapterIndex: number;
-  creator: string;
+  chapterTitle?: string;
+  chapterIndex?: number;
+  creator?: string;
   fontSize: number;
   showRuby: boolean;
   showIPlusOne: boolean;
@@ -35,9 +35,6 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
   blocks,
   lexicon,
   statusMap,
-  chapterTitle,
-  chapterIndex,
-  creator,
   fontSize,
   showRuby,
   showIPlusOne,
@@ -45,22 +42,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
   onSelectToken,
 }) => {
   return (
-    <article className="max-w-[740px] mx-auto select-text pb-28">
-      <div className="mb-10 pb-5 border-b-2 border-[#111111]">
-        <div className="flex items-center justify-between font-mono text-xs text-[#666666] uppercase tracking-wider mb-2">
-          <span>CAPÍTULO {String(chapterIndex).padStart(2, "0")}</span>
-          <span>{blocks.length} PÁRRAFOS</span>
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-bold font-serif text-[#111111] tracking-tight">
-          {chapterTitle}
-        </h1>
-        <div className="mt-3 flex items-center gap-2 font-mono text-xs text-[#555555]">
-          <span>{creator}</span>
-          <span>·</span>
-          <span className="bg-[#B8FF01] text-[#111111] font-bold px-1.5 border border-[#111111]">ESPAÑOL</span>
-        </div>
-      </div>
-
+    <article className="max-w-[740px] mx-auto select-text pt-4 pb-28">
       {blocks.map((block, bIdx) => {
         const isHeading = block.type === "h1" || block.type === "h2" || block.type === "h3";
         let wrapperClass = "mb-6 font-serif leading-[1.9] text-[#111111]";
