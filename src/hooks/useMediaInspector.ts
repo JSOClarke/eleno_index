@@ -114,12 +114,11 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
 
   const handleOptimisticWordChange = useCallback(
     (word: VocabularyWord, newStatus: UserVocabStatus | null, oldStatus?: UserVocabStatus) => {
-      const wasKnown = oldStatus === "known";
-      const isNowKnown = newStatus === "known";
-      if (wasKnown === isNowKnown) return;
-      const delta = isNowKnown ? 1 : -1;
+      if (oldStatus === newStatus) return;
 
-      setBookComp((prev) => applyOptimisticBookDelta(prev, item.metrics, delta, word.frequency));
+      setBookComp((prev) =>
+        applyOptimisticBookDelta(prev, item.metrics, word.frequency, newStatus, oldStatus)
+      );
 
       if (userId) {
         if (syncTimerRef.current) clearTimeout(syncTimerRef.current);

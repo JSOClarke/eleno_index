@@ -73,10 +73,7 @@ export function useCatalogueData(userId?: string | null, authLoading = false) {
       newStatus: UserVocabStatus | null,
       oldStatus: UserVocabStatus | undefined
     ) => {
-      const wasKnown = oldStatus === "known";
-      const isNowKnown = newStatus === "known";
-      if (wasKnown === isNowKnown) return;
-      const wordsDelta = isNowKnown ? 1 : -1;
+      if (oldStatus === newStatus) return;
 
       setItems((prev) => {
         const next = prev.map((item) =>
@@ -87,8 +84,9 @@ export function useCatalogueData(userId?: string | null, authLoading = false) {
                 comprehension: applyOptimisticBookDelta(
                   item.comprehension,
                   item.metrics,
-                  wordsDelta,
-                  wordFrequency
+                  wordFrequency,
+                  newStatus,
+                  oldStatus
                 ),
               }
         );

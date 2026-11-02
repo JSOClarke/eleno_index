@@ -52,10 +52,14 @@ export interface MediaComprehensionStats {
   media_item_id: string;
   total_words: number;
   known_words: number;
+  learning_words?: number;
   comprehension_percentage: number;
+  learning_percentage?: number;
   total_tokens: number;
   known_tokens: number;
+  learning_tokens?: number;
   text_coverage_percentage: number;
+  learning_text_coverage_percentage?: number;
 }
 
 export interface ChapterComprehensionStats {
@@ -63,10 +67,14 @@ export interface ChapterComprehensionStats {
   chapter_title: string;
   total_words: number;
   known_words: number;
+  learning_words?: number;
   chapter_comprehension_percentage: number;
+  learning_percentage?: number;
   total_tokens: number;
   known_tokens: number;
+  learning_tokens?: number;
   text_coverage_percentage: number | null;
+  learning_text_coverage_percentage?: number | null;
   new_words_count: number;
   known_new_words: number;
 }

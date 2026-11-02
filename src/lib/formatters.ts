@@ -28,6 +28,13 @@ export function formatPercent(val: number | null | undefined, decimals = 1): str
   return `${toPercentNumber(val).toFixed(decimals)}%`;
 }
 
+export function formatLearningDelta(pct: number | null | undefined): string {
+  if (!pct || pct <= 0) return "";
+  if (pct < 0.1) return "+<0.1%";
+  if (pct < 1) return `+${pct.toFixed(1)}%`;
+  return `+${Math.round(pct)}%`;
+}
+
 export function getLengthBucket(tokens: number): LengthBucket {
   if (tokens < 25000) return "under25k";
   if (tokens <= 80000) return "25to80k";

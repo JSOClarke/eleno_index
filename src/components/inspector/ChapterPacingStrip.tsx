@@ -1,5 +1,5 @@
 import React from "react";
-import { formatCompactWords, formatNumber, formatPercent } from "@/lib/formatters";
+import { formatCompactWords, formatLearningDelta, formatNumber, formatPercent } from "@/lib/formatters";
 import type { MediaChapterMetrics } from "@/types/media.types";
 
 interface ChapterPacingStripProps {
@@ -42,6 +42,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
     currentCh.user_comprehension?.text_coverage_percentage ??
     currentCh.user_comprehension?.chapter_comprehension_percentage ??
     null;
+  const learnFlowPct = currentCh.user_comprehension?.learning_text_coverage_percentage ?? 0;
 
   return (
     <div className="border border-[#E2E2DF] bg-[#F8F8F6] p-4 space-y-3.5">
@@ -52,15 +53,20 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
         <div className="flex flex-wrap items-center gap-4 font-mono text-[11px] text-[#555555]">
           <span className="inline-flex items-center gap-1.5">
             <span className="inline-block w-2.5 h-2.5 bg-white border border-[#111111]" />
-            Outline Height = {isEpisode ? "Episode" : "Chapter"} Length
+            Outline = {isEpisode ? "Episode" : "Chapter"} Length
           </span>
           {hasUserFlow && (
-            <span className="inline-flex items-center gap-1.5">
-              <span className="inline-block w-2.5 h-2.5 bg-[#111111]" />
-              Solid Ink Fill = Known Flow %
-            </span>
+            <>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block w-2.5 h-2.5 bg-[#111111]" />
+                Ink = Known %
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block w-2.5 h-2.5 bg-[#B8FF01] border border-[#111111]" />
+                Volt Cap = Learning %
+              </span>
+            </>
           )}
-          <span className="text-[#777777]">· Click {unitShort.toLowerCase()} to filter table</span>
         </div>
       </div>
 
@@ -69,9 +75,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
           type="button"
           onClick={() => onSelectChapter("all")}
           className={`w-20 shrink-0 border p-2.5 flex flex-col justify-between text-left transition-all cursor-pointer ${
-            selectedChapter === "all"
-              ? "border-[#111111] bg-[#B8FF01]"
-              : "border-[#E2E2DF] bg-white hover:border-[#111111]"
+            selectedChapter === "all" ? "border-[#111111] bg-[#B8FF01]" : "border-[#E2E2DF] bg-white hover:border-[#111111]"
           }`}
         >
           <span className="font-mono text-[10px] font-bold">ALL</span>
@@ -81,30 +85,24 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
 
         {chapters.map((ch) => {
           const active = selectedChapter === ch.chapter_index;
-          const lengthHeightPct = Math.min(
-            100,
-            Math.max(22, Math.round(((ch.total_tokens || 0) / maxTokens) * 100))
-          );
-          const chFlow =
-            ch.user_comprehension?.text_coverage_percentage ??
-            ch.user_comprehension?.chapter_comprehension_percentage ??
-            null;
-          const fillPct = chFlow !== null ? Math.min(100, Math.max(0, Math.round(chFlow))) : 100;
+          const lengthHeightPct = Math.min(100, Math.max(22, Math.round(((ch.total_tokens || 0) / maxTokens) * 100)));
+          const chFlow = ch.user_comprehension?.text_coverage_percentage ?? ch.user_comprehension?.chapter_comprehension_percentage ?? null;
+          const chLearn = ch.user_comprehension?.learning_text_coverage_percentage ?? ch.user_comprehension?.learning_percentage ?? 0;
+          const knownFillPct = chFlow !== null ? Math.min(100, Math.max(0, chFlow)) : 100;
+          const learnFillPct = chFlow !== null ? Math.min(100 - knownFillPct, Math.max(0, chLearn)) : 0;
 
           return (
             <button
               key={ch.id}
               type="button"
               onClick={() => onSelectChapter(active ? "all" : ch.chapter_index)}
-              title={`${ch.chapter_title} (${formatNumber(ch.total_tokens)} words${chFlow !== null ? ` · ${chFlow.toFixed(1)}% flow` : ""})`}
+              title={`${ch.chapter_title} (${formatNumber(ch.total_tokens)} words${chFlow !== null ? ` · ${chFlow.toFixed(1)}% known + ${chLearn.toFixed(1)}% learning` : ""})`}
               className={`w-24 shrink-0 border p-2.5 text-left transition-all cursor-pointer ${
-                active
-                  ? "border-[#111111] bg-[#B8FF01]"
-                  : "border-[#E2E2DF] bg-white hover:border-[#111111]"
+                active ? "border-[#111111] bg-[#EAEAE5] shadow-[2px_2px_0px_#111111]" : "border-[#E2E2DF] bg-white hover:border-[#111111]"
               }`}
             >
               <div className="flex items-center justify-between font-mono text-[10px]">
-                <span className="font-bold">{unitShort}.{ch.chapter_index}</span>
+                <span className={`font-bold ${active ? "bg-[#B8FF01] px-1 border border-[#111111]" : ""}`}>{unitShort}.{ch.chapter_index}</span>
                 <span>{ch.cefr_level || "B1"}</span>
               </div>
               <div className="h-11 flex items-end mt-2 mb-1.5 border-b border-[#111111] px-1">
@@ -112,10 +110,10 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
                   className="w-full bg-white border border-b-0 border-[#111111] flex flex-col justify-end overflow-hidden transition-all"
                   style={{ height: `${lengthHeightPct}%` }}
                 >
-                  <div
-                    className="w-full bg-[#111111] transition-all"
-                    style={{ height: `${fillPct}%` }}
-                  />
+                  {learnFillPct > 0 && (
+                    <div className="w-full bg-[#B8FF01] border-t border-[#111111]/40 transition-all" style={{ height: `${Math.max(learnFillPct, 4)}%` }} />
+                  )}
+                  <div className="w-full bg-[#111111] transition-all" style={{ height: `${knownFillPct}%` }} />
                 </div>
               </div>
               <div className="flex items-center justify-between font-mono text-[10px] tabular-nums">
@@ -123,7 +121,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
                   {chFlow !== null ? `${Math.round(chFlow)}%` : formatCompactWords(ch.total_tokens).replace(" words", "")}
                 </span>
                 <span className="text-[#666666]">
-                  {chFlow !== null ? formatCompactWords(ch.total_tokens).replace(" words", "") : "tok"}
+                  {chLearn > 0 ? formatLearningDelta(chLearn) : chFlow !== null ? formatCompactWords(ch.total_tokens).replace(" words", "") : "tok"}
                 </span>
               </div>
             </button>
@@ -133,17 +131,13 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
 
       <div className="border-t border-[#E2E2DF] pt-2.5 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
         <div>
-          <span className="font-bold text-[#111111]">
-            {isEpisode ? currentCh.chapter_title : `Chapter ${currentCh.chapter_index}: ${currentCh.chapter_title}`}
-          </span>
-          <span className="text-[#666666] ml-2">
-            · {formatNumber(currentCh.total_tokens)} tokens · {formatNumber(currentCh.unique_words_count)} lemmas
-          </span>
+          <span className="font-bold text-[#111111]">{isEpisode ? currentCh.chapter_title : `Chapter ${currentCh.chapter_index}: ${currentCh.chapter_title}`}</span>
+          <span className="text-[#666666] ml-2">· {formatNumber(currentCh.total_tokens)} tokens · {formatNumber(currentCh.unique_words_count)} lemmas</span>
         </div>
         <div className="flex items-center gap-4">
           <span>F-H: <strong>{(currentCh.readability_score || 70).toFixed(1)}</strong></span>
           <span>Dialogue: <strong>{formatPercent(currentCh.dialogue_ratio, 1)}</strong></span>
-          {flowPct !== null && <span>Reading Flow: <strong>{flowPct.toFixed(1)}%</strong></span>}
+          {flowPct !== null && <span>Flow: <strong>{flowPct.toFixed(1)}%</strong>{learnFlowPct > 0 ? ` (${formatLearningDelta(learnFlowPct)} learning)` : ""}</span>}
         </div>
       </div>
     </div>

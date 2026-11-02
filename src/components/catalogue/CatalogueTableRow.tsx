@@ -27,11 +27,11 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
   const fh = Math.round(m?.readability_score || 70);
-  const flowPct = Math.round(
+  const flowPct =
     item.comprehension?.text_coverage_percentage ??
-      item.comprehension?.comprehension_percentage ??
-      0
-  );
+    item.comprehension?.comprehension_percentage ??
+    0;
+  const learnFlowPct = item.comprehension?.learning_text_coverage_percentage ?? 0;
 
   return (
     <div>
@@ -74,15 +74,15 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
 
         <div className="col-span-2 text-xs truncate">{item.creator}</div>
 
-        <div className="col-span-2 flex items-center gap-2.5">
-          <div className="w-24 h-2 border border-[#111111] bg-white overflow-hidden">
-            <div
-              className="h-full bg-[#111111] transition-all duration-200"
-              style={{ width: `${flowPct}%` }}
-            />
+        <div className="col-span-2 flex items-center gap-2.5" title={learnFlowPct > 0 ? `${flowPct.toFixed(1)}% known + ${learnFlowPct.toFixed(1)}% learning` : `${flowPct.toFixed(1)}% known`}>
+          <div className="w-24 h-2 border border-[#111111] bg-white overflow-hidden flex">
+            <div className="h-full bg-[#111111] transition-all duration-200" style={{ width: `${Math.min(100, flowPct)}%` }} />
+            {learnFlowPct > 0 && (
+              <div className="h-full bg-[#B8FF01] border-l border-[#111111]/40 transition-all duration-200" style={{ width: `${Math.min(100 - flowPct, Math.max(learnFlowPct, 3))}%` }} />
+            )}
           </div>
           <span className="font-mono text-xs font-medium tabular-nums">
-            {flowPct}%
+            {Math.round(flowPct)}%
           </span>
         </div>
 

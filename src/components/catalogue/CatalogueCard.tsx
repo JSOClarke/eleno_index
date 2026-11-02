@@ -1,11 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
-import {
-  formatCompactWords,
-  formatPercent,
-  getMediaSubtypeLabel,
-} from "@/lib/formatters";
+import { formatCompactWords, formatLearningDelta, formatPercent, getMediaSubtypeLabel } from "@/lib/formatters";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
@@ -31,11 +27,8 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
   const fh = Math.round(m?.readability_score || 70);
-  const flowPct = Math.round(
-    item.comprehension?.text_coverage_percentage ??
-      item.comprehension?.comprehension_percentage ??
-      0
-  );
+  const flowPct = item.comprehension?.text_coverage_percentage ?? item.comprehension?.comprehension_percentage ?? 0;
+  const learnFlowPct = item.comprehension?.learning_text_coverage_percentage ?? 0;
   const vocabPct = Math.round(item.comprehension?.comprehension_percentage ?? 0);
   const wpm = m?.words_per_minute ? Math.round(m.words_per_minute) : null;
   const dialOrSpeedLabel = wpm ? `${wpm} WPM` : `${formatPercent(m?.dialogue_ratio, 1)} dialogue`;
@@ -60,12 +53,8 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
             <span>{item.creator}</span>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
-            <span className="px-1.5 py-0.2 border border-[#111111] text-[#111111] font-bold bg-white">
-              {level}
-            </span>
-            <span className="px-1.5 py-0.2 border border-[#111111]/30 text-[#111111]">
-              F-H {fh}
-            </span>
+            <span className="px-1.5 py-0.2 border border-[#111111] text-[#111111] font-bold bg-white">{level}</span>
+            <span className="px-1.5 py-0.2 border border-[#111111]/30 text-[#111111]">F-H {fh}</span>
           </div>
         </div>
 
@@ -87,11 +76,16 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
               </div>
               <div className="bg-[#F4F4F2] border border-[#E2E2DF] p-2.5 space-y-1.5">
                 <div className="flex items-center justify-between font-mono text-xs">
-                  <span className="text-[#555555]">KNOWN WORDS</span>
-                  <span className="font-bold text-[#111111] tabular-nums">{flowPct}% ({vocabPct}% voc)</span>
+                  <span className="text-[#555555]">KNOWN FLOW</span>
+                  <span className="font-bold text-[#111111] tabular-nums">
+                    {Math.round(flowPct)}%{learnFlowPct > 0 ? ` ${formatLearningDelta(learnFlowPct)}` : ""} ({vocabPct}% voc)
+                  </span>
                 </div>
-                <div className="w-full h-2 border border-[#111111] bg-white overflow-hidden">
-                  <div className="h-full bg-[#111111] transition-all duration-200" style={{ width: `${flowPct}%` }} />
+                <div className="w-full h-2 border border-[#111111] bg-white overflow-hidden flex">
+                  <div className="h-full bg-[#111111] transition-all duration-200" style={{ width: `${Math.min(100, flowPct)}%` }} />
+                  {learnFlowPct > 0 && (
+                    <div className="h-full bg-[#B8FF01] border-l border-[#111111]/40 transition-all duration-200" style={{ width: `${Math.min(100 - flowPct, Math.max(learnFlowPct, 2))}%` }} />
+                  )}
                 </div>
               </div>
             </div>

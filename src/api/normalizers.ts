@@ -6,31 +6,61 @@ import type {
 import type { LexicalRanking, VocabularyWord } from "@/types/vocabulary.types";
 
 export function normalizeMediaComprehension(raw: any): MediaComprehensionStats {
+  const totalWords = Number(raw.total_words || 0);
+  const learningWords = Number(raw.learning_words || 0);
+  const totalTokens = Number(raw.total_tokens || 0);
+  const learningTokens = Number(raw.learning_tokens || 0);
   const vocabPct = Number(raw.comprehension_percentage || 0);
+  const learnPct =
+    totalWords > 0 ? (learningWords / totalWords) * 100 : Number(raw.learning_percentage || 0);
+  const learnFlowPct =
+    totalTokens > 0
+      ? (learningTokens / totalTokens) * 100
+      : Number(raw.learning_text_coverage_percentage ?? learnPct);
+
   return {
     media_item_id: String(raw.media_item_id || ""),
-    total_words: Number(raw.total_words || 0),
+    total_words: totalWords,
     known_words: Number(raw.known_words || 0),
+    learning_words: learningWords,
     comprehension_percentage: vocabPct,
-    total_tokens: Number(raw.total_tokens || 0),
+    learning_percentage: learnPct,
+    total_tokens: totalTokens,
     known_tokens: Number(raw.known_tokens || 0),
+    learning_tokens: learningTokens,
     text_coverage_percentage: Number(raw.text_coverage_percentage ?? vocabPct),
+    learning_text_coverage_percentage: learnFlowPct,
   };
 }
 
 export function normalizeChapterComprehension(raw: any): ChapterComprehensionStats {
+  const totalWords = Number(raw.total_words || 0);
+  const learningWords = Number(raw.learning_words || 0);
+  const totalTokens = Number(raw.total_tokens || 0);
+  const learningTokens = Number(raw.learning_tokens || 0);
+  const learnPct =
+    totalWords > 0 ? (learningWords / totalWords) * 100 : Number(raw.learning_percentage || 0);
+  const learnFlowPct =
+    totalTokens > 0
+      ? (learningTokens / totalTokens) * 100
+      : Number(raw.learning_text_coverage_percentage ?? learnPct);
+
   return {
     chapter_index: Number(raw.chapter_index),
     chapter_title: raw.chapter_title || `Chapter ${raw.chapter_index}`,
-    total_words: Number(raw.total_words || 0),
+    total_words: totalWords,
     known_words: Number(raw.known_words || 0),
+    learning_words: learningWords,
     chapter_comprehension_percentage: Number(raw.chapter_comprehension_percentage || 0),
-    total_tokens: Number(raw.total_tokens || 0),
+    learning_percentage: learnPct,
+    total_tokens: totalTokens,
     known_tokens: Number(raw.known_tokens || 0),
+    learning_tokens: learningTokens,
     text_coverage_percentage:
       raw.text_coverage_percentage !== null && raw.text_coverage_percentage !== undefined
         ? Number(raw.text_coverage_percentage)
         : null,
+    learning_text_coverage_percentage: learnFlowPct,
     new_words_count: Number(raw.new_words_count || 0),
     known_new_words: Number(raw.known_new_words || 0),
   };

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import {
   formatCompactWords,
+  formatLearningDelta,
   formatPercent,
   getMediaSubtypeLabel,
 } from "@/lib/formatters";
@@ -26,12 +27,10 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   const wpm = m?.words_per_minute ? Math.round(m.words_per_minute) : null;
   const dialOrWpm = wpm ? `${wpm} WPM` : `Dial ${formatPercent(m?.dialogue_ratio, 1)}`;
 
-  const flowPct = Math.round(
-    comprehension?.text_coverage_percentage ??
-      comprehension?.comprehension_percentage ??
-      0
-  );
-  const vocabPct = Math.round(comprehension?.comprehension_percentage ?? 0);
+  const flowPct = comprehension?.text_coverage_percentage ?? comprehension?.comprehension_percentage ?? 0;
+  const learnFlowPct = comprehension?.learning_text_coverage_percentage ?? 0;
+  const vocabPct = comprehension?.comprehension_percentage ?? 0;
+  const learnVocabPct = comprehension?.learning_percentage ?? 0;
 
   return (
     <div className="space-y-4">
@@ -78,14 +77,19 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
             <div className="font-mono text-xs text-[#666666] uppercase">
               01 / READING FLOW
             </div>
-            <div className="text-3xl font-bold font-mono tabular-nums mt-1">
-              {flowPct}%
+            <div className="flex items-baseline gap-2 mt-1">
+              <span className="text-3xl font-bold font-mono tabular-nums">{Math.round(flowPct)}%</span>
+              {learnFlowPct > 0 && (
+                <span className="font-mono text-xs font-semibold px-1.5 py-0.5 bg-[#B8FF01] border border-[#111111]">
+                  {formatLearningDelta(learnFlowPct)} learn
+                </span>
+              )}
             </div>
-            <div className="w-full h-2 border border-[#111111] bg-white mt-2">
-              <div
-                className="h-full bg-[#111111] transition-all duration-200"
-                style={{ width: `${flowPct}%` }}
-              />
+            <div className="w-full h-2.5 border border-[#111111] bg-white mt-2 flex overflow-hidden">
+              <div className="h-full bg-[#111111] transition-all duration-200" style={{ width: `${Math.min(100, flowPct)}%` }} />
+              {learnFlowPct > 0 && (
+                <div className="h-full bg-[#B8FF01] border-l border-[#111111]/40 transition-all duration-200" style={{ width: `${Math.min(100 - flowPct, Math.max(learnFlowPct, 1.5))}%` }} />
+              )}
             </div>
             <div className="font-mono text-xs text-[#666666] mt-1.5">
               {formatCompactWords(m?.total_tokens || 0)} total
@@ -96,14 +100,19 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
             <div className="font-mono text-xs text-[#666666] uppercase">
               02 / VOCAB MASTERY
             </div>
-            <div className="text-3xl font-bold font-mono tabular-nums mt-1">
-              {vocabPct}%
+            <div className="flex items-baseline gap-2 mt-1">
+              <span className="text-3xl font-bold font-mono tabular-nums">{Math.round(vocabPct)}%</span>
+              {learnVocabPct > 0 && (
+                <span className="font-mono text-xs font-semibold px-1.5 py-0.5 bg-[#B8FF01] border border-[#111111]">
+                  {formatLearningDelta(learnVocabPct)} learn
+                </span>
+              )}
             </div>
-            <div className="w-full h-2 border border-[#111111] bg-white mt-2">
-              <div
-                className="h-full bg-[#B8FF01] transition-all duration-200"
-                style={{ width: `${vocabPct}%` }}
-              />
+            <div className="w-full h-2.5 border border-[#111111] bg-white mt-2 flex overflow-hidden">
+              <div className="h-full bg-[#111111] transition-all duration-200" style={{ width: `${Math.min(100, vocabPct)}%` }} />
+              {learnVocabPct > 0 && (
+                <div className="h-full bg-[#B8FF01] border-l border-[#111111]/40 transition-all duration-200" style={{ width: `${Math.min(100 - vocabPct, Math.max(learnVocabPct, 1.5))}%` }} />
+              )}
             </div>
             <div className="font-mono text-xs text-[#666666] mt-1.5">
               F-H {fh} · {dialOrWpm}

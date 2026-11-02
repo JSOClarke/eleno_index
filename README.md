@@ -54,7 +54,7 @@ src/
    - Expandable **Inline Preview Drawer** showing synopsis, top unknown content lemmas (`get_user_media_preview_words`), and 1-click `Mark Known`.
 2. **Media Details Inspector (`/media/:mediaId`)**:
    - **Linguistic Profile Row**: Adaptive metrics for Books (`Dialogue Ratio`, `Coverage 90%/95%/98%`, `Verb Profile`) vs Movies & TV Series (`Speaking Speed WPM`, `Speech Density %`, `Active Speaking Time / Total Runtime`).
-   - **Chapter / Episode Pacing Strip**: Interactive bar chart where outline height = chapter/episode length and solid fill = user reading flow %. Clicking any bar filters the Canonical Primer Table to words debuting in that chapter/episode.
+   - **Chapter / Episode Pacing Strip**: Interactive cumulative stacked bar chart where outline height = chapter/episode length, solid ink (`#111111`) = Known Flow %, and stacked volt cap (`#B8FF01`) = Learning Flow %. Clicking any bar filters the Canonical Primer Table to words debuting in that chapter/episode.
    - **Canonical Primer Table**:
      - Filter by word state (`ALL`, `UNKNOWN`, `LEARNING`, `KNOWN`), `POS`, and search query.
      - Sort by `LEMMA`, `POS`, `CEFR`, `FREQ`, `TUBELEX / ELELEX` rank, or `DEBUT CHAPTER / EPISODE`.
