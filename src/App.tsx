@@ -69,7 +69,7 @@ export const App: React.FC = () => {
                 userId={auth.user?.id}
                 statusMap={userVocab.statusMap}
                 knownCount={userVocab.knownCount}
-                onRemoveWord={(canonicalId) => userVocab.setWordStatus(canonicalId, null)}
+                onSetWordStatus={userVocab.setWordStatus}
               />
             }
           />

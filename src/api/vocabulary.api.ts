@@ -51,7 +51,7 @@ export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordE
     `
     )
     .eq("user_id", userId)
-    .eq("status", "known")
+    .in("status", ["known", "learning"])
     .order("updated_at", { ascending: false })
     .range(0, 1999);
 

@@ -10,11 +10,11 @@ interface CachedKnownDetails {
 const memoryCache = new Map<string, CachedKnownDetails>();
 
 export function buildKnownSignature(statusMap: Record<string, UserVocabStatus>): string {
-  const knownIds = Object.entries(statusMap)
-    .filter(([, s]) => s === "known")
-    .map(([id]) => id)
+  const tracked = Object.entries(statusMap)
+    .filter(([, s]) => s === "known" || s === "learning")
+    .map(([id, s]) => `${id}:${s}`)
     .sort();
-  return `${knownIds.length}:${knownIds.slice(0, 15).join(",")}:${knownIds.slice(-15).join(",")}`;
+  return `${tracked.length}:${tracked.slice(0, 15).join(",")}:${tracked.slice(-15).join(",")}`;
 }
 
 export function readKnownDetailsCache(

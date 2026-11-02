@@ -58,13 +58,13 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
     });
   };
 
-  const handleToggleWord = (word: VocabularyWord) => {
+  const handleChangeWordStatus = (word: VocabularyWord, targetStatus: UserVocabStatus) => {
     if (!userId) {
       onRequireAuth();
       return;
     }
     const oldStatus = statusMap[word.canonical_id];
-    const newStatus: UserVocabStatus | null = oldStatus === "known" ? null : "known";
+    const newStatus: UserVocabStatus | null = oldStatus === targetStatus ? null : targetStatus;
 
     onSetWordStatus(word.canonical_id, newStatus);
     inspector.handleOptimisticWordChange(word, newStatus, oldStatus);
@@ -131,7 +131,7 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
             selectedChapter={selectedChapter}
             onClearChapter={() => setSelectedChapter("all")}
             statusMap={statusMap}
-            onToggleWord={handleToggleWord}
+            onChangeWordStatus={handleChangeWordStatus}
           />
         ) : (
           <QuarantineGrid

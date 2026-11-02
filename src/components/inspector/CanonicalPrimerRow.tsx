@@ -3,22 +3,22 @@ import { Quote } from "lucide-react";
 import { fetchWordSentences, type WordSentenceEntry } from "@/api/inspector.api";
 import { WordContextDrawer } from "@/components/layout/WordContextDrawer";
 import { formatNumber } from "@/lib/formatters";
-import type { VocabularyWord } from "@/types/vocabulary.types";
+import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 
 interface CanonicalPrimerRowProps {
   mediaItemId: string;
   word: VocabularyWord;
   rankingSource: "tubelex_v2025" | "elelex_v2020";
-  isKnown: boolean;
-  onToggleWord: (word: VocabularyWord) => void;
+  status: UserVocabStatus | undefined;
+  onChangeWordStatus: (word: VocabularyWord, targetStatus: UserVocabStatus) => void;
 }
 
 export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
   mediaItemId,
   word,
   rankingSource,
-  isKnown,
-  onToggleWord,
+  status,
+  onChangeWordStatus,
 }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -51,6 +51,9 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
     ? `Corpus count: ${formatNumber(rankingEntry.count)}`
     : undefined;
 
+  const isLearning = status === "learning";
+  const isKnown = status === "known";
+
   return (
     <div>
       <div className="grid grid-cols-12 gap-3 px-4 py-3 items-center text-xs hover:bg-[#F8F8F6]">
@@ -67,7 +70,7 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
         <div className="col-span-2 font-mono text-xs text-[#444444] truncate" title={debutLabel}>
           {debutLabel}
         </div>
-        <div className="col-span-2 flex items-center justify-end gap-1.5">
+        <div className="col-span-2 flex items-center justify-end gap-1">
           <button
             type="button"
             onClick={handleToggleSentences}
@@ -80,14 +83,27 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => onToggleWord(word)}
-            className={`px-3 py-1 font-mono text-xs border transition-colors cursor-pointer ${
+            onClick={() => onChangeWordStatus(word, "learning")}
+            title={isLearning ? "Reset to Unknown" : "Mark as Learning"}
+            className={`px-2 py-1 font-mono text-[11px] border transition-colors cursor-pointer ${
+              isLearning
+                ? "border-[#111111] bg-[#B8FF01] text-[#111111] font-semibold"
+                : "border-[#CCCCCC] bg-white text-[#555555] hover:border-[#111111] hover:text-[#111111]"
+            }`}
+          >
+            {isLearning ? "● Learning" : "Learn"}
+          </button>
+          <button
+            type="button"
+            onClick={() => onChangeWordStatus(word, "known")}
+            title={isKnown ? "Reset to Unknown" : "Mark as Known"}
+            className={`px-2.5 py-1 font-mono text-[11px] border transition-colors cursor-pointer ${
               isKnown
                 ? "border-[#111111] bg-[#111111] text-[#B8FF01] font-semibold"
                 : "border-[#111111] bg-white text-[#111111] hover:bg-[#B8FF01]"
             }`}
           >
-            {isKnown ? "✓ Known" : "Mark Known"}
+            {isKnown ? "✓ Known" : "Known"}
           </button>
         </div>
       </div>
