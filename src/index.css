@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input[type="checkbox"] {
+  accent-color: #111111;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
