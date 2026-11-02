@@ -14,7 +14,7 @@ interface ReaderCanvasProps {
   showRuby: boolean;
   showIPlusOne: boolean;
   selectedTokenId: string | null;
-  onSelectToken: (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number) => void;
+  onSelectToken: (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string) => void;
 }
 
 function checkIPlusOne(sent: ElenoToken[], lexicon: ElenoLexiconEntry[], statusMap: Record<string, UserVocabStatus>): boolean {
@@ -73,7 +73,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
                         statusMap={statusMap}
                         showRuby={showRuby}
                         isSelected={isSelected}
-                        onSelect={(surf, entry) => onSelectToken(surf, entry, bIdx, sIdx)}
+                        onSelect={(surf, entry, morph) => onSelectToken(surf, entry, bIdx, sIdx, morph)}
                       />
                     );
                   })}

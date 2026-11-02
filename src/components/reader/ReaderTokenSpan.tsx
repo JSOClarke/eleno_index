@@ -8,7 +8,7 @@ interface ReaderTokenSpanProps {
   statusMap: Record<string, UserVocabStatus>;
   showRuby: boolean;
   isSelected: boolean;
-  onSelect: (surface: string, entry: ElenoLexiconEntry) => void;
+  onSelect: (surface: string, entry: ElenoLexiconEntry, morph?: string) => void;
 }
 
 export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
@@ -17,7 +17,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
       return <span>{token}</span>;
     }
 
-    const [surface, lexIdx] = token;
+    const [surface, lexIdx, morph] = token;
     const entry = lexicon[lexIdx];
     if (!entry) return <span>{surface}</span>;
 
@@ -42,7 +42,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
     if (shouldShowRuby) {
       return (
         <span
-          onClick={() => onSelect(surface, entry)}
+          onClick={() => onSelect(surface, entry, morph)}
           className={styleClass}
         >
           <ruby className="[ruby-position:over]">
@@ -57,7 +57,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
 
     return (
       <span
-        onClick={() => onSelect(surface, entry)}
+        onClick={() => onSelect(surface, entry, morph)}
         className={styleClass}
       >
         {surface}

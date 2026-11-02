@@ -1,5 +1,6 @@
 import React from "react";
 import type { SelectedTokenState } from "@/hooks/useReaderSession";
+import { formatMorphology } from "@/lib/grammarFormatters";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface ReaderWordDockProps {
@@ -16,9 +17,10 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
   onClose,
 }) => {
   if (!selectedToken) return null;
-  const { surface, entry } = selectedToken;
+  const { surface, entry, morph } = selectedToken;
   const isLearning = status === "learning";
   const isKnown = status === "known";
+  const morphLabel = formatMorphology(morph);
 
   const handleSpeak = () => {
     if ("speechSynthesis" in window) {
@@ -72,6 +74,13 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
           {entry.cefr && <span className="border border-[#111111] bg-[#B8FF01] px-1.5 font-mono font-bold text-[#111111]">{entry.cefr}</span>}
           {entry.rank && <span className="font-mono text-[#666666] tabular-nums">#{entry.rank.toLocaleString()} TubeLex</span>}
         </div>
+
+        {morphLabel && (
+          <div className="font-mono text-[11px] font-semibold text-[#111111] bg-[#F8F8F6] border border-[#111111] px-2 py-0.5 inline-flex items-center gap-1.5 shadow-[1px_1px_0px_#111111]">
+            <span className="text-[#888888] font-bold">FORM:</span>
+            <span>{morphLabel}</span>
+          </div>
+        )}
       </div>
 
       <div className="mb-4 border-t border-[#E2E2DF] pt-2.5">

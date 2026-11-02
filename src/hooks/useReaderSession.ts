@@ -10,6 +10,7 @@ import type {
 export interface SelectedTokenState {
   surface: string;
   entry: ElenoLexiconEntry;
+  morph?: string;
   blockIndex: number;
   sentenceIndex: number;
 }
@@ -82,8 +83,8 @@ export function useReaderSession(
   }, [mediaItemId, chapterIndex, chapter, manifest]);
 
   const selectToken = useCallback(
-    (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number) => {
-      setSelectedToken({ surface, entry, blockIndex: bIdx, sentenceIndex: sIdx });
+    (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string) => {
+      setSelectedToken({ surface, entry, morph, blockIndex: bIdx, sentenceIndex: sIdx });
     },
     []
   );

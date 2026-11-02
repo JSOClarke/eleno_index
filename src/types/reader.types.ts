@@ -31,9 +31,9 @@ export interface ElenoReaderManifest {
 /**
  * A token is EITHER:
  * - A string: whitespace, punctuation, number, or untracked proper noun
- * - A 2-tuple [surface, lexIdx]: trackable word where lexIdx indexes manifest.lexicon[]
+ * - A tuple [surface, lexIdx, morph?]: trackable word where lexIdx indexes manifest.lexicon[]
  */
-export type ElenoToken = string | [surface: string, lexIdx: number];
+export type ElenoToken = string | [surface: string, lexIdx: number, morph?: string];
 
 export interface ElenoReaderBlock {
   type: "h1" | "h2" | "h3" | "p" | "quote" | "cue";
