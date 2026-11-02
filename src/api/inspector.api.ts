@@ -12,7 +12,7 @@ const VOCAB_SELECT = `
   first_occurrence_index,
   first_timestamp_ms,
   first_context_snippet,
-  canonical_lexical_entity (
+  canonical_lexical_entity!inner (
     lemma,
     pos,
     lexical_ranking (source, cefr, rank, count),
@@ -25,11 +25,14 @@ export async function fetchFirstVocabPage(mediaItemId: string): Promise<Vocabula
     .from("media_vocabulary")
     .select(VOCAB_SELECT)
     .eq("media_item_id", mediaItemId)
+    .neq("canonical_lexical_entity.pos", "PROPN")
     .order("frequency", { ascending: false })
     .range(0, 119);
 
   if (error) throw error;
-  return (data || []).map(normalizeVocabularyRow);
+  return (data || [])
+    .map(normalizeVocabularyRow)
+    .filter((w) => w.pos !== "PROPN");
 }
 
 export async function fetchRemainingVocabPages(
@@ -37,11 +40,13 @@ export async function fetchRemainingVocabPages(
   expectedTotal: number
 ): Promise<VocabularyWord[]> {
   const pageSize = 1000;
-  const maxItems = Math.max(expectedTotal, 10000);
+  // Cap to actual expected unique words count instead of blindly firing 10 queries up to 10,000
+  const maxItems = Math.min(Math.max(expectedTotal || 2000, 300), 12000);
   const offsets: number[] = [];
   for (let offset = 120; offset < maxItems; offset += pageSize) {
     offsets.push(offset);
   }
+  if (offsets.length === 0) return [];
 
   const results = await Promise.all(
     offsets.map((from) =>
@@ -49,6 +54,7 @@ export async function fetchRemainingVocabPages(
         .from("media_vocabulary")
         .select(VOCAB_SELECT)
         .eq("media_item_id", mediaItemId)
+        .neq("canonical_lexical_entity.pos", "PROPN")
         .order("frequency", { ascending: false })
         .range(from, from + pageSize - 1)
     )
@@ -57,7 +63,11 @@ export async function fetchRemainingVocabPages(
   const words: VocabularyWord[] = [];
   for (const res of results) {
     if (res.data && res.data.length > 0) {
-      words.push(...res.data.map(normalizeVocabularyRow));
+      words.push(
+        ...res.data
+          .map(normalizeVocabularyRow)
+          .filter((w) => w.pos !== "PROPN")
+      );
     }
   }
   return words;
@@ -67,25 +77,28 @@ export async function fetchChapterMetricsWithComprehension(
   mediaItemId: string,
   userId?: string | null
 ): Promise<MediaChapterMetrics[]> {
-  const { data: chData } = await supabase
-    .from("media_chapter_metrics")
-    .select("*")
-    .eq("media_item_id", mediaItemId)
-    .order("chapter_index");
+  // Run chapter metrics AND user chapter comprehension RPC in parallel
+  const [{ data: chData }, compResult] = await Promise.all([
+    supabase
+      .from("media_chapter_metrics")
+      .select("*")
+      .eq("media_item_id", mediaItemId)
+      .order("chapter_index"),
+    userId
+      ? supabase.rpc("get_user_chapter_comprehension", {
+          p_user_id: userId,
+          p_media_item_id: mediaItemId,
+        })
+      : Promise.resolve({ data: null }),
+  ]);
 
   if (!chData) return [];
 
   const compMap: Record<number, ReturnType<typeof normalizeChapterComprehension>> = {};
-  if (userId) {
-    const { data: compData } = await supabase.rpc("get_user_chapter_comprehension", {
-      p_user_id: userId,
-      p_media_item_id: mediaItemId,
-    });
-    if (compData) {
-      for (const row of compData) {
-        const parsed = normalizeChapterComprehension(row);
-        compMap[parsed.chapter_index] = parsed;
-      }
+  if (compResult.data) {
+    for (const row of compResult.data) {
+      const parsed = normalizeChapterComprehension(row);
+      compMap[parsed.chapter_index] = parsed;
     }
   }
 
@@ -102,6 +115,27 @@ export async function fetchQuarantineItems(mediaItemId: string): Promise<Quarant
     .eq("media_item_id", mediaItemId)
     .order("frequency", { ascending: false })
     .range(0, 999);
+
+  if (error || !data) return [];
+  return data;
+}
+
+export interface WordSentenceEntry {
+  sentence: string;
+  target_form: string | null;
+  source_context: string | null;
+}
+
+export async function fetchWordSentences(
+  mediaItemId: string,
+  canonicalId: string
+): Promise<WordSentenceEntry[]> {
+  const { data, error } = await supabase
+    .from("sentence_bank")
+    .select("sentence, target_form, source_context")
+    .eq("media_item_id", mediaItemId)
+    .eq("canonical_id", canonicalId)
+    .limit(3);
 
   if (error || !data) return [];
   return data;

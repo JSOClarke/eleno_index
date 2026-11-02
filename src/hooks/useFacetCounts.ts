@@ -1,5 +1,9 @@
 import { useMemo } from "react";
-import { getLengthBucket, getMediaCategoryLabel } from "@/lib/formatters";
+import {
+  getLengthBucket,
+  getMediaCategoryLabel,
+  toPercentNumber,
+} from "@/lib/formatters";
 import type { CatalogueFilterState } from "@/types/filter.types";
 import type { MediaCatalogItem } from "@/types/media.types";
 
@@ -39,9 +43,9 @@ export function useFacetCounts(
       const bucket = getLengthBucket(m?.total_tokens || 0);
       lengths[bucket] = (lengths[bucket] || 0) + 1;
 
-      if ((m?.dialogue_ratio || 0) >= 0.2) profiles.dialogue20 += 1;
+      if (toPercentNumber(m?.dialogue_ratio) >= 20) profiles.dialogue20 += 1;
       if ((m?.readability_score || 0) >= 70) profiles.fh70 += 1;
-      if ((m?.verb_profile?.subjunctive_load || 0) >= 0.02) profiles.subj2 += 1;
+      if (toPercentNumber(m?.verb_profile?.subjunctive_load) >= 5) profiles.subj2 += 1;
     }
 
     return { levels, types, lengths, profiles };
@@ -63,7 +67,7 @@ export function useFacetCounts(
         const bucket = getLengthBucket(m?.total_tokens || 0);
         if (filters.lengths.size > 0 && !filters.lengths.has(bucket)) return false;
 
-        if (filters.profiles.has("dialogue20") && (m?.dialogue_ratio || 0) < 0.2) {
+        if (filters.profiles.has("dialogue20") && toPercentNumber(m?.dialogue_ratio) < 20) {
           return false;
         }
         if (filters.profiles.has("fh70") && (m?.readability_score || 0) < 70) {
@@ -71,7 +75,7 @@ export function useFacetCounts(
         }
         if (
           filters.profiles.has("subj2") &&
-          (m?.verb_profile?.subjunctive_load || 0) < 0.02
+          toPercentNumber(m?.verb_profile?.subjunctive_load) < 5
         ) {
           return false;
         }

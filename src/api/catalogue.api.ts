@@ -4,39 +4,48 @@ import type {
   MediaComprehensionStats,
   PreviewWordItem,
 } from "@/types/media.types";
-import {
-  normalizeMediaComprehension,
-  normalizeVocabularyRow,
-  toPreviewWordItem,
-} from "./normalizers";
+import { normalizeMediaComprehension } from "./normalizers";
 
-const PREVIEW_SELECT = `
-  canonical_id,
-  frequency,
-  first_occurrence_index,
-  first_context_snippet,
-  canonical_lexical_entity (
-    lemma,
-    pos,
-    lexical_ranking (source, cefr, rank)
-  )
+const BASE_CATALOGUE_SELECT = `
+  id,
+  type,
+  title,
+  creator,
+  language,
+  format,
+  cover_image_url,
+  release_year,
+  synopsis,
+  media_metrics(*)
 `;
 
-async function fetchMediaPreviewWords(mediaItemId: string): Promise<PreviewWordItem[]> {
-  // Fetch mid-to-high frequency content words (skipping ultra-basic top 15 function words)
-  const { data, error } = await supabase
-    .from("media_vocabulary")
-    .select(PREVIEW_SELECT)
-    .eq("media_item_id", mediaItemId)
-    .order("frequency", { ascending: false })
-    .range(18, 35);
+export async function fetchPreviewWordsBatch(
+  userId?: string | null
+): Promise<Record<string, PreviewWordItem[]>> {
+  const lookup: Record<string, PreviewWordItem[]> = {};
 
-  if (error || !data) return [];
-  return data
-    .map(normalizeVocabularyRow)
-    .filter((w) => w.lemma.length >= 4 && ["NOUN", "VERB", "ADJ"].includes(w.pos))
-    .slice(0, 8)
-    .map(toPreviewWordItem);
+  const { data: rpcData, error: rpcErr } = await supabase.rpc(
+    "get_user_media_preview_words",
+    { p_user_id: userId || null, p_limit_per_item: 8 }
+  );
+
+  if (!rpcErr && rpcData) {
+    for (const row of rpcData) {
+      if (row.pos === "PROPN") continue;
+      const mId = String(row.media_item_id);
+      if (!lookup[mId]) lookup[mId] = [];
+      lookup[mId].push({
+        canonical_id: String(row.canonical_id),
+        lemma: String(row.lemma),
+        pos: String(row.pos || "NOUN"),
+        frequency: Number(row.frequency || 1),
+        cefr: "B1",
+        rank: null,
+        sentence: row.first_context_snippet || null,
+      });
+    }
+  }
+  return lookup;
 }
 
 export async function fetchMediaComprehensionMap(
@@ -56,40 +65,17 @@ export async function fetchMediaComprehensionMap(
   return map;
 }
 
-export async function fetchCatalogueItems(
-  userId?: string | null
-): Promise<MediaCatalogItem[]> {
-  const [{ data, error }, compMap] = await Promise.all([
-    supabase
-      .from("media_item")
-      .select("*, media_metrics(*)")
-      .order("created_at", { ascending: false }),
-    fetchMediaComprehensionMap(userId),
-  ]);
+export async function fetchBaseCatalogueItems(): Promise<MediaCatalogItem[]> {
+  const { data, error } = await supabase
+    .from("media_item")
+    .select(BASE_CATALOGUE_SELECT)
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
-  const rows = data || [];
-
-  // Load preview words + authentic sample snippet in parallel for each item
-  const previewsById = await Promise.all(
-    rows.map(async (r) => ({
-      id: r.id,
-      words: await fetchMediaPreviewWords(r.id),
-    }))
-  );
-  const previewLookup: Record<string, PreviewWordItem[]> = {};
-  previewsById.forEach((p) => {
-    previewLookup[p.id] = p.words;
-  });
-
-  return rows.map((row) => {
+  return (data || []).map((row) => {
     const metrics = Array.isArray(row.media_metrics)
       ? row.media_metrics[0] || null
       : row.media_metrics || null;
-    const previewWords = previewLookup[row.id] || [];
-    const wordWithSentence = previewWords.find(
-      (w) => w.sentence && w.sentence.length > 25
-    );
 
     return {
       id: row.id,
@@ -101,15 +87,20 @@ export async function fetchCatalogueItems(
       cover_image_url: row.cover_image_url || null,
       release_year: row.release_year || null,
       metrics,
-      comprehension: compMap[row.id] || null,
-      previewWords,
+      comprehension: null,
+      previewWords: [],
       sampleSnippet:
-        wordWithSentence?.sentence ||
         row.synopsis ||
         "«Texto auténtico indexado en el banco de oraciones del corpus español.»",
-      sampleSourceLabel: wordWithSentence
-        ? `CORPUS LINE · LEMMA «${wordWithSentence.lemma.toUpperCase()}»`
-        : "CORPUS ARCHIVE · VERIFIED",
+      sampleSourceLabel: "CORPUS ARCHIVE · VERIFIED",
     };
   });
+}
+
+export async function fetchCatalogueEnrichment(userId?: string | null) {
+  const [compMap, previewLookup] = await Promise.all([
+    fetchMediaComprehensionMap(userId),
+    fetchPreviewWordsBatch(userId),
+  ]);
+  return { compMap, previewLookup };
 }

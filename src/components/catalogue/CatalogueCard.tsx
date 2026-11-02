@@ -1,7 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
-import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
+import {
+  formatCompactWords,
+  formatPercent,
+  getMediaSubtypeLabel,
+} from "@/lib/formatters";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
@@ -33,8 +37,8 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
       0
   );
   const vocabPct = Math.round(item.comprehension?.comprehension_percentage ?? 0);
-  const dialPct = ((m?.dialogue_ratio || 0) * 100).toFixed(1);
-  const subjPct = ((m?.verb_profile?.subjunctive_load || 0) * 100).toFixed(1);
+  const dialPct = formatPercent(m?.dialogue_ratio, 1);
+  const subjPct = formatPercent(m?.verb_profile?.subjunctive_load, 1);
 
   return (
     <div
@@ -77,7 +81,7 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
                   {item.title}
                 </Link>
                 <div className="font-mono text-xs text-[#666666] mt-0.5">
-                  {formatCompactWords(m?.total_tokens || 0)} · {dialPct}% dialogue · {subjPct}% subj
+                  {formatCompactWords(m?.total_tokens || 0)} · {dialPct} dialogue · {subjPct} subj
                 </div>
               </div>
               <div className="bg-[#F4F4F2] border border-[#E2E2DF] p-2.5 space-y-1.5">

@@ -22,16 +22,26 @@ export interface VocabularyWord {
   first_context_snippet: string | null;
   cefr: string;
   global_rank: number | null;
+  rankings?: LexicalRanking[];
+  ipa: string | null;
+}
+
+export interface KnownWordEntry {
+  canonical_id: string;
+  status: UserVocabStatus;
+  updated_at: string | null;
+  lemma: string;
+  pos: string;
+  cefr: string;
+  global_rank: number | null;
+  rankings: LexicalRanking[];
   ipa: string | null;
 }
 
 export interface QuarantineItem {
   id: string;
   media_item_id: string;
-  surface_form: string;
-  suggested_lemma: string | null;
-  pos: string | null;
-  reason: "PROPER_NOUN" | "OOV" | "NOISE" | string;
+  token: string;
+  category: "proper_noun" | "noise_and_typos" | string;
   frequency: number;
-  context_snippet: string | null;
 }

@@ -30,13 +30,20 @@ export const InlinePreviewDrawer: React.FC<InlinePreviewDrawerProps> = ({
           level={level}
           size="drawer"
         />
-        <div className="min-w-0">
-          <div className="font-mono text-xs uppercase tracking-wider text-[#777777] mb-2">
+        <div className="min-w-0 space-y-1.5">
+          <div className="font-mono text-xs uppercase tracking-wider text-[#777777]">
             {item.sampleSourceLabel}
           </div>
-          <p className="font-serif text-base text-[#111111] leading-relaxed">
+          <p className="font-serif text-sm text-[#111111] leading-relaxed line-clamp-3">
             {item.sampleSnippet}
           </p>
+          <Link
+            to={`/media/${item.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="inline-block font-mono text-xs font-semibold text-[#111111] underline hover:bg-[#B8FF01] px-1 -ml-1"
+          >
+            Open details to read full synopsis →
+          </Link>
         </div>
       </div>
 

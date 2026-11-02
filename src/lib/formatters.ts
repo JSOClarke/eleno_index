@@ -14,6 +14,20 @@ export function formatNumber(val: number | null | undefined): string {
   return new Intl.NumberFormat("en-US").format(Math.round(val));
 }
 
+/**
+ * Normalizes a ratio/percentage from the DB into a 0-100 percentage number.
+ * Handles both 0..1 ratios and already-scaled 0..100 values (e.g. 17.2 -> 17.2).
+ */
+export function toPercentNumber(val: number | null | undefined): number {
+  const num = Number(val || 0);
+  if (num <= 0 || Number.isNaN(num)) return 0;
+  return num <= 1 ? num * 100 : num;
+}
+
+export function formatPercent(val: number | null | undefined, decimals = 1): string {
+  return `${toPercentNumber(val).toFixed(decimals)}%`;
+}
+
 export function getLengthBucket(tokens: number): LengthBucket {
   if (tokens < 25000) return "under25k";
   if (tokens <= 80000) return "25to80k";

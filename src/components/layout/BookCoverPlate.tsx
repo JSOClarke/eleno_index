@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { resolveCoverArt } from "@/lib/coverArt";
 
 interface BookCoverPlateProps {
@@ -6,6 +6,17 @@ interface BookCoverPlateProps {
   explicitUrl: string | null;
   level: string;
   size?: "mini" | "drawer" | "card" | "hero";
+}
+
+// Keep decoded HTMLImageElement instances pinned in memory so route transitions never re-decode
+const pinnedImages = new Map<string, HTMLImageElement>();
+
+function pinImageInMemory(url: string) {
+  if (!url || pinnedImages.has(url)) return;
+  const img = new Image();
+  img.decoding = "sync";
+  img.src = url;
+  pinnedImages.set(url, img);
 }
 
 export const BookCoverPlate: React.FC<BookCoverPlateProps> = ({
@@ -16,6 +27,13 @@ export const BookCoverPlate: React.FC<BookCoverPlateProps> = ({
 }) => {
   const [imgFailed, setImgFailed] = useState(false);
   const meta = resolveCoverArt(title, explicitUrl);
+  const showFallback = !meta.coverUrl || imgFailed;
+
+  useEffect(() => {
+    if (meta.coverUrl) {
+      pinImageInMemory(meta.coverUrl);
+    }
+  }, [meta.coverUrl]);
 
   const dims =
     size === "mini"
@@ -30,28 +48,28 @@ export const BookCoverPlate: React.FC<BookCoverPlateProps> = ({
     <div
       className={`relative ${dims} shrink-0 border border-[#111111] overflow-hidden select-none flex flex-col justify-between p-1.5`}
       style={{
-        backgroundColor: meta.coverBg,
-        color: meta.coverAccent,
+        backgroundColor: showFallback ? meta.coverBg : "#F4F4F2",
+        color: showFallback ? meta.coverAccent : "transparent",
       }}
     >
-      {/* Editorial Fallback Plate */}
-      <div className="font-mono text-[8px] leading-none tracking-tighter opacity-90 flex justify-between">
-        <span>{meta.coverCode}</span>
-        <span>{level}</span>
-      </div>
-      <div className="font-serif text-[9px] leading-tight font-bold text-white line-clamp-3">
-        {size === "mini" ? "" : title}
-      </div>
-      <div className="font-mono text-[7px] leading-none uppercase tracking-wider text-white/75 truncate">
-        {size === "mini" ? level : "SALAMANCA"}
-      </div>
-
-      {/* Real Book Cover Art Image */}
-      {meta.coverUrl && !imgFailed && (
+      {showFallback ? (
+        <>
+          <div className="font-mono text-[8px] leading-none tracking-tighter opacity-90 flex justify-between">
+            <span>{meta.coverCode}</span>
+            <span>{level}</span>
+          </div>
+          <div className="font-serif text-[9px] leading-tight font-bold text-white line-clamp-3">
+            {size === "mini" ? "" : title}
+          </div>
+          <div className="font-mono text-[7px] leading-none uppercase tracking-wider text-white/75 truncate">
+            {size === "mini" ? level : "SALAMANCA"}
+          </div>
+        </>
+      ) : (
         <img
-          src={meta.coverUrl}
+          src={meta.coverUrl!}
           alt={title}
-          loading="lazy"
+          decoding="sync"
           onError={() => setImgFailed(true)}
           className="absolute inset-0 w-full h-full object-cover z-10"
         />

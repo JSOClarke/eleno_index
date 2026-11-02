@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMediaInspector } from "@/hooks/useMediaInspector";
 import type { MediaCatalogItem } from "@/types/media.types";
@@ -32,11 +32,16 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
   onBubbleBookWordToggle,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedChapter, setSelectedChapter] = useState<number | "all">("all");
   const rawTab = searchParams.get("tab");
   const ledgerTab: "canonical" | "characters" | "noise" =
     rawTab === "characters" || rawTab === "noise" ? rawTab : "canonical";
 
   const inspector = useMediaInspector(item, userId);
+
+  useEffect(() => {
+    setSelectedChapter("all");
+  }, [item.id]);
 
   useEffect(() => {
     if (ledgerTab === "characters" || ledgerTab === "noise") {
@@ -72,7 +77,12 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
 
       <LinguisticProfileRow metrics={item.metrics} />
 
-      <ChapterPacingStrip chapters={inspector.chapterMetrics} />
+      <ChapterPacingStrip
+        chapters={inspector.chapterMetrics}
+        loading={inspector.chaptersLoading}
+        selectedChapter={selectedChapter}
+        onSelectChapter={setSelectedChapter}
+      />
 
       <div className="space-y-4 pt-2">
         <div className="flex items-center justify-between border-b border-[#111111] pb-2">
@@ -115,8 +125,11 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
 
         {ledgerTab === "canonical" ? (
           <CanonicalPrimerTable
+            mediaItemId={item.id}
             words={inspector.vocabulary}
             loading={inspector.loading}
+            selectedChapter={selectedChapter}
+            onClearChapter={() => setSelectedChapter("all")}
             statusMap={statusMap}
             onToggleWord={handleToggleWord}
           />

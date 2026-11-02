@@ -1,7 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
-import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
+import {
+  formatCompactWords,
+  formatPercent,
+  getMediaSubtypeLabel,
+} from "@/lib/formatters";
 import type {
   MediaCatalogItem,
   MediaComprehensionStats,
@@ -19,7 +23,7 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
   const fh = (m?.readability_score || 70).toFixed(1);
-  const dialPct = ((m?.dialogue_ratio || 0) * 100).toFixed(1);
+  const dialPct = formatPercent(m?.dialogue_ratio, 1);
 
   const flowPct = Math.round(
     comprehension?.text_coverage_percentage ??
@@ -101,7 +105,7 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
               />
             </div>
             <div className="font-mono text-xs text-[#666666] mt-1.5">
-              F-H {fh} · Dial {dialPct}%
+              F-H {fh} · Dial {dialPct}
             </div>
           </div>
         </div>

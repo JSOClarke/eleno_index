@@ -6,6 +6,7 @@ import {
   fetchRemainingVocabPages,
 } from "@/api/inspector.api";
 import { fetchMediaComprehensionMap } from "@/api/catalogue.api";
+import { inspectorCache } from "@/lib/inspectorCache";
 import { applyOptimisticBookDelta } from "@/lib/optimisticMath";
 import type {
   MediaCatalogItem,
@@ -19,15 +20,19 @@ import type {
 } from "@/types/vocabulary.types";
 
 export function useMediaInspector(item: MediaCatalogItem, userId?: string | null) {
-  const [vocabulary, setVocabulary] = useState<VocabularyWord[]>([]);
-  const [chapterMetrics, setChapterMetrics] = useState<MediaChapterMetrics[]>([]);
-  const [quarantineItems, setQuarantineItems] = useState<QuarantineItem[]>([]);
-  const [quarantineLoading, setQuarantineLoading] = useState(false);
-  const [quarantineLoaded, setQuarantineLoaded] = useState(false);
-  const [bookComp, setBookComp] = useState<MediaComprehensionStats | null>(
-    item.comprehension
+  const cached = inspectorCache.get(item.id);
+  const [vocabulary, setVocabulary] = useState<VocabularyWord[]>(cached?.vocabulary || []);
+  const [chapterMetrics, setChapterMetrics] = useState<MediaChapterMetrics[]>(
+    cached?.chapterMetrics || []
   );
-  const [loading, setLoading] = useState(true);
+  const [chaptersLoading, setChaptersLoading] = useState(!cached?.chapterMetrics.length);
+  const [quarantineItems, setQuarantineItems] = useState<QuarantineItem[]>(
+    cached?.quarantineItems || []
+  );
+  const [quarantineLoading, setQuarantineLoading] = useState(false);
+  const [quarantineLoaded, setQuarantineLoaded] = useState(!!cached?.quarantineLoaded);
+  const [bookComp, setBookComp] = useState<MediaComprehensionStats | null>(item.comprehension);
+  const [loading, setLoading] = useState(!cached?.vocabulary.length);
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -36,29 +41,53 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
 
   useEffect(() => {
     let cancelled = false;
+    const hit = inspectorCache.get(item.id);
+    if (hit?.isComplete) {
+      setVocabulary(hit.vocabulary);
+      setChapterMetrics(hit.chapterMetrics);
+      setQuarantineItems(hit.quarantineItems);
+      setQuarantineLoaded(hit.quarantineLoaded);
+      setLoading(false);
+      setChaptersLoading(false);
+      return;
+    }
+
     setLoading(true);
-    setQuarantineLoaded(false);
-    setQuarantineItems([]);
+    setChaptersLoading(true);
 
     (async () => {
       try {
-        const firstPage = await fetchFirstVocabPage(item.id);
-        if (cancelled) return;
-        setVocabulary(firstPage);
-        setLoading(false);
-
-        const [chapters, restVocab] = await Promise.all([
+        const [firstPage, chapters] = await Promise.all([
+          fetchFirstVocabPage(item.id),
           fetchChapterMetricsWithComprehension(item.id, userId),
-          fetchRemainingVocabPages(item.id, item.metrics?.unique_words_count || 6000),
         ]);
         if (cancelled) return;
+        setVocabulary(firstPage);
         setChapterMetrics(chapters);
-        if (restVocab.length > 0) {
-          setVocabulary([...firstPage, ...restVocab]);
-        }
+        setLoading(false);
+        setChaptersLoading(false);
+
+        const restVocab = await fetchRemainingVocabPages(
+          item.id,
+          item.metrics?.unique_words_count || 2000
+        );
+        if (cancelled) return;
+        const fullVocab = restVocab.length > 0 ? [...firstPage, ...restVocab] : firstPage;
+        setVocabulary(fullVocab);
+
+        inspectorCache.set(item.id, {
+          vocabulary: fullVocab,
+          chapterMetrics: chapters,
+          quarantineItems: inspectorCache.get(item.id)?.quarantineItems || [],
+          quarantineLoaded: inspectorCache.get(item.id)?.quarantineLoaded || false,
+          isComplete: true,
+        });
       } catch (err) {
         console.error("[useMediaInspector] Error loading inspector data:", err);
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          setChaptersLoading(false);
+        }
       }
     })();
 
@@ -74,25 +103,23 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
       const rows = await fetchQuarantineItems(item.id);
       setQuarantineItems(rows);
       setQuarantineLoaded(true);
+      const existing = inspectorCache.get(item.id);
+      if (existing) {
+        inspectorCache.set(item.id, { ...existing, quarantineItems: rows, quarantineLoaded: true });
+      }
     } finally {
       setQuarantineLoading(false);
     }
   }, [item.id, quarantineLoaded, quarantineLoading]);
 
   const handleOptimisticWordChange = useCallback(
-    (
-      word: VocabularyWord,
-      newStatus: UserVocabStatus | null,
-      oldStatus: UserVocabStatus | undefined
-    ) => {
+    (word: VocabularyWord, newStatus: UserVocabStatus | null, oldStatus?: UserVocabStatus) => {
       const wasKnown = oldStatus === "known";
       const isNowKnown = newStatus === "known";
       if (wasKnown === isNowKnown) return;
       const delta = isNowKnown ? 1 : -1;
 
-      setBookComp((prev) =>
-        applyOptimisticBookDelta(prev, item.metrics, delta, word.frequency)
-      );
+      setBookComp((prev) => applyOptimisticBookDelta(prev, item.metrics, delta, word.frequency));
 
       if (userId) {
         if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
@@ -112,6 +139,7 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
   return {
     vocabulary,
     chapterMetrics,
+    chaptersLoading,
     quarantineItems,
     quarantineLoading,
     bookComp,

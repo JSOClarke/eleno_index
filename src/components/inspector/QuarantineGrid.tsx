@@ -14,8 +14,8 @@ export const QuarantineGrid: React.FC<QuarantineGridProps> = ({
 }) => {
   const filtered = useMemo(() => {
     return items.filter((item) => {
-      if (mode === "characters") return item.reason === "PROPER_NOUN";
-      return item.reason !== "PROPER_NOUN";
+      if (mode === "characters") return item.category === "proper_noun";
+      return item.category !== "proper_noun";
     });
   }, [items, mode]);
 
@@ -59,7 +59,7 @@ export const QuarantineGrid: React.FC<QuarantineGridProps> = ({
             className="border border-[#111111] bg-white p-3 flex items-center justify-between font-mono text-xs"
           >
             <span className="font-bold text-[#111111] truncate mr-2">
-              {item.surface_form}
+              {item.token}
             </span>
             <span className="text-[#666666] tabular-nums shrink-0">
               {item.frequency}x

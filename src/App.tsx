@@ -15,7 +15,7 @@ import type { UserVocabStatus } from "@/types/vocabulary.types";
 export const App: React.FC = () => {
   const auth = useAuth();
   const userVocab = useUserVocabulary(auth.user);
-  const catalogue = useCatalogueData(auth.user?.id);
+  const catalogue = useCatalogueData(auth.user?.id, auth.loading);
   const filterState = useFilterState();
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
@@ -66,7 +66,7 @@ export const App: React.FC = () => {
             path="/known-words"
             element={
               <KnownWordsView
-                items={catalogue.items}
+                userId={auth.user?.id}
                 statusMap={userVocab.statusMap}
                 knownCount={userVocab.knownCount}
                 onRemoveWord={(canonicalId) => userVocab.setWordStatus(canonicalId, null)}

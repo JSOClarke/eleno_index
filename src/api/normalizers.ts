@@ -65,6 +65,7 @@ export function normalizeVocabularyRow(row: any): VocabularyWord {
     first_context_snippet: row.first_context_snippet || null,
     cefr,
     global_rank: rank,
+    rankings,
     ipa,
   };
 }
