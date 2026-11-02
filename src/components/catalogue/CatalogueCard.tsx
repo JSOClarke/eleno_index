@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
@@ -10,7 +11,6 @@ interface CatalogueCardProps {
   isSaved: boolean;
   statusMap: Record<string, UserVocabStatus>;
   onSelectCard: (id: string) => void;
-  onOpenInspector: (item: MediaCatalogItem) => void;
   onToggleSave: (id: string) => void;
   onToggleWord: (item: MediaCatalogItem, word: PreviewWordItem) => void;
 }
@@ -21,7 +21,6 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
   isSaved,
   statusMap,
   onSelectCard,
-  onOpenInspector,
   onToggleSave,
   onToggleWord,
 }) => {
@@ -70,7 +69,13 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
             <BookCoverPlate title={item.title} explicitUrl={item.cover_image_url} level={level} size="card" />
             <div className="flex-1 min-w-0 space-y-2.5">
               <div>
-                <h3 className="text-base font-bold text-[#111111] leading-snug">{item.title}</h3>
+                <Link
+                  to={`/media/${item.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-base font-bold text-[#111111] leading-snug hover:underline block"
+                >
+                  {item.title}
+                </Link>
                 <div className="font-mono text-xs text-[#666666] mt-0.5">
                   {formatCompactWords(m?.total_tokens || 0)} · {dialPct}% dialogue · {subjPct}% subj
                 </div>
@@ -127,13 +132,13 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
           >
             {isSaved ? "Saved ✓" : "Save"}
           </button>
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onOpenInspector(item); }}
-            className="px-3.5 py-1.5 bg-[#111111] text-white text-xs font-medium border border-[#111111] hover:bg-[#333333] cursor-pointer"
+          <Link
+            to={`/media/${item.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="px-3.5 py-1.5 bg-[#111111] text-white text-xs font-medium border border-[#111111] hover:bg-[#333333]"
           >
             Open →
-          </button>
+          </Link>
         </div>
       </div>
     </div>

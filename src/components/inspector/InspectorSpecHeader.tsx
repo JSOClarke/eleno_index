@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
 import type {
@@ -9,13 +10,11 @@ import type {
 interface InspectorSpecHeaderProps {
   item: MediaCatalogItem;
   comprehension: MediaComprehensionStats | null;
-  onBack: () => void;
 }
 
 export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   item,
   comprehension,
-  onBack,
 }) => {
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
@@ -32,13 +31,12 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between border-b border-[#E2E2DF] pb-3">
-        <button
-          type="button"
-          onClick={onBack}
-          className="font-mono text-xs text-[#111111] hover:underline flex items-center gap-1.5 cursor-pointer"
+        <Link
+          to="/"
+          className="font-mono text-xs text-[#111111] hover:underline flex items-center gap-1.5"
         >
           ← Back to Catalogue
-        </button>
+        </Link>
         <span className="font-mono text-xs text-[#666666]">
           MEDIA ID: {item.id.slice(0, 8).toUpperCase()} · CHECKSUM VERIFIED
         </span>

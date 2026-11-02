@@ -11,7 +11,6 @@ interface CatalogueTableRowProps {
   isSaved: boolean;
   statusMap: Record<string, UserVocabStatus>;
   onToggleExpand: (id: string) => void;
-  onOpenInspector: (item: MediaCatalogItem) => void;
   onToggleSave: (id: string) => void;
   onToggleWord: (item: MediaCatalogItem, word: PreviewWordItem) => void;
 }
@@ -22,7 +21,6 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
   isSaved,
   statusMap,
   onToggleExpand,
-  onOpenInspector,
   onToggleSave,
   onToggleWord,
 }) => {
@@ -102,7 +100,6 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
           item={item}
           isSaved={isSaved}
           statusMap={statusMap}
-          onOpenInspector={onOpenInspector}
           onToggleSave={onToggleSave}
           onToggleWord={onToggleWord}
         />

@@ -10,7 +10,6 @@ interface CatalogueCardsGridProps {
   savedIds: Set<string>;
   statusMap: Record<string, UserVocabStatus>;
   onSelectCard: (id: string) => void;
-  onOpenInspector: (item: MediaCatalogItem) => void;
   onToggleSave: (id: string) => void;
   onToggleWord: (item: MediaCatalogItem, word: PreviewWordItem) => void;
 }
@@ -22,7 +21,6 @@ export const CatalogueCardsGrid: React.FC<CatalogueCardsGridProps> = ({
   savedIds,
   statusMap,
   onSelectCard,
-  onOpenInspector,
   onToggleSave,
   onToggleWord,
 }) => {
@@ -67,7 +65,6 @@ export const CatalogueCardsGrid: React.FC<CatalogueCardsGridProps> = ({
           isSaved={savedIds.has(item.id)}
           statusMap={statusMap}
           onSelectCard={onSelectCard}
-          onOpenInspector={onOpenInspector}
           onToggleSave={onToggleSave}
           onToggleWord={onToggleWord}
         />

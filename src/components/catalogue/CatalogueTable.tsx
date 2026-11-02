@@ -10,7 +10,6 @@ interface CatalogueTableProps {
   savedIds: Set<string>;
   statusMap: Record<string, UserVocabStatus>;
   onToggleExpand: (id: string) => void;
-  onOpenInspector: (item: MediaCatalogItem) => void;
   onToggleSave: (id: string) => void;
   onToggleWord: (item: MediaCatalogItem, word: PreviewWordItem) => void;
 }
@@ -22,13 +21,11 @@ export const CatalogueTable: React.FC<CatalogueTableProps> = ({
   savedIds,
   statusMap,
   onToggleExpand,
-  onOpenInspector,
   onToggleSave,
   onToggleWord,
 }) => {
   return (
     <div>
-      {/* Column Headers */}
       <div className="grid grid-cols-12 gap-3 px-3.5 py-2.5 border-b border-[#E2E2DF] font-mono text-xs text-[#777777] uppercase tracking-wider">
         <div className="col-span-4">TITLE</div>
         <div className="col-span-1">LEVEL</div>
@@ -61,7 +58,6 @@ export const CatalogueTable: React.FC<CatalogueTableProps> = ({
               isSaved={savedIds.has(item.id)}
               statusMap={statusMap}
               onToggleExpand={onToggleExpand}
-              onOpenInspector={onOpenInspector}
               onToggleSave={onToggleSave}
               onToggleWord={onToggleWord}
             />
