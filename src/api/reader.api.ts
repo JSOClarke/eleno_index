@@ -12,7 +12,7 @@ export async function fetchReaderManifest(
   mediaItemId: string
 ): Promise<ElenoReaderManifest> {
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(`${mediaItemId}/manifest.json`);
-  const res = await fetch(data.publicUrl);
+  const res = await fetch(`${data.publicUrl}?t=${Date.now()}`, { cache: "no-cache" });
   if (!res.ok) {
     throw new Error(`Failed to load manifest for media ${mediaItemId} (${res.status})`);
   }
@@ -25,7 +25,7 @@ export async function fetchReaderChapter(
 ): Promise<ElenoReaderChapter> {
   const path = `${mediaItemId}/ch_${chapterIndex}.json`;
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  const res = await fetch(data.publicUrl);
+  const res = await fetch(`${data.publicUrl}?t=${Date.now()}`, { cache: "no-cache" });
   if (!res.ok) {
     throw new Error(`Failed to load chapter ${chapterIndex} (${res.status})`);
   }
