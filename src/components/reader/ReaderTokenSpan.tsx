@@ -42,7 +42,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
 
     const bandClass = getTokenUnderlineClass(entry, status, highlightMode, highlightUnknownOnly);
 
-    let styleClass = "relative inline-block cursor-pointer transition-colors px-[1px] border-b-[2.5px] border-transparent ";
+    let styleClass = "relative inline cursor-pointer transition-colors px-[1px] border-b-[2.5px] border-transparent ";
     if (isSelected) {
       styleClass += "bg-[#111111] text-[#B8FF01] font-bold border-[#B8FF01] shadow-[2px_2px_0px_#B8FF01] ";
     } else if (bandClass) {
