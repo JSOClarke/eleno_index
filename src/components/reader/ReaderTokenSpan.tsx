@@ -79,7 +79,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
         className={styleClass}
       >
         {shouldShowRuby && (
-          <span className="absolute bottom-[92%] left-1/2 -translate-x-1/2 pointer-events-none select-none z-10 whitespace-nowrap font-mono text-[9px] font-bold text-[#111111] bg-[#B8FF01]/95 px-1 py-[0.5px] rounded-[2px] shadow-[1px_1px_0px_#111111] max-w-[120px] truncate leading-none">
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 -translate-y-0.5 pointer-events-none select-none z-10 whitespace-nowrap font-mono text-[10px] font-bold text-[#111111] bg-[#B8FF01]/90 px-1 py-[1px] rounded-sm max-w-[120px] truncate leading-none">
             {entry.hint}
           </span>
         )}

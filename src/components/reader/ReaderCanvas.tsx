@@ -56,7 +56,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
     <article className="max-w-[740px] mx-auto select-text pt-4 pb-28">
       {blocks.map((block, bIdx) => {
         const isHeading = block.type === "h1" || block.type === "h2" || block.type === "h3";
-        let wrapperClass = "mb-6 font-serif leading-[2.4] text-[#111111]";
+        let wrapperClass = "mb-6 font-serif leading-[1.85] text-[#111111]";
 
         if (block.type === "h1") wrapperClass = "mt-8 mb-6 font-serif text-3xl font-bold text-[#111111]";
         else if (block.type === "h2") wrapperClass = "mt-6 mb-4 font-serif text-2xl font-semibold text-[#111111]";
