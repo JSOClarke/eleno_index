@@ -87,12 +87,12 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
       />
 
       <div className="space-y-4 pt-2">
-        <div className="flex items-center justify-between border-b border-[#111111] pb-2">
-          <div className="inline-flex gap-1 font-mono text-xs">
+        <div className="flex flex-col gap-2 border-b border-[#111111] pb-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex gap-1 overflow-x-auto font-mono text-xs">
             <button
               type="button"
               onClick={() => selectLedgerTab("canonical")}
-              className={`px-3.5 py-1.5 border border-[#111111] cursor-pointer ${
+              className={`shrink-0 whitespace-nowrap px-3.5 py-1.5 border border-[#111111] cursor-pointer ${
                 ledgerTab === "canonical"
                   ? "bg-[#111111] text-white font-semibold"
                   : "bg-white text-[#111111]"
@@ -103,7 +103,7 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
             <button
               type="button"
               onClick={() => selectLedgerTab("characters")}
-              className={`px-3.5 py-1.5 border border-[#111111] cursor-pointer ${
+              className={`shrink-0 whitespace-nowrap px-3.5 py-1.5 border border-[#111111] cursor-pointer ${
                 ledgerTab === "characters"
                   ? "bg-[#111111] text-white font-semibold"
                   : "bg-white text-[#111111]"
@@ -114,7 +114,7 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
             <button
               type="button"
               onClick={() => selectLedgerTab("noise")}
-              className={`px-3.5 py-1.5 border border-[#111111] cursor-pointer ${
+              className={`shrink-0 whitespace-nowrap px-3.5 py-1.5 border border-[#111111] cursor-pointer ${
                 ledgerTab === "noise"
                   ? "bg-[#111111] text-white font-semibold"
                   : "bg-white text-[#111111]"

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Quote } from "lucide-react";
 import { WordContextDrawer } from "@/components/layout/WordContextDrawer";
 import { formatNumber } from "@/lib/formatters";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
+import { PrimerRowActions } from "./PrimerRowActions";
 
 interface CanonicalPrimerRowProps {
   mediaItemId: string;
@@ -40,62 +40,71 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
   const rankTooltip = rankingEntry?.count
     ? `Corpus count: ${formatNumber(rankingEntry.count)}`
     : undefined;
+  const rankLabel = rankingSource === "tubelex_v2025" ? "TUBELEX" : "ELELEX";
 
   const isLearning = status === "learning";
   const isKnown = status === "known";
 
+  const actions = (
+    <PrimerRowActions
+      isOpen={open}
+      isLearning={isLearning}
+      isKnown={isKnown}
+      onToggleOpen={() => setOpen((current) => !current)}
+      onLearn={() => onChangeWordStatus(word, "learning")}
+      onKnown={() => onChangeWordStatus(word, "known")}
+    />
+  );
+
   return (
-    <div>
-      <div className="grid grid-cols-12 gap-3 px-4 py-3 items-center text-xs hover:bg-[#F8F8F6]">
-        <div className="col-span-2 font-mono font-bold text-[#111111] truncate">{word.lemma}</div>
-        <div className="col-span-2 font-mono text-[#555555] truncate">{word.ipa || "—"}</div>
+    <div className="border-b border-[#E2E2DF] md:border-0">
+      {/* Mobile card: the 12-column grid is unreadable below md. */}
+      <div className="space-y-2 px-4 py-3 md:hidden">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="truncate font-mono text-sm font-bold text-[#111111]">{word.lemma}</div>
+            <div className="truncate font-mono text-[11px] text-[#666666]">{word.ipa || "—"}</div>
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            <span className="border border-[#111111] bg-[#F8F8F6] px-1.5 py-0.5 font-mono text-[10px] font-bold">
+              {word.pos}
+            </span>
+            <span className="border border-[#111111] px-1.5 py-0.5 font-mono text-[10px]">
+              {word.cefr}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] text-[#444444]">
+          <span>{word.frequency}× in book</span>
+          <span title={rankTooltip}>
+            {activeRank ? `#${formatNumber(activeRank)} ${rankLabel}` : `No ${rankLabel} rank`}
+          </span>
+        </div>
+
+        <div className="line-clamp-2 font-mono text-[11px] text-[#555555]" title={debutLabel}>
+          {debutLabel}
+        </div>
+
+        {actions}
+      </div>
+
+      {/* Desktop row */}
+      <div className="hidden grid-cols-12 items-center gap-3 px-4 py-3 text-xs hover:bg-[#F8F8F6] md:grid">
+        <div className="col-span-2 truncate font-mono font-bold text-[#111111]">{word.lemma}</div>
+        <div className="col-span-2 truncate font-mono text-[#555555]">{word.ipa || "—"}</div>
         <div className="col-span-1 font-mono text-[#666666]">{word.pos}</div>
         <div className="col-span-1">
-          <span className="px-1.5 py-0.5 border border-[#111111] font-mono text-[11px]">{word.cefr}</span>
+          <span className="border border-[#111111] px-1.5 py-0.5 font-mono text-[11px]">{word.cefr}</span>
         </div>
         <div className="col-span-1 font-mono tabular-nums">{word.frequency}x</div>
         <div className="col-span-1 font-mono tabular-nums text-[#444444]" title={rankTooltip}>
           {activeRank ? `#${formatNumber(activeRank)}` : "—"}
         </div>
-        <div className="col-span-2 font-mono text-xs text-[#444444] truncate" title={debutLabel}>
+        <div className="col-span-2 truncate font-mono text-xs text-[#444444]" title={debutLabel}>
           {debutLabel}
         </div>
-        <div className="col-span-2 flex items-center justify-end gap-1">
-          <button
-            type="button"
-            onClick={() => setOpen((current) => !current)}
-            title="Show dictionary definitions & authentic sentences"
-            className={`p-1.5 border border-[#111111] transition-colors cursor-pointer ${
-              open ? "bg-[#B8FF01] text-[#111111]" : "bg-white text-[#111111] hover:bg-[#F4F4F2]"
-            }`}
-          >
-            <Quote className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onChangeWordStatus(word, "learning")}
-            title={isLearning ? "Reset to Unknown" : "Mark as Learning"}
-            className={`px-2 py-1 font-mono text-[11px] border transition-colors cursor-pointer ${
-              isLearning
-                ? "border-[#111111] bg-[#B8FF01] text-[#111111] font-semibold"
-                : "border-[#CCCCCC] bg-white text-[#555555] hover:border-[#111111] hover:text-[#111111]"
-            }`}
-          >
-            {isLearning ? "● Learning" : "Learn"}
-          </button>
-          <button
-            type="button"
-            onClick={() => onChangeWordStatus(word, "known")}
-            title={isKnown ? "Reset to Unknown" : "Mark as Known"}
-            className={`px-2.5 py-1 font-mono text-[11px] border transition-colors cursor-pointer ${
-              isKnown
-                ? "border-[#111111] bg-[#111111] text-[#B8FF01] font-semibold"
-                : "border-[#111111] bg-white text-[#111111] hover:bg-[#B8FF01]"
-            }`}
-          >
-            {isKnown ? "✓ Known" : "Known"}
-          </button>
-        </div>
+        <div className="col-span-2">{actions}</div>
       </div>
 
       {open && (

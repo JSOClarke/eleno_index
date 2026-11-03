@@ -3,6 +3,7 @@ import { VocabTableSkeleton } from "@/components/layout/VocabTableSkeleton";
 import { matchesStatusFilter, sortPrimerWords, type PrimerSortField, type RankingSourceKey, type SortDirection, type VocabStatusFilter } from "@/lib/vocabSorting";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 import { CanonicalPrimerRow } from "./CanonicalPrimerRow";
+import { PrimerFilterBar } from "./PrimerFilterBar";
 
 interface CanonicalPrimerTableProps {
   mediaItemId: string;
@@ -71,6 +72,13 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
     setPage(1);
   };
 
+  const changeSort = (value: string) => {
+    const [field, dir] = value.split(":") as [PrimerSortField, SortDirection];
+    setSortField(field);
+    setSortDir(dir);
+    setPage(1);
+  };
+
   const totalPages = Math.max(1, Math.ceil(sortedAndFiltered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
   const slice = sortedAndFiltered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
@@ -79,41 +87,26 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#F8F8F6] border border-[#E2E2DF] p-2.5">
-        <div className="flex flex-wrap items-center gap-2">
-          <input type="text" value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="Search canonical lemma..." className="border border-[#111111] bg-white px-3 py-1 font-mono text-xs outline-none w-52" />
-          {selectedChapter !== "all" && (
-            <button type="button" onClick={onClearChapter} className="bg-[#B8FF01] text-[#111111] border border-[#111111] px-2.5 py-1 font-mono text-xs font-semibold cursor-pointer">
-              Debut in {isEpisodeMode ? `EP.${selectedChapter}` : `CH.${selectedChapter}`} ×
-            </button>
-          )}
-          <div className="flex items-center border border-[#111111] font-mono text-[11px]">
-            {(["ALL", "UNKNOWN", "LEARNING", "KNOWN"] as const).map((st) => (
-              <button key={st} type="button" onClick={() => { setStatusFilter(st); setPage(1); }} className={`px-2 py-1 cursor-pointer transition-colors ${statusFilter === st ? "bg-[#111111] text-[#B8FF01] font-semibold" : "bg-white text-[#555555] hover:text-[#111111]"}`}>{st} ({statusCounts[st]})</button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-          <div className="flex items-center border border-[#111111]">
-            {([["tubelex_v2025", "TUBELEX"], ["elelex_v2020", "ELELEX"]] as const).map(([src, label]) => (
-              <button key={src} type="button" onClick={() => setRankingSource(src)} className={`px-2.5 py-1 cursor-pointer transition-colors ${rankingSource === src ? "bg-[#B8FF01] text-[#111111] font-semibold" : "bg-white text-[#666666] hover:text-[#111111]"}`}>
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-1">
-            {["ALL", "NOUN", "VERB", "ADJ", "ADV"].map((pos) => (
-              <button key={pos} type="button" onClick={() => { setPosFilter(pos); setPage(1); }} className={`px-2 py-1 border cursor-pointer ${posFilter === pos ? "border-[#111111] bg-[#111111] text-white" : "border-[#CCCCCC] bg-white text-[#111111]"}`}>
-                {pos}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+      <PrimerFilterBar
+        query={query}
+        onQueryChange={(value) => { setQuery(value); setPage(1); }}
+        statusFilter={statusFilter}
+        onStatusFilter={(value) => { setStatusFilter(value); setPage(1); }}
+        statusCounts={statusCounts}
+        posFilter={posFilter}
+        onPosFilter={(value) => { setPosFilter(value); setPage(1); }}
+        rankingSource={rankingSource}
+        onRankingSource={setRankingSource}
+        selectedChapter={selectedChapter}
+        onClearChapter={onClearChapter}
+        isEpisodeMode={isEpisodeMode}
+        sortValue={`${sortField}:${sortDir}`}
+        onSortChange={changeSort}
+        resultCount={sortedAndFiltered.length}
+      />
 
       <div className="border border-[#111111]">
-        <div className="grid grid-cols-12 gap-3 px-4 py-2.5 bg-[#F4F4F2] border-b border-[#111111] font-mono text-xs text-[#666666] uppercase">
+        <div className="hidden grid-cols-12 gap-3 px-4 py-2.5 bg-[#F4F4F2] border-b border-[#111111] font-mono text-xs text-[#666666] uppercase md:grid">
           <button type="button" onClick={() => toggleSort("lemma", "asc")} className="col-span-2 text-left hover:text-[#111111] cursor-pointer font-semibold">LEMMA{arrow("lemma")}</button>
           <div className="col-span-2">IPA</div>
           <button type="button" onClick={() => toggleSort("pos", "asc")} className="col-span-1 text-left hover:text-[#111111] cursor-pointer font-semibold">POS{arrow("pos")}</button>
@@ -137,9 +130,9 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between font-mono text-xs pt-1">
+      <div className="flex flex-col gap-2 pt-1 font-mono text-xs sm:flex-row sm:items-center sm:justify-between">
         <span className="text-[#666666]">Showing {sortedAndFiltered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sortedAndFiltered.length)} of {sortedAndFiltered.length} lemmas (20 / page)</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 sm:justify-end">
           <button type="button" disabled={safePage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} className="px-3 py-1 border border-[#111111] bg-white disabled:opacity-40 cursor-pointer">← Prev</button>
           <span>Page {safePage} / {totalPages}</span>
           <button type="button" disabled={safePage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="px-3 py-1 border border-[#111111] bg-white disabled:opacity-40 cursor-pointer">Next →</button>
