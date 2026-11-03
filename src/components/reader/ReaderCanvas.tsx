@@ -22,6 +22,7 @@ interface ReaderCanvasProps {
   highlightUnknownOnly: boolean;
   selectedTokenId: string | null;
   onSelectToken: (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string) => void;
+  onToggleKnown?: (canonicalId: string, currentStatus: UserVocabStatus | undefined) => void;
 }
 
 function checkIPlusOne(sent: ElenoToken[], lexicon: ElenoLexiconEntry[], statusMap: Record<string, UserVocabStatus>): boolean {
@@ -49,6 +50,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
   highlightUnknownOnly,
   selectedTokenId,
   onSelectToken,
+  onToggleKnown,
 }) => {
   return (
     <article className="max-w-[740px] mx-auto select-text pt-4 pb-28">
@@ -85,6 +87,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
                         highlightUnknownOnly={highlightUnknownOnly}
                         isSelected={isSelected}
                         onSelect={(surf, entry, morph) => onSelectToken(surf, entry, bIdx, sIdx, morph)}
+                        onToggleKnown={onToggleKnown}
                       />
                     );
                   })}

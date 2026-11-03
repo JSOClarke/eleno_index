@@ -115,6 +115,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
             highlightUnknownOnly={highlightUnknownOnly}
             selectedTokenId={selectedToken?.entry.id || null}
             onSelectToken={selectToken}
+            onToggleKnown={(id, st) => onSetWordStatus(id, st === "known" ? null : "known")}
           />
         ) : null}
       </main>

@@ -12,6 +12,7 @@ interface ReaderTokenSpanProps {
   highlightUnknownOnly: boolean;
   isSelected: boolean;
   onSelect: (surface: string, entry: ElenoLexiconEntry, morph?: string) => void;
+  onToggleKnown?: (canonicalId: string, currentStatus: UserVocabStatus | undefined) => void;
 }
 
 export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
@@ -24,6 +25,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
     highlightUnknownOnly,
     isSelected,
     onSelect,
+    onToggleKnown,
   }) => {
     if (typeof token === "string") {
       return <span>{token}</span>;
@@ -57,12 +59,18 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
       styleClass += "text-[#111111] border-b-2 border-dotted border-[#888888] hover:border-[#111111] hover:bg-[#F4F4F2] ";
     }
 
+    const handleContextMenu = (e: React.MouseEvent) => {
+      e.preventDefault();
+      onToggleKnown?.(entry.id, status);
+    };
+
     const shouldShowRuby = showRuby && !!entry.hint && (isLearning || isUnknown);
 
     if (shouldShowRuby) {
       return (
         <span
           onClick={() => onSelect(surface, entry, morph)}
+          onContextMenu={handleContextMenu}
           className={styleClass}
         >
           <ruby className="[ruby-position:over]">
@@ -78,6 +86,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
     return (
       <span
         onClick={() => onSelect(surface, entry, morph)}
+        onContextMenu={handleContextMenu}
         className={styleClass}
       >
         {surface}
