@@ -18,6 +18,7 @@ interface FacetSidebarProps {
   onToggleType: (type: string) => void;
   onToggleLength: (bucket: LengthBucket) => void;
   onToggleProfile: (profile: ProfileFilterId) => void;
+  variant?: "sidebar" | "sheet";
 }
 
 export const FacetSidebar: React.FC<FacetSidebarProps> = ({
@@ -27,6 +28,7 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
   onToggleType,
   onToggleLength,
   onToggleProfile,
+  variant = "sidebar",
 }) => {
   const levelOptions = ["A1", "A2", "B1", "B2", "C1"].map((lvl) => ({
     id: lvl,
@@ -65,7 +67,13 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
   ];
 
   return (
-    <aside className="w-52 shrink-0 space-y-6 select-none">
+    <aside
+      className={
+        variant === "sheet"
+          ? "w-full space-y-6 select-none"
+          : "w-52 shrink-0 space-y-6 select-none"
+      }
+    >
       <FacetGroup
         title="LEVEL"
         options={levelOptions}
