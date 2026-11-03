@@ -19,11 +19,13 @@ src/
 │   ├── catalogue.api.ts       # Base media_item + media_work + media_metrics fetch & RPC batch enrichment
 │   ├── inspector.api.ts       # Media vocabulary, chapter comprehension, quarantine, & sentence_bank queries
 │   ├── normalizers.ts         # BIGINT/NUMERIC -> Number() coercion at the API boundary
+│   ├── reader.api.ts          # Storage artifact manifest/chapter fetches & reading progress persistence
 │   └── vocabulary.api.ts      # User vocabulary status persistence & tracked words ledger queries
 ├── components/
 │   ├── catalogue/             # FacetSidebar, CommandFilterBar, CatalogueTable, CatalogueCardsGrid, InlinePreviewDrawer
 │   ├── inspector/             # InspectorSpecHeader, LinguisticProfileRow, ChapterPacingStrip, CanonicalPrimerTable/Row
 │   ├── layout/                # TopNavBar, BookCoverPlate, VocabTableSkeleton, WordContextDrawer, AuthModal
+│   ├── reader/                # ReaderTopBar, ReaderBottomBar, ReaderCanvas, ReaderTokenSpan, ReaderWordDock, ReaderHighlightControls
 │   └── views/                 # KnownWordsView & KnownWordRow (/known-words ledger)
 ├── hooks/
 │   ├── useAuth.ts             # Supabase session & auth state
@@ -31,19 +33,27 @@ src/
 │   ├── useFacetCounts.ts      # Live cross-filtered facet counts
 │   ├── useFilterState.ts      # URL/state filters, sorting, saved list, and recently viewed history
 │   ├── useMediaInspector.ts   # Per-media vocabulary, chapter metrics, & 1.2s debounced RPC re-sync
+│   ├── useReaderScroll.ts     # Viewport intersection observation & auto-resumption scrolling
+│   ├── useReaderSession.ts    # Chapter loading, highlighting state, debounced Supabase progress saves
 │   └── useUserVocabulary.ts   # LocalStorage-backed user_vocabulary statusMap ('known' | 'learning')
 ├── lib/
 │   ├── coverArt.ts            # Deterministic fallback cover plates
 │   ├── formatters.ts          # Number, percentage, and series/media subtype formatters
+│   ├── grammarFormatters.ts   # SpaCy UD grammatical morphology formatter into natural English
 │   ├── knownWordsCache.ts     # Signature-verified memory + localStorage cache for /known-words
+│   ├── readerCache.ts         # IndexedDB / localStorage multi-chapter reader artifact cache
+│   ├── readerHighlight.ts     # CEFR & Frequency rank color band definitions and class resolvers
 │   ├── supabase.ts            # Singleton Supabase client
 │   └── vocabSorting.ts        # Shared sorting & status-filtering logic for Canonical Primer & Known Words
 ├── pages/
 │   ├── CataloguePage.tsx      # /, /saved, /history routes
-│   └── InspectorPage.tsx      # /media/:mediaId route
+│   ├── InspectorPage.tsx      # /media/:mediaId route
+│   └── ReaderPage.tsx         # /read/:mediaId pre-tokenized book reader route
 └── types/
     ├── filter.types.ts
     ├── media.types.ts
+    ├── reader.types.ts
+    ├── sentence.types.ts
     └── vocabulary.types.ts
 ```
 
@@ -60,8 +70,17 @@ src/
      - Filter by word state (`ALL`, `UNKNOWN`, `LEARNING`, `KNOWN`), `POS`, and search query.
      - Sort by `LEMMA`, `POS`, `CEFR`, `FREQ`, `TUBELEX / ELELEX` rank, or `DEBUT CHAPTER / EPISODE`.
      - Expandable `<Quote />` **Word Context Drawer** displaying numbered Kaikki English definitions (`0ms`) alongside authentic sentences from `sentence_bank`.
-3. **Vocabulary Ledger (`/known-words`)**:
+3. **Neo-Swiss Pre-Tokenized Reader (`/read/:mediaId`)**:
+   - Zero-delay reading canvas rendering pre-tokenized chapter artifacts directly from Supabase Storage.
+   - **100% Token Interactivity**: Every single word is interactive; left-click opens the brutalist Word Dock; right-click toggles **Known** status instantly. Clicking in free space dismisses the dock.
+   - **Static Typography & Zero Reflow**: Overhead floating hints sit in generous line headroom without stretching word kerning or causing lines to jump on toggle.
+   - **Difficulty Underline Bands**: Toggleable **CEFR** (A1–C2) and **Frequency Rank** (1k–10k+) color bands with an **"Unknown only"** filter.
+   - **Word Dock**: Displays grammatical morphology (tense, mood, person, gender), IPA, TubeLex rank, Kaikki definitions, and native text-to-speech audio.
+   - **Debounced Progress Tracking**: Automatically records reading percentage and current chapter/block to Supabase, restoring scroll position on return.
+4. **Vocabulary Ledger (`/known-words`)**:
    - Signature-cached (`0ms` repeat load) ledger of all `Known` and `Learning` canonical lemmas with `TUBELEX` / `ELELEX` toggle, `POS` & state filters, column sorting, and `<Quote />` definitions/sentences drawer.
+5. **Upcoming: Open Tokenized Sentence Bank ($i+1$)**:
+   - Full architectural plan in [`docs/SENTENCE_BANK_TOKENIZED_PLAN.md`](docs/SENTENCE_BANK_TOKENIZED_PLAN.md).
 
 ---
 
