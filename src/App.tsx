@@ -37,6 +37,8 @@ export const App: React.FC = () => {
     loading: catalogue.loading,
     filterState,
     statusMap: userVocab.statusMap,
+    isAuthenticated: Boolean(auth.user),
+    onRequireAuth: () => setAuthModalOpen(true),
     onToggleWord: handleTogglePreviewWord,
   };
 

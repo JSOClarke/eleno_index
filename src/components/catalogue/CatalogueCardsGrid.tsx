@@ -9,6 +9,8 @@ interface CatalogueCardsGridProps {
   expandedRowId: string | null;
   savedIds: Set<string>;
   statusMap: Record<string, UserVocabStatus>;
+  isAuthenticated: boolean;
+  onRequireAuth: () => void;
   onSelectCard: (id: string) => void;
   onToggleSave: (id: string) => void;
   onToggleWord: (item: MediaCatalogItem, word: PreviewWordItem) => void;
@@ -20,6 +22,8 @@ export const CatalogueCardsGrid: React.FC<CatalogueCardsGridProps> = ({
   expandedRowId,
   savedIds,
   statusMap,
+  isAuthenticated,
+  onRequireAuth,
   onSelectCard,
   onToggleSave,
   onToggleWord,
@@ -64,6 +68,8 @@ export const CatalogueCardsGrid: React.FC<CatalogueCardsGridProps> = ({
           isSelected={expandedRowId === item.id}
           isSaved={savedIds.has(item.id)}
           statusMap={statusMap}
+          isAuthenticated={isAuthenticated}
+          onRequireAuth={onRequireAuth}
           onSelectCard={onSelectCard}
           onToggleSave={onToggleSave}
           onToggleWord={onToggleWord}

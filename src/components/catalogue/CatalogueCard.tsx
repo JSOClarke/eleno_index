@@ -1,15 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
-import { formatCompactWords, formatLearningDelta, formatPercent, getMediaSubtypeLabel } from "@/lib/formatters";
+import { formatCompactWords, formatPercent, getMediaSubtypeLabel } from "@/lib/formatters";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
+import { CardCoveragePanel } from "./CardCoveragePanel";
 
 interface CatalogueCardProps {
   item: MediaCatalogItem;
   isSelected: boolean;
   isSaved: boolean;
   statusMap: Record<string, UserVocabStatus>;
+  isAuthenticated: boolean;
+  onRequireAuth: () => void;
   onSelectCard: (id: string) => void;
   onToggleSave: (id: string) => void;
   onToggleWord: (item: MediaCatalogItem, word: PreviewWordItem) => void;
@@ -20,6 +23,8 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
   isSelected,
   isSaved,
   statusMap,
+  isAuthenticated,
+  onRequireAuth,
   onSelectCard,
   onToggleSave,
   onToggleWord,
@@ -27,9 +32,6 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
   const fh = Math.round(m?.readability_score || 70);
-  const flowPct = item.comprehension?.text_coverage_percentage ?? item.comprehension?.comprehension_percentage ?? 0;
-  const learnFlowPct = item.comprehension?.learning_text_coverage_percentage ?? 0;
-  const vocabPct = Math.round(item.comprehension?.comprehension_percentage ?? 0);
   const wpm = m?.words_per_minute ? Math.round(m.words_per_minute) : null;
   const dialOrSpeedLabel = wpm ? `${wpm} WPM` : `${formatPercent(m?.dialogue_ratio, 1)} dialogue`;
   const subjPct = formatPercent(m?.verb_profile?.subjunctive_load, 1);
@@ -72,20 +74,11 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
                   {formatCompactWords(m?.total_tokens || 0)} · {dialOrSpeedLabel} · {subjPct} subj
                 </div>
               </div>
-              <div className="bg-[#F4F4F2] border border-[#E2E2DF] p-2.5 space-y-1.5">
-                <div className="flex items-center justify-between font-mono text-xs">
-                  <span className="text-[#555555]">KNOWN FLOW</span>
-                  <span className="font-bold text-[#111111] tabular-nums">
-                    {Math.round(flowPct)}%{learnFlowPct > 0 ? ` ${formatLearningDelta(learnFlowPct)}` : ""} ({vocabPct}% voc)
-                  </span>
-                </div>
-                <div className="w-full h-2 border border-[#111111] bg-white overflow-hidden flex">
-                  <div className="h-full bg-[#111111] transition-all duration-200" style={{ width: `${Math.min(100, flowPct)}%` }} />
-                  {learnFlowPct > 0 && (
-                    <div className="h-full bg-[#B8FF01] border-l border-[#111111]/40 transition-all duration-200" style={{ width: `${Math.min(100 - flowPct, Math.max(learnFlowPct, 2))}%` }} />
-                  )}
-                </div>
-              </div>
+              <CardCoveragePanel
+                item={item}
+                isAuthenticated={isAuthenticated}
+                onRequireAuth={onRequireAuth}
+              />
             </div>
           </div>
 

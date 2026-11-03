@@ -9,6 +9,8 @@ interface CatalogueTableProps {
   expandedRowId: string | null;
   savedIds: Set<string>;
   statusMap: Record<string, UserVocabStatus>;
+  isAuthenticated: boolean;
+  onRequireAuth: () => void;
   onToggleExpand: (id: string) => void;
   onToggleSave: (id: string) => void;
   onToggleWord: (item: MediaCatalogItem, word: PreviewWordItem) => void;
@@ -20,6 +22,8 @@ export const CatalogueTable: React.FC<CatalogueTableProps> = ({
   expandedRowId,
   savedIds,
   statusMap,
+  isAuthenticated,
+  onRequireAuth,
   onToggleExpand,
   onToggleSave,
   onToggleWord,
@@ -57,6 +61,8 @@ export const CatalogueTable: React.FC<CatalogueTableProps> = ({
               isExpanded={expandedRowId === item.id}
               isSaved={savedIds.has(item.id)}
               statusMap={statusMap}
+              isAuthenticated={isAuthenticated}
+              onRequireAuth={onRequireAuth}
               onToggleExpand={onToggleExpand}
               onToggleSave={onToggleSave}
               onToggleWord={onToggleWord}

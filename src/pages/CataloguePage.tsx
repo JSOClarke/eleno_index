@@ -18,6 +18,8 @@ interface CataloguePageProps {
   loading: boolean;
   filterState: ReturnType<typeof useFilterState>;
   statusMap: Record<string, UserVocabStatus>;
+  isAuthenticated: boolean;
+  onRequireAuth: () => void;
   onToggleWord: (item: MediaCatalogItem, word: PreviewWordItem) => void;
 }
 
@@ -27,6 +29,8 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
   loading,
   filterState,
   statusMap,
+  isAuthenticated,
+  onRequireAuth,
   onToggleWord,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -67,6 +71,8 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
     expandedRowId,
     savedIds: filterState.savedIds,
     statusMap,
+    isAuthenticated,
+    onRequireAuth,
     onToggleSave: filterState.toggleSave,
     onToggleWord,
   };

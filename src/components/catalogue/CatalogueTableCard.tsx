@@ -2,12 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
+import { CoverageGate } from "@/components/ui/CoverageGate";
 import type { MediaCatalogItem } from "@/types/media.types";
 import { CatalogueFlowBar } from "./CatalogueFlowBar";
 
 interface CatalogueTableCardProps {
   item: MediaCatalogItem;
   isSaved: boolean;
+  isAuthenticated: boolean;
+  onRequireAuth: () => void;
   onToggleSave: (id: string) => void;
 }
 
@@ -18,6 +21,8 @@ interface CatalogueTableCardProps {
 export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
   item,
   isSaved,
+  isAuthenticated,
+  onRequireAuth,
   onToggleSave,
 }) => {
   const m = item.metrics;
@@ -55,11 +60,17 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
             <span className="border border-[#111111] bg-white px-1.5 py-0.5">{level}</span>
             <span>{formatCompactWords(m?.total_tokens || 0)}</span>
             <span>F-H {fh}</span>
-            <span className="font-semibold">{Math.round(flowPct)}% known</span>
+            {isAuthenticated && (
+              <span className="font-semibold">{Math.round(flowPct)}% known</span>
+            )}
           </div>
 
-          <div className="mt-1.5" title={flowTitle}>
-            <CatalogueFlowBar flowPct={flowPct} learnFlowPct={learnFlowPct} />
+          <div className="mt-1.5" title={isAuthenticated ? flowTitle : undefined}>
+            {isAuthenticated ? (
+              <CatalogueFlowBar flowPct={flowPct} learnFlowPct={learnFlowPct} />
+            ) : (
+              <CoverageGate onSignIn={onRequireAuth} label="Sign in to see coverage" />
+            )}
           </div>
 
           <div className="mt-2 flex gap-2">

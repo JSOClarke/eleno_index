@@ -76,7 +76,12 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
 
   return (
     <div className="space-y-6">
-      <InspectorSpecHeader item={item} comprehension={inspector.bookComp} />
+      <InspectorSpecHeader
+        item={item}
+        comprehension={inspector.bookComp}
+        isAuthenticated={Boolean(userId)}
+        onRequireAuth={onRequireAuth}
+      />
 
       <LinguisticProfileRow metrics={item.metrics} />
 

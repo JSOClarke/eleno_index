@@ -1,24 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
-import {
-  formatCompactWords,
-  formatLearningDelta,
-  formatPercent,
-} from "@/lib/formatters";
+import { formatCompactWords, formatPercent } from "@/lib/formatters";
 import type {
   MediaCatalogItem,
   MediaComprehensionStats,
 } from "@/types/media.types";
+import { InspectorFlowPanel } from "./InspectorFlowPanel";
 
 interface InspectorSpecHeaderProps {
   item: MediaCatalogItem;
   comprehension: MediaComprehensionStats | null;
+  isAuthenticated: boolean;
+  onRequireAuth: () => void;
 }
 
 export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   item,
   comprehension,
+  isAuthenticated,
+  onRequireAuth,
 }) => {
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
@@ -93,51 +94,24 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
         </div>
 
         <div className="col-span-12 lg:col-span-5 grid grid-cols-2 gap-4 lg:border-l border-[#E2E2DF] lg:pl-6">
-          <div>
-            <div className="font-mono text-xs text-[#666666] uppercase">
-              01 / READING FLOW
-            </div>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-3xl font-bold font-mono tabular-nums">{Math.round(flowPct)}%</span>
-              {learnFlowPct > 0 && (
-                <span className="font-mono text-xs font-semibold px-1.5 py-0.5 bg-[#B8FF01] border border-[#111111]">
-                  {formatLearningDelta(learnFlowPct)} learn
-                </span>
-              )}
-            </div>
-            <div className="w-full h-2.5 border border-[#111111] bg-white mt-2 flex overflow-hidden">
-              <div className="h-full bg-[#111111] transition-all duration-200" style={{ width: `${Math.min(100, flowPct)}%` }} />
-              {learnFlowPct > 0 && (
-                <div className="h-full bg-[#B8FF01] border-l border-[#111111]/40 transition-all duration-200" style={{ width: `${Math.min(100 - flowPct, Math.max(learnFlowPct, 1.5))}%` }} />
-              )}
-            </div>
-            <div className="font-mono text-xs text-[#666666] mt-1.5">
-              {formatCompactWords(m?.total_tokens || 0)} total
-            </div>
-          </div>
-
-          <div>
-            <div className="font-mono text-xs text-[#666666] uppercase">
-              02 / VOCAB MASTERY
-            </div>
-            <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-3xl font-bold font-mono tabular-nums">{Math.round(vocabPct)}%</span>
-              {learnVocabPct > 0 && (
-                <span className="font-mono text-xs font-semibold px-1.5 py-0.5 bg-[#B8FF01] border border-[#111111]">
-                  {formatLearningDelta(learnVocabPct)} learn
-                </span>
-              )}
-            </div>
-            <div className="w-full h-2.5 border border-[#111111] bg-white mt-2 flex overflow-hidden">
-              <div className="h-full bg-[#111111] transition-all duration-200" style={{ width: `${Math.min(100, vocabPct)}%` }} />
-              {learnVocabPct > 0 && (
-                <div className="h-full bg-[#B8FF01] border-l border-[#111111]/40 transition-all duration-200" style={{ width: `${Math.min(100 - vocabPct, Math.max(learnVocabPct, 1.5))}%` }} />
-              )}
-            </div>
-            <div className="font-mono text-xs text-[#666666] mt-1.5">
-              F-H {fh} · {dialOrWpm}
-            </div>
-          </div>
+          <InspectorFlowPanel
+            index="01"
+            title="READING FLOW"
+            pct={flowPct}
+            learnPct={learnFlowPct}
+            footnote={<>{formatCompactWords(m?.total_tokens || 0)} total</>}
+            isAuthenticated={isAuthenticated}
+            onSignIn={onRequireAuth}
+          />
+          <InspectorFlowPanel
+            index="02"
+            title="VOCAB MASTERY"
+            pct={vocabPct}
+            learnPct={learnVocabPct}
+            footnote={<>F-H {fh} · {dialOrWpm}</>}
+            isAuthenticated={isAuthenticated}
+            onSignIn={onRequireAuth}
+          />
         </div>
       </div>
     </div>

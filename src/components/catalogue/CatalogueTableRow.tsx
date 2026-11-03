@@ -1,6 +1,7 @@
 import React from "react";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
+import { CoverageGate } from "@/components/ui/CoverageGate";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { CatalogueFlowBar } from "./CatalogueFlowBar";
@@ -12,6 +13,8 @@ interface CatalogueTableRowProps {
   isExpanded: boolean;
   isSaved: boolean;
   statusMap: Record<string, UserVocabStatus>;
+  isAuthenticated: boolean;
+  onRequireAuth: () => void;
   onToggleExpand: (id: string) => void;
   onToggleSave: (id: string) => void;
   onToggleWord: (item: MediaCatalogItem, word: PreviewWordItem) => void;
@@ -22,6 +25,8 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
   isExpanded,
   isSaved,
   statusMap,
+  isAuthenticated,
+  onRequireAuth,
   onToggleExpand,
   onToggleSave,
   onToggleWord,
@@ -42,7 +47,13 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
 
   return (
     <div>
-      <CatalogueTableCard item={item} isSaved={isSaved} onToggleSave={onToggleSave} />
+      <CatalogueTableCard
+        item={item}
+        isSaved={isSaved}
+        isAuthenticated={isAuthenticated}
+        onRequireAuth={onRequireAuth}
+        onToggleSave={onToggleSave}
+      />
 
       <div
         onClick={() => onToggleExpand(item.id)}
@@ -82,12 +93,18 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
         <div className="col-span-2 truncate text-xs">{item.creator}</div>
 
         <div className="col-span-2 flex items-center gap-2.5" title={flowTitle}>
-          <div className="w-24">
-            <CatalogueFlowBar flowPct={flowPct} learnFlowPct={learnFlowPct} />
-          </div>
-          <span className="font-mono text-xs font-medium tabular-nums">
-            {Math.round(flowPct)}%
-          </span>
+          {isAuthenticated ? (
+            <>
+              <div className="w-24">
+                <CatalogueFlowBar flowPct={flowPct} learnFlowPct={learnFlowPct} />
+              </div>
+              <span className="font-mono text-xs font-medium tabular-nums">
+                {Math.round(flowPct)}%
+              </span>
+            </>
+          ) : (
+            <CoverageGate onSignIn={onRequireAuth} label="Sign in for coverage" />
+          )}
         </div>
 
         <div
