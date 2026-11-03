@@ -1,7 +1,10 @@
 export type HighlightMode = "none" | "cefr" | "rank";
 
 export interface ElenoLexiconEntry {
-  id: string;
+  /** Canonical UUID, or null for a wordform without a canonical row. */
+  id: string | null;
+  /** false = untracked wordform (proper noun, typo, unindexed); never mark it known. */
+  tracked?: boolean;
   lemma: string;
   pos: string;
   cefr: string;
@@ -10,6 +13,9 @@ export interface ElenoLexiconEntry {
   hint?: string | null;
   definitions: string[];
 }
+
+/** A lexicon entry that is guaranteed to have an authoritative canonical row. */
+export type TrackedLexiconEntry = ElenoLexiconEntry & { id: string };
 
 export interface ElenoReaderChapterMeta {
   index: number;

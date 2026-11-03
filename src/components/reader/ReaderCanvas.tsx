@@ -30,7 +30,7 @@ function checkIPlusOne(sent: ElenoToken[], lexicon: ElenoLexiconEntry[], statusM
   for (const t of sent) {
     if (Array.isArray(t)) {
       const entry = lexicon[t[1]];
-      if (entry && statusMap[entry.id] !== "known") {
+      if (entry && entry.id && statusMap[entry.id] !== "known") {
         unfamiliarCount++;
         if (unfamiliarCount > 1) return false;
       }
@@ -75,7 +75,8 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
               return (
                 <span key={sIdx} className={sentClass}>
                   {sent.map((tok, tIdx) => {
-                    const isSelected = Array.isArray(tok) && lexicon[tok[1]]?.id === selectedTokenId;
+                    const entryId = Array.isArray(tok) ? lexicon[tok[1]]?.id : undefined;
+                    const isSelected = !!entryId && entryId === selectedTokenId;
                     return (
                       <ReaderTokenSpan
                         key={tIdx}

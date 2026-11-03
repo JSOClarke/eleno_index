@@ -35,7 +35,11 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
     const entry = lexicon[lexIdx];
     if (!entry) return <span>{surface}</span>;
 
-    const status = statusMap[entry.id];
+    // Untracked wordform (proper noun, typo, unindexed): plain text, no actions.
+    if (!entry.id) return <span>{surface}</span>;
+    const canonicalId = entry.id;
+
+    const status = statusMap[canonicalId];
     const isKnown = status === "known";
     const isLearning = status === "learning";
     const isUnknown = !status;
@@ -67,7 +71,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
     const handleContextMenu = (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      onToggleKnown?.(entry.id, status);
+      onToggleKnown?.(canonicalId, status);
     };
 
     const shouldShowRuby = showRuby && !!entry.hint && (isLearning || isUnknown);

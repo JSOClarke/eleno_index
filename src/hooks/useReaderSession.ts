@@ -6,11 +6,12 @@ import type {
   ElenoReaderChapter,
   ElenoReaderManifest,
   HighlightMode,
+  TrackedLexiconEntry,
 } from "@/types/reader.types";
 
 export interface SelectedTokenState {
   surface: string;
-  entry: ElenoLexiconEntry;
+  entry: TrackedLexiconEntry;
   morph?: string;
   blockIndex: number;
   sentenceIndex: number;
@@ -87,7 +88,14 @@ export function useReaderSession(
 
   const selectToken = useCallback(
     (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string) => {
-      setSelectedToken({ surface, entry, morph, blockIndex: bIdx, sentenceIndex: sIdx });
+      if (!entry.id) return;
+      setSelectedToken({
+        surface,
+        entry: { ...entry, id: entry.id },
+        morph,
+        blockIndex: bIdx,
+        sentenceIndex: sIdx,
+      });
     },
     []
   );
