@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AuthModal } from "@/components/layout/AuthModal";
+import { BottomTabBar } from "@/components/layout/BottomTabBar";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { KnownWordsView } from "@/components/views/KnownWordsView";
 import { useAuth } from "@/hooks/useAuth";
@@ -57,7 +58,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#111111]">
+    <div className="min-h-[100dvh] flex flex-col bg-white text-[#111111]">
       <TopNavBar
         savedCount={filterState.savedIds.size}
         knownCount={userVocab.knownCount}
@@ -66,7 +67,7 @@ export const App: React.FC = () => {
         onSignOut={auth.signOut}
       />
 
-      <main className="max-w-[1380px] w-full mx-auto px-6 py-6 flex-1">
+      <main className="max-w-[1380px] w-full mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-24 md:pb-6 flex-1">
         <Routes>
           <Route
             path="/"
@@ -109,6 +110,11 @@ export const App: React.FC = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+
+      <BottomTabBar
+        savedCount={filterState.savedIds.size}
+        knownCount={userVocab.knownCount}
+      />
 
       <AuthModal
         isOpen={authModalOpen}

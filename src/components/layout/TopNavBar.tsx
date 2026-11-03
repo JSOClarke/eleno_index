@@ -32,8 +32,8 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
   return (
     <header className="border-b border-[#E2E2DF] bg-white sticky top-0 z-30">
-      <div className="max-w-[1380px] mx-auto px-6 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-8">
+      <div className="max-w-[1380px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div className="flex items-center gap-4 sm:gap-8 min-w-0">
           <Link
             to="/"
             className="flex items-center gap-1.5 font-mono text-base font-bold tracking-tight"
@@ -44,7 +44,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             </span>
           </Link>
 
-          <nav className="flex items-center gap-6 text-sm">
+          <nav className="hidden md:flex items-center gap-6 text-sm">
             {navItems.map((tab) => {
               const isActive = tab.match(pathname);
               return (
@@ -64,14 +64,14 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           </nav>
         </div>
 
-        <div className="flex items-center gap-4 font-mono text-xs text-[#555555]">
-          <span className="hidden md:inline">
+        <div className="flex items-center gap-2 sm:gap-4 font-mono text-xs text-[#555555] shrink-0">
+          <span className="hidden lg:inline">
             Spanish · target level <strong className="text-[#111111]">B1</strong>
           </span>
-          <span>·</span>
+          <span className="hidden lg:inline">·</span>
           {user ? (
-            <div className="flex items-center gap-3">
-              <span className="text-[#111111] font-medium truncate max-w-[160px]">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="hidden sm:inline text-[#111111] font-medium truncate max-w-[160px]">
                 {user.email}
               </span>
               <button
@@ -88,7 +88,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               onClick={onOpenAuth}
               className="px-3 py-1 bg-[#111111] text-[#B8FF01] font-semibold border border-[#111111] hover:bg-[#222222] cursor-pointer"
             >
-              Sign in to sync
+              Sign in
             </button>
           )}
         </div>
