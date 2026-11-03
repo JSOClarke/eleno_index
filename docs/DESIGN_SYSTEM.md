@@ -166,7 +166,7 @@ Mounted at `/media/:mediaId`, the Inspector serves as the deep analytical cockpi
    - Filters: State (`ALL`, `UNKNOWN`, `LEARNING`, `KNOWN`), Part of Speech (`NOUN`, `VERB`, `ADJ`, `ADV`), Search.
    - Sortable Columns: `LEMMA`, `IPA`, `POS`, `CEFR`, `FREQ`, `TUBELEX / ELELEX` ranking, `DEBUT CHAPTER`.
    - Actions: 3-state toggle buttons (`Learn`, `Known`) with immediate optimistic visual updates.
-   - **`<Quote />` Word Context Drawer**: Clicking the quote icon expands an inline drawer displaying authentic Kaikki English glosses and example sentences from `sentence_bank`.
+   - **`<Quote />` Word Context Drawer**: Clicking the quote icon expands an inline drawer displaying authentic Kaikki English glosses and tokenized examples from `sentence_bank`. Every token is interactive (Volt target word, dotted unknown words, Learning/known states), and the `i+1 COMPREHENSIBLE ONLY` segment surfaces sentences where the target word is the only unknown.
 5. **`QuarantineGrid.tsx`**:
    - Authoritative breakdown of quarantined tokens filtered out from trackable vocabulary, split into:
      - `Proper Nouns & Characters` (e.g. *Harry*, *Dobby*, *Hagrid*).

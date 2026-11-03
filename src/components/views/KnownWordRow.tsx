@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import { Quote } from "lucide-react";
-import type { WordSentenceEntry } from "@/api/inspector.api";
-import { fetchGlobalWordSentences } from "@/api/vocabulary.api";
 import { WordContextDrawer } from "@/components/layout/WordContextDrawer";
 import { formatNumber } from "@/lib/formatters";
 import type { KnownWordEntry, UserVocabStatus } from "@/types/vocabulary.types";
@@ -9,6 +7,8 @@ import type { KnownWordEntry, UserVocabStatus } from "@/types/vocabulary.types";
 interface KnownWordRowProps {
   word: KnownWordEntry;
   status: UserVocabStatus | undefined;
+  statusMap: Record<string, UserVocabStatus>;
+  userId?: string | null;
   rankingSource: "tubelex_v2025" | "elelex_v2020";
   onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
 }
@@ -16,25 +16,12 @@ interface KnownWordRowProps {
 export const KnownWordRow: React.FC<KnownWordRowProps> = ({
   word,
   status,
+  statusMap,
+  userId,
   rankingSource,
   onSetWordStatus,
 }) => {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [sentences, setSentences] = useState<WordSentenceEntry[] | null>(null);
-
-  const handleToggleSentences = async () => {
-    const nextOpen = !open;
-    setOpen(nextOpen);
-    if (nextOpen && sentences === null) {
-      setLoading(true);
-      try {
-        setSentences(await fetchGlobalWordSentences(word.canonical_id));
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
 
   const rankingEntry = word.rankings?.find((r) => r.source === rankingSource);
   const activeRank =
@@ -70,7 +57,7 @@ export const KnownWordRow: React.FC<KnownWordRowProps> = ({
         <div className="col-span-2 flex items-center justify-end gap-1">
           <button
             type="button"
-            onClick={handleToggleSentences}
+            onClick={() => setOpen((current) => !current)}
             title="Show dictionary definitions & authentic sentences"
             className={`p-1.5 border border-[#111111] transition-colors cursor-pointer ${
               open ? "bg-[#B8FF01] text-[#111111]" : "bg-white text-[#111111] hover:bg-[#F4F4F2]"
@@ -110,8 +97,10 @@ export const KnownWordRow: React.FC<KnownWordRowProps> = ({
           lemma={word.lemma}
           pos={word.pos}
           definitions={word.definitions}
-          loadingSentences={loading}
-          sentences={sentences}
+          canonicalId={word.canonical_id}
+          userId={userId}
+          statusMap={statusMap}
+          onSetWordStatus={onSetWordStatus}
           fallbackContextLabel="CORPUS EXCERPT"
         />
       )}

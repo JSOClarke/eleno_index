@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMediaInspector } from "@/hooks/useMediaInspector";
+import { useInspectorWordStatus } from "@/hooks/useInspectorWordStatus";
 import type { MediaCatalogItem } from "@/types/media.types";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 import { CanonicalPrimerTable } from "./CanonicalPrimerTable";
@@ -58,18 +59,19 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
     });
   };
 
-  const handleChangeWordStatus = (word: VocabularyWord, targetStatus: UserVocabStatus) => {
-    if (!userId) {
-      onRequireAuth();
-      return;
-    }
-    const oldStatus = statusMap[word.canonical_id];
-    const newStatus: UserVocabStatus | null = oldStatus === targetStatus ? null : targetStatus;
+  const handleSetWordStatus = useInspectorWordStatus({
+    mediaItemId: item.id,
+    userId,
+    statusMap,
+    words: inspector.vocabulary,
+    onRequireAuth,
+    onSetWordStatus,
+    onBubbleBookWordToggle,
+    onOptimisticWordChange: inspector.handleOptimisticWordChange,
+  });
 
-    onSetWordStatus(word.canonical_id, newStatus);
-    inspector.handleOptimisticWordChange(word, newStatus, oldStatus);
-    onBubbleBookWordToggle(item.id, word.frequency, newStatus, oldStatus);
-  };
+  const handleChangeWordStatus = (word: VocabularyWord, targetStatus: UserVocabStatus) =>
+    handleSetWordStatus(word.canonical_id, targetStatus);
 
   return (
     <div className="space-y-6">
@@ -131,7 +133,9 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
             selectedChapter={selectedChapter}
             onClearChapter={() => setSelectedChapter("all")}
             statusMap={statusMap}
+            userId={userId}
             onChangeWordStatus={handleChangeWordStatus}
+            onSetWordStatus={handleSetWordStatus}
           />
         ) : (
           <QuarantineGrid

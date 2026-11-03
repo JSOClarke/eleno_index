@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Quote } from "lucide-react";
-import { fetchWordSentences, type WordSentenceEntry } from "@/api/inspector.api";
 import { WordContextDrawer } from "@/components/layout/WordContextDrawer";
 import { formatNumber } from "@/lib/formatters";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
@@ -10,7 +9,10 @@ interface CanonicalPrimerRowProps {
   word: VocabularyWord;
   rankingSource: "tubelex_v2025" | "elelex_v2020";
   status: UserVocabStatus | undefined;
+  statusMap: Record<string, UserVocabStatus>;
+  userId?: string | null;
   onChangeWordStatus: (word: VocabularyWord, targetStatus: UserVocabStatus) => void;
+  onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
 }
 
 export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
@@ -18,24 +20,12 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
   word,
   rankingSource,
   status,
+  statusMap,
+  userId,
   onChangeWordStatus,
+  onSetWordStatus,
 }) => {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [sentences, setSentences] = useState<WordSentenceEntry[] | null>(null);
-
-  const handleToggleSentences = async () => {
-    const nextOpen = !open;
-    setOpen(nextOpen);
-    if (nextOpen && sentences === null) {
-      setLoading(true);
-      try {
-        setSentences(await fetchWordSentences(mediaItemId, word.canonical_id));
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
 
   const isEpisodeSnippet = /^\d+x\d+/i.test(word.first_context_snippet || "");
   const debutLabel = word.first_context_snippet
@@ -73,7 +63,7 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
         <div className="col-span-2 flex items-center justify-end gap-1">
           <button
             type="button"
-            onClick={handleToggleSentences}
+            onClick={() => setOpen((current) => !current)}
             title="Show dictionary definitions & authentic sentences"
             className={`p-1.5 border border-[#111111] transition-colors cursor-pointer ${
               open ? "bg-[#B8FF01] text-[#111111]" : "bg-white text-[#111111] hover:bg-[#F4F4F2]"
@@ -113,8 +103,11 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
           lemma={word.lemma}
           pos={word.pos}
           definitions={word.definitions}
-          loadingSentences={loading}
-          sentences={sentences}
+          canonicalId={word.canonical_id}
+          mediaItemId={mediaItemId}
+          userId={userId}
+          statusMap={statusMap}
+          onSetWordStatus={onSetWordStatus}
           fallbackContextLabel={debutLabel}
         />
       )}

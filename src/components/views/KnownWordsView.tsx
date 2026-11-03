@@ -131,7 +131,7 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
           {loading ? <VocabTableSkeleton rows={10} variant="known" /> : slice.length === 0 ? (
             <div className="p-8 text-center font-mono text-xs text-[#666666]">No matching canonical lemmas.</div>
           ) : slice.map((w) => (
-            <KnownWordRow key={w.canonical_id} word={w} status={statusMap[w.canonical_id]} rankingSource={rankingSource} onSetWordStatus={onSetWordStatus} />
+            <KnownWordRow key={w.canonical_id} word={w} status={statusMap[w.canonical_id]} statusMap={statusMap} userId={userId} rankingSource={rankingSource} onSetWordStatus={onSetWordStatus} />
           ))}
         </div>
       </div>

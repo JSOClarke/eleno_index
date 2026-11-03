@@ -11,7 +11,9 @@ interface CanonicalPrimerTableProps {
   selectedChapter: number | "all";
   onClearChapter: () => void;
   statusMap: Record<string, UserVocabStatus>;
+  userId?: string | null;
   onChangeWordStatus: (word: VocabularyWord, targetStatus: UserVocabStatus) => void;
+  onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
 }
 
 const PAGE_SIZE = 20;
@@ -23,7 +25,9 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
   selectedChapter,
   onClearChapter,
   statusMap,
+  userId,
   onChangeWordStatus,
+  onSetWordStatus,
 }) => {
   const [query, setQuery] = useState("");
   const [posFilter, setPosFilter] = useState("ALL");
@@ -127,7 +131,7 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
             <div className="p-8 text-center font-mono text-xs text-[#666666]">No matching canonical lemmas.</div>
           ) : (
             slice.map((w) => (
-              <CanonicalPrimerRow key={w.canonical_id} mediaItemId={mediaItemId} word={w} rankingSource={rankingSource} status={statusMap[w.canonical_id]} onChangeWordStatus={onChangeWordStatus} />
+              <CanonicalPrimerRow key={w.canonical_id} mediaItemId={mediaItemId} word={w} rankingSource={rankingSource} status={statusMap[w.canonical_id]} statusMap={statusMap} userId={userId} onChangeWordStatus={onChangeWordStatus} onSetWordStatus={onSetWordStatus} />
             ))
           )}
         </div>

@@ -20,10 +20,11 @@ src/
 │   ├── inspector.api.ts       # Media vocabulary, chapter comprehension, quarantine, & sentence_bank queries
 │   ├── normalizers.ts         # BIGINT/NUMERIC -> Number() coercion at the API boundary
 │   ├── reader.api.ts          # Storage artifact manifest/chapter fetches & reading progress persistence
+│   ├── sentence.api.ts        # Tokenized sentence_bank queries & i+1 RPC
 │   └── vocabulary.api.ts      # User vocabulary status persistence & tracked words ledger queries
 ├── components/
 │   ├── catalogue/             # FacetSidebar, CommandFilterBar, CatalogueTable, CatalogueCardsGrid, InlinePreviewDrawer
-│   ├── inspector/             # InspectorSpecHeader, LinguisticProfileRow, ChapterPacingStrip, CanonicalPrimerTable/Row
+│   ├── inspector/             # InspectorSpecHeader, LinguisticProfileRow, ChapterPacingStrip, CanonicalPrimerTable/Row, SentenceBankDrawer/Token*
 │   ├── layout/                # TopNavBar, BookCoverPlate, VocabTableSkeleton, WordContextDrawer, AuthModal
 │   ├── reader/                # ReaderTopBar, ReaderBottomBar, ReaderCanvas, ReaderTokenSpan, ReaderWordDock, ReaderHighlightControls
 │   └── views/                 # KnownWordsView & KnownWordRow (/known-words ledger)
@@ -32,6 +33,7 @@ src/
 │   ├── useCatalogueData.ts    # 2-phase progressive catalogue loader + 0ms optimistic comprehension math
 │   ├── useFacetCounts.ts      # Live cross-filtered facet counts
 │   ├── useFilterState.ts      # URL/state filters, sorting, saved list, and recently viewed history
+│   ├── useInspectorWordStatus.ts # Shared word/ token status toggle + optimistic book math
 │   ├── useMediaInspector.ts   # Per-media vocabulary, chapter metrics, & 1.2s debounced RPC re-sync
 │   ├── useReaderScroll.ts     # Viewport intersection observation & auto-resumption scrolling
 │   ├── useReaderSession.ts    # Chapter loading, highlighting state, debounced Supabase progress saves
@@ -79,8 +81,11 @@ src/
    - **Debounced Progress Tracking**: Automatically records reading percentage and current chapter/block to Supabase, restoring scroll position on return.
 4. **Vocabulary Ledger (`/known-words`)**:
    - Signature-cached (`0ms` repeat load) ledger of all `Known` and `Learning` canonical lemmas with `TUBELEX` / `ELELEX` toggle, `POS` & state filters, column sorting, and `<Quote />` definitions/sentences drawer.
-5. **Upcoming: Open Tokenized Sentence Bank ($i+1$)**:
-   - Full architectural plan in [`docs/SENTENCE_BANK_TOKENIZED_PLAN.md`](docs/SENTENCE_BANK_TOKENIZED_PLAN.md).
+5. **Open Tokenized Sentence Bank ($i+1$)**:
+   - Each authentic sentence is ingested once per media item with a full token array (surface, character offsets, lemma, POS, morphology) and a GIN-indexed `canonical_ids UUID[]` array.
+   - The `<Quote />` drawer renders every sentence token-by-token: Volt target word, dotted unknown words, Learning/known states, and click-through Kaikki definitions with Learn/Known toggles.
+   - Segmented `All Examples | i+1 Comprehensible Only` filter calls `get_i_plus_one_sentences` to surface sentences where the target word is the only unknown.
+   - Migration: [`eleno_backend/supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql`](file:///c:/Users/drjopari/Documents/eleno_backend/supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql).
 
 ---
 

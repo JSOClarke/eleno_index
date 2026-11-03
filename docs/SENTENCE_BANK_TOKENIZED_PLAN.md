@@ -1,7 +1,7 @@
 # Implementation Plan: Open Tokenized Sentence Bank & Mathematical $i+1$ Harvesting
 
-**Status**: Ready for AI / Developer Execution  
-**Target Architecture**: Supabase (PostgreSQL 15+), Python Pipeline (`eleno_backend`), React 19 Frontend (`eleno_index`)  
+**Status**: Implemented in code — database migration pending application
+**Target Architecture**: Supabase (PostgreSQL 15+), Python Pipeline (`eleno_backend`), React 19 Frontend (`eleno_index`)
 **Design System**: Neo-Swiss Green (`#B8FF01` Volt accent, `#111111` black ink, `#FFFFFF`/`#F8F8F6` canvas)
 
 ---
@@ -28,6 +28,8 @@
 ## 2. Database Schema & Migration Specification
 
 > **Immutability Rule**: Never edit existing migration files in-place. Create a new, sequentially timestamped migration file.
+
+> **Clean-rebuild cutover (implemented)**: Because the server is purged and re-ingested, the shipped migration drops the legacy `canonical_id`, `target_form`, `target_start_char`, and `target_end_char` columns instead of retaining them. The SQL below documents the original additive design; the applied migration is the authoritative source.
 
 ### Migration File: `supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql`
 
@@ -163,6 +165,8 @@ class SentenceBankItem(BaseModel):
     target_end_char: Optional[int] = None
 ```
 
+> **Implemented model**: The deprecated fields are not retained in `eleno_backend`; the clean rebuild writes only `sentence`, `token_count`, `source_context`, `canonical_ids`, and `tokens`.
+
 ### 3.2. Harvester Engine Update: `src/pipeline.py`
 In `TextIngestionPipeline.process_document`:
 1. Iterate through `spacy_doc.sents`.
@@ -243,19 +247,20 @@ Renders individual tokens inside the Sentence Bank drawer:
 
 ## 5. Execution Steps & Verification Checklist
 
-1. [ ] **Database Migration**:
-   - Create `supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql`.
-   - Apply migration to Supabase.
-2. [ ] **Backend Pipeline**:
-   - Update `SentenceBankItem` and `SentenceTokenItem` in `src/loaders/models.py`.
-   - Update `_harvest_sentences` in `src/pipeline.py`.
-   - Update batch upsert in `src/db/supabase_client.py`.
-   - Run unit test on a sample chapter to verify JSONB token format and `canonical_ids` array.
-3. [ ] **Backfill Script**:
-   - Create `scripts/backfill_tokenized_sentence_bank.py` to re-harvest sentences for ingested media items.
-4. [ ] **Frontend**:
-   - Add `src/types/sentence.types.ts` (`<= 150` lines).
-   - Add `src/api/sentence.api.ts` (`<= 150` lines).
-   - Create `src/components/inspector/SentenceTokenSpan.tsx` (`<= 150` lines).
-   - Update `SentenceBankDrawer.tsx` with $i+1$ toggle.
-   - Verify `tsc && vite build` passes with zero errors.
+1. [x] **Database Migration**:
+   - [x] Create `supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql`.
+   - [x] Drop legacy single-word columns and add `canonical_ids` / `tokens`.
+   - [ ] Apply migration to Supabase (after purging and before re-ingesting).
+2. [x] **Backend Pipeline**:
+   - [x] Add `SentenceTokenItem` and tokenized `SentenceBankItem` in `src/loaders/models.py`.
+   - [x] Add `src/sentences/harvester.py` and integrate `_harvest_sentences` in `src/pipeline.py`.
+   - [x] Update batch upsert in `src/db/supabase_client.py`.
+   - [x] Update `get_sentences_for_word` to query `canonical_ids`.
+   - [x] Unit test token offsets and deduplication.
+3. [x] **Backfill**: Not required — cutover purges the server and re-ingests from scratch.
+4. [x] **Frontend**:
+   - [x] Add `src/types/sentence.types.ts` (`<= 150` lines).
+   - [x] Add `src/api/sentence.api.ts` (`<= 150` lines).
+   - [x] Add `SentenceBankDrawer`, `SentenceTokenLine`, `SentenceTokenSpan`, `SentenceTokenInspector` (`<= 150` lines each).
+   - [x] Wire token definition/status interactions through the Inspector and Known Words ledger.
+   - [x] Verify `tsc && vite build` passes with zero errors.

@@ -1,5 +1,4 @@
 import { supabase } from "@/lib/supabase";
-import type { WordSentenceEntry } from "@/api/inspector.api";
 import type {
   KnownWordEntry,
   LexicalRanking,
@@ -89,19 +88,6 @@ export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordE
       ipa,
     };
   });
-}
-
-export async function fetchGlobalWordSentences(
-  canonicalId: string
-): Promise<WordSentenceEntry[]> {
-  const { data, error } = await supabase
-    .from("sentence_bank")
-    .select("sentence, target_form, source_context")
-    .eq("canonical_id", canonicalId)
-    .limit(3);
-
-  if (error || !data) return [];
-  return data;
 }
 
 export async function persistUserWordStatus(

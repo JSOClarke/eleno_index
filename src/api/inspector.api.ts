@@ -120,24 +120,3 @@ export async function fetchQuarantineItems(mediaItemId: string): Promise<Quarant
   if (error || !data) return [];
   return data;
 }
-
-export interface WordSentenceEntry {
-  sentence: string;
-  target_form: string | null;
-  source_context: string | null;
-}
-
-export async function fetchWordSentences(
-  mediaItemId: string,
-  canonicalId: string
-): Promise<WordSentenceEntry[]> {
-  const { data, error } = await supabase
-    .from("sentence_bank")
-    .select("sentence, target_form, source_context")
-    .eq("media_item_id", mediaItemId)
-    .eq("canonical_id", canonicalId)
-    .limit(3);
-
-  if (error || !data) return [];
-  return data;
-}
