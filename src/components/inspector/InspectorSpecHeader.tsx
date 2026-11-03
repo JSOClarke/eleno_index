@@ -5,7 +5,6 @@ import {
   formatCompactWords,
   formatLearningDelta,
   formatPercent,
-  getMediaSubtypeLabel,
 } from "@/lib/formatters";
 import type {
   MediaCatalogItem,
@@ -65,13 +64,25 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
             />
             <div className="min-w-0 space-y-2">
               <div className="space-y-1 font-mono text-xs">
-                <div className="flex min-w-0 items-center gap-2">
+                <div className="flex items-center gap-2">
                   <span className="shrink-0 bg-[#B8FF01] px-2 py-0.5 font-bold text-[#111111]">
                     {level}
                   </span>
-                  <span className="truncate text-[#666666]">{getMediaSubtypeLabel(item)}</span>
+                  <span className="text-[#666666]">
+                    {(item.type || "book").replace(/_/g, " ").toUpperCase()}
+                    {item.format ? ` · ${item.format.toUpperCase()}` : ""}
+                  </span>
                 </div>
-                <div className="truncate text-[#111111]">{item.creator}</div>
+                {item.series_name && (
+                  <div className="text-[#111111]">
+                    {item.series_name}
+                    {item.series_order ? ` #${item.series_order}` : ""}
+                  </div>
+                )}
+                <div className="text-[#111111]">{item.creator}</div>
+                {item.release_year && (
+                  <div className="text-[#666666]">{item.release_year}</div>
+                )}
               </div>
               <h1 className="break-words text-xl font-bold tracking-tight text-[#111111] sm:text-2xl">
                 {item.title}
