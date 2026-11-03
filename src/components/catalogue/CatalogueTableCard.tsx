@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
 import type { MediaCatalogItem } from "@/types/media.types";
@@ -6,15 +7,18 @@ import { CatalogueFlowBar } from "./CatalogueFlowBar";
 
 interface CatalogueTableCardProps {
   item: MediaCatalogItem;
-  isExpanded: boolean;
-  onToggleExpand: (id: string) => void;
+  isSaved: boolean;
+  onToggleSave: (id: string) => void;
 }
 
-/** Phone layout for a catalogue table row; the 12-column grid is desktop-only. */
+/**
+ * Phone layout for a catalogue table row. Deliberately has no expand/accordion:
+ * Save and Open are one tap each, with no parent click handler competing.
+ */
 export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
   item,
-  isExpanded,
-  onToggleExpand,
+  isSaved,
+  onToggleSave,
 }) => {
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
@@ -30,12 +34,7 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
       : `${flowPct.toFixed(1)}% known`;
 
   return (
-    <div
-      onClick={() => onToggleExpand(item.id)}
-      className={`cursor-pointer px-3.5 py-3 transition-colors md:hidden ${
-        isExpanded ? "bg-[#B8FF01] text-[#111111]" : "hover:bg-[#F8F8F6]"
-      }`}
-    >
+    <div className="px-3.5 py-3 md:hidden">
       <div className="flex items-start gap-3">
         <BookCoverPlate
           title={item.title}
@@ -47,28 +46,41 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
           <div className="truncate text-sm font-semibold leading-snug text-[#111111]">
             {item.title}
           </div>
-          <div
-            className={`mt-0.5 truncate font-mono text-[11px] ${
-              isExpanded ? "text-[#333333]" : "text-[#777777]"
-            }`}
-          >
+          <div className="mt-0.5 truncate font-mono text-[11px] text-[#777777]">
             {getMediaSubtypeLabel(item)}
           </div>
-          <div
-            className={`truncate font-mono text-[11px] ${
-              isExpanded ? "text-[#333333]" : "text-[#555555]"
-            }`}
-          >
-            {item.creator}
-          </div>
+          <div className="truncate font-mono text-[11px] text-[#555555]">{item.creator}</div>
+
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px]">
             <span className="border border-[#111111] bg-white px-1.5 py-0.5">{level}</span>
             <span>{formatCompactWords(m?.total_tokens || 0)}</span>
             <span>F-H {fh}</span>
             <span className="font-semibold">{Math.round(flowPct)}% known</span>
           </div>
+
           <div className="mt-1.5" title={flowTitle}>
             <CatalogueFlowBar flowPct={flowPct} learnFlowPct={learnFlowPct} />
+          </div>
+
+          <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              onClick={() => onToggleSave(item.id)}
+              aria-pressed={isSaved}
+              className={`flex-1 border border-[#111111] px-2 py-1.5 font-mono text-xs font-bold cursor-pointer ${
+                isSaved
+                  ? "bg-[#111111] text-[#B8FF01]"
+                  : "bg-white text-[#111111]"
+              }`}
+            >
+              {isSaved ? "Saved ✓" : "Save"}
+            </button>
+            <Link
+              to={`/media/${item.id}`}
+              className="flex-1 border border-[#111111] bg-[#B8FF01] px-2 py-1.5 text-center font-mono text-xs font-bold text-[#111111]"
+            >
+              Open →
+            </Link>
           </div>
         </div>
       </div>

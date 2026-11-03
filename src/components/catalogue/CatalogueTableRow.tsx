@@ -42,7 +42,7 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
 
   return (
     <div>
-      <CatalogueTableCard item={item} isExpanded={isExpanded} onToggleExpand={onToggleExpand} />
+      <CatalogueTableCard item={item} isSaved={isSaved} onToggleSave={onToggleSave} />
 
       <div
         onClick={() => onToggleExpand(item.id)}
@@ -100,13 +100,15 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
       </div>
 
       {isExpanded && (
-        <InlinePreviewDrawer
-          item={item}
-          isSaved={isSaved}
-          statusMap={statusMap}
-          onToggleSave={onToggleSave}
-          onToggleWord={onToggleWord}
-        />
+        <div className="hidden md:block">
+          <InlinePreviewDrawer
+            item={item}
+            isSaved={isSaved}
+            statusMap={statusMap}
+            onToggleSave={onToggleSave}
+            onToggleWord={onToggleWord}
+          />
+        </div>
       )}
     </div>
   );
