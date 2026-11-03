@@ -59,8 +59,14 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
       styleClass += "text-[#111111] border-b-2 border-dotted border-[#888888] hover:border-[#111111] hover:bg-[#F4F4F2] ";
     }
 
+    const handleClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onSelect(surface, entry, morph);
+    };
+
     const handleContextMenu = (e: React.MouseEvent) => {
       e.preventDefault();
+      e.stopPropagation();
       onToggleKnown?.(entry.id, status);
     };
 
@@ -69,7 +75,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
     if (shouldShowRuby) {
       return (
         <span
-          onClick={() => onSelect(surface, entry, morph)}
+          onClick={handleClick}
           onContextMenu={handleContextMenu}
           className={styleClass}
         >
@@ -85,7 +91,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
 
     return (
       <span
-        onClick={() => onSelect(surface, entry, morph)}
+        onClick={handleClick}
         onContextMenu={handleContextMenu}
         className={styleClass}
       >

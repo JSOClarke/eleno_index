@@ -93,7 +93,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
         />
       )}
 
-      <main className="flex-1 pb-24 pt-4">
+      <main onClick={closeDock} className="flex-1 pb-24 pt-4">
         {loading ? (
           <div className="mx-auto max-w-2xl px-6 py-20 text-center font-mono text-xs text-[#666666] animate-pulse">
             Loading chapter {chapterIndex}...

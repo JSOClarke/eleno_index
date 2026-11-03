@@ -26,17 +26,25 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
   const rankBand = getRankBand(entry.rank);
 
   const handleSpeak = () => {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const utt = new SpeechSynthesisUtterance(surface || entry.lemma);
-      utt.lang = "es-ES";
-      utt.rate = 0.9;
-      window.speechSynthesis.speak(utt);
-    }
+    if (!("speechSynthesis" in window)) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(surface || entry.lemma);
+    utt.lang = "es-ES";
+    utt.rate = 0.9;
+    window.speechSynthesis.speak(utt);
   };
 
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
-    <aside className="fixed bottom-4 right-4 z-40 w-[380px] max-w-[calc(100vw-2rem)] border-2 border-[#111111] bg-white p-5 shadow-[6px_6px_0px_#111111]">
+    <aside
+      onClick={(e) => e.stopPropagation()}
+      className="fixed bottom-4 right-4 z-40 w-[380px] max-w-[calc(100vw-2rem)] border-2 border-[#111111] bg-white p-5 shadow-[6px_6px_0px_#111111]"
+    >
       <div className="mb-3 flex items-center justify-between border-b-2 border-[#111111] pb-2.5">
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#111111]">// A CLOSER LOOK</span>
