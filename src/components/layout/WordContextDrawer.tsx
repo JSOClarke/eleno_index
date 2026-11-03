@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SentenceBankDrawer } from "@/components/inspector/SentenceBankDrawer";
+import { fetchCanonicalGlosses } from "@/api/sentence.api";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface WordContextDrawerProps {
   lemma: string;
   pos: string;
-  definitions: string[];
+  definitions?: string[];
   canonicalId: string;
   mediaItemId?: string;
   userId?: string | null;
@@ -25,15 +26,47 @@ export const WordContextDrawer: React.FC<WordContextDrawerProps> = ({
   onSetWordStatus,
   fallbackContextLabel,
 }) => {
+  const [resolvedDefs, setResolvedDefs] = useState<string[]>(definitions || []);
+  const [loadingDefs, setLoadingDefs] = useState(!definitions || definitions.length === 0);
+
+  useEffect(() => {
+    if (definitions && definitions.length > 0) {
+      setResolvedDefs(definitions);
+      setLoadingDefs(false);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingDefs(true);
+    fetchCanonicalGlosses([canonicalId])
+      .then((glosses) => {
+        if (!cancelled) {
+          const gloss = glosses[canonicalId];
+          setResolvedDefs(gloss?.definitions || []);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingDefs(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [canonicalId, definitions]);
+
   return (
     <div className="bg-[#F4F4F2] border-t border-[#E2E2DF] px-6 py-4 grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
       <div className="md:col-span-5 space-y-1.5">
         <div className="font-mono text-[10px] uppercase tracking-wider text-[#666666]">
           CANONICAL DEFINITIONS · {lemma.toUpperCase()} ({pos})
         </div>
-        {definitions && definitions.length > 0 ? (
+        {loadingDefs ? (
+          <div className="font-mono text-xs text-[#777777] animate-pulse">
+            Loading dictionary senses...
+          </div>
+        ) : resolvedDefs.length > 0 ? (
           <ol className="list-decimal list-inside space-y-1 text-xs text-[#111111] font-sans">
-            {definitions.map((gloss, i) => (
+            {resolvedDefs.map((gloss, i) => (
               <li key={i} className="leading-snug">
                 {gloss}
               </li>

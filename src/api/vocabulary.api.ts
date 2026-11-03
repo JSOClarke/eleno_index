@@ -43,7 +43,6 @@ export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordE
       canonical_lexical_entity!inner (
         lemma,
         pos,
-        definitions,
         lexical_ranking (source, cefr, rank, count),
         lexical_pronunciation (transcriptions)
       )
