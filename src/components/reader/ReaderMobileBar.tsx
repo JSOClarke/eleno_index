@@ -19,7 +19,7 @@ export const ReaderMobileBar: React.FC<ReaderMobileBarProps> = ({
   onOpenSettings,
   onBack,
 }) => (
-  <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b-2 border-[#111111] bg-white px-3 md:hidden">
+  <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-[#E2E2DF] bg-white px-3 md:hidden">
     <button
       type="button"
       onClick={onBack}

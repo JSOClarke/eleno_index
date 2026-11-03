@@ -38,7 +38,7 @@ export const Sheet: React.FC<SheetProps> = ({ open, onClose, title, children, cl
         onClick={onClose}
         className="absolute inset-0 bg-[#111111]/40"
       />
-      <div className="relative flex max-h-[90dvh] w-full flex-col border-t-2 border-[#111111] bg-white">
+      <div className="relative flex max-h-[90dvh] w-full flex-col bg-white">
         <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-[#CCCCCC]" />
         <div className="flex items-center justify-between border-b border-[#E2E2DF] px-4 py-2.5">
           <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#111111]">
