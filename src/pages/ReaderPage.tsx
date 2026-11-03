@@ -5,6 +5,7 @@ import { ReaderBottomBar } from "@/components/reader/ReaderBottomBar";
 import { ReaderCanvas } from "@/components/reader/ReaderCanvas";
 import { ReaderTopBar } from "@/components/reader/ReaderTopBar";
 import { ReaderWordDock } from "@/components/reader/ReaderWordDock";
+import { ReaderWordSheet } from "@/components/reader/ReaderWordSheet";
 import { useReaderScroll } from "@/hooks/useReaderScroll";
 import { useReaderSession } from "@/hooks/useReaderSession";
 import type { ElenoReaderManifest } from "@/types/reader.types";
@@ -20,7 +21,6 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
   const navigate = useNavigate();
   const [manifest, setManifest] = useState<ElenoReaderManifest | null>(null);
   const [manifestErr, setManifestErr] = useState<string | null>(null);
-  const [fontSize, setFontSize] = useState<number>(20);
 
   useEffect(() => {
     if (!mediaId) return;
@@ -49,6 +49,8 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
     currentBlockIndex,
     recordPosition,
     percentage,
+    fontSize,
+    adjustFontSize,
   } = useReaderSession(mediaId || "", manifest);
 
   useReaderScroll({ chapter, currentBlockIndex, recordPosition });
@@ -72,7 +74,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
   const total = manifest?.total_chapters || manifest?.chapters.length || 1;
 
   return (
-    <div className="min-h-screen bg-white text-[#111111] flex flex-col font-sans">
+    <div className="flex min-h-[100dvh] flex-col bg-white font-sans text-[#111111]">
       {manifest && (
         <ReaderTopBar
           title={manifest.title}
@@ -89,7 +91,8 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
           highlightUnknownOnly={highlightUnknownOnly}
           onToggleHighlightUnknownOnly={() => setHighlightUnknownOnly((p) => !p)}
           onBack={() => navigate(`/media/${mediaId}`)}
-          onAdjustFontSize={(d) => setFontSize((p) => Math.max(14, Math.min(32, p + d)))}
+          fontSize={fontSize}
+          onAdjustFontSize={adjustFontSize}
         />
       )}
 
@@ -121,6 +124,13 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
       </main>
 
       <ReaderWordDock
+        selectedToken={selectedToken}
+        status={selectedToken ? statusMap[selectedToken.entry.id] : undefined}
+        onSetStatus={onSetWordStatus}
+        onClose={closeDock}
+      />
+
+      <ReaderWordSheet
         selectedToken={selectedToken}
         status={selectedToken ? statusMap[selectedToken.entry.id] : undefined}
         onSetStatus={onSetWordStatus}

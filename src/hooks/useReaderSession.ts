@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchReadingProgress, saveReadingProgress } from "@/api/reader.api";
 import { getCachedChapter } from "@/lib/readerCache";
+import { clampFontSize, persistFontSize, readStoredFontSize } from "@/lib/readerPrefs";
 import type {
   ElenoLexiconEntry,
   ElenoReaderChapter,
@@ -29,6 +30,7 @@ export function useReaderSession(
   const [showIPlusOne, setShowIPlusOne] = useState<boolean>(false);
   const [highlightMode, setHighlightMode] = useState<HighlightMode>("none");
   const [highlightUnknownOnly, setHighlightUnknownOnly] = useState<boolean>(true);
+  const [fontSize, setFontSize] = useState<number>(() => readStoredFontSize());
   const [selectedToken, setSelectedToken] = useState<SelectedTokenState | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState<number>(0);
   const [percentage, setPercentage] = useState<number>(0);
@@ -102,6 +104,14 @@ export function useReaderSession(
 
   const closeDock = useCallback(() => setSelectedToken(null), []);
 
+  const adjustFontSize = useCallback((delta: number) => {
+    setFontSize((previous) => {
+      const next = clampFontSize(previous + delta);
+      persistFontSize(next);
+      return next;
+    });
+  }, []);
+
   return {
     chapterIndex,
     setChapterIndex,
@@ -122,5 +132,7 @@ export function useReaderSession(
     currentBlockIndex,
     recordPosition,
     percentage,
+    fontSize,
+    adjustFontSize,
   };
 }

@@ -6,13 +6,14 @@ interface SheetProps {
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
+  className?: string;
 }
 
 /**
  * Mobile bottom sheet: backdrop, drag affordance, ESC/backdrop close and body
  * scroll lock. Callers control when it is mounted (typically `md:hidden`).
  */
-export const Sheet: React.FC<SheetProps> = ({ open, onClose, title, children }) => {
+export const Sheet: React.FC<SheetProps> = ({ open, onClose, title, children, className = "" }) => {
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
@@ -30,7 +31,7 @@ export const Sheet: React.FC<SheetProps> = ({ open, onClose, title, children }) 
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex flex-col justify-end" role="dialog" aria-modal="true" aria-label={title || "Panel"}>
+    <div className={`fixed inset-0 z-50 flex flex-col justify-end ${className}`} role="dialog" aria-modal="true" aria-label={title || "Panel"}>
       <button
         type="button"
         aria-label="Close panel"

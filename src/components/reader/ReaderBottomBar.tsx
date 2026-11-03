@@ -15,8 +15,8 @@ export const ReaderBottomBar: React.FC<ReaderBottomBarProps> = ({
   onPrev,
   onNext,
 }) => (
-  <footer className="sticky bottom-0 z-30 h-12 border-t border-[#111111] bg-[#F8F8F6]">
-    <div className="mx-auto flex h-full max-w-[1440px] items-center justify-between px-6 font-mono text-xs">
+  <footer className="sticky bottom-0 z-30 border-t-2 border-[#111111] bg-[#F8F8F6] pb-[env(safe-area-inset-bottom)]">
+    <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between px-3 font-mono text-xs sm:px-6">
       <button
         disabled={chapterIndex <= 1}
         onClick={onPrev}

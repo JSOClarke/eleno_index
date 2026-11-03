@@ -1,5 +1,6 @@
 import React from "react";
 import { ReaderHighlightControls } from "./ReaderHighlightControls";
+import { ReaderMobileControls } from "./ReaderMobileControls";
 import type { ElenoReaderChapterMeta, HighlightMode } from "@/types/reader.types";
 
 interface ReaderTopBarProps {
@@ -16,6 +17,7 @@ interface ReaderTopBarProps {
   onChangeHighlightMode: (mode: HighlightMode) => void;
   highlightUnknownOnly: boolean;
   onToggleHighlightUnknownOnly: () => void;
+  fontSize: number;
   onAdjustFontSize: (delta: number) => void;
   onBack: () => void;
 }
@@ -34,11 +36,13 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
   onChangeHighlightMode,
   highlightUnknownOnly,
   onToggleHighlightUnknownOnly,
+  fontSize,
   onAdjustFontSize,
   onBack,
 }) => {
   return (
-    <header className="sticky top-0 z-30 border-b border-[#111111] bg-white">
+    <>
+      <header className="sticky top-0 z-30 hidden border-b border-[#111111] bg-white md:block">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 sm:gap-6 shrink-0">
           <button onClick={onBack} className="flex items-center gap-1 font-mono text-sm font-bold tracking-tight cursor-pointer">
@@ -109,6 +113,23 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
           </div>
         </div>
       </div>
-    </header>
+      </header>
+
+      <ReaderMobileControls
+        title={title}
+        chapters={chapters}
+        currentChapterIndex={currentChapterIndex}
+        onSelectChapter={onSelectChapter}
+        onBack={onBack}
+        fontSize={fontSize}
+        onAdjustFontSize={onAdjustFontSize}
+        showIPlusOne={showIPlusOne}
+        onToggleIPlusOne={onToggleIPlusOne}
+        highlightMode={highlightMode}
+        onChangeHighlightMode={onChangeHighlightMode}
+        highlightUnknownOnly={highlightUnknownOnly}
+        onToggleHighlightUnknownOnly={onToggleHighlightUnknownOnly}
+      />
+    </>
   );
 };
