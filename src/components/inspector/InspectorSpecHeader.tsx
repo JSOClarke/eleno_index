@@ -55,29 +55,28 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
       </div>
 
       <div className="grid grid-cols-12 gap-6 border border-[#111111] p-5 bg-white items-start">
-        <div className="col-span-12 lg:col-span-7 flex gap-5 items-start">
-          <BookCoverPlate
-            title={item.title}
-            explicitUrl={item.cover_image_url}
-            level={level}
-            size="hero"
-          />
-          <div className="space-y-2 min-w-0">
-            <div className="flex items-center gap-2 font-mono text-xs">
-              <span className="bg-[#B8FF01] text-[#111111] px-2 py-0.5 font-bold">
-                {level}
-              </span>
-              <span className="text-[#666666]">{getMediaSubtypeLabel(item)}</span>
-              <span>·</span>
-              <span className="text-[#111111]">{item.creator}</span>
+        <div className="col-span-12 space-y-4 lg:col-span-7">
+          <div className="flex items-start gap-4 sm:gap-5">
+            <BookCoverPlate
+              title={item.title}
+              explicitUrl={item.cover_image_url}
+              level={level}
+              size="hero"
+            />
+            <div className="min-w-0 space-y-2">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs">
+                <span className="bg-[#B8FF01] text-[#111111] px-2 py-0.5 font-bold">
+                  {level}
+                </span>
+                <span className="text-[#666666]">{getMediaSubtypeLabel(item)}</span>
+                <span className="text-[#111111]">· {item.creator}</span>
+              </div>
+              <h1 className="break-words text-xl font-bold tracking-tight text-[#111111] sm:text-2xl">
+                {item.title}
+              </h1>
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-[#111111]">
-              {item.title}
-            </h1>
-            <p className="font-serif text-sm text-[#333333] italic pt-1">
-              {item.sampleSnippet}
-            </p>
           </div>
+          <p className="font-serif text-sm italic text-[#333333]">{item.sampleSnippet}</p>
         </div>
 
         <div className="col-span-12 lg:col-span-5 grid grid-cols-2 gap-4 lg:border-l border-[#E2E2DF] lg:pl-6">
