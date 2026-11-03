@@ -5,6 +5,7 @@ import type {
   ElenoLexiconEntry,
   ElenoReaderChapter,
   ElenoReaderManifest,
+  HighlightMode,
 } from "@/types/reader.types";
 
 export interface SelectedTokenState {
@@ -25,6 +26,8 @@ export function useReaderSession(
   const [error, setError] = useState<string | null>(null);
   const [showRuby, setShowRuby] = useState<boolean>(true);
   const [showIPlusOne, setShowIPlusOne] = useState<boolean>(false);
+  const [highlightMode, setHighlightMode] = useState<HighlightMode>("none");
+  const [highlightUnknownOnly, setHighlightUnknownOnly] = useState<boolean>(true);
   const [selectedToken, setSelectedToken] = useState<SelectedTokenState | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState<number>(0);
   const [percentage, setPercentage] = useState<number>(0);
@@ -101,6 +104,10 @@ export function useReaderSession(
     setShowRuby,
     showIPlusOne,
     setShowIPlusOne,
+    highlightMode,
+    setHighlightMode,
+    highlightUnknownOnly,
+    setHighlightUnknownOnly,
     selectedToken,
     selectToken,
     closeDock,

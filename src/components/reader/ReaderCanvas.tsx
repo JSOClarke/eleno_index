@@ -1,5 +1,10 @@
 import React from "react";
-import type { ElenoLexiconEntry, ElenoReaderBlock, ElenoToken } from "@/types/reader.types";
+import type {
+  ElenoLexiconEntry,
+  ElenoReaderBlock,
+  ElenoToken,
+  HighlightMode,
+} from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { ReaderTokenSpan } from "./ReaderTokenSpan";
 
@@ -13,6 +18,8 @@ interface ReaderCanvasProps {
   fontSize: number;
   showRuby: boolean;
   showIPlusOne: boolean;
+  highlightMode: HighlightMode;
+  highlightUnknownOnly: boolean;
   selectedTokenId: string | null;
   onSelectToken: (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string) => void;
 }
@@ -38,6 +45,8 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
   fontSize,
   showRuby,
   showIPlusOne,
+  highlightMode,
+  highlightUnknownOnly,
   selectedTokenId,
   onSelectToken,
 }) => {
@@ -72,6 +81,8 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
                         lexicon={lexicon}
                         statusMap={statusMap}
                         showRuby={showRuby}
+                        highlightMode={highlightMode}
+                        highlightUnknownOnly={highlightUnknownOnly}
                         isSelected={isSelected}
                         onSelect={(surf, entry, morph) => onSelectToken(surf, entry, bIdx, sIdx, morph)}
                       />

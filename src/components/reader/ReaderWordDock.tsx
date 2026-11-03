@@ -1,6 +1,7 @@
 import React from "react";
 import type { SelectedTokenState } from "@/hooks/useReaderSession";
 import { formatMorphology } from "@/lib/grammarFormatters";
+import { getCefrBand, getRankBand } from "@/lib/readerHighlight";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface ReaderWordDockProps {
@@ -21,6 +22,8 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
   const isLearning = status === "learning";
   const isKnown = status === "known";
   const morphLabel = formatMorphology(morph);
+  const cefrBand = getCefrBand(entry.cefr);
+  const rankBand = getRankBand(entry.rank);
 
   const handleSpeak = () => {
     if ("speechSynthesis" in window) {
@@ -71,8 +74,18 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
 
         <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
           {entry.ipa && <span className="italic text-[#555555]">[{entry.ipa}]</span>}
-          {entry.cefr && <span className="border border-[#111111] bg-[#B8FF01] px-1.5 font-mono font-bold text-[#111111]">{entry.cefr}</span>}
-          {entry.rank && <span className="font-mono text-[#666666] tabular-nums">#{entry.rank.toLocaleString()} TubeLex</span>}
+          {entry.cefr && (
+            <span className={`border border-[#111111] px-1.5 font-mono font-bold ${cefrBand?.bg || "bg-[#B8FF01]"} ${cefrBand?.text || "text-[#111111]"}`}>
+              {entry.cefr}
+            </span>
+          )}
+          {entry.rank && (
+            <span className="font-mono tabular-nums inline-flex items-center gap-1 border border-[#111111] px-1.5 bg-[#F8F8F6] text-[#111111]">
+              <span className="text-[#888888]">#</span>
+              <span className="font-bold">{entry.rank.toLocaleString()}</span>
+              <span className={`text-[10px] font-bold px-1 ${rankBand.bg} ${rankBand.text}`}>{rankBand.label}</span>
+            </span>
+          )}
         </div>
 
         {morphLabel && (
@@ -107,25 +120,18 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => onSetStatus(entry.id, isLearning ? null : "learning")}
-            className={`border border-[#111111] py-2 font-mono text-xs font-bold shadow-[2px_2px_0px_#111111] ${
-              isLearning ? "bg-[#B8FF01] text-[#111111]" : "bg-white text-[#111111] hover:bg-[#B8FF01]"
-            }`}
+            className={`border border-[#111111] py-2 font-mono text-xs font-bold shadow-[2px_2px_0px_#111111] ${isLearning ? "bg-[#B8FF01] text-[#111111]" : "bg-white text-[#111111] hover:bg-[#B8FF01]"}`}
           >
             {isLearning ? "✓ Still Learning" : "Learn"}
           </button>
           <button
             onClick={() => onSetStatus(entry.id, isKnown ? null : "known")}
-            className={`border border-[#111111] py-2 font-mono text-xs font-bold shadow-[2px_2px_0px_#111111] ${
-              isKnown ? "bg-[#111111] text-white" : "bg-white text-[#111111] hover:bg-[#111111] hover:text-white"
-            }`}
+            className={`border border-[#111111] py-2 font-mono text-xs font-bold shadow-[2px_2px_0px_#111111] ${isKnown ? "bg-[#111111] text-white" : "bg-white text-[#111111] hover:bg-[#111111] hover:text-white"}`}
           >
             {isKnown ? "Known ✓" : "Mark Known"}
           </button>
         </div>
-        <button
-          onClick={() => onSetStatus(entry.id, null)}
-          className="w-full text-center font-mono text-[10px] text-[#888888] hover:text-[#111111] py-0.5"
-        >
+        <button onClick={() => onSetStatus(entry.id, null)} className="w-full text-center font-mono text-[10px] text-[#888888] hover:text-[#111111] py-0.5">
           Reset to Unfamiliar / Default
         </button>
       </div>

@@ -1,3 +1,5 @@
+export type HighlightMode = "none" | "cefr" | "rank";
+
 export interface ElenoLexiconEntry {
   id: string;
   lemma: string;

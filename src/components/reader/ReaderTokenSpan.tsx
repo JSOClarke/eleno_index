@@ -1,5 +1,6 @@
 import React from "react";
-import type { ElenoLexiconEntry, ElenoToken } from "@/types/reader.types";
+import { getTokenUnderlineClass } from "@/lib/readerHighlight";
+import type { ElenoLexiconEntry, ElenoToken, HighlightMode } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface ReaderTokenSpanProps {
@@ -7,12 +8,23 @@ interface ReaderTokenSpanProps {
   lexicon: ElenoLexiconEntry[];
   statusMap: Record<string, UserVocabStatus>;
   showRuby: boolean;
+  highlightMode: HighlightMode;
+  highlightUnknownOnly: boolean;
   isSelected: boolean;
   onSelect: (surface: string, entry: ElenoLexiconEntry, morph?: string) => void;
 }
 
 export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
-  ({ token, lexicon, statusMap, showRuby, isSelected, onSelect }) => {
+  ({
+    token,
+    lexicon,
+    statusMap,
+    showRuby,
+    highlightMode,
+    highlightUnknownOnly,
+    isSelected,
+    onSelect,
+  }) => {
     if (typeof token === "string") {
       return <span>{token}</span>;
     }
@@ -26,9 +38,17 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
     const isLearning = status === "learning";
     const isUnknown = !status;
 
+    const bandClass = getTokenUnderlineClass(entry, status, highlightMode, highlightUnknownOnly);
+
     let styleClass = "cursor-pointer transition-colors px-[1px] ";
     if (isSelected) {
       styleClass += "bg-[#111111] text-[#B8FF01] font-bold shadow-[2px_2px_0px_#B8FF01] ";
+    } else if (bandClass) {
+      if (isLearning) {
+        styleClass += `bg-[#B8FF01] text-[#111111] font-semibold hover:bg-[#a6e600] ${bandClass}`;
+      } else {
+        styleClass += `text-[#111111] hover:bg-[#F4F4F2] ${bandClass}`;
+      }
     } else if (isLearning) {
       styleClass += "bg-[#B8FF01] text-[#111111] font-semibold hover:bg-[#a6e600] ";
     } else if (isKnown) {

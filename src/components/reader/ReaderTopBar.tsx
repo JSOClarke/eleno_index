@@ -1,5 +1,6 @@
 import React from "react";
-import type { ElenoReaderChapterMeta } from "@/types/reader.types";
+import { ReaderHighlightControls } from "./ReaderHighlightControls";
+import type { ElenoReaderChapterMeta, HighlightMode } from "@/types/reader.types";
 
 interface ReaderTopBarProps {
   title: string;
@@ -11,6 +12,10 @@ interface ReaderTopBarProps {
   onToggleRuby: () => void;
   showIPlusOne: boolean;
   onToggleIPlusOne: () => void;
+  highlightMode: HighlightMode;
+  onChangeHighlightMode: (mode: HighlightMode) => void;
+  highlightUnknownOnly: boolean;
+  onToggleHighlightUnknownOnly: () => void;
   onAdjustFontSize: (delta: number) => void;
   onBack: () => void;
 }
@@ -25,6 +30,10 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
   onToggleRuby,
   showIPlusOne,
   onToggleIPlusOne,
+  highlightMode,
+  onChangeHighlightMode,
+  highlightUnknownOnly,
+  onToggleHighlightUnknownOnly,
   onAdjustFontSize,
   onBack,
 }) => {
@@ -66,6 +75,13 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
               <div className="h-full bg-[#111111]" style={{ width: `${percentage}%` }} />
             </div>
           </div>
+
+          <ReaderHighlightControls
+            mode={highlightMode}
+            onChangeMode={onChangeHighlightMode}
+            unknownOnly={highlightUnknownOnly}
+            onToggleUnknownOnly={onToggleHighlightUnknownOnly}
+          />
 
           <button
             type="button"

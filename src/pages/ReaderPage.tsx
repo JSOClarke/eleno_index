@@ -5,6 +5,7 @@ import { ReaderBottomBar } from "@/components/reader/ReaderBottomBar";
 import { ReaderCanvas } from "@/components/reader/ReaderCanvas";
 import { ReaderTopBar } from "@/components/reader/ReaderTopBar";
 import { ReaderWordDock } from "@/components/reader/ReaderWordDock";
+import { useReaderScroll } from "@/hooks/useReaderScroll";
 import { useReaderSession } from "@/hooks/useReaderSession";
 import type { ElenoReaderManifest } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
@@ -38,6 +39,10 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
     setShowRuby,
     showIPlusOne,
     setShowIPlusOne,
+    highlightMode,
+    setHighlightMode,
+    highlightUnknownOnly,
+    setHighlightUnknownOnly,
     selectedToken,
     selectToken,
     closeDock,
@@ -46,26 +51,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
     percentage,
   } = useReaderSession(mediaId || "", manifest);
 
-  useEffect(() => {
-    if (chapter && currentBlockIndex > 0) {
-      const el = document.querySelector(`[data-block="${currentBlockIndex}"]`);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, [chapter?.chapter_index]);
-
-  useEffect(() => {
-    if (!chapter) return;
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          const bIdx = Number(entry.target.getAttribute("data-block"));
-          if (!isNaN(bIdx)) recordPosition(bIdx);
-        }
-      }
-    }, { threshold: 0.2 });
-    document.querySelectorAll("[data-block]").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, [chapter, recordPosition]);
+  useReaderScroll({ chapter, currentBlockIndex, recordPosition });
 
   if (manifestErr) {
     return (
@@ -98,6 +84,10 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
           onToggleRuby={() => setShowRuby((p) => !p)}
           showIPlusOne={showIPlusOne}
           onToggleIPlusOne={() => setShowIPlusOne((p) => !p)}
+          highlightMode={highlightMode}
+          onChangeHighlightMode={setHighlightMode}
+          highlightUnknownOnly={highlightUnknownOnly}
+          onToggleHighlightUnknownOnly={() => setHighlightUnknownOnly((p) => !p)}
           onBack={() => navigate(`/media/${mediaId}`)}
           onAdjustFontSize={(d) => setFontSize((p) => Math.max(14, Math.min(32, p + d)))}
         />
@@ -121,6 +111,8 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
             fontSize={fontSize}
             showRuby={showRuby}
             showIPlusOne={showIPlusOne}
+            highlightMode={highlightMode}
+            highlightUnknownOnly={highlightUnknownOnly}
             selectedTokenId={selectedToken?.entry.id || null}
             onSelectToken={selectToken}
           />
