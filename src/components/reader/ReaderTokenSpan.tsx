@@ -42,9 +42,9 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
 
     const bandClass = getTokenUnderlineClass(entry, status, highlightMode, highlightUnknownOnly);
 
-    let styleClass = "cursor-pointer transition-colors px-[1px] ";
+    let styleClass = "relative inline-block cursor-pointer transition-colors px-[1px] border-b-[2.5px] border-transparent ";
     if (isSelected) {
-      styleClass += "bg-[#111111] text-[#B8FF01] font-bold shadow-[2px_2px_0px_#B8FF01] ";
+      styleClass += "bg-[#111111] text-[#B8FF01] font-bold border-[#B8FF01] shadow-[2px_2px_0px_#B8FF01] ";
     } else if (bandClass) {
       if (isLearning) {
         styleClass += `bg-[#B8FF01] text-[#111111] font-semibold hover:bg-[#a6e600] ${bandClass}`;
@@ -56,7 +56,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
     } else if (isKnown) {
       styleClass += "text-[#111111] hover:bg-[#EAEAE6] ";
     } else {
-      styleClass += "text-[#111111] border-b-2 border-dotted border-[#888888] hover:border-[#111111] hover:bg-[#F4F4F2] ";
+      styleClass += "text-[#111111] border-dotted !border-[#888888] hover:!border-[#111111] hover:bg-[#F4F4F2] ";
     }
 
     const handleClick = (e: React.MouseEvent) => {
@@ -72,30 +72,18 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
 
     const shouldShowRuby = showRuby && !!entry.hint && (isLearning || isUnknown);
 
-    if (shouldShowRuby) {
-      return (
-        <span
-          onClick={handleClick}
-          onContextMenu={handleContextMenu}
-          className={styleClass}
-        >
-          <ruby className="[ruby-position:over]">
-            {surface}
-            <rt className="select-none font-mono text-[10px] font-bold text-[#111111] bg-[#B8FF01]/90 px-1 py-[1px] rounded-sm -translate-y-0.5">
-              {entry.hint}
-            </rt>
-          </ruby>
-        </span>
-      );
-    }
-
     return (
       <span
         onClick={handleClick}
         onContextMenu={handleContextMenu}
         className={styleClass}
       >
-        {surface}
+        {shouldShowRuby && (
+          <span className="absolute bottom-[92%] left-1/2 -translate-x-1/2 pointer-events-none select-none z-10 whitespace-nowrap font-mono text-[9px] font-bold text-[#111111] bg-[#B8FF01]/95 px-1 py-[0.5px] rounded-[2px] shadow-[1px_1px_0px_#111111] max-w-[120px] truncate leading-none">
+            {entry.hint}
+          </span>
+        )}
+        <span>{surface}</span>
       </span>
     );
   }
