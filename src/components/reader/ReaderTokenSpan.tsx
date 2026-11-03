@@ -44,15 +44,15 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
 
     let styleClass = "relative inline cursor-pointer transition-colors px-[1px] border-b-[2.5px] border-transparent ";
     if (isSelected) {
-      styleClass += "bg-[#111111] text-[#B8FF01] font-bold border-[#B8FF01] shadow-[2px_2px_0px_#B8FF01] ";
+      styleClass += "bg-[#111111] text-[#B8FF01] border-[#B8FF01] shadow-[2px_2px_0px_#B8FF01] ";
     } else if (bandClass) {
       if (isLearning) {
-        styleClass += `bg-[#B8FF01] text-[#111111] font-semibold hover:bg-[#a6e600] ${bandClass}`;
+        styleClass += `bg-[#B8FF01] text-[#111111] hover:bg-[#a6e600] ${bandClass}`;
       } else {
         styleClass += `text-[#111111] hover:bg-[#F4F4F2] ${bandClass}`;
       }
     } else if (isLearning) {
-      styleClass += "bg-[#B8FF01] text-[#111111] font-semibold hover:bg-[#a6e600] ";
+      styleClass += "bg-[#B8FF01] text-[#111111] hover:bg-[#a6e600] ";
     } else if (isKnown) {
       styleClass += "text-[#111111] hover:bg-[#EAEAE6] ";
     } else {
