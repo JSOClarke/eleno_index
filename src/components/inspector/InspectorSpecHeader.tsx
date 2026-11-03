@@ -44,7 +44,7 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
         <div className="flex items-center gap-3">
           <Link
             to={`/read/${item.id}`}
-            className="rounded bg-[#B8FF01] border border-[#111111] px-3 py-1 font-mono text-xs font-bold text-[#111111] shadow-sm transition hover:bg-[#a6e600]"
+            className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600]"
           >
             Read Story →
           </Link>
@@ -64,12 +64,14 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
               size="hero"
             />
             <div className="min-w-0 space-y-2">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs">
-                <span className="bg-[#B8FF01] text-[#111111] px-2 py-0.5 font-bold">
-                  {level}
-                </span>
-                <span className="text-[#666666]">{getMediaSubtypeLabel(item)}</span>
-                <span className="text-[#111111]">· {item.creator}</span>
+              <div className="space-y-1 font-mono text-xs">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="shrink-0 bg-[#B8FF01] px-2 py-0.5 font-bold text-[#111111]">
+                    {level}
+                  </span>
+                  <span className="truncate text-[#666666]">{getMediaSubtypeLabel(item)}</span>
+                </div>
+                <div className="truncate text-[#111111]">{item.creator}</div>
               </div>
               <h1 className="break-words text-xl font-bold tracking-tight text-[#111111] sm:text-2xl">
                 {item.title}
