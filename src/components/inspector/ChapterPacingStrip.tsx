@@ -1,5 +1,6 @@
 import React from "react";
 import { formatCompactWords, formatLearningDelta, formatNumber, formatPercent } from "@/lib/formatters";
+import { ScrollFadeX } from "@/components/ui/ScrollFadeX";
 import type { MediaChapterMetrics } from "@/types/media.types";
 
 interface ChapterPacingStripProps {
@@ -70,7 +71,8 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
         </div>
       </div>
 
-      <div className="flex items-stretch gap-2 overflow-x-auto pb-2">
+      <ScrollFadeX className="pb-2" fadeFromClassName="from-[#F8F8F6]">
+        <div className="flex w-max items-stretch gap-2">
         <button
           type="button"
           onClick={() => onSelectChapter("all")}
@@ -127,7 +129,8 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
             </button>
           );
         })}
-      </div>
+        </div>
+      </ScrollFadeX>
 
       <div className="border-t border-[#E2E2DF] pt-2.5 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
         <div>

@@ -7,6 +7,7 @@ import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 import { CanonicalPrimerTable } from "./CanonicalPrimerTable";
 import { ChapterPacingStrip } from "./ChapterPacingStrip";
 import { InspectorSpecHeader } from "./InspectorSpecHeader";
+import { LedgerTabs } from "./LedgerTabs";
 import { LinguisticProfileRow } from "./LinguisticProfileRow";
 import { QuarantineGrid } from "./QuarantineGrid";
 
@@ -87,42 +88,12 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
       />
 
       <div className="space-y-4 pt-2">
-        <div className="flex flex-col gap-2 border-b border-[#111111] pb-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-1 overflow-x-auto font-mono text-xs">
-            <button
-              type="button"
-              onClick={() => selectLedgerTab("canonical")}
-              className={`shrink-0 whitespace-nowrap px-3.5 py-1.5 border border-[#111111] cursor-pointer ${
-                ledgerTab === "canonical"
-                  ? "bg-[#111111] text-white font-semibold"
-                  : "bg-white text-[#111111]"
-              }`}
-            >
-              CANONICAL PRIMER ({inspector.vocabulary.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => selectLedgerTab("characters")}
-              className={`shrink-0 whitespace-nowrap px-3.5 py-1.5 border border-[#111111] cursor-pointer ${
-                ledgerTab === "characters"
-                  ? "bg-[#111111] text-white font-semibold"
-                  : "bg-white text-[#111111]"
-              }`}
-            >
-              CAST OF CHARACTERS
-            </button>
-            <button
-              type="button"
-              onClick={() => selectLedgerTab("noise")}
-              className={`shrink-0 whitespace-nowrap px-3.5 py-1.5 border border-[#111111] cursor-pointer ${
-                ledgerTab === "noise"
-                  ? "bg-[#111111] text-white font-semibold"
-                  : "bg-white text-[#111111]"
-              }`}
-            >
-              FILTERED NOISE
-            </button>
-          </div>
+        <div className="border-b border-[#111111] pb-2">
+          <LedgerTabs
+            active={ledgerTab}
+            onChange={selectLedgerTab}
+            canonicalCount={inspector.vocabulary.length}
+          />
         </div>
 
         {ledgerTab === "canonical" ? (
