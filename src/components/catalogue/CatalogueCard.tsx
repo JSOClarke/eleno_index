@@ -47,10 +47,10 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
             isSelected ? "bg-[#B8FF01] text-[#111111] font-semibold" : "bg-[#F8F8F6] text-[#555555]"
           }`}
         >
-          <div className="flex items-center gap-2 truncate">
-            <span>{getMediaSubtypeLabel(item)} · {item.creator}</span>
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <span className="truncate">{getMediaSubtypeLabel(item)} · {item.creator}</span>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="ml-2 flex shrink-0 items-center gap-1.5">
             <span className="px-1.5 py-0.2 border border-[#111111] text-[#111111] font-bold bg-white">{level}</span>
             <span className="px-1.5 py-0.2 border border-[#111111]/30 text-[#111111]">F-H {fh}</span>
           </div>

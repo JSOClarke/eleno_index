@@ -26,7 +26,7 @@ export const CatalogueTable: React.FC<CatalogueTableProps> = ({
 }) => {
   return (
     <div>
-      <div className="grid grid-cols-12 gap-3 px-3.5 py-2.5 border-b border-[#E2E2DF] font-mono text-xs text-[#777777] uppercase tracking-wider">
+      <div className="hidden grid-cols-12 gap-3 px-3.5 py-2.5 border-b border-[#E2E2DF] font-mono text-xs text-[#777777] uppercase tracking-wider md:grid">
         <div className="col-span-4">TITLE</div>
         <div className="col-span-1">LEVEL</div>
         <div className="col-span-2">LENGTH</div>
