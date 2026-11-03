@@ -73,10 +73,10 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
           <button
             onClick={handleSpeak}
             title="Listen to pronunciation"
-            className="flex items-center gap-1 border border-[#111111] bg-[#B8FF01] px-2 py-1 font-mono text-xs font-bold text-[#111111] shadow-[2px_2px_0px_#111111] transition-transform active:translate-x-0.5 active:translate-y-0.5"
+            className="flex items-center gap-1.5 border border-[#111111] bg-[#B8FF01] hover:bg-[#a6e600] px-2 py-1 font-mono text-xs font-bold text-[#111111] shadow-[2px_2px_0px_#111111] transition-transform active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
           >
-            <span>🔊</span>
-            <span>PLAY</span>
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            <span>AUDIO</span>
           </button>
         </div>
 
