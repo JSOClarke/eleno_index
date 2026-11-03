@@ -42,7 +42,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
 
     const bandClass = getTokenUnderlineClass(entry, status, highlightMode, highlightUnknownOnly);
 
-    let styleClass = "relative inline cursor-pointer transition-colors px-[1px] border-b-[2.5px] border-transparent ";
+    let styleClass = "relative inline cursor-pointer transition-colors px-[1px] border-b-[2.5px] ";
     if (isSelected) {
       styleClass += "bg-[#111111] text-[#B8FF01] border-[#B8FF01] shadow-[2px_2px_0px_#B8FF01] ";
     } else if (bandClass) {
@@ -52,9 +52,9 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
         styleClass += `text-[#111111] hover:bg-[#F4F4F2] ${bandClass}`;
       }
     } else if (isLearning) {
-      styleClass += "bg-[#B8FF01] text-[#111111] hover:bg-[#a6e600] ";
+      styleClass += "bg-[#B8FF01] text-[#111111] hover:bg-[#a6e600] border-transparent ";
     } else if (isKnown) {
-      styleClass += "text-[#111111] hover:bg-[#EAEAE6] ";
+      styleClass += "text-[#111111] hover:bg-[#EAEAE6] border-transparent ";
     } else {
       styleClass += "text-[#111111] border-dotted !border-[#888888] hover:!border-[#111111] hover:bg-[#F4F4F2] ";
     }
