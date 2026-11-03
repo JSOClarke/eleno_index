@@ -1,4 +1,5 @@
 import React from "react";
+import { CoverageGate } from "@/components/ui/CoverageGate";
 import type { RankingSourceKey, VocabStatusFilter } from "@/lib/vocabSorting";
 
 interface PrimerFilterBarProps {
@@ -17,6 +18,8 @@ interface PrimerFilterBarProps {
   sortValue: string;
   onSortChange: (value: string) => void;
   resultCount: number;
+  userId?: string | null;
+  onRequireAuth: () => void;
 }
 
 /** Search, status/pos/ranking filters and the mobile-only sort control. */
@@ -36,6 +39,8 @@ export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
   sortValue,
   onSortChange,
   resultCount,
+  userId,
+  onRequireAuth,
 }) => (
   <>
     <div className="flex flex-wrap items-center justify-between gap-2.5 border border-[#E2E2DF] bg-[#F8F8F6] p-2.5">
@@ -56,22 +61,31 @@ export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
             Debut in {isEpisodeMode ? `EP.${selectedChapter}` : `CH.${selectedChapter}`} ×
           </button>
         )}
-        <div className="flex max-w-full items-center overflow-x-auto border border-[#111111] font-mono text-[11px]">
-          {(["ALL", "UNKNOWN", "LEARNING", "KNOWN"] as const).map((st) => (
-            <button
-              key={st}
-              type="button"
-              onClick={() => onStatusFilter(st)}
-              className={`px-2 py-1 cursor-pointer transition-colors ${
-                statusFilter === st
-                  ? "bg-[#111111] text-[#B8FF01] font-semibold"
-                  : "bg-white text-[#555555] hover:text-[#111111]"
-              }`}
-            >
-              {st} ({statusCounts[st]})
-            </button>
-          ))}
-        </div>
+        {userId ? (
+          <div className="flex max-w-full items-center overflow-x-auto border border-[#111111] font-mono text-[11px]">
+            {(["ALL", "UNKNOWN", "LEARNING", "KNOWN"] as const).map((st) => (
+              <button
+                key={st}
+                type="button"
+                onClick={() => onStatusFilter(st)}
+                className={`px-2 py-1 cursor-pointer transition-colors ${
+                  statusFilter === st
+                    ? "bg-[#111111] text-[#B8FF01] font-semibold"
+                    : "bg-white text-[#555555] hover:text-[#111111]"
+                }`}
+              >
+                {st} ({statusCounts[st]})
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="w-full">
+            <CoverageGate
+              onSignIn={onRequireAuth}
+              label="Sign in to filter by Unknown / Learning / Known"
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-2 font-mono text-xs">

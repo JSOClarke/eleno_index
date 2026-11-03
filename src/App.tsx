@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AuthModal } from "@/components/layout/AuthModal";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { KnownWordsView } from "@/components/views/KnownWordsView";
+import { SignInNotice } from "@/components/views/SignInNotice";
 import { useAuth } from "@/hooks/useAuth";
 import { useCatalogueData } from "@/hooks/useCatalogueData";
 import { useFilterState } from "@/hooks/useFilterState";
@@ -85,12 +86,20 @@ export const App: React.FC = () => {
           <Route
             path="/known-words"
             element={
-              <KnownWordsView
-                userId={auth.user?.id}
-                statusMap={userVocab.statusMap}
-                knownCount={userVocab.knownCount}
-                onSetWordStatus={userVocab.setWordStatus}
-              />
+              auth.user ? (
+                <KnownWordsView
+                  userId={auth.user?.id}
+                  statusMap={userVocab.statusMap}
+                  knownCount={userVocab.knownCount}
+                  onSetWordStatus={userVocab.setWordStatus}
+                />
+              ) : (
+                <SignInNotice
+                  title="Vocabulary Ledger"
+                  message="Sign in to see the words you've marked as known or learning."
+                  onSignIn={() => setAuthModalOpen(true)}
+                />
+              )
             }
           />
           <Route

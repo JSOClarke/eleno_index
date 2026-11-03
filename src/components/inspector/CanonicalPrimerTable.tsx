@@ -13,6 +13,7 @@ interface CanonicalPrimerTableProps {
   onClearChapter: () => void;
   statusMap: Record<string, UserVocabStatus>;
   userId?: string | null;
+  onRequireAuth: () => void;
   onChangeWordStatus: (word: VocabularyWord, targetStatus: UserVocabStatus) => void;
   onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
 }
@@ -27,6 +28,7 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
   onClearChapter,
   statusMap,
   userId,
+  onRequireAuth,
   onChangeWordStatus,
   onSetWordStatus,
 }) => {
@@ -103,6 +105,8 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
         sortValue={`${sortField}:${sortDir}`}
         onSortChange={changeSort}
         resultCount={sortedAndFiltered.length}
+        userId={userId}
+        onRequireAuth={onRequireAuth}
       />
 
       <div className="border border-[#111111]">

@@ -110,6 +110,7 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
             onClearChapter={() => setSelectedChapter("all")}
             statusMap={statusMap}
             userId={userId}
+            onRequireAuth={onRequireAuth}
             onChangeWordStatus={handleChangeWordStatus}
             onSetWordStatus={handleSetWordStatus}
           />
