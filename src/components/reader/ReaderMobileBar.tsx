@@ -30,7 +30,7 @@ export const ReaderMobileBar: React.FC<ReaderMobileBarProps> = ({
     </button>
 
     <div className="min-w-0 flex-1">
-      <div className="truncate font-serif text-sm font-bold text-[#111111]">{title}</div>
+      <div className="truncate font-mono text-sm font-bold text-[#111111]">{title}</div>
     </div>
 
     <select

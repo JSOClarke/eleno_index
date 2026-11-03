@@ -33,9 +33,9 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
   return (
     <aside
       onClick={(event) => event.stopPropagation()}
-      className="fixed bottom-4 right-4 z-40 hidden w-[380px] max-w-[calc(100vw-2rem)] border-2 border-[#111111] bg-white p-5 shadow-[6px_6px_0px_#111111] md:block"
+      className="fixed bottom-4 right-4 z-40 hidden w-[380px] max-w-[calc(100vw-2rem)] border border-[#E2E2DF] bg-white p-5 shadow-[0_8px_24px_rgba(17,17,17,0.14)] md:block"
     >
-      <div className="mb-3 flex items-center justify-between border-b-2 border-[#111111] pb-2.5">
+      <div className="mb-3 flex items-center justify-between border-b border-[#E2E2DF] pb-2.5">
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#111111]">
             // A CLOSER LOOK

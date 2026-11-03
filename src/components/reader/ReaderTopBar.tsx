@@ -55,13 +55,13 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
           </button>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <span className="font-serif font-bold text-sm text-[#111111] truncate hidden md:inline">{title}</span>
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+          <span className="hidden min-w-0 flex-1 truncate font-mono text-sm font-bold text-[#111111] md:block">{title}</span>
           <span className="text-[#888888] hidden md:inline">·</span>
           <select
             value={currentChapterIndex}
             onChange={(e) => onSelectChapter(Number(e.target.value))}
-            className="border border-[#111111] bg-white px-2.5 py-1 font-mono text-xs font-medium cursor-pointer shadow-[2px_2px_0px_#111111] max-w-[160px] sm:max-w-[260px] truncate"
+            className="border border-[#111111] bg-white px-2.5 py-1 font-mono text-xs font-medium cursor-pointer shadow-[2px_2px_0px_#111111] max-w-[180px] truncate"
           >
             {chapters.map((ch) => (
               <option key={ch.index} value={ch.index}>
