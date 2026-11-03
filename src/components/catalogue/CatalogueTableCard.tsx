@@ -48,11 +48,18 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
             {item.title}
           </div>
           <div
-            className={`mt-0.5 truncate font-mono text-xs ${
+            className={`mt-0.5 truncate font-mono text-[11px] ${
               isExpanded ? "text-[#333333]" : "text-[#777777]"
             }`}
           >
-            {getMediaSubtypeLabel(item)} · {item.creator}
+            {getMediaSubtypeLabel(item)}
+          </div>
+          <div
+            className={`truncate font-mono text-[11px] ${
+              isExpanded ? "text-[#333333]" : "text-[#555555]"
+            }`}
+          >
+            {item.creator}
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px]">
             <span className="border border-[#111111] bg-white px-1.5 py-0.5">{level}</span>
