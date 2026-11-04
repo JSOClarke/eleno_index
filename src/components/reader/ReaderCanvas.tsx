@@ -69,7 +69,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
             {block.sentences.map((sent, sIdx) => {
               const isIPlusOne = showIPlusOne && !isHeading && checkIPlusOne(sent, lexicon, statusMap);
               const sentClass = isIPlusOne
-                ? "bg-[#B8FF01]/10 border-l-4 border-[#B8FF01] pl-2 py-0.5 inline"
+                ? "inline bg-[#B8FF01]/15"
                 : "inline";
 
               return (

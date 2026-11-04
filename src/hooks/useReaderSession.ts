@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchReadingProgress, saveReadingProgress } from "@/api/reader.api";
 import { getCachedChapter } from "@/lib/readerCache";
-import { clampFontSize, persistFontSize, readStoredFontSize } from "@/lib/readerPrefs";
+import { clampFontSize, persistReaderPrefs, readReaderPrefs } from "@/lib/readerPrefs";
 import type {
   ElenoLexiconEntry,
   ElenoReaderChapter,
@@ -26,14 +26,27 @@ export function useReaderSession(
   const [chapter, setChapter] = useState<ElenoReaderChapter | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [showRuby, setShowRuby] = useState<boolean>(true);
-  const [showIPlusOne, setShowIPlusOne] = useState<boolean>(false);
-  const [highlightMode, setHighlightMode] = useState<HighlightMode>("none");
-  const [highlightUnknownOnly, setHighlightUnknownOnly] = useState<boolean>(true);
-  const [fontSize, setFontSize] = useState<number>(() => readStoredFontSize());
+  const [initialPrefs] = useState(() => readReaderPrefs());
+  const [showRuby, setShowRuby] = useState<boolean>(initialPrefs.showRuby);
+  const [showIPlusOne, setShowIPlusOne] = useState<boolean>(initialPrefs.showIPlusOne);
+  const [highlightMode, setHighlightMode] = useState<HighlightMode>(initialPrefs.highlightMode);
+  const [highlightUnknownOnly, setHighlightUnknownOnly] = useState<boolean>(
+    initialPrefs.highlightUnknownOnly
+  );
+  const [fontSize, setFontSize] = useState<number>(initialPrefs.fontSize);
   const [selectedToken, setSelectedToken] = useState<SelectedTokenState | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState<number>(0);
   const [percentage, setPercentage] = useState<number>(0);
+
+  useEffect(() => {
+    persistReaderPrefs({
+      fontSize,
+      showRuby,
+      showIPlusOne,
+      highlightMode,
+      highlightUnknownOnly,
+    });
+  }, [fontSize, showRuby, showIPlusOne, highlightMode, highlightUnknownOnly]);
 
   const saveTimerRef = useRef<any>(null);
 
@@ -105,11 +118,7 @@ export function useReaderSession(
   const closeDock = useCallback(() => setSelectedToken(null), []);
 
   const adjustFontSize = useCallback((delta: number) => {
-    setFontSize((previous) => {
-      const next = clampFontSize(previous + delta);
-      persistFontSize(next);
-      return next;
-    });
+    setFontSize((previous) => clampFontSize(previous + delta));
   }, []);
 
   return {

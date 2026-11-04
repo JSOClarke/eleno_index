@@ -3,6 +3,7 @@ import { formatMorphology } from "@/lib/grammarFormatters";
 import { getCefrBand, getRankBand } from "@/lib/readerHighlight";
 import type { TrackedLexiconEntry } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
+import { WordImageSection } from "./WordImageSection";
 
 interface WordDockContentProps {
   surface: string;
@@ -104,6 +105,8 @@ export const WordDockContent: React.FC<WordDockContentProps> = ({
           )}
         </ol>
       </div>
+
+      <WordImageSection entry={entry} />
 
       <div className="space-y-2 border-t-2 border-[#111111] pt-3">
         <div className="font-mono text-[10px] font-bold uppercase text-[#666666]">

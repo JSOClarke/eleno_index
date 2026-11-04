@@ -77,7 +77,8 @@ src/
    - **100% Token Interactivity**: Every single word is interactive; left-click opens the brutalist Word Dock; right-click toggles **Known** status instantly. Clicking in free space dismisses the dock.
    - **Static Typography & Zero Reflow**: Overhead floating hints sit in generous line headroom without stretching word kerning or causing lines to jump on toggle.
    - **Difficulty Underline Bands**: Toggleable **CEFR** (A1–C2) and **Frequency Rank** (1k–10k+) color bands with an **"Unknown only"** filter.
-   - **Word Dock**: Displays grammatical morphology (tense, mood, person, gender), IPA, TubeLex rank, Kaikki definitions, and native text-to-speech audio.
+   - **Persisted Reader Preferences**: Font size, Ruby hints, i+1 mode, underline band mode, and the unknown-only filter are stored in `localStorage` and restored on the next visit.
+   - **Word Dock**: Displays grammatical morphology (tense, mood, person, gender), IPA, TubeLex rank, Kaikki definitions, native text-to-speech audio, and an expandable image strip from pluggable providers (Wikipedia by default; Pixabay when the reader supplies their own key).
    - **Debounced Progress Tracking**: Automatically records reading percentage and current chapter/block to Supabase, restoring scroll position on return.
 4. **Vocabulary Ledger (`/known-words`)**:
    - Signature-cached (`0ms` repeat load) ledger of all `Known` and `Learning` canonical lemmas with `TUBELEX` / `ELELEX` toggle, `POS` & state filters, column sorting, and `<Quote />` definitions/sentences drawer.
@@ -95,3 +96,5 @@ npm install
 npm run dev      # Starts Vite dev server on http://localhost:3001
 npm run build    # Runs tsc && vite build
 ```
+
+Image providers are registered in `src/lib/imageProviders.ts`. Wikipedia works without credentials. Pixabay is opt-in: the reader adds their own API key from the image panel, and it is stored only in that browser's localStorage. Additional providers can be attached with `registerImageProvider(...)`.
