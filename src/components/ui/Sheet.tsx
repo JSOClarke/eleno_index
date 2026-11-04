@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
 interface SheetProps {
@@ -14,8 +14,15 @@ interface SheetProps {
  * scroll lock. Callers control when it is mounted (typically `md:hidden`).
  */
 export const Sheet: React.FC<SheetProps> = ({ open, onClose, title, children, className = "" }) => {
+  const rootRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!open) return;
+    // Sheets can be marked `md:hidden` while still mounted on desktop. Locking
+    // body scroll there removes the scrollbar and shifts the page horizontally.
+    const root = rootRef.current;
+    if (!root || window.getComputedStyle(root).display === "none") return;
+
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
@@ -31,7 +38,7 @@ export const Sheet: React.FC<SheetProps> = ({ open, onClose, title, children, cl
   if (!open) return null;
 
   return createPortal(
-    <div className={`fixed inset-0 z-50 flex flex-col justify-end ${className}`} role="dialog" aria-modal="true" aria-label={title || "Panel"}>
+    <div ref={rootRef} className={`fixed inset-0 z-50 flex flex-col justify-end ${className}`} role="dialog" aria-modal="true" aria-label={title || "Panel"}>
       <button
         type="button"
         aria-label="Close panel"
