@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { ElenoReaderChapterMeta, HighlightMode } from "@/types/reader.types";
+import type { ElenoReaderChapterMeta, HighlightMode, ProgressSyncState } from "@/types/reader.types";
 import { ReaderMobileBar } from "./ReaderMobileBar";
 import { ReaderSettingsSheet } from "./ReaderSettingsSheet";
 
@@ -17,6 +17,7 @@ interface ReaderMobileControlsProps {
   onChangeHighlightMode: (mode: HighlightMode) => void;
   highlightUnknownOnly: boolean;
   onToggleHighlightUnknownOnly: () => void;
+  progressSync: ProgressSyncState;
 }
 
 /** Phone reader chrome: compact bar plus the settings sheet it opens. */
@@ -34,6 +35,7 @@ export const ReaderMobileControls: React.FC<ReaderMobileControlsProps> = ({
   onChangeHighlightMode,
   highlightUnknownOnly,
   onToggleHighlightUnknownOnly,
+  progressSync,
 }) => {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -46,6 +48,7 @@ export const ReaderMobileControls: React.FC<ReaderMobileControlsProps> = ({
         onSelectChapter={onSelectChapter}
         onOpenSettings={() => setSettingsOpen(true)}
         onBack={onBack}
+        progressSync={progressSync}
       />
       <ReaderSettingsSheet
         open={settingsOpen}

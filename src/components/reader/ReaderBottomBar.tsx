@@ -3,7 +3,6 @@ import React from "react";
 interface ReaderBottomBarProps {
   chapterIndex: number;
   totalChapters: number;
-  percentage: number;
   onPrev: () => void;
   onNext: () => void;
 }
@@ -11,7 +10,6 @@ interface ReaderBottomBarProps {
 export const ReaderBottomBar: React.FC<ReaderBottomBarProps> = ({
   chapterIndex,
   totalChapters,
-  percentage,
   onPrev,
   onNext,
 }) => (
@@ -28,11 +26,6 @@ export const ReaderBottomBar: React.FC<ReaderBottomBarProps> = ({
         <span className="text-[#666666]">
           Chapter {chapterIndex} of {totalChapters}
         </span>
-        <span className="text-[#CCCCCC]">·</span>
-        <span className="font-bold tabular-nums">{percentage}% read</span>
-        <div className="hidden h-2 w-20 border border-[#111111] bg-white sm:flex overflow-hidden">
-          <div className="h-full bg-[#111111]" style={{ width: `${percentage}%` }} />
-        </div>
       </div>
       <button
         disabled={chapterIndex >= totalChapters}

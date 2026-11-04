@@ -1,14 +1,14 @@
 import React from "react";
 import { ReaderHighlightControls } from "./ReaderHighlightControls";
 import { ReaderMobileControls } from "./ReaderMobileControls";
-import type { ElenoReaderChapterMeta, HighlightMode } from "@/types/reader.types";
+import { ReaderSyncBadge } from "./ReaderSyncBadge";
+import type { ElenoReaderChapterMeta, HighlightMode, ProgressSyncState } from "@/types/reader.types";
 
 interface ReaderTopBarProps {
   title: string;
   chapters: ElenoReaderChapterMeta[];
   currentChapterIndex: number;
   onSelectChapter: (idx: number) => void;
-  percentage: number;
   showRuby: boolean;
   onToggleRuby: () => void;
   showIPlusOne: boolean;
@@ -19,6 +19,7 @@ interface ReaderTopBarProps {
   onToggleHighlightUnknownOnly: () => void;
   fontSize: number;
   onAdjustFontSize: (delta: number) => void;
+  progressSync: ProgressSyncState;
   onBack: () => void;
 }
 
@@ -27,7 +28,6 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
   chapters,
   currentChapterIndex,
   onSelectChapter,
-  percentage,
   showRuby,
   onToggleRuby,
   showIPlusOne,
@@ -38,6 +38,7 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
   onToggleHighlightUnknownOnly,
   fontSize,
   onAdjustFontSize,
+  progressSync,
   onBack,
 }) => {
   return (
@@ -72,14 +73,7 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 font-mono text-xs shrink-0">
-          <div className="hidden lg:flex items-center gap-2 border border-[#111111] px-2.5 py-1 bg-[#F8F8F6]">
-            <span className="text-[#555555]">PROGRESS</span>
-            <span className="font-bold tabular-nums">{percentage}%</span>
-            <div className="w-12 h-2 border border-[#111111] bg-white flex overflow-hidden">
-              <div className="h-full bg-[#111111]" style={{ width: `${percentage}%` }} />
-            </div>
-          </div>
-
+          <ReaderSyncBadge state={progressSync} />
           <ReaderHighlightControls
             mode={highlightMode}
             onChangeMode={onChangeHighlightMode}
@@ -129,6 +123,7 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
         onChangeHighlightMode={onChangeHighlightMode}
         highlightUnknownOnly={highlightUnknownOnly}
         onToggleHighlightUnknownOnly={onToggleHighlightUnknownOnly}
+        progressSync={progressSync}
       />
     </>
   );

@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { fetchReadingProgress, saveReadingProgress } from "@/api/reader.api";
+import { useCallback, useEffect, useState } from "react";
+import { useReaderProgressRestore } from "@/hooks/useReaderProgressRestore";
+import { useReaderProgressSaver } from "@/hooks/useReaderProgressSaver";
 import { getCachedChapter } from "@/lib/readerCache";
 import { clampFontSize, persistReaderPrefs, readReaderPrefs } from "@/lib/readerPrefs";
 import type {
@@ -7,6 +8,7 @@ import type {
   ElenoReaderChapter,
   ElenoReaderManifest,
   HighlightMode,
+  ProgressSyncState,
   TrackedLexiconEntry,
 } from "@/types/reader.types";
 
@@ -22,7 +24,7 @@ export function useReaderSession(
   mediaItemId: string,
   manifest: ElenoReaderManifest | null
 ) {
-  const [chapterIndex, setChapterIndex] = useState<number>(1);
+  const [chapterIndex, setChapterIndexState] = useState<number>(1);
   const [chapter, setChapter] = useState<ElenoReaderChapter | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,35 +38,48 @@ export function useReaderSession(
   const [fontSize, setFontSize] = useState<number>(initialPrefs.fontSize);
   const [selectedToken, setSelectedToken] = useState<SelectedTokenState | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState<number>(0);
-  const [percentage, setPercentage] = useState<number>(0);
+  const [savedPercentage, setSavedPercentage] = useState<number>(0);
+  const [progressSync, setProgressSync] = useState<ProgressSyncState>("idle");
+
+  const setChapterIndex = useCallback((next: number | ((previous: number) => number)) => {
+    setCurrentBlockIndex(0);
+    setChapterIndexState(next);
+  }, []);
+
+  const { recordPosition: saveProgress, resetHighWater } = useReaderProgressSaver({
+    mediaItemId,
+    chapterIndex,
+    chapterBlockCount: chapter?.blocks.length || 1,
+    manifest,
+    onSyncChange: setProgressSync,
+    onSaved: setSavedPercentage,
+  });
+
+  const recordPosition = useCallback(
+    (blockIdx: number) => {
+      setCurrentBlockIndex(blockIdx);
+      saveProgress(blockIdx);
+    },
+    [saveProgress]
+  );
+
+  const progressReady = useReaderProgressRestore(mediaItemId, (progress) => {
+    if (progress.chapter_index > 0) setChapterIndexState(progress.chapter_index);
+    if (progress.block_index >= 0) {
+      setCurrentBlockIndex(progress.block_index);
+      resetHighWater(progress.chapter_index, progress.block_index);
+    }
+    if (progress.percentage > 0) setSavedPercentage(progress.percentage);
+  });
 
   useEffect(() => {
-    persistReaderPrefs({
-      fontSize,
-      showRuby,
-      showIPlusOne,
-      highlightMode,
-      highlightUnknownOnly,
-    });
+    persistReaderPrefs({ fontSize, showRuby, showIPlusOne, highlightMode, highlightUnknownOnly });
   }, [fontSize, showRuby, showIPlusOne, highlightMode, highlightUnknownOnly]);
 
-  const saveTimerRef = useRef<any>(null);
-
-  // Initial progress restoration
-  useEffect(() => {
-    let cancelled = false;
-    fetchReadingProgress(mediaItemId).then((prog) => {
-      if (cancelled || !prog) return;
-      if (prog.chapter_index > 0) setChapterIndex(prog.chapter_index);
-      if (prog.block_index >= 0) setCurrentBlockIndex(prog.block_index);
-      if (prog.percentage > 0) setPercentage(prog.percentage);
-    });
-    return () => { cancelled = true; };
-  }, [mediaItemId]);
 
   // Load chapter
   useEffect(() => {
-    if (!manifest || !chapterIndex) return;
+    if (!manifest || !chapterIndex || !progressReady) return;
     setLoading(true);
     setError(null);
 
@@ -77,29 +92,7 @@ export function useReaderSession(
         setError(err.message || "Failed to load chapter");
         setLoading(false);
       });
-  }, [mediaItemId, chapterIndex, manifest]);
-
-  const recordPosition = useCallback((blockIdx: number, tokenIdx: number = 0) => {
-    setCurrentBlockIndex(blockIdx);
-    if (!manifest || manifest.total_chapters <= 0) return;
-
-    const approxPct = Math.min(
-      100,
-      Math.round(((chapterIndex - 1 + (blockIdx + 1) / (chapter?.blocks.length || 1)) / manifest.total_chapters) * 100)
-    );
-    setPercentage(approxPct);
-
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => {
-      saveReadingProgress({
-        media_item_id: mediaItemId,
-        chapter_index: chapterIndex,
-        block_index: blockIdx,
-        token_index: tokenIdx,
-        percentage: approxPct,
-      });
-    }, 1500);
-  }, [mediaItemId, chapterIndex, chapter, manifest]);
+  }, [mediaItemId, chapterIndex, manifest, progressReady]);
 
   const selectToken = useCallback(
     (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string) => {
@@ -140,7 +133,8 @@ export function useReaderSession(
     closeDock,
     currentBlockIndex,
     recordPosition,
-    percentage,
+    savedPercentage,
+    progressSync,
     fontSize,
     adjustFontSize,
   };

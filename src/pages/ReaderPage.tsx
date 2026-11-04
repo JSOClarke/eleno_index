@@ -6,11 +6,11 @@ import { ReaderCanvas } from "@/components/reader/ReaderCanvas";
 import { ReaderTopBar } from "@/components/reader/ReaderTopBar";
 import { ReaderWordDock } from "@/components/reader/ReaderWordDock";
 import { ReaderWordSheet } from "@/components/reader/ReaderWordSheet";
+import { ReadingPositionRail } from "@/components/reader/ReadingPositionRail";
 import { useReaderScroll } from "@/hooks/useReaderScroll";
 import { useReaderSession } from "@/hooks/useReaderSession";
 import type { ElenoReaderManifest } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
-
 interface ReaderPageProps {
   statusMap: Record<string, UserVocabStatus>;
   onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
@@ -21,7 +21,6 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
   const navigate = useNavigate();
   const [manifest, setManifest] = useState<ElenoReaderManifest | null>(null);
   const [manifestErr, setManifestErr] = useState<string | null>(null);
-
   useEffect(() => {
     if (!mediaId) return;
     fetchReaderManifest(mediaId)
@@ -48,7 +47,8 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
     closeDock,
     currentBlockIndex,
     recordPosition,
-    percentage,
+    savedPercentage,
+    progressSync,
     fontSize,
     adjustFontSize,
   } = useReaderSession(mediaId || "", manifest);
@@ -72,7 +72,6 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
 
   const curCh = manifest?.chapters.find((c) => c.index === chapterIndex);
   const total = manifest?.total_chapters || manifest?.chapters.length || 1;
-
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white font-sans text-[#111111]">
       {manifest && (
@@ -81,7 +80,6 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
           chapters={manifest.chapters}
           currentChapterIndex={chapterIndex}
           onSelectChapter={setChapterIndex}
-          percentage={percentage}
           showRuby={showRuby}
           onToggleRuby={() => setShowRuby((p) => !p)}
           showIPlusOne={showIPlusOne}
@@ -93,8 +91,11 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
           onBack={() => navigate(`/media/${mediaId}`)}
           fontSize={fontSize}
           onAdjustFontSize={adjustFontSize}
+          progressSync={progressSync}
         />
       )}
+
+      {manifest && <ReadingPositionRail manifest={manifest} chapterIndex={chapterIndex} chapter={chapter} savedPercentage={savedPercentage} onSelectChapter={setChapterIndex} />}
 
       <main onClick={closeDock} className="flex-1 pb-24 pt-4">
         {loading ? (
@@ -140,7 +141,6 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
       <ReaderBottomBar
         chapterIndex={chapterIndex}
         totalChapters={total}
-        percentage={percentage}
         onPrev={() => setChapterIndex((p) => Math.max(1, p - 1))}
         onNext={() => setChapterIndex((p) => p + 1)}
       />

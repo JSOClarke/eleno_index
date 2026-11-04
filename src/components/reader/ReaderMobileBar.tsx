@@ -1,5 +1,6 @@
 import React from "react";
-import type { ElenoReaderChapterMeta } from "@/types/reader.types";
+import { ReaderSyncBadge } from "./ReaderSyncBadge";
+import type { ElenoReaderChapterMeta, ProgressSyncState } from "@/types/reader.types";
 
 interface ReaderMobileBarProps {
   title: string;
@@ -8,6 +9,7 @@ interface ReaderMobileBarProps {
   onSelectChapter: (index: number) => void;
   onOpenSettings: () => void;
   onBack: () => void;
+  progressSync: ProgressSyncState;
 }
 
 /** Compact reader chrome for phones: back, title, chapter switch, settings. */
@@ -18,6 +20,7 @@ export const ReaderMobileBar: React.FC<ReaderMobileBarProps> = ({
   onSelectChapter,
   onOpenSettings,
   onBack,
+  progressSync,
 }) => (
   <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-[#E2E2DF] bg-white px-3 md:hidden">
     <button
@@ -45,6 +48,8 @@ export const ReaderMobileBar: React.FC<ReaderMobileBarProps> = ({
         </option>
       ))}
     </select>
+
+    <ReaderSyncBadge state={progressSync} compact />
 
     <button
       type="button"

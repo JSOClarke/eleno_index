@@ -1,5 +1,8 @@
 export type HighlightMode = "none" | "cefr" | "rank";
 
+export type ProgressSyncState = "idle" | "saving" | "saved" | "error";
+export type ProgressSaveResult = "saved" | "skipped" | "error";
+
 export interface ElenoLexiconEntry {
   /** Canonical UUID, or null for a wordform without a canonical row. */
   id: string | null;
