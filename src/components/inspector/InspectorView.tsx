@@ -90,6 +90,8 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
         loading={inspector.chaptersLoading}
         selectedChapter={selectedChapter}
         onSelectChapter={setSelectedChapter}
+        bookMetrics={item.metrics}
+        bookComprehension={inspector.bookComp}
       />
 
       <div className="space-y-4 pt-2">

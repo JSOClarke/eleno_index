@@ -42,12 +42,22 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
           ← Back to Catalogue
         </Link>
         <div className="flex items-center gap-3">
-          <Link
-            to={`/read/${item.id}`}
-            className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600]"
-          >
-            Read Story →
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              to={`/read/${item.id}`}
+              className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600]"
+            >
+              Read Story →
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={onRequireAuth}
+              className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600] cursor-pointer"
+            >
+              Sign in to read
+            </button>
+          )}
           <span className="hidden font-mono text-xs text-[#666666] sm:inline">
             MEDIA ID: {item.id.slice(0, 8).toUpperCase()}
           </span>

@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Reserve the vertical scrollbar gutter so view/filter changes do not
+   re-center the page when content height crosses the viewport. */
+html {
+  scrollbar-gutter: stable;
+}
+
+@supports not (scrollbar-gutter: stable) {
+  html {
+    overflow-y: scroll;
+  }
+}
+
 input[type="checkbox"] {
   accent-color: #111111;
   width: 14px;

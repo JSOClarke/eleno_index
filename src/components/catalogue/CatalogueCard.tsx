@@ -122,13 +122,17 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
           >
             {isSaved ? "Saved ✓" : "Save"}
           </button>
-          <Link
-            to={`/read/${item.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="px-2.5 py-1.5 bg-[#B8FF01] text-[#111111] text-xs font-bold border border-[#111111] hover:bg-[#a6e600]"
-          >
-            Read →
-          </Link>
+          {isAuthenticated ? (
+            <Link
+              to={`/read/${item.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="px-2.5 py-1.5 bg-[#B8FF01] text-[#111111] text-xs font-bold border border-[#111111] hover:bg-[#a6e600]"
+            >
+              Read →
+            </Link>
+          ) : (
+            <button type="button" onClick={(e) => { e.stopPropagation(); onRequireAuth(); }} className="px-2.5 py-1.5 bg-[#B8FF01] text-[#111111] text-xs font-bold border border-[#111111] hover:bg-[#a6e600] cursor-pointer">Sign in to read</button>
+          )}
           <Link
             to={`/media/${item.id}`}
             onClick={(e) => e.stopPropagation()}

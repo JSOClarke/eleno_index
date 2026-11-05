@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { AuthModal } from "@/components/layout/AuthModal";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { KnownWordsView } from "@/components/views/KnownWordsView";
+import { ReaderAuthGate } from "@/components/views/ReaderAuthGate";
 import { SignInNotice } from "@/components/views/SignInNotice";
 import { useAuth } from "@/hooks/useAuth";
 import { useCatalogueData } from "@/hooks/useCatalogueData";
@@ -48,19 +49,35 @@ export const App: React.FC = () => {
     onToggleWord: handleTogglePreviewWord,
   };
 
+  const authModal = (
+    <AuthModal
+      isOpen={authModalOpen}
+      onClose={() => setAuthModalOpen(false)}
+      onSignIn={auth.signIn}
+      onSignUp={auth.signUp}
+    />
+  );
+
   if (location.pathname.startsWith("/read/")) {
     return (
-      <Routes>
-        <Route
-          path="/read/:mediaId"
-          element={
-            <ReaderPage
-              statusMap={userVocab.statusMap}
-              onSetWordStatus={userVocab.setWordStatus}
-            />
-          }
-        />
-      </Routes>
+      <ReaderAuthGate
+        loading={auth.loading}
+        isAuthenticated={Boolean(auth.user)}
+        onSignIn={auth.signIn}
+        onSignUp={auth.signUp}
+      >
+        <Routes>
+          <Route
+            path="/read/:mediaId"
+            element={
+              <ReaderPage
+                statusMap={userVocab.statusMap}
+                onSetWordStatus={userVocab.setWordStatus}
+              />
+            }
+          />
+        </Routes>
+      </ReaderAuthGate>
     );
   }
 
@@ -127,12 +144,7 @@ export const App: React.FC = () => {
         </Routes>
       </main>
 
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        onSignIn={auth.signIn}
-        onSignUp={auth.signUp}
-      />
+      {authModal}
     </div>
   );
 };

@@ -1,13 +1,20 @@
 import React from "react";
-import { formatCompactWords, formatLearningDelta, formatNumber, formatPercent } from "@/lib/formatters";
+import { formatCompactWords, formatLearningDelta, formatNumber } from "@/lib/formatters";
 import { ScrollFadeX } from "@/components/ui/ScrollFadeX";
-import type { MediaChapterMetrics } from "@/types/media.types";
+import type {
+  MediaChapterMetrics,
+  MediaComprehensionStats,
+  MediaMetrics,
+} from "@/types/media.types";
+import { ChapterPacingSummary } from "./ChapterPacingSummary";
 
 interface ChapterPacingStripProps {
   chapters: MediaChapterMetrics[];
   loading?: boolean;
   selectedChapter: number | "all";
   onSelectChapter: (ch: number | "all") => void;
+  bookMetrics?: MediaMetrics | null;
+  bookComprehension?: MediaComprehensionStats | null;
 }
 
 export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
@@ -15,6 +22,8 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
   loading = false,
   selectedChapter,
   onSelectChapter,
+  bookMetrics,
+  bookComprehension,
 }) => {
   if (loading && chapters.length === 0) {
     return (
@@ -39,11 +48,6 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
   const unitShort = isEpisode ? "EP" : "CH";
   const maxTokens = Math.max(...chapters.map((c) => c.total_tokens || 1), 2000);
   const hasUserFlow = chapters.some((c) => c.user_comprehension !== undefined);
-  const flowPct =
-    currentCh.user_comprehension?.text_coverage_percentage ??
-    currentCh.user_comprehension?.chapter_comprehension_percentage ??
-    null;
-  const learnFlowPct = currentCh.user_comprehension?.learning_text_coverage_percentage ?? 0;
 
   return (
     <div className="border border-[#E2E2DF] bg-[#F8F8F6] p-4 space-y-3.5">
@@ -132,17 +136,13 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
         </div>
       </ScrollFadeX>
 
-      <div className="border-t border-[#E2E2DF] pt-2.5 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
-        <div>
-          <span className="font-bold text-[#111111]">{isEpisode ? currentCh.chapter_title : `Chapter ${currentCh.chapter_index}: ${currentCh.chapter_title}`}</span>
-          <span className="text-[#666666] ml-2">· {formatNumber(currentCh.total_tokens)} tokens · {formatNumber(currentCh.unique_words_count)} lemmas</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span>F-H: <strong>{(currentCh.readability_score || 70).toFixed(1)}</strong></span>
-          <span>Dialogue: <strong>{formatPercent(currentCh.dialogue_ratio, 1)}</strong></span>
-          {flowPct !== null && <span>Flow: <strong>{flowPct.toFixed(1)}%</strong>{learnFlowPct > 0 ? ` (${formatLearningDelta(learnFlowPct)} learning)` : ""}</span>}
-        </div>
-      </div>
+      <ChapterPacingSummary
+        isEpisode={isEpisode}
+        selectedChapter={selectedChapter}
+        currentCh={currentCh}
+        bookMetrics={bookMetrics}
+        bookComprehension={bookComprehension}
+      />
     </div>
   );
 };
