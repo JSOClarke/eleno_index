@@ -1,6 +1,5 @@
 import React from "react";
-import type { SelectedTokenState } from "@/hooks/useReaderSession";
-import type { DefinitionLanguage } from "@/types/reader.types";
+import type { DefinitionLanguage, SelectedTokenState } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { WordDockContent } from "./WordDockContent";
 
@@ -74,6 +73,7 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
         onSetStatus={onSetStatus}
         definitionLanguage={definitionLanguage}
         onDefinitionLanguageChange={onDefinitionLanguageChange}
+        phrases={selectedToken.phrases}
       />
     </aside>
   );

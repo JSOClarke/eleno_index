@@ -3,6 +3,7 @@ import { useReaderProgressRestore } from "@/hooks/useReaderProgressRestore";
 import { useReaderProgressSaver } from "@/hooks/useReaderProgressSaver";
 import { getCachedChapter } from "@/lib/readerCache";
 import { clampFontSize, persistReaderPrefs, readReaderPrefs } from "@/lib/readerPrefs";
+import { resolvePhraseHints } from "@/lib/readerPhrases";
 import type {
   DefinitionLanguage,
   ElenoLexiconEntry,
@@ -11,16 +12,9 @@ import type {
   HighlightMode,
   ProgressSyncState,
   RubyPosFilter,
+  SelectedTokenState,
   TrackedLexiconEntry,
 } from "@/types/reader.types";
-
-export interface SelectedTokenState {
-  surface: string;
-  entry: TrackedLexiconEntry;
-  morph?: string;
-  blockIndex: number;
-  sentenceIndex: number;
-}
 
 export function useReaderSession(
   mediaItemId: string,
@@ -99,8 +93,7 @@ export function useReaderSession(
       });
   }, [mediaItemId, chapterIndex, manifest, progressReady]);
 
-  const selectToken = useCallback(
-    (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string) => {
+  const selectToken = useCallback((surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string, tokenIndex = 0) => {
       if (!entry.id) return;
       setSelectedToken({
         surface,
@@ -108,9 +101,11 @@ export function useReaderSession(
         morph,
         blockIndex: bIdx,
         sentenceIndex: sIdx,
+        tokenIndex,
+        phrases: resolvePhraseHints(chapter, manifest, bIdx, sIdx, tokenIndex),
       });
     },
-    []
+    [chapter, manifest]
   );
 
   const closeDock = useCallback(() => setSelectedToken(null), []);

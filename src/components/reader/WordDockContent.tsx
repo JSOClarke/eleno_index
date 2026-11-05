@@ -1,10 +1,11 @@
 import React from "react";
 import { formatMorphology } from "@/lib/grammarFormatters";
 import { getCefrBand, getRankBand } from "@/lib/readerHighlight";
-import type { DefinitionLanguage, TrackedLexiconEntry } from "@/types/reader.types";
+import type { DefinitionLanguage, ElenoPhraseHint, TrackedLexiconEntry } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { WordDefinitionsPanel } from "./WordDefinitionsPanel";
 import { WordImageSection } from "./WordImageSection";
+import { WordPhrasesSection } from "./WordPhrasesSection";
 
 interface WordDockContentProps {
   surface: string;
@@ -14,6 +15,7 @@ interface WordDockContentProps {
   onSetStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
   definitionLanguage: DefinitionLanguage;
   onDefinitionLanguageChange: (language: DefinitionLanguage) => void;
+  phrases?: ElenoPhraseHint[];
 }
 
 /** Dictionary + ledger body shared by the desktop dock and the mobile sheet. */
@@ -25,6 +27,7 @@ export const WordDockContent: React.FC<WordDockContentProps> = ({
   onSetStatus,
   definitionLanguage,
   onDefinitionLanguageChange,
+  phrases = [],
 }) => {
   const isLearning = status === "learning";
   const isKnown = status === "known";
@@ -100,6 +103,8 @@ export const WordDockContent: React.FC<WordDockContentProps> = ({
         language={definitionLanguage}
         onLanguageChange={onDefinitionLanguageChange}
       />
+
+      <WordPhrasesSection phrases={phrases} />
 
       <WordImageSection entry={entry} />
 

@@ -20,8 +20,31 @@ export interface ElenoLexiconEntry {
   definitions: string[];
 }
 
+export interface ElenoPhraseHint {
+  id: string;
+  phrase: string;
+  type: string;
+  gloss?: string | null;
+}
+
+export interface ElenoPhraseMatch {
+  p: string;
+  s: number;
+  e: number;
+}
+
 /** A lexicon entry that is guaranteed to have an authoritative canonical row. */
 export type TrackedLexiconEntry = ElenoLexiconEntry & { id: string };
+
+export interface SelectedTokenState {
+  surface: string;
+  entry: TrackedLexiconEntry;
+  morph?: string;
+  blockIndex: number;
+  sentenceIndex: number;
+  tokenIndex: number;
+  phrases: ElenoPhraseHint[];
+}
 
 export interface ElenoReaderChapterMeta {
   index: number;
@@ -40,6 +63,7 @@ export interface ElenoReaderManifest {
   total_chapters: number;
   chapters: ElenoReaderChapterMeta[];
   lexicon: ElenoLexiconEntry[];
+  phrases?: ElenoPhraseHint[];
 }
 
 /**
@@ -53,6 +77,7 @@ export interface ElenoReaderBlock {
   type: "h1" | "h2" | "h3" | "p" | "quote" | "cue";
   time_ms?: [number, number];
   sentences: ElenoToken[][];
+  phrase_matches?: ElenoPhraseMatch[][];
 }
 
 export interface ElenoReaderChapter {

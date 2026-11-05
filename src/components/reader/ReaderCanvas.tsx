@@ -23,7 +23,7 @@ interface ReaderCanvasProps {
   highlightMode: HighlightMode;
   highlightUnknownOnly: boolean;
   selectedTokenId: string | null;
-  onSelectToken: (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string) => void;
+  onSelectToken: (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string, tokenIndex?: number) => void;
   onToggleKnown?: (canonicalId: string, currentStatus: UserVocabStatus | undefined) => void;
 }
 
@@ -91,7 +91,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
                         highlightMode={highlightMode}
                         highlightUnknownOnly={highlightUnknownOnly}
                         isSelected={isSelected}
-                        onSelect={(surf, entry, morph) => onSelectToken(surf, entry, bIdx, sIdx, morph)}
+                        onSelect={(surf, entry, morph) => onSelectToken(surf, entry, bIdx, sIdx, morph, tIdx)}
                         onToggleKnown={onToggleKnown}
                       />
                     );
