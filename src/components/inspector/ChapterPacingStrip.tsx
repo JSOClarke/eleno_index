@@ -75,7 +75,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
         </div>
       </div>
 
-      <ScrollFadeX className="pb-2" fadeFromClassName="from-[#F8F8F6]">
+      <ScrollFadeX className="pb-2" fadeFromClassName="from-[#F8F8F6]" arrows arrowClassName="bg-[#F8F8F6]">
         <div className="flex w-max items-stretch gap-2">
         <button
           type="button"
