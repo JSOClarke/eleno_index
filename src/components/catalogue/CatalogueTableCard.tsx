@@ -42,14 +42,18 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
     <div className="px-3.5 py-3 md:hidden">
       <div className="flex items-start gap-3">
         <BookCoverPlate
-          title={item.title}
+          title={item.work_title || item.title}
           explicitUrl={item.cover_image_url}
           level={level}
           size="mini"
         />
         <div className="min-w-0 flex-1">
           <div className="truncate text-sm font-semibold leading-snug text-[#111111]">
-            {item.title}
+            {item.work_title || item.title}
+          </div>
+          <div className="mt-0.5 truncate font-mono text-[11px] text-[#777777]">
+            {item.title} · {item.language.toUpperCase()}
+            {item.editions && item.editions.length > 1 ? ` · ${item.editions.length} editions` : ""}
           </div>
           <div className="mt-0.5 truncate font-mono text-[11px] text-[#777777]">
             {getMediaSubtypeLabel(item)}
@@ -87,7 +91,7 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
               {isSaved ? "Saved ✓" : "Save"}
             </button>
             <Link
-              to={`/media/${item.id}`}
+              to={item.work_id ? `/work/${item.work_id}` : `/media/${item.id}`}
               className="flex-1 border border-[#111111] bg-[#B8FF01] px-2 py-1.5 text-center font-mono text-xs font-bold text-[#111111]"
             >
               Open →

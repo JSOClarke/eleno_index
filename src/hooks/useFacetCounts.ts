@@ -81,7 +81,12 @@ export function useFacetCounts(
 
         if (filters.searchText.trim()) {
           const q = filters.searchText.toLowerCase();
-          const matchTitle = item.title.toLowerCase().includes(q);
+          const matchTitle =
+            item.title.toLowerCase().includes(q) ||
+            (item.work_title || "").toLowerCase().includes(q) ||
+            (item.editions || []).some((edition) =>
+              edition.title.toLowerCase().includes(q)
+            );
           const matchCreator = item.creator.toLowerCase().includes(q);
           const matchWord = item.previewWords.some((w) =>
             w.lemma.toLowerCase().includes(q)

@@ -106,6 +106,10 @@ export interface PreviewWordItem {
 
 export interface MediaCatalogItem {
   id: string;
+  work_id?: string | null;
+  work_title?: string | null;
+  work_language?: string | null;
+  editions?: MediaCatalogItem[];
   type: MediaType;
   title: string;
   creator: string;

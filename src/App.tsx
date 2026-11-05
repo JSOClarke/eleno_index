@@ -12,6 +12,7 @@ import { useUserVocabulary } from "@/hooks/useUserVocabulary";
 import { CataloguePage } from "@/pages/CataloguePage";
 import { InspectorPage } from "@/pages/InspectorPage";
 import { ReaderPage } from "@/pages/ReaderPage";
+import { WorkPage } from "@/pages/WorkPage";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
@@ -49,8 +50,7 @@ export const App: React.FC = () => {
     onToggleWord: handleTogglePreviewWord,
   };
 
-  const authModal = (
-    <AuthModal
+  const authModal = (    <AuthModal
       isOpen={authModalOpen}
       onClose={() => setAuthModalOpen(false)}
       onSignIn={auth.signIn}
@@ -80,7 +80,6 @@ export const App: React.FC = () => {
       </ReaderAuthGate>
     );
   }
-
   return (
     <div className="min-h-[100dvh] flex flex-col bg-white text-[#111111]">
       <TopNavBar
@@ -140,6 +139,7 @@ export const App: React.FC = () => {
               />
             }
           />
+          <Route path="/work/:workId" element={<WorkPage items={catalogue.items} loading={catalogue.loading} isAuthenticated={Boolean(auth.user)} onRequireAuth={() => setAuthModalOpen(true)} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

@@ -60,16 +60,20 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
 
         <div className="p-4 space-y-3.5">
           <div className="flex gap-4 items-start">
-            <BookCoverPlate title={item.title} explicitUrl={item.cover_image_url} level={level} size="card" />
+            <BookCoverPlate title={item.work_title || item.title} explicitUrl={item.cover_image_url} level={level} size="card" />
             <div className="flex-1 min-w-0 space-y-2.5">
               <div>
                 <Link
-                  to={`/media/${item.id}`}
+                  to={item.work_id ? `/work/${item.work_id}` : `/media/${item.id}`}
                   onClick={(e) => e.stopPropagation()}
                   className="text-base font-bold text-[#111111] leading-snug hover:underline block"
                 >
-                  {item.title}
+                  {item.work_title || item.title}
                 </Link>
+                <div className="font-mono text-xs text-[#666666] mt-0.5 truncate">
+                  {item.title} · {item.language.toUpperCase()}
+                  {item.editions && item.editions.length > 1 ? ` · ${item.editions.length} editions` : ""}
+                </div>
                 <div className="font-mono text-xs text-[#666666] mt-0.5">
                   {formatCompactWords(m?.total_tokens || 0)} · {dialOrSpeedLabel} · {subjPct} subj
                 </div>
@@ -134,7 +138,7 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
             <button type="button" onClick={(e) => { e.stopPropagation(); onRequireAuth(); }} className="px-2.5 py-1.5 bg-[#B8FF01] text-[#111111] text-xs font-bold border border-[#111111] hover:bg-[#a6e600] cursor-pointer">Sign in to read</button>
           )}
           <Link
-            to={`/media/${item.id}`}
+            to={item.work_id ? `/work/${item.work_id}` : `/media/${item.id}`}
             onClick={(e) => e.stopPropagation()}
             className="px-2.5 py-1.5 bg-[#111111] text-white text-xs font-medium border border-[#111111] hover:bg-[#333333]"
           >

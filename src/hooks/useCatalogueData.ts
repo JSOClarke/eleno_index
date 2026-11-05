@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  fetchBaseCatalogueItems,
   fetchCatalogueEnrichment,
   fetchMediaComprehensionMap,
 } from "@/api/catalogue.api";
+import { fetchBaseCatalogueItems } from "@/api/catalogueWorks.api";
 import { readCachedCatalogue, writeCachedCatalogue } from "@/lib/catalogueCache";
 import { applyOptimisticBookDelta } from "@/lib/optimisticMath";
 import type { MediaCatalogItem } from "@/types/media.types";

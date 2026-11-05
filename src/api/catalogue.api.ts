@@ -1,24 +1,9 @@
 import { supabase } from "@/lib/supabase";
 import type {
-  MediaCatalogItem,
   MediaComprehensionStats,
   PreviewWordItem,
 } from "@/types/media.types";
 import { normalizeMediaComprehension } from "./normalizers";
-
-const BASE_CATALOGUE_SELECT = `
-  id,
-  type,
-  title,
-  creator,
-  language,
-  format,
-  cover_image_url,
-  release_year,
-  synopsis,
-  media_work(series_name, series_order),
-  media_metrics(*)
-`;
 
 export async function fetchPreviewWordsBatch(
   userId?: string | null
@@ -64,49 +49,6 @@ export async function fetchMediaComprehensionMap(
     map[parsed.media_item_id] = parsed;
   }
   return map;
-}
-
-export async function fetchBaseCatalogueItems(): Promise<MediaCatalogItem[]> {
-  const { data, error } = await supabase
-    .from("media_item")
-    .select(BASE_CATALOGUE_SELECT)
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return (data || []).map((row) => {
-    const metrics = Array.isArray(row.media_metrics)
-      ? row.media_metrics[0] || null
-      : row.media_metrics || null;
-
-    const work = Array.isArray(row.media_work)
-      ? row.media_work[0] || null
-      : row.media_work || null;
-
-    return {
-      id: row.id,
-      type: row.type,
-      title: row.title,
-      creator: row.creator || "Unknown Creator",
-      language: row.language || "es",
-      format: row.format || "epub",
-      cover_image_url: row.cover_image_url || null,
-      release_year: row.release_year || null,
-      series_name: work?.series_name || null,
-      series_order:
-        work?.series_order !== null && work?.series_order !== undefined
-          ? Number(work.series_order)
-          : null,
-      metrics,
-      comprehension: null,
-      previewWords: [],
-      sampleSnippet:
-        row.synopsis ||
-        "«Texto auténtico indexado en el banco de oraciones del corpus español.»",
-      sampleSourceLabel: row.synopsis
-        ? `SYNOPSIS · ${String(row.format || "MEDIA").toUpperCase()}`
-        : "CORPUS ARCHIVE",
-    };
-  });
 }
 
 export async function fetchCatalogueEnrichment(userId?: string | null) {
