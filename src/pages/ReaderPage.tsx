@@ -34,8 +34,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
     chapter,
     loading,
     error,
-    showRuby,
-    setShowRuby,
+    showRuby, setShowRuby, rubyPos, setRubyPos,
     showIPlusOne,
     setShowIPlusOne,
     highlightMode,
@@ -81,6 +80,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
           currentChapterIndex={chapterIndex}
           onSelectChapter={setChapterIndex}
           showRuby={showRuby}
+          rubyPos={rubyPos} onChangeRubyPos={setRubyPos}
           onToggleRuby={() => setShowRuby((p) => !p)}
           showIPlusOne={showIPlusOne}
           onToggleIPlusOne={() => setShowIPlusOne((p) => !p)}
@@ -96,7 +96,6 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
       )}
 
       {manifest && <ReadingPositionRail manifest={manifest} chapterIndex={chapterIndex} chapter={chapter} savedPercentage={savedPercentage} onSelectChapter={setChapterIndex} />}
-
       <main onClick={closeDock} className="flex-1 pb-24 pt-4">
         {loading ? (
           <div className="mx-auto max-w-2xl px-6 py-20 text-center font-mono text-xs text-[#666666] animate-pulse">
@@ -114,6 +113,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
             creator={manifest.creator || ""}
             fontSize={fontSize}
             showRuby={showRuby}
+            rubyPos={rubyPos}
             showIPlusOne={showIPlusOne}
             highlightMode={highlightMode}
             highlightUnknownOnly={highlightUnknownOnly}

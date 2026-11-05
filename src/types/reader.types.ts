@@ -1,4 +1,5 @@
 export type HighlightMode = "none" | "cefr" | "rank";
+export type RubyPosFilter = "ALL" | "NOUN" | "VERB" | "ADJ" | "ADV";
 
 export type ProgressSyncState = "idle" | "saving" | "saved" | "error";
 export type ProgressSaveResult = "saved" | "skipped" | "error";
@@ -12,6 +13,7 @@ export interface ElenoLexiconEntry {
   pos: string;
   cefr: string;
   rank?: number | null;
+  rank_source?: string | null;
   ipa?: string | null;
   hint?: string | null;
   definitions: string[];

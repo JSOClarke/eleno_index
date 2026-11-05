@@ -5,12 +5,14 @@ import { buildKnownSignature, readKnownDetailsCache, writeKnownDetailsCache } fr
 import { sortKnownWords, type KnownSortField, type RankingSourceKey, type SortDirection } from "@/lib/vocabSorting";
 import type { KnownWordEntry, UserVocabStatus } from "@/types/vocabulary.types";
 import { KnownWordRow } from "./KnownWordRow";
+import { VocabularyPacksSection } from "./VocabularyPacksSection";
 
 interface KnownWordsViewProps {
   userId?: string | null;
   statusMap: Record<string, UserVocabStatus>;
   knownCount: number;
   onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
+  onReloadVocabulary: () => void | Promise<void>;
 }
 
 const PAGE_SIZE = 20;
@@ -20,6 +22,7 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
   statusMap,
   knownCount,
   onSetWordStatus,
+  onReloadVocabulary,
 }) => {
   const cached = readKnownDetailsCache(userId, statusMap);
   const [words, setWords] = useState<KnownWordEntry[]>(() => cached?.entries || []);
@@ -31,9 +34,7 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
   const [sortField, setSortField] = useState<KnownSortField>("added");
   const [sortDir, setSortDir] = useState<SortDirection>("desc");
   const [page, setPage] = useState(1);
-
   const signature = useMemo(() => buildKnownSignature(statusMap), [statusMap]);
-
   useEffect(() => {
     if (!userId) { setWords([]); setLoading(false); return; }
     const currentCache = readKnownDetailsCache(userId, statusMap);
@@ -43,14 +44,12 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
       const hasMissing = Object.entries(statusMap).some(([id, s]) => (s === "known" || s === "learning") && !loadedSet.has(id));
       if (!hasMissing) { writeKnownDetailsCache(userId, statusMap, currentCache.entries); setLoading(false); return; }
     } else setLoading(true);
-
     let cancelled = false;
     fetchKnownWordsDetails(userId)
       .then((rows) => { if (!cancelled) { setWords(rows); writeKnownDetailsCache(userId, statusMap, rows); } })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [userId, signature]);
-
   const counts = useMemo(() => {
     let known = 0, learning = 0;
     for (const s of Object.values(statusMap)) {
@@ -92,6 +91,8 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
           <p className="font-mono text-xs text-[#666666]">Canonical Spanish headwords tracked in your profile.</p>
         </div>
       </div>
+
+      <VocabularyPacksSection userId={userId} onApplied={onReloadVocabulary} />
 
       <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#F8F8F6] border border-[#E2E2DF] p-2.5">
         <div className="flex flex-wrap items-center gap-2">

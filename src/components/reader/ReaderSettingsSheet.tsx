@@ -1,12 +1,17 @@
 import React from "react";
 import { Sheet } from "@/components/ui/Sheet";
-import type { HighlightMode } from "@/types/reader.types";
+import type { HighlightMode, RubyPosFilter } from "@/types/reader.types";
+import { RubyHintControl } from "./RubyHintControl";
 
 interface ReaderSettingsSheetProps {
   open: boolean;
   onClose: () => void;
   fontSize: number;
   onAdjustFontSize: (delta: number) => void;
+  showRuby: boolean;
+  onToggleRuby: () => void;
+  rubyPos: RubyPosFilter;
+  onChangeRubyPos: (pos: RubyPosFilter) => void;
   showIPlusOne: boolean;
   onToggleIPlusOne: () => void;
   highlightMode: HighlightMode;
@@ -26,6 +31,10 @@ export const ReaderSettingsSheet: React.FC<ReaderSettingsSheetProps> = ({
   onClose,
   fontSize,
   onAdjustFontSize,
+  showRuby,
+  onToggleRuby,
+  rubyPos,
+  onChangeRubyPos,
   showIPlusOne,
   onToggleIPlusOne,
   highlightMode,
@@ -65,6 +74,28 @@ export const ReaderSettingsSheet: React.FC<ReaderSettingsSheetProps> = ({
           <span>i+1 sentences</span>
           <span>{showIPlusOne ? "ON" : "OFF"}</span>
         </button>
+      </div>
+
+      <div>
+        <div className="mb-2 font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
+          Ruby hints
+        </div>
+        <button type="button" onClick={onToggleRuby} className={toggleClass(showRuby)}>
+          <span>Show above-word hints</span>
+          <span>{showRuby ? "ON" : "OFF"}</span>
+        </button>
+        {showRuby && (
+          <div className="mt-2 flex items-center justify-between">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
+              Hint part of speech
+            </span>
+            <RubyHintControl
+              showRuby={showRuby}
+              rubyPos={rubyPos}
+              onChange={onChangeRubyPos}
+            />
+          </div>
+        )}
       </div>
 
       <div>

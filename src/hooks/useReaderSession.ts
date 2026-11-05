@@ -9,6 +9,7 @@ import type {
   ElenoReaderManifest,
   HighlightMode,
   ProgressSyncState,
+  RubyPosFilter,
   TrackedLexiconEntry,
 } from "@/types/reader.types";
 
@@ -30,6 +31,7 @@ export function useReaderSession(
   const [error, setError] = useState<string | null>(null);
   const [initialPrefs] = useState(() => readReaderPrefs());
   const [showRuby, setShowRuby] = useState<boolean>(initialPrefs.showRuby);
+  const [rubyPos, setRubyPos] = useState<RubyPosFilter>(initialPrefs.rubyPos);
   const [showIPlusOne, setShowIPlusOne] = useState<boolean>(initialPrefs.showIPlusOne);
   const [highlightMode, setHighlightMode] = useState<HighlightMode>(initialPrefs.highlightMode);
   const [highlightUnknownOnly, setHighlightUnknownOnly] = useState<boolean>(
@@ -73,8 +75,8 @@ export function useReaderSession(
   });
 
   useEffect(() => {
-    persistReaderPrefs({ fontSize, showRuby, showIPlusOne, highlightMode, highlightUnknownOnly });
-  }, [fontSize, showRuby, showIPlusOne, highlightMode, highlightUnknownOnly]);
+    persistReaderPrefs({ fontSize, showRuby, rubyPos, showIPlusOne, highlightMode, highlightUnknownOnly });
+  }, [fontSize, showRuby, rubyPos, showIPlusOne, highlightMode, highlightUnknownOnly]);
 
 
   // Load chapter
@@ -122,6 +124,8 @@ export function useReaderSession(
     error,
     showRuby,
     setShowRuby,
+    rubyPos,
+    setRubyPos,
     showIPlusOne,
     setShowIPlusOne,
     highlightMode,

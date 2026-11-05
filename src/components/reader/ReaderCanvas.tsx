@@ -4,6 +4,7 @@ import type {
   ElenoReaderBlock,
   ElenoToken,
   HighlightMode,
+  RubyPosFilter,
 } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { ReaderTokenSpan } from "./ReaderTokenSpan";
@@ -17,6 +18,7 @@ interface ReaderCanvasProps {
   creator?: string;
   fontSize: number;
   showRuby: boolean;
+  rubyPos: RubyPosFilter;
   showIPlusOne: boolean;
   highlightMode: HighlightMode;
   highlightUnknownOnly: boolean;
@@ -45,6 +47,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
   statusMap,
   fontSize,
   showRuby,
+  rubyPos,
   showIPlusOne,
   highlightMode,
   highlightUnknownOnly,
@@ -84,6 +87,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
                         lexicon={lexicon}
                         statusMap={statusMap}
                         showRuby={showRuby}
+                        rubyPos={rubyPos}
                         highlightMode={highlightMode}
                         highlightUnknownOnly={highlightUnknownOnly}
                         isSelected={isSelected}

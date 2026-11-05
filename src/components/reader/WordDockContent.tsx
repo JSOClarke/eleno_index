@@ -71,6 +71,9 @@ export const WordDockContent: React.FC<WordDockContentProps> = ({
         )}
         {entry.rank && (
           <span className="inline-flex items-center gap-1 border border-[#111111] bg-[#F8F8F6] px-1.5 font-mono tabular-nums text-[#111111]">
+            <span className="text-[9px] font-bold uppercase text-[#666666]">
+              {entry.rank_source === "tubelex_v2025" ? "TUBELEX" : entry.rank_source === "elelex_v2020" ? "ELELEX" : "RANK"}
+            </span>
             <span className="text-[#888888]">#</span>
             <span className="font-bold">{entry.rank.toLocaleString()}</span>
             <span className={`px-1 text-[10px] font-bold ${rankBand.bg} ${rankBand.text}`}>

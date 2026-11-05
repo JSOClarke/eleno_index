@@ -22,11 +22,10 @@ const CEFR_ORDER: Record<string, number> = {
 
 export function getWordRankForSource(
   rankings: LexicalRanking[] | undefined,
-  fallbackGlobalRank: number | null,
   source: RankingSourceKey
 ): number | null {
   const entry = rankings?.find((r) => r.source === source);
-  const val = entry?.rank ?? (source === "tubelex_v2025" ? fallbackGlobalRank : null);
+  const val = entry?.rank ?? null;
   return val && val > 0 ? val : null;
 }
 
@@ -66,8 +65,8 @@ export function sortPrimerWords(
         : a.lemma.localeCompare(b.lemma, "es");
     }
     if (field === "rank") {
-      const ra = getWordRankForSource(a.rankings, a.global_rank, rankingSource);
-      const rb = getWordRankForSource(b.rankings, b.global_rank, rankingSource);
+      const ra = getWordRankForSource(a.rankings, rankingSource);
+      const rb = getWordRankForSource(b.rankings, rankingSource);
       if (ra === null && rb === null) return b.frequency - a.frequency;
       if (ra === null) return 1;
       if (rb === null) return -1;
@@ -98,8 +97,8 @@ export function sortKnownWords(
       return ca !== cb ? mult * (ca - cb) : a.lemma.localeCompare(b.lemma, "es");
     }
     if (field === "rank") {
-      const ra = getWordRankForSource(a.rankings, a.global_rank, rankingSource);
-      const rb = getWordRankForSource(b.rankings, b.global_rank, rankingSource);
+      const ra = getWordRankForSource(a.rankings, rankingSource);
+      const rb = getWordRankForSource(b.rankings, rankingSource);
       if (ra === null && rb === null) return a.lemma.localeCompare(b.lemma, "es");
       if (ra === null) return 1;
       if (rb === null) return -1;

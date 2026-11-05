@@ -33,6 +33,11 @@ export const App: React.FC = () => {
     catalogue.applyOptimisticWordToggle(item.id, word.frequency, newStatus, oldStatus);
   };
 
+  const handleReloadAfterPacks = async () => {
+    await userVocab.reloadVocab();
+    await catalogue.reloadCatalogue();
+  };
+
   const sharedCataloguePageProps = {
     items: catalogue.items,
     loading: catalogue.loading,
@@ -92,6 +97,7 @@ export const App: React.FC = () => {
                   statusMap={userVocab.statusMap}
                   knownCount={userVocab.knownCount}
                   onSetWordStatus={userVocab.setWordStatus}
+                  onReloadVocabulary={handleReloadAfterPacks}
                 />
               ) : (
                 <SignInNotice

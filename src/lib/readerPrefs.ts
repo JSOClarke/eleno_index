@@ -1,4 +1,4 @@
-import type { HighlightMode } from "@/types/reader.types";
+import type { HighlightMode, RubyPosFilter } from "@/types/reader.types";
 
 const PREFS_KEY = "eleno.reader.prefs";
 const LEGACY_FONT_SIZE_KEY = "eleno.reader.fontSize";
@@ -10,6 +10,7 @@ export const DEFAULT_FONT_SIZE = 20;
 export interface ReaderPrefs {
   fontSize: number;
   showRuby: boolean;
+  rubyPos: RubyPosFilter;
   showIPlusOne: boolean;
   highlightMode: HighlightMode;
   highlightUnknownOnly: boolean;
@@ -18,6 +19,7 @@ export interface ReaderPrefs {
 const DEFAULT_PREFS: ReaderPrefs = {
   fontSize: DEFAULT_FONT_SIZE,
   showRuby: true,
+  rubyPos: "ALL",
   showIPlusOne: false,
   highlightMode: "none",
   highlightUnknownOnly: true,
@@ -29,6 +31,10 @@ export function clampFontSize(value: number): number {
 
 function isHighlightMode(value: unknown): value is HighlightMode {
   return value === "none" || value === "cefr" || value === "rank";
+}
+
+function isRubyPosFilter(value: unknown): value is RubyPosFilter {
+  return value === "ALL" || value === "NOUN" || value === "VERB" || value === "ADJ" || value === "ADV";
 }
 
 export function readReaderPrefs(): ReaderPrefs {
@@ -47,6 +53,7 @@ export function readReaderPrefs(): ReaderPrefs {
     return {
       fontSize: clampFontSize(fontSize),
       showRuby: typeof parsed.showRuby === "boolean" ? parsed.showRuby : DEFAULT_PREFS.showRuby,
+      rubyPos: isRubyPosFilter(parsed.rubyPos) ? parsed.rubyPos : DEFAULT_PREFS.rubyPos,
       showIPlusOne:
         typeof parsed.showIPlusOne === "boolean"
           ? parsed.showIPlusOne

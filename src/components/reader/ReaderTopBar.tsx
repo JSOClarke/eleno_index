@@ -2,7 +2,8 @@ import React from "react";
 import { ReaderHighlightControls } from "./ReaderHighlightControls";
 import { ReaderMobileControls } from "./ReaderMobileControls";
 import { ReaderSyncBadge } from "./ReaderSyncBadge";
-import type { ElenoReaderChapterMeta, HighlightMode, ProgressSyncState } from "@/types/reader.types";
+import { RubyHintControl } from "./RubyHintControl";
+import type { ElenoReaderChapterMeta, HighlightMode, ProgressSyncState, RubyPosFilter } from "@/types/reader.types";
 
 interface ReaderTopBarProps {
   title: string;
@@ -11,6 +12,8 @@ interface ReaderTopBarProps {
   onSelectChapter: (idx: number) => void;
   showRuby: boolean;
   onToggleRuby: () => void;
+  rubyPos: RubyPosFilter;
+  onChangeRubyPos: (pos: RubyPosFilter) => void;
   showIPlusOne: boolean;
   onToggleIPlusOne: () => void;
   highlightMode: HighlightMode;
@@ -30,6 +33,8 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
   onSelectChapter,
   showRuby,
   onToggleRuby,
+  rubyPos,
+  onChangeRubyPos,
   showIPlusOne,
   onToggleIPlusOne,
   highlightMode,
@@ -91,6 +96,12 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
             Ruby: {showRuby ? "ON" : "OFF"}
           </button>
 
+          <RubyHintControl
+            showRuby={showRuby}
+            rubyPos={rubyPos}
+            onChange={onChangeRubyPos}
+          />
+
           <button
             type="button"
             onClick={onToggleIPlusOne}
@@ -117,6 +128,10 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
         onBack={onBack}
         fontSize={fontSize}
         onAdjustFontSize={onAdjustFontSize}
+        showRuby={showRuby}
+        onToggleRuby={onToggleRuby}
+        rubyPos={rubyPos}
+        onChangeRubyPos={onChangeRubyPos}
         showIPlusOne={showIPlusOne}
         onToggleIPlusOne={onToggleIPlusOne}
         highlightMode={highlightMode}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { ElenoReaderChapterMeta, HighlightMode, ProgressSyncState } from "@/types/reader.types";
+import type { ElenoReaderChapterMeta, HighlightMode, ProgressSyncState, RubyPosFilter } from "@/types/reader.types";
 import { ReaderMobileBar } from "./ReaderMobileBar";
 import { ReaderSettingsSheet } from "./ReaderSettingsSheet";
 
@@ -11,6 +11,10 @@ interface ReaderMobileControlsProps {
   onBack: () => void;
   fontSize: number;
   onAdjustFontSize: (delta: number) => void;
+  showRuby: boolean;
+  onToggleRuby: () => void;
+  rubyPos: RubyPosFilter;
+  onChangeRubyPos: (pos: RubyPosFilter) => void;
   showIPlusOne: boolean;
   onToggleIPlusOne: () => void;
   highlightMode: HighlightMode;
@@ -29,6 +33,10 @@ export const ReaderMobileControls: React.FC<ReaderMobileControlsProps> = ({
   onBack,
   fontSize,
   onAdjustFontSize,
+  showRuby,
+  onToggleRuby,
+  rubyPos,
+  onChangeRubyPos,
   showIPlusOne,
   onToggleIPlusOne,
   highlightMode,
@@ -55,6 +63,10 @@ export const ReaderMobileControls: React.FC<ReaderMobileControlsProps> = ({
         onClose={() => setSettingsOpen(false)}
         fontSize={fontSize}
         onAdjustFontSize={onAdjustFontSize}
+        showRuby={showRuby}
+        onToggleRuby={onToggleRuby}
+        rubyPos={rubyPos}
+        onChangeRubyPos={onChangeRubyPos}
         showIPlusOne={showIPlusOne}
         onToggleIPlusOne={onToggleIPlusOne}
         highlightMode={highlightMode}

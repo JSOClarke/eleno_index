@@ -22,6 +22,7 @@ export interface VocabularyWord {
   first_timestamp_ms: number | null;
   first_context_snippet: string | null;
   cefr: string;
+  /** TubeLex rank only; source-specific values live in rankings[]. */
   global_rank: number | null;
   rankings?: LexicalRanking[];
   ipa: string | null;
@@ -35,6 +36,7 @@ export interface KnownWordEntry {
   pos: string;
   definitions: string[];
   cefr: string;
+  /** TubeLex rank only; source-specific values live in rankings[]. */
   global_rank: number | null;
   rankings: LexicalRanking[];
   ipa: string | null;

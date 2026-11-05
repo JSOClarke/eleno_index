@@ -35,8 +35,7 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
     : `Chapter ${word.first_occurrence_index}`;
 
   const rankingEntry = word.rankings?.find((r) => r.source === rankingSource);
-  const activeRank =
-    rankingEntry?.rank ?? (rankingSource === "tubelex_v2025" ? word.global_rank : null);
+  const activeRank = rankingEntry?.rank ?? null;
   const rankTooltip = rankingEntry?.count
     ? `Corpus count: ${formatNumber(rankingEntry.count)}`
     : undefined;

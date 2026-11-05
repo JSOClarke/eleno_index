@@ -76,9 +76,8 @@ export function normalizeVocabularyRow(row: any): VocabularyWord {
     rankings.find((r) => r.cefr);
   const cefr = cefrRanking?.cefr || "B2";
 
-  const primaryRanking =
-    rankings.find((r) => r.source === "tubelex_v2025") || rankings[0];
-  const rank = primaryRanking?.rank ? Number(primaryRanking.rank) : null;
+  const tubelexRanking = rankings.find((r) => r.source === "tubelex_v2025");
+  const rank = tubelexRanking?.rank ? Number(tubelexRanking.rank) : null;
 
   let ipa: string | null = null;
   if (pronunciations.length > 0 && pronunciations[0]?.transcriptions?.length > 0) {

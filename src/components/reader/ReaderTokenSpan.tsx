@@ -1,6 +1,6 @@
 import React from "react";
 import { getTokenUnderlineClass } from "@/lib/readerHighlight";
-import type { ElenoLexiconEntry, ElenoToken, HighlightMode } from "@/types/reader.types";
+import type { ElenoLexiconEntry, ElenoToken, HighlightMode, RubyPosFilter } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface ReaderTokenSpanProps {
@@ -8,6 +8,7 @@ interface ReaderTokenSpanProps {
   lexicon: ElenoLexiconEntry[];
   statusMap: Record<string, UserVocabStatus>;
   showRuby: boolean;
+  rubyPos: RubyPosFilter;
   highlightMode: HighlightMode;
   highlightUnknownOnly: boolean;
   isSelected: boolean;
@@ -21,6 +22,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
     lexicon,
     statusMap,
     showRuby,
+    rubyPos,
     highlightMode,
     highlightUnknownOnly,
     isSelected,
@@ -74,7 +76,11 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
       onToggleKnown?.(canonicalId, status);
     };
 
-    const shouldShowRuby = showRuby && !!entry.hint && (isLearning || isUnknown);
+    const shouldShowRuby =
+      showRuby &&
+      !!entry.hint &&
+      (isLearning || isUnknown) &&
+      (rubyPos === "ALL" || entry.pos === rubyPos);
 
     return (
       <span

@@ -33,29 +33,38 @@ export async function fetchAllUserVocabulary(
 }
 
 export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordEntry[]> {
-  const { data, error } = await supabase
-    .from("user_vocabulary")
-    .select(
+  const pageSize = 1000;
+  const maxRows = 12000;
+  const rows: any[] = [];
+
+  for (let from = 0; from < maxRows; from += pageSize) {
+    const { data, error } = await supabase
+      .from("user_vocabulary")
+      .select(
+        `
+        canonical_id,
+        status,
+        updated_at,
+        canonical_lexical_entity!inner (
+          lemma,
+          pos,
+          lexical_ranking (source, cefr, rank, count),
+          lexical_pronunciation (transcriptions)
+        )
       `
-      canonical_id,
-      status,
-      updated_at,
-      canonical_lexical_entity!inner (
-        lemma,
-        pos,
-        lexical_ranking (source, cefr, rank, count),
-        lexical_pronunciation (transcriptions)
       )
-    `
-    )
-    .eq("user_id", userId)
-    .in("status", ["known", "learning"])
-    .order("updated_at", { ascending: false })
-    .range(0, 1999);
+      .eq("user_id", userId)
+      .in("status", ["known", "learning"])
+      .order("updated_at", { ascending: false })
+      .order("id", { ascending: true })
+      .range(from, from + pageSize - 1);
 
-  if (error || !data) return [];
+    if (error || !data || data.length === 0) break;
+    rows.push(...data);
+    if (data.length < pageSize) break;
+  }
 
-  return data.map((row: any) => {
+  return rows.map((row: any) => {
     const entity = row.canonical_lexical_entity || {};
     const rankings: LexicalRanking[] = entity.lexical_ranking || [];
     const pronunciations = entity.lexical_pronunciation || [];
@@ -65,9 +74,8 @@ export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordE
       rankings.find((r) => r.cefr);
     const cefr = cefrRanking?.cefr || "B2";
 
-    const primaryRanking =
-      rankings.find((r) => r.source === "tubelex_v2025") || rankings[0];
-    const rank = primaryRanking?.rank ? Number(primaryRanking.rank) : null;
+    const tubelexRanking = rankings.find((r) => r.source === "tubelex_v2025");
+    const rank = tubelexRanking?.rank ? Number(tubelexRanking.rank) : null;
 
     let ipa: string | null = null;
     if (pronunciations.length > 0 && pronunciations[0]?.transcriptions?.length > 0) {
