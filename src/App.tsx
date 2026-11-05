@@ -11,6 +11,7 @@ import { useFilterState } from "@/hooks/useFilterState";
 import { useUserVocabulary } from "@/hooks/useUserVocabulary";
 import { CataloguePage } from "@/pages/CataloguePage";
 import { InspectorPage } from "@/pages/InspectorPage";
+import { AdminImportPage } from "@/pages/AdminImportPage";
 import { ReaderPage } from "@/pages/ReaderPage";
 import { WorkPage } from "@/pages/WorkPage";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
@@ -57,7 +58,6 @@ export const App: React.FC = () => {
       onSignUp={auth.signUp}
     />
   );
-
   if (location.pathname.startsWith("/read/")) {
     return (
       <ReaderAuthGate
@@ -89,7 +89,6 @@ export const App: React.FC = () => {
         onOpenAuth={() => setAuthModalOpen(true)}
         onSignOut={auth.signOut}
       />
-
       <main className="max-w-[1380px] w-full mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-8 flex-1">
         <Routes>
           <Route
@@ -140,6 +139,7 @@ export const App: React.FC = () => {
             }
           />
           <Route path="/work/:workId" element={<WorkPage items={catalogue.items} loading={catalogue.loading} isAuthenticated={Boolean(auth.user)} onRequireAuth={() => setAuthModalOpen(true)} />} />
+          <Route path="/admin/imports" element={auth.user ? <AdminImportPage /> : <SignInNotice title="Import Workbench" message="Sign in to stage and audit book imports." onSignIn={() => setAuthModalOpen(true)} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
