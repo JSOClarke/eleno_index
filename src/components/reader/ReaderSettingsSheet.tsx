@@ -42,7 +42,7 @@ export const ReaderSettingsSheet: React.FC<ReaderSettingsSheetProps> = ({
   highlightUnknownOnly,
   onToggleHighlightUnknownOnly,
 }) => (
-  <Sheet open={open} onClose={onClose} title="Reader settings" className="md:hidden">
+  <Sheet open={open} onClose={onClose} title="Reader settings" className="xl:hidden">
     <div className="space-y-5">
       <div>
         <div className="mb-2 font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">

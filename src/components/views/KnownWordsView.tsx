@@ -118,7 +118,7 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
       </div>
 
       <div className="border border-[#111111]">
-        <div className="grid grid-cols-12 gap-3 px-4 py-2.5 bg-[#F4F4F2] border-b border-[#111111] font-mono text-xs text-[#666666] uppercase">
+        <div className="hidden grid-cols-12 gap-3 px-4 py-2.5 bg-[#F4F4F2] border-b border-[#111111] font-mono text-xs text-[#666666] uppercase md:grid">
           <button type="button" onClick={() => toggleSort("lemma", "asc")} className="col-span-3 text-left hover:text-[#111111] cursor-pointer font-semibold">LEMMA{arrow("lemma")}</button>
           <div className="col-span-2">IPA</div>
           <button type="button" onClick={() => toggleSort("pos", "asc")} className="col-span-1 text-left hover:text-[#111111] cursor-pointer font-semibold">POS{arrow("pos")}</button>

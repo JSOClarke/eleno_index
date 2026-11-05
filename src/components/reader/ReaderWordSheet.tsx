@@ -26,7 +26,7 @@ export const ReaderWordSheet: React.FC<ReaderWordSheetProps> = ({
     open={Boolean(selectedToken)}
     onClose={onClose}
     title={selectedToken ? "Word" : ""}
-    className="md:hidden"
+    className="xl:hidden"
   >
     {selectedToken && (
       <WordDockContent

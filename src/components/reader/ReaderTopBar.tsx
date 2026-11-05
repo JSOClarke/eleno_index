@@ -48,7 +48,7 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
 }) => {
   return (
     <>
-      <header className="sticky top-0 z-30 hidden border-b border-[#111111] bg-white md:block">
+      <header className="sticky top-0 z-30 hidden border-b border-[#111111] bg-white xl:block">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 sm:gap-6 shrink-0">
           <button onClick={onBack} className="flex items-center gap-1 font-mono text-sm font-bold tracking-tight cursor-pointer">
@@ -62,7 +62,7 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
         </div>
 
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-          <span className="hidden min-w-0 flex-1 truncate font-mono text-sm font-bold text-[#111111] md:block">{title}</span>
+          <span className="hidden min-w-0 flex-1 truncate font-mono text-sm font-bold text-[#111111] xl:block">{title}</span>
           <span className="text-[#888888] hidden md:inline">·</span>
           <select
             value={currentChapterIndex}
@@ -140,6 +140,7 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
         onToggleHighlightUnknownOnly={onToggleHighlightUnknownOnly}
         progressSync={progressSync}
       />
+      <div className="h-14 xl:hidden" aria-hidden="true" />
     </>
   );
 };

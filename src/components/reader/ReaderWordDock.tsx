@@ -37,7 +37,7 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
   return (
     <aside
       onClick={(event) => event.stopPropagation()}
-      className="fixed bottom-4 right-4 z-40 hidden max-h-[calc(100dvh-2rem)] w-[380px] max-w-[calc(100vw-2rem)] overflow-y-auto border border-[#E2E2DF] bg-white p-5 shadow-[0_8px_24px_rgba(17,17,17,0.14)] md:block"
+      className="fixed bottom-20 right-4 z-40 hidden max-h-[calc(100dvh-6rem)] w-[380px] max-w-[calc(100vw-2rem)] overflow-y-auto border border-[#E2E2DF] bg-white p-5 shadow-[0_8px_24px_rgba(17,17,17,0.14)] xl:block"
     >
       <div className="mb-3 flex items-center justify-between border-b border-[#E2E2DF] pb-2.5">
         <div className="flex items-center gap-2">

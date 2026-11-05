@@ -22,7 +22,7 @@ export const ReaderMobileBar: React.FC<ReaderMobileBarProps> = ({
   onBack,
   progressSync,
 }) => (
-  <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-[#E2E2DF] bg-white px-3 md:hidden">
+  <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-2 border-b border-[#E2E2DF] bg-white px-3 xl:hidden">
     <button
       type="button"
       onClick={onBack}
