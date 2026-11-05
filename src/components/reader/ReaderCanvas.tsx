@@ -56,7 +56,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = ({
   onToggleKnown,
 }) => {
   return (
-    <article className="mx-auto max-w-[740px] select-text px-4 pb-28 pt-4 sm:px-6">
+    <article className="mx-auto w-full max-w-[740px] select-text px-4 pb-28 pt-4 sm:px-6">
       {blocks.map((block, bIdx) => {
         const isHeading = block.type === "h1" || block.type === "h2" || block.type === "h3";
         let wrapperClass = "mb-6 font-serif leading-[1.85] text-[#111111]";

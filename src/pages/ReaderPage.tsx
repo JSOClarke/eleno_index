@@ -70,7 +70,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
   const total = manifest?.total_chapters || manifest?.chapters.length || 1;
   const definitionProps = { definitionLanguage, onDefinitionLanguageChange: setDefinitionLanguage };
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-white font-sans text-[#111111]">
+    <div className="flex min-h-[100dvh] w-full max-w-full flex-col overflow-x-clip bg-white font-sans text-[#111111]">
       {manifest && (
         <ReaderTopBar
           title={manifest.title}
@@ -94,7 +94,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
       )}
 
       {manifest && <ReadingPositionRail manifest={manifest} chapterIndex={chapterIndex} chapter={chapter} savedPercentage={savedPercentage} onSelectChapter={setChapterIndex} />}
-      <main onClick={closeDock} className="flex-1 pb-24 pt-4">
+      <main onClick={closeDock} className="w-full min-w-0 flex-1 pb-24 pt-4">
         {loading ? (
           <div className="mx-auto max-w-2xl px-6 py-20 text-center font-mono text-xs text-[#666666] animate-pulse">
             Loading chapter {chapterIndex}...
