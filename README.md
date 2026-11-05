@@ -78,9 +78,9 @@ src/
    - **Static Typography & Zero Reflow**: Overhead floating hints sit in generous line headroom without stretching word kerning or causing lines to jump on toggle.
    - **Difficulty Underline Bands**: Toggleable **CEFR** (A1–C2) and **Frequency Rank** (1k–10k+) color bands with an **"Unknown only"** filter.
    - **POS-Filtered Ruby Hints**: Choose `ALL`, `NOUN`, `VERB`, `ADJ`, or `ADV`; only unknown/learning tokens matching that part of speech display an above-word hint.
-   - **Persisted Reader Preferences**: Font size, Ruby toggle and POS filter, i+1 mode, underline band mode, and the unknown-only filter are stored in `localStorage` and restored on the next visit.
+   - **Persisted Reader Preferences**: Font size, Ruby toggle and POS filter, i+1 mode, underline band mode, unknown-only filter, and word-dock definition language are stored in `localStorage` and restored on the next visit.
    - **Reading Position Rail**: A sticky two-track rail shows token-weighted whole-book position and current-chapter block position, with a live playhead and a black tick for the last synced position.
-   - **Word Dock**: Displays grammatical morphology (tense, mood, person, gender), IPA, source-labelled TubeLex rank, Kaikki definitions, native text-to-speech audio, and an expandable image strip from pluggable providers (Wikipedia by default; Pixabay when the reader supplies their own key).
+   - **Word Dock**: Displays grammatical morphology (tense, mood, person, gender), IPA, source-labelled TubeLex rank, English/Spanish definition tabs, native text-to-speech audio, and an expandable image strip from pluggable providers (Wikipedia by default; Pixabay when the reader supplies their own key).
    - **Debounced Progress Tracking**: Automatically records reading percentage and current chapter/block to Supabase, restoring scroll position on return. A live top-bar badge shows `NOT SYNCED`, `SAVING`, `SYNCED`, or `SAVE FAILED`.
 4. **Vocabulary Ledger (`/known-words`)**:
    - Signature-cached (`0ms` repeat load) ledger of all `Known` and `Learning` canonical lemmas with `TUBELEX` / `ELELEX` toggle, `POS` & state filters, column sorting, and `<Quote />` definitions/sentences drawer.

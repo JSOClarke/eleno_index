@@ -34,13 +34,8 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
     chapter,
     loading,
     error,
-    showRuby, setShowRuby, rubyPos, setRubyPos,
-    showIPlusOne,
-    setShowIPlusOne,
-    highlightMode,
-    setHighlightMode,
-    highlightUnknownOnly,
-    setHighlightUnknownOnly,
+    showRuby, setShowRuby, rubyPos, setRubyPos, showIPlusOne, setShowIPlusOne,
+    highlightMode, setHighlightMode, highlightUnknownOnly, setHighlightUnknownOnly,
     selectedToken,
     selectToken,
     closeDock,
@@ -50,6 +45,8 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
     progressSync,
     fontSize,
     adjustFontSize,
+    definitionLanguage,
+    setDefinitionLanguage,
   } = useReaderSession(mediaId || "", manifest);
 
   useReaderScroll({ chapter, currentBlockIndex, recordPosition });
@@ -71,6 +68,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
 
   const curCh = manifest?.chapters.find((c) => c.index === chapterIndex);
   const total = manifest?.total_chapters || manifest?.chapters.length || 1;
+  const definitionProps = { definitionLanguage, onDefinitionLanguageChange: setDefinitionLanguage };
   return (
     <div className="flex min-h-[100dvh] flex-col bg-white font-sans text-[#111111]">
       {manifest && (
@@ -129,6 +127,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
         status={selectedToken ? statusMap[selectedToken.entry.id] : undefined}
         onSetStatus={onSetWordStatus}
         onClose={closeDock}
+        {...definitionProps}
       />
 
       <ReaderWordSheet
@@ -136,6 +135,7 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
         status={selectedToken ? statusMap[selectedToken.entry.id] : undefined}
         onSetStatus={onSetWordStatus}
         onClose={closeDock}
+        {...definitionProps}
       />
 
       <ReaderBottomBar

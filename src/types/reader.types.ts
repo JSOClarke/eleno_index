@@ -1,5 +1,6 @@
 export type HighlightMode = "none" | "cefr" | "rank";
 export type RubyPosFilter = "ALL" | "NOUN" | "VERB" | "ADJ" | "ADV";
+export type DefinitionLanguage = "en" | "es";
 
 export type ProgressSyncState = "idle" | "saving" | "saved" | "error";
 export type ProgressSaveResult = "saved" | "skipped" | "error";

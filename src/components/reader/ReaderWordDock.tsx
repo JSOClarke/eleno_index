@@ -1,5 +1,6 @@
 import React from "react";
 import type { SelectedTokenState } from "@/hooks/useReaderSession";
+import type { DefinitionLanguage } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { WordDockContent } from "./WordDockContent";
 
@@ -8,6 +9,8 @@ interface ReaderWordDockProps {
   status: UserVocabStatus | undefined;
   onSetStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
   onClose: () => void;
+  definitionLanguage: DefinitionLanguage;
+  onDefinitionLanguageChange: (language: DefinitionLanguage) => void;
 }
 
 /** Desktop floating word panel. Phones use ReaderWordSheet instead. */
@@ -16,6 +19,8 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
   status,
   onSetStatus,
   onClose,
+  definitionLanguage,
+  onDefinitionLanguageChange,
 }) => {
   React.useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -67,6 +72,8 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
         morph={morph}
         status={status}
         onSetStatus={onSetStatus}
+        definitionLanguage={definitionLanguage}
+        onDefinitionLanguageChange={onDefinitionLanguageChange}
       />
     </aside>
   );

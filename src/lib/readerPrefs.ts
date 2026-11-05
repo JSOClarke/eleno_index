@@ -1,4 +1,4 @@
-import type { HighlightMode, RubyPosFilter } from "@/types/reader.types";
+import type { DefinitionLanguage, HighlightMode, RubyPosFilter } from "@/types/reader.types";
 
 const PREFS_KEY = "eleno.reader.prefs";
 const LEGACY_FONT_SIZE_KEY = "eleno.reader.fontSize";
@@ -14,6 +14,7 @@ export interface ReaderPrefs {
   showIPlusOne: boolean;
   highlightMode: HighlightMode;
   highlightUnknownOnly: boolean;
+  definitionLanguage: DefinitionLanguage;
 }
 
 const DEFAULT_PREFS: ReaderPrefs = {
@@ -23,6 +24,7 @@ const DEFAULT_PREFS: ReaderPrefs = {
   showIPlusOne: false,
   highlightMode: "none",
   highlightUnknownOnly: true,
+  definitionLanguage: "en",
 };
 
 export function clampFontSize(value: number): number {
@@ -35,6 +37,10 @@ function isHighlightMode(value: unknown): value is HighlightMode {
 
 function isRubyPosFilter(value: unknown): value is RubyPosFilter {
   return value === "ALL" || value === "NOUN" || value === "VERB" || value === "ADJ" || value === "ADV";
+}
+
+function isDefinitionLanguage(value: unknown): value is DefinitionLanguage {
+  return value === "en" || value === "es";
 }
 
 export function readReaderPrefs(): ReaderPrefs {
@@ -65,6 +71,9 @@ export function readReaderPrefs(): ReaderPrefs {
         typeof parsed.highlightUnknownOnly === "boolean"
           ? parsed.highlightUnknownOnly
           : DEFAULT_PREFS.highlightUnknownOnly,
+      definitionLanguage: isDefinitionLanguage(parsed.definitionLanguage)
+        ? parsed.definitionLanguage
+        : DEFAULT_PREFS.definitionLanguage,
     };
   } catch {
     return { ...DEFAULT_PREFS };

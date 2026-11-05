@@ -4,6 +4,7 @@ import { useReaderProgressSaver } from "@/hooks/useReaderProgressSaver";
 import { getCachedChapter } from "@/lib/readerCache";
 import { clampFontSize, persistReaderPrefs, readReaderPrefs } from "@/lib/readerPrefs";
 import type {
+  DefinitionLanguage,
   ElenoLexiconEntry,
   ElenoReaderChapter,
   ElenoReaderManifest,
@@ -38,6 +39,9 @@ export function useReaderSession(
     initialPrefs.highlightUnknownOnly
   );
   const [fontSize, setFontSize] = useState<number>(initialPrefs.fontSize);
+  const [definitionLanguage, setDefinitionLanguage] = useState<DefinitionLanguage>(
+    initialPrefs.definitionLanguage
+  );
   const [selectedToken, setSelectedToken] = useState<SelectedTokenState | null>(null);
   const [currentBlockIndex, setCurrentBlockIndex] = useState<number>(0);
   const [savedPercentage, setSavedPercentage] = useState<number>(0);
@@ -75,9 +79,8 @@ export function useReaderSession(
   });
 
   useEffect(() => {
-    persistReaderPrefs({ fontSize, showRuby, rubyPos, showIPlusOne, highlightMode, highlightUnknownOnly });
-  }, [fontSize, showRuby, rubyPos, showIPlusOne, highlightMode, highlightUnknownOnly]);
-
+    persistReaderPrefs({ fontSize, showRuby, rubyPos, showIPlusOne, highlightMode, highlightUnknownOnly, definitionLanguage });
+  }, [fontSize, showRuby, rubyPos, showIPlusOne, highlightMode, highlightUnknownOnly, definitionLanguage]);
 
   // Load chapter
   useEffect(() => {
@@ -141,5 +144,7 @@ export function useReaderSession(
     progressSync,
     fontSize,
     adjustFontSize,
+    definitionLanguage,
+    setDefinitionLanguage,
   };
 }

@@ -1,8 +1,9 @@
 import React from "react";
 import { formatMorphology } from "@/lib/grammarFormatters";
 import { getCefrBand, getRankBand } from "@/lib/readerHighlight";
-import type { TrackedLexiconEntry } from "@/types/reader.types";
+import type { DefinitionLanguage, TrackedLexiconEntry } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
+import { WordDefinitionsPanel } from "./WordDefinitionsPanel";
 import { WordImageSection } from "./WordImageSection";
 
 interface WordDockContentProps {
@@ -11,6 +12,8 @@ interface WordDockContentProps {
   morph?: string;
   status: UserVocabStatus | undefined;
   onSetStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
+  definitionLanguage: DefinitionLanguage;
+  onDefinitionLanguageChange: (language: DefinitionLanguage) => void;
 }
 
 /** Dictionary + ledger body shared by the desktop dock and the mobile sheet. */
@@ -20,6 +23,8 @@ export const WordDockContent: React.FC<WordDockContentProps> = ({
   morph,
   status,
   onSetStatus,
+  definitionLanguage,
+  onDefinitionLanguageChange,
 }) => {
   const isLearning = status === "learning";
   const isKnown = status === "known";
@@ -90,24 +95,11 @@ export const WordDockContent: React.FC<WordDockContentProps> = ({
         </div>
       )}
 
-      <div className="border-t border-[#E2E2DF] pt-2.5">
-        <div className="mb-2 flex items-center justify-between font-mono text-[10px] font-bold uppercase text-[#666666]">
-          <span>KAIKKI DEFINITIONS</span>
-          <span className="text-[#888888]">es → en</span>
-        </div>
-        <ol className="max-h-32 space-y-1.5 overflow-y-auto pr-1 font-sans text-xs leading-relaxed text-[#222222]">
-          {entry.definitions.length > 0 ? (
-            entry.definitions.slice(0, 4).map((definition, index) => (
-              <li key={index} className="flex gap-1.5">
-                <span className="font-mono font-bold text-[#666666]">{index + 1}.</span>
-                <span>{definition}</span>
-              </li>
-            ))
-          ) : (
-            <p className="italic text-[#888888]">No English definition available.</p>
-          )}
-        </ol>
-      </div>
+      <WordDefinitionsPanel
+        entry={entry}
+        language={definitionLanguage}
+        onLanguageChange={onDefinitionLanguageChange}
+      />
 
       <WordImageSection entry={entry} />
 
