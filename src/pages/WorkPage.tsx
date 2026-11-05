@@ -63,7 +63,7 @@ export const WorkPage: React.FC<WorkPageProps> = ({
             {work.creator} · {work.type.replace("_", " ").toUpperCase()} · {String(work.work_language || work.language).toUpperCase()}
           </div>
           <p className="max-w-2xl font-serif text-sm italic leading-relaxed text-[#333333]">
-            {work.sampleSnippet}
+            {work.work_synopsis || work.sampleSnippet}
           </p>
         </div>
       </div>

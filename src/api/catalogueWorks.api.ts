@@ -3,15 +3,7 @@ import { PRIMARY_EDITION_PRIORITY } from "@/lib/catalogueLanguages";
 import type { MediaCatalogItem, MediaMetrics } from "@/types/media.types";
 
 const WORK_SELECT = `
-  id,
-  original_title,
-  original_language,
-  creator,
-  type,
-  series_name,
-  series_order,
-  synopsis,
-  default_cover_image_url,
+  *,
   media_item(
     id,
     title,
@@ -66,12 +58,17 @@ function toWork(row: any): MediaCatalogItem | null {
     PRIMARY_EDITION_PRIORITY
       .map((language) => editions.find((edition: MediaCatalogItem) => edition.language === language))
       .find((edition): edition is MediaCatalogItem => Boolean(edition)) || editions[0];
+  const workTitle = String(row.title_en || row.original_title);
+  const workSynopsis = row.synopsis_en || row.synopsis || null;
 
   return {
     ...primary,
     work_id: String(row.id),
-    work_title: String(row.original_title),
+    work_title: workTitle,
     work_language: String(row.original_language || "en"),
+    work_synopsis: workSynopsis,
+    sampleSnippet: workSynopsis || primary.sampleSnippet,
+    sampleSourceLabel: workSynopsis ? "WORK SYNOPSIS · EN" : primary.sampleSourceLabel,
     editions,
   };
 }

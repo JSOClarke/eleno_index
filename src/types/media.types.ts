@@ -109,6 +109,7 @@ export interface MediaCatalogItem {
   work_id?: string | null;
   work_title?: string | null;
   work_language?: string | null;
+  work_synopsis?: string | null;
   editions?: MediaCatalogItem[];
   type: MediaType;
   title: string;
