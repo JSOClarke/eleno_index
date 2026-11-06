@@ -4,7 +4,10 @@ export interface AdminWorkMatch {
   original_title: string;
   creator: string;
   original_language?: string | null;
+  series_id?: string | null;
   series_name?: string | null;
+  series_order?: number | null;
+  series_label?: string | null;
   media_item?: { id: string; title: string; language: string; format: string }[];
 }
 
@@ -31,8 +34,10 @@ export interface AdminImportJob {
     creator?: string;
     original_language?: string;
     type?: string;
+    series_id?: string | null;
     series_name?: string | null;
     series_order?: number | null;
+    series_label?: string | null;
     external_ids?: Record<string, unknown>;
   };
   edition_candidate?: {
@@ -67,6 +72,7 @@ export interface AdminWorkDraft {
   synopsis_en: string;
   series_name: string;
   series_order: string;
+  series_label: string;
 }
 
 export interface AdminEditionDraft {

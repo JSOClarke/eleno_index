@@ -88,10 +88,12 @@ export function useFacetCounts(
               edition.title.toLowerCase().includes(q)
             );
           const matchCreator = item.creator.toLowerCase().includes(q);
+          const sName = item.series?.name || item.series_name || "";
+          const matchSeries = sName.toLowerCase().includes(q);
           const matchWord = item.previewWords.some((w) =>
             w.lemma.toLowerCase().includes(q)
           );
-          if (!matchTitle && !matchCreator && !matchWord) return false;
+          if (!matchTitle && !matchCreator && !matchSeries && !matchWord) return false;
         }
 
         return true;

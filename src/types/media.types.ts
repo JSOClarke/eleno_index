@@ -104,6 +104,16 @@ export interface PreviewWordItem {
   sentence: string | null;
 }
 
+export interface MediaSeries {
+  id: string;
+  kind: "book_series" | "film_series" | "tv_series" | "franchise" | "collection";
+  name: string;
+  original_name?: string | null;
+  parent_series_id?: string | null;
+  external_ids?: Record<string, any>;
+  metadata?: Record<string, any>;
+}
+
 export interface MediaCatalogItem {
   id: string;
   work_id?: string | null;
@@ -118,8 +128,11 @@ export interface MediaCatalogItem {
   format: MediaFormat;
   cover_image_url: string | null;
   release_year: number | null;
+  series_id?: string | null;
+  series?: MediaSeries | null;
   series_name?: string | null;
   series_order?: number | null;
+  series_label?: string | null;
   metrics: MediaMetrics | null;
   comprehension: MediaComprehensionStats | null;
   previewWords: PreviewWordItem[];

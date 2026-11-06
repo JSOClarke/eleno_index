@@ -55,12 +55,13 @@ export function getMediaCategoryLabel(item: MediaCatalogItem): string {
 export function getMediaSubtypeLabel(item: MediaCatalogItem): string {
   const mType = (item.type || "").toLowerCase();
   const fmt = (item.format || "epub").toUpperCase();
+  const seriesName = item.series?.name || item.series_name;
   if (mType === "movie" || mType.startsWith("tv") || fmt === "SRT" || fmt === "VTT") {
     const durMin = item.metrics?.duration_seconds
       ? Math.round(item.metrics.duration_seconds / 60)
       : null;
-    const prefix = item.series_name
-      ? `${item.series_name.toUpperCase()}${item.series_order ? ` S${item.series_order}` : ""}`
+    const prefix = seriesName
+      ? `${seriesName.toUpperCase()}${item.series_label ? ` ${item.series_label.toUpperCase()}` : item.series_order ? ` S${item.series_order}` : ""}`
       : mType.startsWith("tv")
       ? "TV SERIES"
       : "FILM";
@@ -68,13 +69,14 @@ export function getMediaSubtypeLabel(item: MediaCatalogItem): string {
     if (durMin) return `${prefix} · ${durMin} MIN`;
     return `${prefix} · ${item.release_year || fmt}`;
   }
-  if (item.series_name) {
-    const orderTag =
-      item.series_order !== null && item.series_order !== undefined
-        ? ` #${Number.isInteger(item.series_order) ? item.series_order : item.series_order}`
-        : "";
+  if (seriesName) {
+    const orderTag = item.series_label
+      ? ` · ${item.series_label}`
+      : item.series_order !== null && item.series_order !== undefined
+      ? ` #${Number.isInteger(item.series_order) ? item.series_order : item.series_order}`
+      : "";
     const yearTag = item.release_year ? ` · ${item.release_year}` : "";
-    return `${item.series_name.toUpperCase()}${orderTag}${yearTag}`;
+    return `${seriesName.toUpperCase()}${orderTag}${yearTag}`;
   }
   if (item.release_year) {
     return `BOOK · ${item.release_year}`;

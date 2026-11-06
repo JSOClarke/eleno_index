@@ -84,10 +84,14 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
                     {item.format ? ` · ${item.format.toUpperCase()}` : ""}
                   </span>
                 </div>
-                {item.series_name && (
+                {(item.series?.name || item.series_name) && (
                   <div className="text-[#111111]">
-                    {item.series_name}
-                    {item.series_order ? ` #${item.series_order}` : ""}
+                    {item.series?.name || item.series_name}
+                    {item.series_label
+                      ? ` · ${item.series_label}`
+                      : item.series_order
+                      ? ` #${item.series_order}`
+                      : ""}
                   </div>
                 )}
                 <div className="text-[#111111]">{item.creator}</div>

@@ -66,7 +66,7 @@ export const AdminImportAuditForm: React.FC<AdminImportAuditFormProps> = ({
           />
         </Field>
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <Field label="Series">
           <input
             className={inputClass}
@@ -74,11 +74,19 @@ export const AdminImportAuditForm: React.FC<AdminImportAuditFormProps> = ({
             onChange={(event) => onWorkChange("series_name", event.target.value)}
           />
         </Field>
-        <Field label="Series order">
+        <Field label="Order">
           <input
             className={inputClass}
             value={work.series_order}
             onChange={(event) => onWorkChange("series_order", event.target.value)}
+          />
+        </Field>
+        <Field label="Label">
+          <input
+            className={inputClass}
+            placeholder="e.g. Book 1"
+            value={work.series_label}
+            onChange={(event) => onWorkChange("series_label", event.target.value)}
           />
         </Field>
       </div>

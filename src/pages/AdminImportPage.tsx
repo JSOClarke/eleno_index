@@ -13,7 +13,7 @@ import type {
 
 const emptyWork: AdminWorkDraft = {
   original_title: "", title_en: "", creator: "", original_language: "en",
-  synopsis_en: "", series_name: "", series_order: "",
+  synopsis_en: "", series_name: "", series_order: "", series_label: "",
 };
 
 const emptyEdition: AdminEditionDraft = {
@@ -54,6 +54,7 @@ export const AdminImportPage: React.FC = () => {
         synopsis_en: candidate.synopsis_en || candidate.synopsis || "",
         series_name: candidate.series_name || "",
         series_order: candidate.series_order != null ? String(candidate.series_order) : "",
+        series_label: candidate.series_label || "",
       });
       setEdition({
         title: source.title || next.metadata.title || "",

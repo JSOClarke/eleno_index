@@ -4,7 +4,14 @@ import type { MediaCatalogItem, MediaMetrics } from "@/types/media.types";
 
 const WORK_SELECT = `
   *,
-  media_item(
+  media_series (
+    id,
+    name,
+    original_name,
+    kind,
+    parent_series_id
+  ),
+  media_item (
     id,
     title,
     creator,
@@ -25,6 +32,7 @@ function metricsOf(row: any): MediaMetrics | null {
 
 function toEdition(row: any, work: any): MediaCatalogItem {
   const metrics = metricsOf(row);
+  const seriesObj = work.media_series || null;
   return {
     id: String(row.id),
     type: work.type,
@@ -34,8 +42,11 @@ function toEdition(row: any, work: any): MediaCatalogItem {
     format: row.format || "epub",
     cover_image_url: row.cover_image_url || work.default_cover_image_url || null,
     release_year: row.release_year || null,
-    series_name: work.series_name || null,
+    series_id: work.series_id || null,
+    series: seriesObj,
+    series_name: seriesObj?.name || null,
     series_order: work.series_order != null ? Number(work.series_order) : null,
+    series_label: work.series_label || null,
     metrics,
     comprehension: null,
     previewWords: [],
