@@ -15,14 +15,9 @@ export const SentenceAiExplanationCard: React.FC<SentenceAiExplanationCardProps>
   return (
     <div className="space-y-2 border border-[#111111] bg-[#F8F8F6] p-2 text-xs">
       <div className="flex items-center justify-between border-b border-[#E2E2DF] pb-1">
-        <div className="flex items-center gap-1.5">
-          <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#111111]">
-            AI CONTEXT
-          </span>
-          <span className="border border-[#111111] bg-[#B8FF01] px-1 py-0.2 font-mono text-[8px] font-bold text-[#111111]">
-            ACTIVE
-          </span>
-        </div>
+        <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#666666]">
+          AI CONTEXT
+        </span>
         {onHide && (
           <button
             type="button"
@@ -35,11 +30,21 @@ export const SentenceAiExplanationCard: React.FC<SentenceAiExplanationCardProps>
       </div>
 
       <div className="space-y-1">
-        <div className="flex items-baseline gap-1.5 font-mono text-[10px]">
-          <span className="shrink-0 bg-[#111111] text-white px-1 py-0.5 font-bold uppercase text-[8px]">
-            CHUNK
-          </span>
-          <span className="font-bold text-[#111111]">
+        <div className="flex flex-wrap items-center gap-1.5 font-mono text-[10px]">
+          {explanation.pattern ? (
+            <>
+              <span className="border border-[#111111] bg-[#B8FF01] px-1 py-0.2 text-[8px] font-bold uppercase text-[#111111]">
+                PATTERN
+              </span>
+              <span className="font-bold text-[#111111]">{explanation.pattern}</span>
+              <span className="text-[#888888]">→</span>
+            </>
+          ) : (
+            <span className="shrink-0 bg-[#111111] text-white px-1 py-0.5 font-bold uppercase text-[8px]">
+              CHUNK
+            </span>
+          )}
+          <span className="font-medium italic text-[#333333]">
             "{explanation.chunk || targetWord}"
           </span>
         </div>

@@ -10,17 +10,20 @@ function buildCacheKey(model: string, sentence: string, targetWord: string): str
 }
 
 const SYSTEM_PROMPT = `You are an expert Spanish linguist assisting a language learner.
-For the given Spanish sentence and target word:
-1. Identify the natural linguistic "chunk" (the immediate idiom, phrasal verb, or collocation containing the target word).
-2. Explain what that chunk means in this specific sentence context.
-3. Translate the full sentence into natural English.
-
-Return ONLY a valid JSON object matching this schema:
+For the given Spanish sentence and target word, identify the grammatical construction and return ONLY a valid JSON object matching this schema:
 {
-  "chunk": "The exact Spanish phrase or collocation from the sentence containing the word",
-  "meaning": "Clear explanation of what this chunk means in this specific context",
+  "pattern": "Base grammatical formula or periphrasis (e.g. 'seguir + gerundio', 'darse cuenta de + sustantivo', or 'verbo (tiempo/modo)')",
+  "chunk": "The exact surface phrase from the sentence containing the target word (e.g. 'siguió cantando')",
+  "meaning": "Clear explanation of what this construction means in this context (e.g. 'to keep on / continue doing [action]')",
   "translation": "Natural English translation of the entire sentence"
-}`;
+}
+
+Examples:
+Sentence: "Ella siguió cantando toda la noche." | Target: "siguió"
+{"pattern":"seguir + gerundio","chunk":"siguió cantando","meaning":"to keep on / continue doing an ongoing action","translation":"She kept singing all night long."}
+
+Sentence: "No me di cuenta de la hora." | Target: "cuenta"
+{"pattern":"darse cuenta de + sustantivo","chunk":"me di cuenta de","meaning":"to realize / become aware of something","translation":"I didn't realize what time it was."}`;
 
 async function requestGroqChat(
   sentence: string,
@@ -87,6 +90,7 @@ export async function explainSentenceInContext(
 
   const parsed = JSON.parse(rawContent) as Partial<SentenceAiExplanation>;
   const result: SentenceAiExplanation = {
+    pattern: (parsed.pattern || "").trim(),
     chunk: (parsed.chunk || targetWord).trim(),
     meaning: (parsed.meaning || "").trim(),
     translation: (parsed.translation || "").trim(),

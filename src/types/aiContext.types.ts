@@ -1,4 +1,5 @@
 export interface SentenceAiExplanation {
+  pattern: string;
   chunk: string;
   meaning: string;
   translation: string;
