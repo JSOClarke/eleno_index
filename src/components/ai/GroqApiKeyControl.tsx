@@ -12,79 +12,79 @@ interface GroqApiKeyControlProps {
   onSave: (key: string) => void;
   onRemove: () => void;
   onSelectModel: (model: string) => void;
+  onClose?: () => void;
 }
 
-/** Controls user's BYOK Groq API key and model selection. */
 export const GroqApiKeyControl: React.FC<GroqApiKeyControlProps> = ({
   configured,
   selectedModel,
   onSave,
   onRemove,
   onSelectModel,
+  onClose,
 }) => {
-  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
 
-  if (configured) {
-    return (
-      <div className="space-y-1.5 border-t border-[#E2E2DF] pt-1.5 font-mono text-[10px]">
-        <div className="flex items-center justify-between text-[#666666]">
-          <span>GROQ KEY ACTIVE</span>
+  return (
+    <div className="space-y-1.5 border border-[#111111] bg-white p-2 font-mono text-[10px]">
+      <div className="flex items-center justify-between text-[#666666] border-b border-[#E2E2DF] pb-1">
+        <span className="font-bold text-[#111111]">GROQ CONFIGURATION</span>
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-[#888888] hover:text-[#111111] underline cursor-pointer"
+          >
+            CLOSE
+          </button>
+        )}
+      </div>
+
+      <div className="flex items-center gap-1.5">
+        <span className="text-[#888888] uppercase text-[9px]">MODEL:</span>
+        <select
+          value={selectedModel}
+          onChange={(e) => onSelectModel(e.target.value)}
+          className="w-full border border-[#111111] bg-[#F8F8F6] px-1 py-0.5 text-[9px] font-bold text-[#111111] outline-none cursor-pointer"
+        >
+          {AVAILABLE_MODELS.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {configured ? (
+        <div className="flex items-center justify-between pt-1">
+          <span className="text-[9px] text-[#555555]">KEY SAVED IN BROWSER</span>
           <button
             type="button"
             onClick={onRemove}
-            className="font-bold text-[#111111] underline cursor-pointer"
+            className="font-bold text-red-600 underline cursor-pointer text-[9px]"
           >
-            REMOVE
+            REMOVE KEY
           </button>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-[#888888] uppercase text-[9px]">MODEL:</span>
-          <select
-            value={selectedModel}
-            onChange={(e) => onSelectModel(e.target.value)}
-            className="border border-[#111111] bg-white px-1 py-0.5 text-[10px] font-bold text-[#111111] outline-none cursor-pointer"
-          >
-            {AVAILABLE_MODELS.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="border-t border-[#E2E2DF] pt-1.5 font-mono text-[10px]">
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        className="font-bold text-[#111111] underline cursor-pointer"
-      >
-        {open ? "CANCEL" : "+ ADD GROQ API KEY TO ENABLE AI"}
-      </button>
-
-      {open && (
-        <div className="mt-1.5 space-y-1.5 border border-[#111111] bg-white p-2">
+      ) : (
+        <div className="space-y-1.5 pt-0.5">
           <input
             type="password"
             value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder="gsk_..."
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="Paste gsk_... key"
             autoComplete="off"
             spellCheck={false}
-            className="w-full border border-[#111111] px-2 py-1 font-mono text-[11px] outline-none"
+            className="w-full border border-[#111111] px-1.5 py-0.5 text-[10px] outline-none"
           />
           <div className="flex items-center justify-between gap-2">
             <a
               href="https://console.groq.com/keys"
               target="_blank"
               rel="noreferrer"
-              className="text-[#666666] underline text-[10px]"
+              className="text-[#666666] underline text-[9px]"
             >
-              GET FREE GROQ KEY ↗
+              GET FREE KEY
             </a>
             <button
               type="button"
@@ -92,16 +92,13 @@ export const GroqApiKeyControl: React.FC<GroqApiKeyControlProps> = ({
               onClick={() => {
                 onSave(draft);
                 setDraft("");
-                setOpen(false);
+                if (onClose) onClose();
               }}
-              className="border border-[#111111] bg-[#B8FF01] px-2 py-0.5 font-bold text-[#111111] disabled:opacity-40 cursor-pointer"
+              className="border border-[#111111] bg-[#B8FF01] px-2 py-0.5 font-bold text-[#111111] disabled:opacity-40 cursor-pointer text-[9px]"
             >
-              SAVE KEY
+              SAVE
             </button>
           </div>
-          <p className="text-[9px] text-[#888888] leading-tight">
-            Stored locally in browser localStorage. Uses llama-3.1-8b-instant.
-          </p>
         </div>
       )}
     </div>
