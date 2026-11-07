@@ -10,6 +10,7 @@ export interface ComicToken {
   canonical_id: string | null;
   definition: string | null;
   box: [number, number, number, number]; // [x0, y0, x1, y1] in pixel coords
+  boxes?: [number, number, number, number][]; // Multiple segment boxes for hyphen-split words
   quarantine: "proper_noun" | "sfx" | "noise" | null;
 }
 

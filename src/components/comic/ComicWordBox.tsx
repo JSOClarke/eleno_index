@@ -19,12 +19,6 @@ export const ComicWordBox: React.FC<ComicWordBoxProps> = ({
   showBoxes,
   onSelect,
 }) => {
-  const [x0, y0, x1, y1] = token.box;
-  const left = Math.round(x0 * zoom);
-  const top = Math.round(y0 * zoom);
-  const width = Math.max(2, Math.round((x1 - x0) * zoom));
-  const height = Math.max(3, Math.round((y1 - y0) * zoom));
-
   const isIgnored = token.quarantine === "noise" || token.quarantine === "sfx";
 
   let highlightClass = "hover:bg-amber-300/30 hover:border-amber-400";
@@ -36,32 +30,48 @@ export const ComicWordBox: React.FC<ComicWordBoxProps> = ({
     highlightClass = "border-transparent hover:border-sky-400 hover:bg-sky-200/20";
   }
 
-  if (isIgnored) {
-    return (
-      <span
-        style={{ left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` }}
-        className={`absolute pointer-events-none transition-colors ${
-          showBoxes ? "border border-red-400/50 bg-red-400/15" : "border-transparent"
-        }`}
-        title={`[Quarantine: ${token.quarantine}] ${token.surface}`}
-      />
-    );
-  }
+  const rawBoxes = token.boxes && token.boxes.length > 0 ? token.boxes : [token.box];
 
   return (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect(token);
-      }}
-      style={{ left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` }}
-      className={`absolute cursor-pointer border rounded-xs transition-all ${highlightClass} ${
-        showBoxes ? "border-emerald-400/60 bg-emerald-300/20" : "border-transparent"
-      }`}
-      title={`${token.surface} (${token.lemma || "?"})`}
-    >
-      <span className="sr-only">{token.surface}</span>
-    </button>
+    <>
+      {rawBoxes.map((b, bIdx) => {
+        const [x0, y0, x1, y1] = b;
+        const left = Math.round(x0 * zoom);
+        const top = Math.round(y0 * zoom);
+        const width = Math.max(2, Math.round((x1 - x0) * zoom));
+        const height = Math.max(3, Math.round((y1 - y0) * zoom));
+
+        if (isIgnored) {
+          return (
+            <span
+              key={`box-${bIdx}`}
+              style={{ left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` }}
+              className={`absolute pointer-events-none transition-colors ${
+                showBoxes ? "border border-red-400/50 bg-red-400/15" : "border-transparent"
+              }`}
+              title={`[Quarantine: ${token.quarantine}] ${token.surface}`}
+            />
+          );
+        }
+
+        return (
+          <button
+            key={`btn-${bIdx}`}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(token);
+            }}
+            style={{ left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` }}
+            className={`absolute cursor-pointer border rounded-xs transition-all ${highlightClass} ${
+              showBoxes ? "border-emerald-400/60 bg-emerald-300/20" : "border-transparent"
+            }`}
+            title={`${token.surface} (${token.lemma || "?"})`}
+          >
+            <span className="sr-only">{token.surface}</span>
+          </button>
+        );
+      })}
+    </>
   );
 };
