@@ -20,17 +20,16 @@ export const ComicBottomBar: React.FC<ComicBottomBarProps> = ({
   const isLast = currentPageIndex >= totalPages;
   const pct = Math.round((currentPageIndex / Math.max(1, totalPages)) * 100);
 
-  // In RTL mode, "Next" page in narrative order is triggered by Left arrow
   const prevLabel = readingDirection === "rtl" ? "Next (→)" : "Prev (←)";
   const nextLabel = readingDirection === "rtl" ? "(←) Prev" : "Next (→)";
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-20 flex h-12 w-full items-center justify-between border-t border-[#111111] bg-white px-4 font-mono text-xs">
+    <footer className="fixed bottom-0 left-0 right-0 z-20 flex h-12 w-full items-center justify-between border-t border-[#E2E2DF] bg-[#F8F8F6] px-4 font-mono text-xs text-[#111111]">
       <button
         type="button"
         disabled={isFirst}
         onClick={onPrev}
-        className="border border-[#111111] px-3 py-1 font-bold shadow-[2px_2px_0px_#111111] disabled:opacity-30 disabled:cursor-not-allowed hover:enabled:bg-[#111111] hover:enabled:text-white"
+        className="border border-[#111111] bg-white px-3 py-1 font-bold text-[#111111] shadow-[2px_2px_0px_#111111] disabled:opacity-30 disabled:cursor-not-allowed hover:enabled:bg-[#111111] hover:enabled:text-white transition-colors cursor-pointer"
       >
         {prevLabel}
       </button>
@@ -42,8 +41,8 @@ export const ComicBottomBar: React.FC<ComicBottomBarProps> = ({
             className="h-full bg-[#111111] transition-all duration-150"
           />
         </div>
-        <span className="font-bold text-neutral-800">
-          {currentPageIndex} / {totalPages} ({pct}%)
+        <span className="font-bold text-[#111111]">
+          Page {currentPageIndex} of {totalPages} ({pct}%)
         </span>
       </div>
 
@@ -51,7 +50,7 @@ export const ComicBottomBar: React.FC<ComicBottomBarProps> = ({
         type="button"
         disabled={isLast}
         onClick={onNext}
-        className="border border-[#111111] px-3 py-1 font-bold shadow-[2px_2px_0px_#111111] disabled:opacity-30 disabled:cursor-not-allowed hover:enabled:bg-[#111111] hover:enabled:text-white"
+        className="border border-[#111111] bg-white px-3 py-1 font-bold text-[#111111] shadow-[2px_2px_0px_#111111] disabled:opacity-30 disabled:cursor-not-allowed hover:enabled:bg-[#111111] hover:enabled:text-white transition-colors cursor-pointer"
       >
         {nextLabel}
       </button>
