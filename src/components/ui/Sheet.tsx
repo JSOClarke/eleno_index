@@ -18,20 +18,12 @@ export const Sheet: React.FC<SheetProps> = ({ open, onClose, title, children, cl
 
   useEffect(() => {
     if (!open) return;
-    // Sheets can be marked `md:hidden` while still mounted on desktop. Locking
-    // body scroll there removes the scrollbar and shifts the page horizontally.
-    const root = rootRef.current;
-    if (!root || window.getComputedStyle(root).display === "none") return;
-
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKey);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = previousOverflow;
     };
   }, [open, onClose]);
 

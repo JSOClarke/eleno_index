@@ -11,6 +11,13 @@ export interface AdminWorkMatch {
   media_item?: { id: string; title: string; language: string; format: string }[];
 }
 
+export interface AdminSeriesItem {
+  id: string;
+  name: string;
+  kind?: string;
+  creator?: string | null;
+}
+
 export interface AdminImportJob {
   id: string;
   filename: string;
@@ -70,6 +77,7 @@ export interface AdminWorkDraft {
   creator: string;
   original_language: string;
   synopsis_en: string;
+  series_id?: string;
   series_name: string;
   series_order: string;
   series_label: string;

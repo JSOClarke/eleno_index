@@ -5,53 +5,48 @@ import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface ReaderTokenSpanProps {
   token: ElenoToken;
-  lexicon: ElenoLexiconEntry[];
-  statusMap: Record<string, UserVocabStatus>;
+  entry?: ElenoLexiconEntry;
+  status?: UserVocabStatus;
   showRuby: boolean;
   rubyPos: RubyPosFilter;
   highlightMode: HighlightMode;
   highlightUnknownOnly: boolean;
-  isSelected: boolean;
-  onSelect: (surface: string, entry: ElenoLexiconEntry, morph?: string) => void;
-  onToggleKnown?: (canonicalId: string, currentStatus: UserVocabStatus | undefined) => void;
+  bIdx: number;
+  sIdx: number;
+  tIdx: number;
 }
 
 export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
   ({
     token,
-    lexicon,
-    statusMap,
+    entry,
+    status,
     showRuby,
     rubyPos,
     highlightMode,
     highlightUnknownOnly,
-    isSelected,
-    onSelect,
-    onToggleKnown,
+    bIdx,
+    sIdx,
+    tIdx,
   }) => {
     if (typeof token === "string") {
       return <span>{token}</span>;
     }
 
-    const [surface, lexIdx, morph] = token;
-    const entry = lexicon[lexIdx];
+    const [surface, lexIdx] = token;
     if (!entry) return <span>{surface}</span>;
 
     // Untracked wordform (proper noun, typo, unindexed): plain text, no actions.
     if (!entry.id) return <span>{surface}</span>;
-    const canonicalId = entry.id;
 
-    const status = statusMap[canonicalId];
     const isKnown = status === "known";
     const isLearning = status === "learning";
     const isUnknown = !status;
 
     const bandClass = getTokenUnderlineClass(entry, status, highlightMode, highlightUnknownOnly);
 
-    let styleClass = "relative inline cursor-pointer transition-colors px-[1px] border-b-[2.5px] ";
-    if (isSelected) {
-      styleClass += "bg-[#111111] text-[#B8FF01] border-[#B8FF01] shadow-[2px_2px_0px_#B8FF01] ";
-    } else if (bandClass) {
+    let styleClass = "relative inline cursor-pointer px-[1px] border-b-[2.5px] ";
+    if (bandClass) {
       if (isLearning) {
         styleClass += `bg-[#B8FF01] text-[#111111] hover:bg-[#a6e600] ${bandClass}`;
       } else {
@@ -65,17 +60,6 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
       styleClass += "text-[#111111] border-dotted !border-[#888888] hover:!border-[#111111] hover:bg-[#F4F4F2] ";
     }
 
-    const handleClick = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      onSelect(surface, entry, morph);
-    };
-
-    const handleContextMenu = (e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      onToggleKnown?.(canonicalId, status);
-    };
-
     const shouldShowRuby =
       showRuby &&
       !!entry.hint &&
@@ -84,8 +68,10 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
 
     return (
       <span
-        onClick={handleClick}
-        onContextMenu={handleContextMenu}
+        data-tok={tIdx}
+        data-bidx={bIdx}
+        data-sidx={sIdx}
+        data-lex={lexIdx}
         className={styleClass}
       >
         {shouldShowRuby && (
@@ -93,7 +79,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
             {entry.hint}
           </span>
         )}
-        <span>{surface}</span>
+        {surface}
       </span>
     );
   }

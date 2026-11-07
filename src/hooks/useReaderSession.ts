@@ -108,7 +108,10 @@ export function useReaderSession(
     [chapter, manifest]
   );
 
-  const closeDock = useCallback(() => setSelectedToken(null), []);
+  const closeDock = useCallback(() => {
+    document.querySelector(".token-selected")?.classList.remove("token-selected");
+    setSelectedToken(null);
+  }, []);
 
   const adjustFontSize = useCallback((delta: number) => {
     setFontSize((previous) => clampFontSize(previous + delta));

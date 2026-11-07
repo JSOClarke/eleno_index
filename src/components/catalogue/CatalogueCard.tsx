@@ -78,11 +78,7 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
                   {formatCompactWords(m?.total_tokens || 0)} · {dialOrSpeedLabel} · {subjPct} subj
                 </div>
               </div>
-              <CardCoveragePanel
-                item={item}
-                isAuthenticated={isAuthenticated}
-                onRequireAuth={onRequireAuth}
-              />
+              <CardCoveragePanel item={item} isAuthenticated={isAuthenticated} onRequireAuth={onRequireAuth} />
             </div>
           </div>
 

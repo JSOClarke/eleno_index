@@ -21,14 +21,17 @@ export const ReaderWordSheet: React.FC<ReaderWordSheetProps> = ({
   onClose,
   definitionLanguage,
   onDefinitionLanguageChange,
-}) => (
-  <Sheet
-    open={Boolean(selectedToken)}
-    onClose={onClose}
-    title={selectedToken ? "Word" : ""}
-    className="xl:hidden"
-  >
-    {selectedToken && (
+}) => {
+  if (!selectedToken) return null;
+  if (typeof window !== "undefined" && window.innerWidth >= 1280) return null;
+
+  return (
+    <Sheet
+      open={Boolean(selectedToken)}
+      onClose={onClose}
+      title="Word"
+      className="xl:hidden"
+    >
       <WordDockContent
         surface={selectedToken.surface}
         entry={selectedToken.entry}
@@ -39,6 +42,6 @@ export const ReaderWordSheet: React.FC<ReaderWordSheetProps> = ({
         onDefinitionLanguageChange={onDefinitionLanguageChange}
         phrases={selectedToken.phrases}
       />
-    )}
-  </Sheet>
-);
+    </Sheet>
+  );
+};

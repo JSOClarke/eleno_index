@@ -80,7 +80,12 @@ export function useReaderPosition(
 
     const observer =
       typeof ResizeObserver !== "undefined" ? new ResizeObserver(schedule) : null;
-    observer?.observe(document.body);
+    const canvasArticle = document.getElementById("reader-canvas-article");
+    if (canvasArticle) {
+      observer?.observe(canvasArticle);
+    } else {
+      observer?.observe(document.body);
+    }
 
     return () => {
       window.removeEventListener("scroll", schedule);

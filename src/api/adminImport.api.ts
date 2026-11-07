@@ -1,6 +1,7 @@
 import type {
   AdminCommitPayload,
   AdminImportJob,
+  AdminSeriesItem,
   AdminWorkMatch,
 } from "@/types/adminImport.types";
 
@@ -27,7 +28,13 @@ export function fetchImport(jobId: string): Promise<AdminImportJob> {
 
 export function searchAdminWorks(query: string): Promise<AdminWorkMatch[]> {
   return request<{ works: AdminWorkMatch[] }>(`/admin/works?q=${encodeURIComponent(query)}`).then(
-    (data) => data.works
+    (data) => data.works || []
+  );
+}
+
+export function searchAdminSeries(query: string = ""): Promise<AdminSeriesItem[]> {
+  return request<{ series: AdminSeriesItem[] }>(`/admin/series?q=${encodeURIComponent(query)}`).then(
+    (data) => data.series || []
   );
 }
 

@@ -13,7 +13,7 @@ import type {
 
 const emptyWork: AdminWorkDraft = {
   original_title: "", title_en: "", creator: "", original_language: "en",
-  synopsis_en: "", series_name: "", series_order: "", series_label: "",
+  synopsis_en: "", series_id: undefined, series_name: "", series_order: "", series_label: "",
 };
 
 const emptyEdition: AdminEditionDraft = {
@@ -44,24 +44,25 @@ export const AdminImportPage: React.FC = () => {
     try {
       const next = await uploadImport(file);
       setJob(next);
-      const candidate = next.work_candidate || {};
-      const source = next.edition_candidate || {};
+      const cand = next.work_candidate || {};
+      const src = next.edition_candidate || {};
       setWork({
-        original_title: candidate.original_title || next.metadata.title || "",
-        title_en: candidate.title_en || candidate.original_title || next.metadata.title || "",
-        creator: candidate.creator || next.metadata.author || "",
-        original_language: candidate.original_language || next.metadata.language || "en",
-        synopsis_en: candidate.synopsis_en || candidate.synopsis || "",
-        series_name: candidate.series_name || "",
-        series_order: candidate.series_order != null ? String(candidate.series_order) : "",
-        series_label: candidate.series_label || "",
+        original_title: cand.original_title || next.metadata.title || "",
+        title_en: cand.title_en || cand.original_title || next.metadata.title || "",
+        creator: cand.creator || next.metadata.author || "",
+        original_language: cand.original_language || next.metadata.language || "en",
+        synopsis_en: cand.synopsis_en || cand.synopsis || "",
+        series_id: cand.series_id || undefined,
+        series_name: cand.series_name || "",
+        series_order: cand.series_order != null ? String(cand.series_order) : "",
+        series_label: cand.series_label || "",
       });
       setEdition({
-        title: source.title || next.metadata.title || "",
-        author: source.creator || next.metadata.author || "",
-        language: source.language || next.metadata.language || "es",
-        synopsis: source.synopsis || next.metadata.synopsis || "",
-        release_year: source.release_year != null ? String(source.release_year) : "",
+        title: src.title || next.metadata.title || "",
+        author: src.creator || next.metadata.author || "",
+        language: src.language || next.metadata.language || "es",
+        synopsis: src.synopsis || next.metadata.synopsis || "",
+        release_year: src.release_year != null ? String(src.release_year) : "",
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -77,17 +78,16 @@ export const AdminImportPage: React.FC = () => {
     try {
       const workPayload = {
         ...work,
+        series_id: work.series_id || undefined,
         series_order: work.series_order ? Number(work.series_order) : null,
+        series_label: work.series_label || (work.series_order ? `Book ${work.series_order}` : null),
         synopsis: work.synopsis_en,
         title_en: work.title_en || work.original_title,
       };
       const next = await commitImport(job.id, {
         work_id: selectedWork?.id,
         work: selectedWork ? undefined : workPayload,
-        edition: {
-          ...edition,
-          release_year: edition.release_year ? Number(edition.release_year) : null,
-        },
+        edition: { ...edition, release_year: edition.release_year ? Number(edition.release_year) : null },
       });
       setJob(next);
     } catch (err) {
@@ -104,7 +104,7 @@ export const AdminImportPage: React.FC = () => {
       <div className="border-b border-[#111111] pb-3">
         <h1 className="text-xl font-bold text-[#111111]">Import Workbench</h1>
         <p className="mt-1 font-mono text-xs text-[#666666]">
-          Stage an EPUB, audit its work/edition metadata, then commit it to the corpus.
+          Stage an EPUB, audit franchise/work/edition metadata, then commit it to the corpus.
         </p>
       </div>
 
@@ -117,8 +117,9 @@ export const AdminImportPage: React.FC = () => {
           <AdminImportAuditForm
             work={work}
             edition={edition}
-            onWorkChange={(field, value) => setWork((current) => ({ ...current, [field]: value }))}
-            onEditionChange={(field, value) => setEdition((current) => ({ ...current, [field]: value }))}
+            onWorkChange={(field, value) => setWork((c) => ({ ...c, [field]: value }))}
+            onEditionChange={(field, value) => setEdition((c) => ({ ...c, [field]: value }))}
+            onSeriesChange={(sId, sName) => setWork((c) => ({ ...c, series_id: sId, series_name: sName }))}
           />
           <AdminWorkMatchPanel
             initialMatches={job.work_matches || []}

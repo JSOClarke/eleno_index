@@ -30,6 +30,7 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
   }, [onClose]);
 
   if (!selectedToken) return null;
+  if (typeof window !== "undefined" && window.innerWidth < 1280) return null;
   const { surface, entry, morph } = selectedToken;
   const isLearning = status === "learning";
   const isKnown = status === "known";

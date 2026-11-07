@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchReaderManifest } from "@/api/reader.api";
 import { ReaderBottomBar } from "@/components/reader/ReaderBottomBar";
@@ -68,7 +68,18 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
 
   const curCh = manifest?.chapters.find((c) => c.index === chapterIndex);
   const total = manifest?.total_chapters || manifest?.chapters.length || 1;
-  const definitionProps = { definitionLanguage, onDefinitionLanguageChange: setDefinitionLanguage };
+  const handleToggleKnown = useCallback(
+    (id: string, st?: UserVocabStatus) => onSetWordStatus(id, st === "known" ? null : "known"),
+    [onSetWordStatus]
+  );
+  const dockProps = {
+    selectedToken,
+    status: selectedToken ? statusMap[selectedToken.entry.id] : undefined,
+    onSetStatus: onSetWordStatus,
+    onClose: closeDock,
+    definitionLanguage,
+    onDefinitionLanguageChange: setDefinitionLanguage,
+  };
   return (
     <div className="flex min-h-[100dvh] w-full max-w-full flex-col overflow-x-clip bg-white font-sans text-[#111111]">
       {manifest && (
@@ -115,28 +126,14 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
             showIPlusOne={showIPlusOne}
             highlightMode={highlightMode}
             highlightUnknownOnly={highlightUnknownOnly}
-            selectedTokenId={selectedToken?.entry.id || null}
             onSelectToken={selectToken}
-            onToggleKnown={(id, st) => onSetWordStatus(id, st === "known" ? null : "known")}
+            onToggleKnown={handleToggleKnown}
           />
         ) : null}
       </main>
 
-      <ReaderWordDock
-        selectedToken={selectedToken}
-        status={selectedToken ? statusMap[selectedToken.entry.id] : undefined}
-        onSetStatus={onSetWordStatus}
-        onClose={closeDock}
-        {...definitionProps}
-      />
-
-      <ReaderWordSheet
-        selectedToken={selectedToken}
-        status={selectedToken ? statusMap[selectedToken.entry.id] : undefined}
-        onSetStatus={onSetWordStatus}
-        onClose={closeDock}
-        {...definitionProps}
-      />
+      <ReaderWordDock {...dockProps} />
+      <ReaderWordSheet {...dockProps} />
 
       <ReaderBottomBar
         chapterIndex={chapterIndex}

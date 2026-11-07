@@ -28,3 +28,10 @@ ruby {
 rt {
   ruby-position: over;
 }
+
+.token-selected {
+  background-color: #111111 !important;
+  color: #B8FF01 !important;
+  border-color: #B8FF01 !important;
+  box-shadow: 2px 2px 0px #B8FF01 !important;
+}

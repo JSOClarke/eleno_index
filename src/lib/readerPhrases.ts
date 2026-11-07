@@ -4,6 +4,17 @@ import type {
   ElenoReaderManifest,
 } from "@/types/reader.types";
 
+const phraseCatalogCache = new WeakMap<ElenoPhraseHint[], Map<string, ElenoPhraseHint>>();
+
+function getPhraseCatalog(phrases: ElenoPhraseHint[]): Map<string, ElenoPhraseHint> {
+  let catalog = phraseCatalogCache.get(phrases);
+  if (!catalog) {
+    catalog = new Map(phrases.map((phrase) => [phrase.id, phrase]));
+    phraseCatalogCache.set(phrases, catalog);
+  }
+  return catalog;
+}
+
 export function resolvePhraseHints(
   chapter: ElenoReaderChapter | null,
   manifest: ElenoReaderManifest | null,
@@ -15,7 +26,7 @@ export function resolvePhraseHints(
     chapter?.blocks[blockIndex]?.phrase_matches?.[sentenceIndex] || [];
   if (!matches.length || !manifest?.phrases?.length) return [];
 
-  const catalog = new Map(manifest.phrases.map((phrase) => [phrase.id, phrase]));
+  const catalog = getPhraseCatalog(manifest.phrases);
   const hints: ElenoPhraseHint[] = [];
   for (const match of matches) {
     if (match.s <= tokenIndex && tokenIndex < match.e) {
