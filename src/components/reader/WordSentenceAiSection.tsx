@@ -14,7 +14,7 @@ export const WordSentenceAiSection: React.FC<WordSentenceAiSectionProps> = ({
   sentence,
   targetWord,
 }) => {
-  const { groqApiKey, hasKey, setGroqApiKey } = useGroqApiKey();
+  const { groqApiKey, hasKey, setGroqApiKey, groqModel, setGroqModel } = useGroqApiKey();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [explanation, setExplanation] = useState<SentenceAiExplanation | null>(null);
@@ -26,7 +26,7 @@ export const WordSentenceAiSection: React.FC<WordSentenceAiSectionProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const result = await explainSentenceInContext(sentence, targetWord, groqApiKey);
+      const result = await explainSentenceInContext(sentence, targetWord, groqApiKey, groqModel);
       setExplanation(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to explain sentence");
@@ -60,7 +60,7 @@ export const WordSentenceAiSection: React.FC<WordSentenceAiSectionProps> = ({
       {loading && (
         <div className="flex items-center gap-2 border border-[#111111] bg-[#F8F8F6] p-2 font-mono text-[10px] text-[#111111]">
           <span className="h-2 w-2 animate-ping bg-[#B8FF01]" />
-          <span>Analyzing syntax & nuance with Llama 3.3 on Groq...</span>
+          <span>Analyzing syntax & nuance with {groqModel} on Groq...</span>
         </div>
       )}
 
@@ -83,6 +83,8 @@ export const WordSentenceAiSection: React.FC<WordSentenceAiSectionProps> = ({
 
       <GroqApiKeyControl
         configured={hasKey}
+        selectedModel={groqModel}
+        onSelectModel={setGroqModel}
         onSave={(key) => setGroqApiKey(key)}
         onRemove={() => {
           setGroqApiKey("");

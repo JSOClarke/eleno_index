@@ -1,31 +1,57 @@
 import React, { useState } from "react";
 
+const AVAILABLE_MODELS = [
+  { id: "llama-3.1-8b-instant", label: "Llama 3.1 8B (Default)" },
+  { id: "openai/gpt-oss-120b", label: "GPT OSS 120B" },
+  { id: "openai/gpt-oss-20b", label: "GPT OSS 20B" },
+];
+
 interface GroqApiKeyControlProps {
   configured: boolean;
+  selectedModel: string;
   onSave: (key: string) => void;
   onRemove: () => void;
+  onSelectModel: (model: string) => void;
 }
 
-/** Controls user's BYOK Groq API key in local storage. */
+/** Controls user's BYOK Groq API key and model selection. */
 export const GroqApiKeyControl: React.FC<GroqApiKeyControlProps> = ({
   configured,
+  selectedModel,
   onSave,
   onRemove,
+  onSelectModel,
 }) => {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
 
   if (configured) {
     return (
-      <div className="flex items-center justify-between border-t border-[#E2E2DF] pt-1.5 font-mono text-[10px] text-[#666666]">
-        <span>GROQ API KEY SAVED</span>
-        <button
-          type="button"
-          onClick={onRemove}
-          className="font-bold text-[#111111] underline cursor-pointer"
-        >
-          REMOVE
-        </button>
+      <div className="space-y-1.5 border-t border-[#E2E2DF] pt-1.5 font-mono text-[10px]">
+        <div className="flex items-center justify-between text-[#666666]">
+          <span>GROQ KEY ACTIVE</span>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="font-bold text-[#111111] underline cursor-pointer"
+          >
+            REMOVE
+          </button>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[#888888] uppercase text-[9px]">MODEL:</span>
+          <select
+            value={selectedModel}
+            onChange={(e) => onSelectModel(e.target.value)}
+            className="border border-[#111111] bg-white px-1 py-0.5 text-[10px] font-bold text-[#111111] outline-none cursor-pointer"
+          >
+            {AVAILABLE_MODELS.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     );
   }
@@ -74,7 +100,7 @@ export const GroqApiKeyControl: React.FC<GroqApiKeyControlProps> = ({
             </button>
           </div>
           <p className="text-[9px] text-[#888888] leading-tight">
-            Stored locally in browser localStorage. Requests go directly to Groq.
+            Stored locally in browser localStorage. Uses llama-3.1-8b-instant.
           </p>
         </div>
       )}

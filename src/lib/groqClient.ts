@@ -1,12 +1,12 @@
+import { DEFAULT_GROQ_MODEL } from "@/lib/userAiKeys";
 import type { SentenceAiExplanation } from "@/types/aiContext.types";
 
 const GROQ_CHAT_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
 
 const explanationCache = new Map<string, SentenceAiExplanation>();
 
-function buildCacheKey(sentence: string, targetWord: string): string {
-  return `${sentence.trim()}::${targetWord.trim().toLowerCase()}`;
+function buildCacheKey(model: string, sentence: string, targetWord: string): string {
+  return `${model}::${sentence.trim()}::${targetWord.trim().toLowerCase()}`;
 }
 
 const SYSTEM_PROMPT = `You are an expert Spanish linguist and pedagogue assisting a Spanish learner.
@@ -19,23 +19,20 @@ Return ONLY a valid JSON object with the following structure:
   "tone_register": "Tone or register, e.g. Literary, Colloquial, Formal, Conversational, etc."
 }`;
 
-export async function explainSentenceInContext(
+async function requestGroqChat(
   sentence: string,
   targetWord: string,
-  apiKey: string
-): Promise<SentenceAiExplanation> {
-  const cacheKey = buildCacheKey(sentence, targetWord);
-  const cached = explanationCache.get(cacheKey);
-  if (cached) return cached;
-
-  const response = await fetch(GROQ_CHAT_ENDPOINT, {
+  apiKey: string,
+  model: string
+): Promise<Response> {
+  return fetch(GROQ_CHAT_ENDPOINT, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey.trim()}`,
     },
     body: JSON.stringify({
-      model: GROQ_MODEL,
+      model,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         {
@@ -47,6 +44,26 @@ export async function explainSentenceInContext(
       response_format: { type: "json_object" },
     }),
   });
+}
+
+export async function explainSentenceInContext(
+  sentence: string,
+  targetWord: string,
+  apiKey: string,
+  model = DEFAULT_GROQ_MODEL
+): Promise<SentenceAiExplanation> {
+  const cacheKey = buildCacheKey(model, sentence, targetWord);
+  const cached = explanationCache.get(cacheKey);
+  if (cached) return cached;
+
+  let chosenModel = model || DEFAULT_GROQ_MODEL;
+  let response = await requestGroqChat(sentence, targetWord, apiKey, chosenModel);
+
+  // Automatic fallback to DEFAULT_GROQ_MODEL if chosen model returns 404
+  if (response.status === 404 && chosenModel !== DEFAULT_GROQ_MODEL) {
+    chosenModel = DEFAULT_GROQ_MODEL;
+    response = await requestGroqChat(sentence, targetWord, apiKey, chosenModel);
+  }
 
   if (!response.ok) {
     if (response.status === 401) {
