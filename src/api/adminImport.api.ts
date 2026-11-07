@@ -45,3 +45,12 @@ export function commitImport(jobId: string, payload: AdminCommitPayload): Promis
     body: JSON.stringify(payload),
   });
 }
+
+export function deleteCatalogueMediaItem(
+  mediaItemId: string,
+  deleteWork: boolean = true
+): Promise<{ success: boolean; deleted_media_item_id: string; title?: string; deleted_work_id?: string }> {
+  return request(`/admin/media/${mediaItemId}?delete_work=${deleteWork}`, {
+    method: "DELETE",
+  });
+}

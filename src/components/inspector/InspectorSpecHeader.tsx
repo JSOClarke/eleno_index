@@ -1,11 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { AdminDeleteMediaModal } from "@/components/admin/AdminDeleteMediaModal";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { formatCompactWords, formatPercent } from "@/lib/formatters";
-import type {
-  MediaCatalogItem,
-  MediaComprehensionStats,
-} from "@/types/media.types";
+import type { MediaCatalogItem, MediaComprehensionStats } from "@/types/media.types";
 import { InspectorFlowPanel } from "./InspectorFlowPanel";
 
 interface InspectorSpecHeaderProps {
@@ -21,6 +19,7 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   isAuthenticated,
   onRequireAuth,
 }) => {
+  const [showDelete, setShowDelete] = useState(false);
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
   const fh = (m?.readability_score || 70).toFixed(1);
@@ -35,27 +34,27 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between border-b border-[#E2E2DF] pb-3">
-        <Link
-          to="/"
-          className="font-mono text-xs text-[#111111] hover:underline flex items-center gap-1.5"
-        >
+        <Link to="/" className="font-mono text-xs text-[#111111] hover:underline flex items-center gap-1.5">
           ← Back to Catalogue
         </Link>
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
-            <Link
-              to={`/read/${item.id}`}
-              className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600]"
-            >
+            <Link to={`/read/${item.id}`} className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600]">
               Read Story →
             </Link>
           ) : (
+            <button type="button" onClick={onRequireAuth} className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600] cursor-pointer">
+              Sign in to read
+            </button>
+          )}
+          {isAuthenticated && (
             <button
               type="button"
-              onClick={onRequireAuth}
-              className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600] cursor-pointer"
+              onClick={() => setShowDelete(true)}
+              className="border border-red-600 bg-white px-2.5 py-1 font-mono text-xs font-bold text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+              title="Delete from catalogue (Admin)"
             >
-              Sign in to read
+              Delete
             </button>
           )}
           <span className="hidden font-mono text-xs text-[#666666] sm:inline">
@@ -67,18 +66,11 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
       <div className="grid grid-cols-12 gap-6 border border-[#111111] p-5 bg-white items-start">
         <div className="col-span-12 space-y-4 lg:col-span-7">
           <div className="flex items-start gap-4 sm:gap-5">
-            <BookCoverPlate
-              title={item.title}
-              explicitUrl={item.cover_image_url}
-              level={level}
-              size="hero"
-            />
+            <BookCoverPlate title={item.title} explicitUrl={item.cover_image_url} level={level} size="hero" />
             <div className="min-w-0 space-y-2">
               <div className="space-y-1 font-mono text-xs">
                 <div className="flex items-center gap-2">
-                  <span className="shrink-0 bg-[#B8FF01] px-2 py-0.5 font-bold text-[#111111]">
-                    {level}
-                  </span>
+                  <span className="shrink-0 bg-[#B8FF01] px-2 py-0.5 font-bold text-[#111111]">{level}</span>
                   <span className="text-[#666666]">
                     {(item.type || "book").replace(/_/g, " ").toUpperCase()}
                     {item.format ? ` · ${item.format.toUpperCase()}` : ""}
@@ -87,21 +79,13 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
                 {(item.series?.name || item.series_name) && (
                   <div className="text-[#111111]">
                     {item.series?.name || item.series_name}
-                    {item.series_label
-                      ? ` · ${item.series_label}`
-                      : item.series_order
-                      ? ` #${item.series_order}`
-                      : ""}
+                    {item.series_label ? ` · ${item.series_label}` : item.series_order ? ` #${item.series_order}` : ""}
                   </div>
                 )}
                 <div className="text-[#111111]">{item.creator}</div>
-                {item.release_year && (
-                  <div className="text-[#666666]">{item.release_year}</div>
-                )}
+                {item.release_year && <div className="text-[#666666]">{item.release_year}</div>}
               </div>
-              <h1 className="break-words text-xl font-bold tracking-tight text-[#111111] sm:text-2xl">
-                {item.title}
-              </h1>
+              <h1 className="break-words text-xl font-bold tracking-tight text-[#111111] sm:text-2xl">{item.title}</h1>
             </div>
           </div>
           <p className="font-serif text-sm italic text-[#333333]">{item.sampleSnippet}</p>
@@ -128,6 +112,17 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
           />
         </div>
       </div>
+
+      <AdminDeleteMediaModal
+        isOpen={showDelete}
+        mediaId={item.id}
+        mediaTitle={item.title}
+        onClose={() => setShowDelete(false)}
+        onSuccess={() => {
+          setShowDelete(false);
+          window.location.href = "/";
+        }}
+      />
     </div>
   );
 };
