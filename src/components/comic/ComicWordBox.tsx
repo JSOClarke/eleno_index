@@ -19,6 +19,10 @@ export const ComicWordBox: React.FC<ComicWordBoxProps> = ({
   showBoxes,
   onSelect,
 }) => {
+  if (token.is_punct || !/[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(token.surface)) {
+    return null;
+  }
+
   const isIgnored = token.quarantine === "noise" || token.quarantine === "sfx";
 
   let highlightClass = "hover:bg-amber-300/30 hover:border-amber-400";

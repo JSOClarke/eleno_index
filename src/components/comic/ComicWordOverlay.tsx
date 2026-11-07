@@ -37,6 +37,11 @@ export const ComicWordOverlay: React.FC<ComicWordOverlayProps> = ({
           )}
 
           {para.tokens.map((token, tokIdx) => {
+            // Never render interactive overlay boxes for standalone punctuation
+            if (token.is_punct || !/[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(token.surface)) {
+              return null;
+            }
+
             const status = token.canonical_id ? statusMap[token.canonical_id] : undefined;
             const isSelected = Boolean(
               selectedCanonicalId && token.canonical_id === selectedCanonicalId

@@ -5,6 +5,7 @@ export interface ComicToken {
   surface: string;
   lemma: string;
   pos: string;
+  is_punct?: boolean;
   cefr: string | null;
   rank: number | null;
   canonical_id: string | null;
