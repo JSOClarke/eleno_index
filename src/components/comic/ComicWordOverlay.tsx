@@ -5,8 +5,7 @@ import { ComicWordBox } from "./ComicWordBox";
 
 interface ComicWordOverlayProps {
   paragraphs: ComicParagraph[];
-  pageWidth: number;
-  pageHeight: number;
+  zoom: number;
   statusMap: Record<string, UserVocabStatus>;
   selectedCanonicalId?: string | null;
   showBoxes?: boolean;
@@ -15,8 +14,7 @@ interface ComicWordOverlayProps {
 
 export const ComicWordOverlay: React.FC<ComicWordOverlayProps> = ({
   paragraphs,
-  pageWidth,
-  pageHeight,
+  zoom,
   statusMap,
   selectedCanonicalId,
   showBoxes,
@@ -29,12 +27,12 @@ export const ComicWordOverlay: React.FC<ComicWordOverlayProps> = ({
           {showBoxes && (
             <div
               style={{
-                left: `${(para.box[0] / pageWidth) * 100}%`,
-                top: `${(para.box[1] / pageHeight) * 100}%`,
-                width: `${((para.box[2] - para.box[0]) / pageWidth) * 100}%`,
-                height: `${((para.box[3] - para.box[1]) / pageHeight) * 100}%`,
+                left: `${Math.round(para.box[0] * zoom)}px`,
+                top: `${Math.round(para.box[1] * zoom)}px`,
+                width: `${Math.round((para.box[2] - para.box[0]) * zoom)}px`,
+                height: `${Math.round((para.box[3] - para.box[1]) * zoom)}px`,
               }}
-              className="absolute pointer-events-none border border-dashed border-amber-400/50"
+              className="absolute pointer-events-none border border-dashed border-amber-400/60"
             />
           )}
 
@@ -48,8 +46,7 @@ export const ComicWordOverlay: React.FC<ComicWordOverlayProps> = ({
               <ComicWordBox
                 key={`tok-${paraIdx}-${tokIdx}`}
                 token={token}
-                pageWidth={pageWidth}
-                pageHeight={pageHeight}
+                zoom={zoom}
                 status={status}
                 isSelected={isSelected}
                 showBoxes={showBoxes}

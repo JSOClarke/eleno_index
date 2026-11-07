@@ -37,21 +37,23 @@ export const ComicPageCanvas: React.FC<ComicPageCanvasProps> = ({
         style={{
           width: `${displayWidth}px`,
           height: `${displayHeight}px`,
-          maxWidth: "100%",
+          position: "relative",
+          flex: "none",
+          lineHeight: 0,
         }}
-        className="relative shadow-2xl bg-neutral-900 border border-neutral-800 transition-all duration-75"
+        className="shadow-2xl bg-neutral-900 border border-neutral-800 transition-all duration-75"
       >
         <img
           src={pageData.image_url}
           alt={`Comic page ${pageData.page_index}`}
-          className="block h-full w-full object-contain pointer-events-none"
+          style={{ width: "100%", height: "100%", display: "block" }}
+          className="select-none pointer-events-none"
           draggable={false}
         />
 
         <ComicWordOverlay
           paragraphs={pageData.paragraphs}
-          pageWidth={pageData.width}
-          pageHeight={pageData.height}
+          zoom={zoom}
           statusMap={statusMap}
           selectedCanonicalId={selectedCanonicalId}
           showBoxes={showBoxes}

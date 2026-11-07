@@ -4,8 +4,7 @@ import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface ComicWordBoxProps {
   token: ComicToken;
-  pageWidth: number;
-  pageHeight: number;
+  zoom: number;
   status?: UserVocabStatus;
   isSelected?: boolean;
   showBoxes?: boolean;
@@ -14,25 +13,23 @@ interface ComicWordBoxProps {
 
 export const ComicWordBox: React.FC<ComicWordBoxProps> = ({
   token,
-  pageWidth,
-  pageHeight,
+  zoom,
   status,
   isSelected,
   showBoxes,
   onSelect,
 }) => {
   const [x0, y0, x1, y1] = token.box;
-  const leftPct = (x0 / pageWidth) * 100;
-  const topPct = (y0 / pageHeight) * 100;
-  const widthPct = ((x1 - x0) / pageWidth) * 100;
-  const heightPct = ((y1 - y0) / pageHeight) * 100;
+  const left = Math.round(x0 * zoom);
+  const top = Math.round(y0 * zoom);
+  const width = Math.max(2, Math.round((x1 - x0) * zoom));
+  const height = Math.max(3, Math.round((y1 - y0) * zoom));
 
-  const isQuarantined = Boolean(token.quarantine);
   const isIgnored = token.quarantine === "noise" || token.quarantine === "sfx";
 
   let highlightClass = "hover:bg-amber-300/30 hover:border-amber-400";
   if (isSelected) {
-    highlightClass = "bg-amber-400/40 border-amber-600 ring-2 ring-amber-500";
+    highlightClass = "bg-amber-400/40 border-amber-600 ring-2 ring-amber-500 z-10";
   } else if (status === "known") {
     highlightClass = "border-transparent hover:border-emerald-400 hover:bg-emerald-200/20";
   } else if (status === "learning") {
@@ -42,14 +39,9 @@ export const ComicWordBox: React.FC<ComicWordBoxProps> = ({
   if (isIgnored) {
     return (
       <span
-        style={{
-          left: `${leftPct}%`,
-          top: `${topPct}%`,
-          width: `${widthPct}%`,
-          height: `${heightPct}%`,
-        }}
+        style={{ left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` }}
         className={`absolute pointer-events-none transition-colors ${
-          showBoxes ? "border border-red-400/40 bg-red-400/10" : "border-transparent"
+          showBoxes ? "border border-red-400/50 bg-red-400/15" : "border-transparent"
         }`}
         title={`[Quarantine: ${token.quarantine}] ${token.surface}`}
       />
@@ -63,14 +55,9 @@ export const ComicWordBox: React.FC<ComicWordBoxProps> = ({
         e.stopPropagation();
         onSelect(token);
       }}
-      style={{
-        left: `${leftPct}%`,
-        top: `${topPct}%`,
-        width: `${widthPct}%`,
-        height: `${heightPct}%`,
-      }}
+      style={{ left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px` }}
       className={`absolute cursor-pointer border rounded-xs transition-all ${highlightClass} ${
-        showBoxes ? "border-emerald-400/50 bg-emerald-300/10" : "border-transparent"
+        showBoxes ? "border-emerald-400/60 bg-emerald-300/20" : "border-transparent"
       }`}
       title={`${token.surface} (${token.lemma || "?"})`}
     >

@@ -28,6 +28,13 @@ export function useComicSession(mediaItemId: string, manifest: ElenoComicManifes
       .then((data) => {
         setPageData(data);
         setLoading(false);
+        setZoom((prev) => {
+          if (prev === 1 && data.width > 0) {
+            const fit = Number(((window.innerWidth - 32) / data.width).toFixed(2));
+            return Math.max(0.25, Math.min(2.0, fit));
+          }
+          return prev;
+        });
       })
       .catch((err) => {
         setError(err.message || "Failed to load comic page");
