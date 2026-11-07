@@ -57,14 +57,14 @@ export const ComicTopBar: React.FC<ComicTopBarProps> = ({
         </div>
 
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-          <span className="hidden min-w-0 flex-1 truncate font-mono text-sm font-bold text-[#111111] xl:block">
+          <span className="min-w-0 max-w-[150px] sm:max-w-xs md:max-w-md truncate font-mono text-sm font-bold text-[#111111]">
             {title}
           </span>
-          <span className="hidden text-[#888888] md:inline">·</span>
+          <span className="hidden text-[#888888] sm:inline">·</span>
           <select
             value={currentPageIndex}
             onChange={(e) => onSelectPage(Number(e.target.value))}
-            className="border border-[#111111] bg-white px-2.5 py-1 font-mono text-xs font-medium cursor-pointer shadow-[2px_2px_0px_#111111] max-w-[180px] truncate"
+            className="border border-[#111111] bg-white px-2.5 py-1 font-mono text-xs font-bold cursor-pointer shadow-[2px_2px_0px_#111111] max-w-[180px] truncate"
           >
             {pages.map((p) => (
               <option key={p.index} value={p.index}>

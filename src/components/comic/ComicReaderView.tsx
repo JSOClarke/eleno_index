@@ -35,7 +35,7 @@ export const ComicReaderView: React.FC<ComicReaderViewProps> = ({
   };
 
   return (
-    <div className="relative flex min-h-[100dvh] w-full flex-col bg-neutral-900 font-sans text-[#111111]">
+    <div className="relative flex min-h-[100dvh] w-full flex-col bg-[#141416] font-sans text-[#111111]">
       <ComicTopBar
         title={manifest.title}
         pages={manifest.pages}

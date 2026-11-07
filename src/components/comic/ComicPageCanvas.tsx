@@ -41,7 +41,7 @@ export const ComicPageCanvas: React.FC<ComicPageCanvasProps> = ({
           flex: "none",
           lineHeight: 0,
         }}
-        className="shadow-2xl bg-neutral-900 border border-neutral-800 transition-all duration-75"
+        className="shadow-[4px_4px_0px_#000000] bg-white border border-[#111111] transition-all duration-75"
       >
         <img
           src={pageData.image_url}

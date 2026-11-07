@@ -62,13 +62,21 @@ export const ReaderPage: React.FC<ReaderPageProps> = ({ statusMap, onSetWordStat
 
   if (mediaId === "local" && !comicManifest) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center bg-neutral-900 p-6 text-center font-mono text-white">
-        <h2 className="text-2xl font-bold font-serif">Open Local Comic Package</h2>
-        <p className="mt-2 text-xs text-neutral-400">Select an enriched .elenocbz file</p>
-        <label className="mt-6 cursor-pointer border border-neutral-600 bg-neutral-800 px-5 py-3 text-xs font-bold hover:bg-neutral-700">
-          Select .elenocbz File
-          <input type="file" accept=".elenocbz,application/zip" onChange={handleOpenLocalFile} className="hidden" />
-        </label>
+      <div className="flex h-screen flex-col items-center justify-center bg-[#F8F8F6] p-6 text-center font-mono text-[#111111]">
+        <div className="border border-[#111111] bg-white p-8 shadow-[4px_4px_0px_#111111] max-w-md w-full">
+          <div className="flex items-center justify-center gap-1 font-mono text-base font-bold tracking-tight mb-4">
+            <span>index</span>
+            <span className="border border-[#111111] bg-[#B8FF01] px-1.5 py-0.5 text-xs font-bold text-[#111111]">
+              /es
+            </span>
+          </div>
+          <h2 className="text-xl font-bold text-[#111111]">Open Local Comic Package</h2>
+          <p className="mt-2 text-xs text-[#666666]">Select an enriched .elenocbz file to read</p>
+          <label className="mt-6 inline-block cursor-pointer border border-[#111111] bg-[#B8FF01] px-5 py-2.5 text-xs font-bold text-[#111111] shadow-[2px_2px_0px_#111111] hover:bg-[#a6e600] transition-colors">
+            Select .elenocbz File
+            <input type="file" accept=".elenocbz,application/zip" onChange={handleOpenLocalFile} className="hidden" />
+          </label>
+        </div>
       </div>
     );
   }
