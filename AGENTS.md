@@ -1,4 +1,4 @@
-# Eleno Index (`index /es`) — Agent Guidelines & Architectural Rules
+# InputHub (`inputhub /es`) — Agent Guidelines & Architectural Rules
 
 - **Strict Approval Before Coding**: Do NOT write code, create files, edit files, or execute implementation commands without the user explicitly asking to do so.
 - **Collaborate First**: Discuss architectural decisions, explain concepts, answer questions, and propose plans first. Wait for specific confirmation and instruction from the user before executing changes.

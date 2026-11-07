@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { InputHubBrandLogo } from "@/components/brand/InputHubBrandLogo";
 import { MobileNavDrawer } from "./MobileNavDrawer";
 import type { UserProfile } from "@/types/vocabulary.types";
 
@@ -56,14 +57,8 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               <Menu className="h-5 w-5" strokeWidth={2} />
             </button>
 
-            <Link
-              to="/"
-              className="flex items-center gap-1.5 font-mono text-base font-bold tracking-tight"
-            >
-              <span>index</span>
-              <span className="bg-[#B8FF01] text-[#111111] px-1.5 py-0.5 text-sm font-bold">
-                /es
-              </span>
+            <Link to="/" className="flex items-center">
+              <InputHubBrandLogo size="md" scrambleOnMount={true} />
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 text-sm">

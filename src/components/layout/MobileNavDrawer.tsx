@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
+import { InputHubBrandLogo } from "@/components/brand/InputHubBrandLogo";
 import type { UserProfile } from "@/types/vocabulary.types";
 
 export interface MobileNavItem {
@@ -61,10 +62,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
         className="absolute left-0 top-0 flex h-full w-72 max-w-[80vw] flex-col border-r-2 border-[#111111] bg-white pb-[env(safe-area-inset-bottom)]"
       >
         <div className="flex items-center justify-between border-b border-[#E2E2DF] px-4 py-3">
-          <span className="flex items-center gap-1.5 font-mono text-base font-bold tracking-tight">
-            <span>index</span>
-            <span className="bg-[#B8FF01] px-1.5 py-0.5 text-sm font-bold text-[#111111]">/es</span>
-          </span>
+          <InputHubBrandLogo size="md" />
           <button
             ref={closeRef}
             type="button"

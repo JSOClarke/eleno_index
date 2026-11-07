@@ -1,4 +1,5 @@
 import React from "react";
+import { InputHubBrandLogo } from "@/components/brand/InputHubBrandLogo";
 import type { ComicPageMeta, ComicReadingDirection } from "@/types/comicReader.types";
 
 interface ComicTopBarProps {
@@ -39,12 +40,9 @@ export const ComicTopBar: React.FC<ComicTopBarProps> = ({
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-1 font-mono text-sm font-bold tracking-tight cursor-pointer"
+            className="cursor-pointer"
           >
-            <span>index</span>
-            <span className="border border-[#111111] bg-[#B8FF01] px-1.5 py-0.5 text-xs font-bold text-[#111111]">
-              /es
-            </span>
+            <InputHubBrandLogo size="sm" />
           </button>
           <div className="hidden h-4 w-px bg-[#E2E2DF] sm:block" />
           <button

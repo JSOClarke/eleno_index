@@ -1,4 +1,5 @@
 import React from "react";
+import { InputHubBrandLogo } from "@/components/brand/InputHubBrandLogo";
 import { ReaderHighlightControls } from "./ReaderHighlightControls";
 import { ReaderMobileControls } from "./ReaderMobileControls";
 import { ReaderSyncBadge } from "./ReaderSyncBadge";
@@ -51,9 +52,8 @@ export const ReaderTopBar: React.FC<ReaderTopBarProps> = ({
       <header className="sticky top-0 z-30 hidden border-b border-[#111111] bg-white xl:block">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-          <button onClick={onBack} className="flex items-center gap-1 font-mono text-sm font-bold tracking-tight cursor-pointer">
-            <span>index</span>
-            <span className="bg-[#B8FF01] text-[#111111] px-1.5 py-0.5 text-xs font-bold border border-[#111111]">/es</span>
+          <button onClick={onBack} className="cursor-pointer">
+            <InputHubBrandLogo size="sm" />
           </button>
           <div className="h-4 w-px bg-[#E2E2DF] hidden sm:block" />
           <button onClick={onBack} className="font-mono text-xs text-[#666666] hover:text-[#111111] flex items-center gap-1 cursor-pointer">

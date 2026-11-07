@@ -1,4 +1,4 @@
-# Eleno Index (`index /es`)
+# InputHub (`inputhub /es`)
 
 A Neo-Swiss brutalist **"Dense Faceted Index"** frontend for Spanish corpus-driven language acquisition, built with React 19, TypeScript, Tailwind CSS, and Supabase. Companion frontend to [`eleno_backend`](file:///c:/Users/drjopari/Documents/eleno_backend).
 

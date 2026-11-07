@@ -37,7 +37,7 @@ export function useCatalogueData(userId?: string | null, authLoading = false) {
       });
       setLoading(false);
       console.info(
-        `[index /es] Stage 1 Cards + Covers rendered in ${Math.round(
+        `[inputhub /es] Stage 1 Cards + Covers rendered in ${Math.round(
           performance.now() - tStart
         )}ms`
       );
@@ -51,7 +51,7 @@ export function useCatalogueData(userId?: string | null, authLoading = false) {
       setItems(enriched);
       writeCachedCatalogue(enriched);
       console.info(
-        `[index /es] Stage 2 RPC Enrichment complete in ${Math.round(
+        `[inputhub /es] Stage 2 RPC Enrichment complete in ${Math.round(
           performance.now() - tStart
         )}ms`
       );
