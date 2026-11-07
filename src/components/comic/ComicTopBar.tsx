@@ -33,84 +33,103 @@ export const ComicTopBar: React.FC<ComicTopBarProps> = ({
   onBack,
 }) => {
   return (
-    <header className="sticky top-0 z-30 flex h-14 w-full items-center justify-between border-b border-[#111111] bg-white px-4 font-mono text-xs text-[#111111]">
-      <div className="flex items-center gap-3 min-w-0">
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex items-center gap-1 border border-[#111111] bg-white px-2.5 py-1 font-bold text-[#111111] shadow-[2px_2px_0px_#111111] hover:bg-[#111111] hover:text-white transition-colors cursor-pointer"
-        >
-          ← Back
-        </button>
-        <span className="truncate font-bold font-serif text-sm text-[#111111] max-w-[180px] sm:max-w-xs md:max-w-md">
-          {title}
-        </span>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <select
-          value={currentPageIndex}
-          onChange={(e) => onSelectPage(Number(e.target.value))}
-          className="border border-[#111111] bg-white px-2 py-1 font-mono text-xs font-medium text-[#111111] shadow-[2px_2px_0px_#111111] focus:outline-none cursor-pointer"
-        >
-          {pages.map((p) => (
-            <option key={p.index} value={p.index} className="text-[#111111] bg-white">
-              Page {p.index} / {pages.length}
-            </option>
-          ))}
-        </select>
-
-        <button
-          type="button"
-          onClick={onToggleReadingDirection}
-          title={`Reading direction: ${readingDirection.toUpperCase()}`}
-          className="border border-[#111111] bg-white px-2.5 py-1 font-bold uppercase text-[#111111] shadow-[2px_2px_0px_#111111] hover:bg-neutral-100 transition-colors cursor-pointer"
-        >
-          {readingDirection.toUpperCase()}
-        </button>
-
-        <div className="hidden sm:flex items-center border border-[#111111] bg-white shadow-[2px_2px_0px_#111111]">
+    <header className="sticky top-0 z-30 border-b border-[#111111] bg-white text-[#111111]">
+      <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6">
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
           <button
             type="button"
-            onClick={onZoomOut}
-            aria-label="Zoom out"
-            className="px-2.5 py-1 border-r border-[#111111] font-bold text-[#111111] hover:bg-neutral-100 cursor-pointer"
+            onClick={onBack}
+            className="flex items-center gap-1 font-mono text-sm font-bold tracking-tight cursor-pointer"
           >
-            −
+            <span>index</span>
+            <span className="border border-[#111111] bg-[#B8FF01] px-1.5 py-0.5 text-xs font-bold text-[#111111]">
+              /es
+            </span>
           </button>
-          <span className="px-2 py-1 text-center min-w-[52px] font-bold text-[#111111]">
-            {Math.round(zoom * 100)}%
-          </span>
+          <div className="hidden h-4 w-px bg-[#E2E2DF] sm:block" />
           <button
             type="button"
-            onClick={onZoomIn}
-            aria-label="Zoom in"
-            className="px-2.5 py-1 border-l border-[#111111] font-bold text-[#111111] hover:bg-neutral-100 cursor-pointer"
+            onClick={onBack}
+            className="flex items-center gap-1 font-mono text-xs text-[#666666] hover:text-[#111111] cursor-pointer"
           >
-            +
+            ← Back
           </button>
         </div>
 
-        <button
-          type="button"
-          onClick={onFitWidth}
-          className="hidden sm:inline border border-[#111111] bg-white px-2.5 py-1 font-bold text-[#111111] shadow-[2px_2px_0px_#111111] hover:bg-neutral-100 transition-colors cursor-pointer"
-        >
-          Fit
-        </button>
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+          <span className="hidden min-w-0 flex-1 truncate font-mono text-sm font-bold text-[#111111] xl:block">
+            {title}
+          </span>
+          <span className="hidden text-[#888888] md:inline">·</span>
+          <select
+            value={currentPageIndex}
+            onChange={(e) => onSelectPage(Number(e.target.value))}
+            className="border border-[#111111] bg-white px-2.5 py-1 font-mono text-xs font-medium cursor-pointer shadow-[2px_2px_0px_#111111] max-w-[180px] truncate"
+          >
+            {pages.map((p) => (
+              <option key={p.index} value={p.index}>
+                Page {p.index} of {pages.length}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <button
-          type="button"
-          onClick={onToggleBoxes}
-          title="Toggle OCR Word Boxes"
-          className={`border border-[#111111] px-2.5 py-1 font-bold shadow-[2px_2px_0px_#111111] transition-colors cursor-pointer ${
-            showBoxes
-              ? "bg-[#B8FF01] text-[#111111]"
-              : "bg-white text-[#111111] hover:bg-neutral-100"
-          }`}
-        >
-          Boxes
-        </button>
+        <div className="flex items-center gap-2 sm:gap-3 font-mono text-xs shrink-0">
+          <button
+            type="button"
+            onClick={onToggleReadingDirection}
+            className="border border-[#111111] bg-white px-2.5 py-1 font-bold text-[#111111] hover:bg-[#F4F4F2] shadow-[2px_2px_0px_#111111] cursor-pointer"
+            title={`Reading direction: ${readingDirection.toUpperCase()}`}
+          >
+            Dir: {readingDirection.toUpperCase()}
+          </button>
+
+          <div className="hidden md:flex items-center border border-[#111111] bg-white shadow-[2px_2px_0px_#111111]">
+            <button
+              type="button"
+              onClick={onZoomOut}
+              aria-label="Zoom out"
+              className="px-2 py-1 border-r border-[#111111] font-bold hover:bg-[#F4F4F2] cursor-pointer"
+            >
+              −
+            </button>
+            <button
+              type="button"
+              onClick={onFitWidth}
+              className="px-2.5 py-1 font-bold hover:bg-[#F4F4F2] cursor-pointer"
+            >
+              {Math.round(zoom * 100)}%
+            </button>
+            <button
+              type="button"
+              onClick={onZoomIn}
+              aria-label="Zoom in"
+              className="px-2 py-1 border-l border-[#111111] font-bold hover:bg-[#F4F4F2] cursor-pointer"
+            >
+              +
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={onFitWidth}
+            className="hidden sm:inline border border-[#111111] bg-white px-2.5 py-1 font-bold text-[#111111] shadow-[2px_2px_0px_#111111] hover:bg-[#F4F4F2] cursor-pointer"
+          >
+            Fit
+          </button>
+
+          <button
+            type="button"
+            onClick={onToggleBoxes}
+            className={`border border-[#111111] px-2.5 py-1 font-bold shadow-[2px_2px_0px_#111111] cursor-pointer transition-colors ${
+              showBoxes
+                ? "bg-[#B8FF01] text-[#111111]"
+                : "bg-white text-[#666666] hover:text-[#111111] hover:bg-[#F4F4F2]"
+            }`}
+          >
+            Boxes: {showBoxes ? "ON" : "OFF"}
+          </button>
+        </div>
       </div>
     </header>
   );
