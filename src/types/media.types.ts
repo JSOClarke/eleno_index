@@ -1,5 +1,5 @@
-export type MediaType = "book" | "movie" | "tv_show" | "tv_episode" | "podcast" | "article";
-export type MediaFormat = "epub" | "srt" | "vtt" | "txt" | "markdown" | "unknown";
+export type MediaType = "book" | "comic" | "manga" | "movie" | "tv_show" | "tv_episode" | "podcast" | "article";
+export type MediaFormat = "epub" | "elenocbz" | "srt" | "vtt" | "txt" | "markdown" | "unknown";
 
 export interface FrequencyTiers {
   tokens?: Record<string, number>;
