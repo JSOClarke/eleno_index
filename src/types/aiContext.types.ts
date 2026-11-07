@@ -1,8 +1,7 @@
 export interface SentenceAiExplanation {
-  natural_translation: string;
-  word_nuance: string;
-  grammar_notes: string[];
-  tone_register?: string;
+  chunk: string;
+  meaning: string;
+  translation: string;
 }
 
 export interface GroqSentenceContextRequest {

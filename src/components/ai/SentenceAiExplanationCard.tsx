@@ -14,16 +14,14 @@ export const SentenceAiExplanationCard: React.FC<SentenceAiExplanationCardProps>
 }) => {
   return (
     <div className="space-y-2 border border-[#111111] bg-[#F8F8F6] p-2 text-xs">
-      <div className="flex items-center justify-between gap-2 border-b border-[#E2E2DF] pb-1.5">
+      <div className="flex items-center justify-between border-b border-[#E2E2DF] pb-1">
         <div className="flex items-center gap-1.5">
-          <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#666666]">
+          <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#111111]">
             AI CONTEXT
           </span>
-          {explanation.tone_register && (
-            <span className="border border-[#111111] bg-[#111111] px-1 py-0.2 font-mono text-[8px] font-bold uppercase text-[#B8FF01]">
-              {explanation.tone_register}
-            </span>
-          )}
+          <span className="border border-[#111111] bg-[#B8FF01] px-1 py-0.2 font-mono text-[8px] font-bold text-[#111111]">
+            ACTIVE
+          </span>
         </div>
         {onHide && (
           <button
@@ -36,31 +34,24 @@ export const SentenceAiExplanationCard: React.FC<SentenceAiExplanationCardProps>
         )}
       </div>
 
-      <div className="text-[11px] font-medium text-[#111111] leading-snug">
-        "{explanation.natural_translation}"
+      <div className="space-y-1">
+        <div className="flex items-baseline gap-1.5 font-mono text-[10px]">
+          <span className="shrink-0 bg-[#111111] text-white px-1 py-0.5 font-bold uppercase text-[8px]">
+            CHUNK
+          </span>
+          <span className="font-bold text-[#111111]">
+            "{explanation.chunk || targetWord}"
+          </span>
+        </div>
+
+        <div className="border-l-2 border-[#111111] pl-2 text-[11px] text-[#222222] leading-snug">
+          {explanation.meaning}
+        </div>
       </div>
 
-      {explanation.word_nuance && (
-        <div className="border-l-2 border-[#111111] pl-1.5 text-[10px] text-[#333333] leading-tight">
-          <span className="font-bold text-[#111111] font-mono uppercase mr-1">
-            [{targetWord}]:
-          </span>
-          {explanation.word_nuance}
-        </div>
-      )}
-
-      {explanation.grammar_notes.length > 0 && (
-        <div className="space-y-0.5 pt-1 border-t border-[#E2E2DF]">
-          <span className="font-mono text-[8px] font-bold uppercase text-[#888888]">
-            SYNTAX NOTES
-          </span>
-          <ul className="space-y-0.5 font-mono text-[9px] text-[#444444] list-disc list-inside">
-            {explanation.grammar_notes.map((note, idx) => (
-              <li key={idx} className="leading-tight">
-                {note}
-              </li>
-            ))}
-          </ul>
+      {explanation.translation && (
+        <div className="border-t border-[#E2E2DF] pt-1.5 font-serif text-[11px] italic text-[#555555] leading-snug">
+          “{explanation.translation}”
         </div>
       )}
     </div>

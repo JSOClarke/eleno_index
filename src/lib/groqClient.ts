@@ -9,14 +9,17 @@ function buildCacheKey(model: string, sentence: string, targetWord: string): str
   return `${model}::${sentence.trim()}::${targetWord.trim().toLowerCase()}`;
 }
 
-const SYSTEM_PROMPT = `You are an expert Spanish linguist and pedagogue assisting a Spanish learner.
-Explain the provided Spanish sentence in natural, fluent English, with specific attention to how the target word is used in this exact context.
-Return ONLY a valid JSON object with the following structure:
+const SYSTEM_PROMPT = `You are an expert Spanish linguist assisting a language learner.
+For the given Spanish sentence and target word:
+1. Identify the natural linguistic "chunk" (the immediate idiom, phrasal verb, or collocation containing the target word).
+2. Explain what that chunk means in this specific sentence context.
+3. Translate the full sentence into natural English.
+
+Return ONLY a valid JSON object matching this schema:
 {
-  "natural_translation": "Natural, idiomatic English translation of the entire sentence",
-  "word_nuance": "Precise explanation of the target word's nuance, idiom, or syntactic role in this context",
-  "grammar_notes": ["Array of 1-3 short, insightful notes on grammar, conjugation, mood, or syntax"],
-  "tone_register": "Tone or register, e.g. Literary, Colloquial, Formal, Conversational, etc."
+  "chunk": "The exact Spanish phrase or collocation from the sentence containing the word",
+  "meaning": "Clear explanation of what this chunk means in this specific context",
+  "translation": "Natural English translation of the entire sentence"
 }`;
 
 async function requestGroqChat(
@@ -37,7 +40,7 @@ async function requestGroqChat(
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
-          content: `Spanish Sentence: "${sentence.trim()}"\nTarget Word/Phrase: "${targetWord.trim()}"`,
+          content: `Spanish Sentence: "${sentence.trim()}"\nTarget Word: "${targetWord.trim()}"`,
         },
       ],
       temperature: 0.2,
@@ -84,10 +87,9 @@ export async function explainSentenceInContext(
 
   const parsed = JSON.parse(rawContent) as Partial<SentenceAiExplanation>;
   const result: SentenceAiExplanation = {
-    natural_translation: parsed.natural_translation || "",
-    word_nuance: parsed.word_nuance || "",
-    grammar_notes: Array.isArray(parsed.grammar_notes) ? parsed.grammar_notes : [],
-    tone_register: parsed.tone_register || undefined,
+    chunk: (parsed.chunk || targetWord).trim(),
+    meaning: (parsed.meaning || "").trim(),
+    translation: (parsed.translation || "").trim(),
   };
 
   explanationCache.set(cacheKey, result);
