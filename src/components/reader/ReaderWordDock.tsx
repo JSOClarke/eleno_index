@@ -75,6 +75,7 @@ export const ReaderWordDock: React.FC<ReaderWordDockProps> = ({
         definitionLanguage={definitionLanguage}
         onDefinitionLanguageChange={onDefinitionLanguageChange}
         phrases={selectedToken.phrases}
+        sentence={selectedToken.sentenceText}
       />
     </aside>
   );

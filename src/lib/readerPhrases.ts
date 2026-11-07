@@ -36,3 +36,13 @@ export function resolvePhraseHints(
   }
   return hints;
 }
+
+export function resolveSentenceText(
+  chapter: ElenoReaderChapter | null,
+  blockIndex: number,
+  sentenceIndex: number
+): string | undefined {
+  const sentence = chapter?.blocks[blockIndex]?.sentences?.[sentenceIndex];
+  if (!sentence || !sentence.length) return undefined;
+  return sentence.map((t) => (typeof t === "string" ? t : t[0])).join("").trim();
+}

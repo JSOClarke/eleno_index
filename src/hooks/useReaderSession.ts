@@ -3,7 +3,7 @@ import { useReaderProgressRestore } from "@/hooks/useReaderProgressRestore";
 import { useReaderProgressSaver } from "@/hooks/useReaderProgressSaver";
 import { getCachedChapter } from "@/lib/readerCache";
 import { clampFontSize, persistReaderPrefs, readReaderPrefs } from "@/lib/readerPrefs";
-import { resolvePhraseHints } from "@/lib/readerPhrases";
+import { resolvePhraseHints, resolveSentenceText } from "@/lib/readerPhrases";
 import type {
   DefinitionLanguage,
   ElenoLexiconEntry,
@@ -55,13 +55,10 @@ export function useReaderSession(
     onSaved: setSavedPercentage,
   });
 
-  const recordPosition = useCallback(
-    (blockIdx: number) => {
-      setCurrentBlockIndex(blockIdx);
-      saveProgress(blockIdx);
-    },
-    [saveProgress]
-  );
+  const recordPosition = useCallback((blockIdx: number) => {
+    setCurrentBlockIndex(blockIdx);
+    saveProgress(blockIdx);
+  }, [saveProgress]);
 
   const progressReady = useReaderProgressRestore(mediaItemId, (progress) => {
     if (progress.chapter_index > 0) setChapterIndexState(progress.chapter_index);
@@ -103,6 +100,7 @@ export function useReaderSession(
         sentenceIndex: sIdx,
         tokenIndex,
         phrases: resolvePhraseHints(chapter, manifest, bIdx, sIdx, tokenIndex),
+        sentenceText: resolveSentenceText(chapter, bIdx, sIdx),
       });
     },
     [chapter, manifest]

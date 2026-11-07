@@ -41,6 +41,7 @@ export const ReaderWordSheet: React.FC<ReaderWordSheetProps> = ({
         definitionLanguage={definitionLanguage}
         onDefinitionLanguageChange={onDefinitionLanguageChange}
         phrases={selectedToken.phrases}
+        sentence={selectedToken.sentenceText}
       />
     </Sheet>
   );

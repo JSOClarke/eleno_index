@@ -44,6 +44,7 @@ export interface SelectedTokenState {
   sentenceIndex: number;
   tokenIndex: number;
   phrases: ElenoPhraseHint[];
+  sentenceText?: string;
 }
 
 export interface ElenoReaderChapterMeta {

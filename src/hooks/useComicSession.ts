@@ -60,9 +60,10 @@ export function useComicSession(mediaItemId: string, manifest: ElenoComicManifes
         sentenceIndex: paraIdx,
         tokenIndex: tokIdx,
         phrases: [],
+        sentenceText: pageData?.paragraphs[paraIdx]?.text,
       });
     },
-    [currentPageIndex]
+    [currentPageIndex, pageData]
   );
 
   const closeDock = useCallback(() => setSelectedToken(null), []);
