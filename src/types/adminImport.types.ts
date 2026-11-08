@@ -95,4 +95,5 @@ export interface AdminCommitPayload {
   work_id?: string;
   work?: Record<string, unknown>;
   edition?: Record<string, unknown>;
+  skip_reader?: boolean;
 }

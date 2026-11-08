@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { commitImport, fetchImport, uploadImport } from "@/api/adminImport.api";
+import { AdminCommitBar } from "@/components/admin/AdminCommitBar";
 import { AdminImportAuditForm } from "@/components/admin/AdminImportAuditForm";
 import { AdminImportStatus } from "@/components/admin/AdminImportStatus";
 import { AdminImportUpload } from "@/components/admin/AdminImportUpload";
@@ -25,6 +26,7 @@ export const AdminImportPage: React.FC = () => {
   const [work, setWork] = useState<AdminWorkDraft>(emptyWork);
   const [edition, setEdition] = useState<AdminEditionDraft>(emptyEdition);
   const [selectedWork, setSelectedWork] = useState<AdminWorkMatch | null>(null);
+  const [skipReader, setSkipReader] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [committing, setCommitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,6 +90,7 @@ export const AdminImportPage: React.FC = () => {
         work_id: selectedWork?.id,
         work: selectedWork ? undefined : workPayload,
         edition: { ...edition, release_year: edition.release_year ? Number(edition.release_year) : null },
+        skip_reader: skipReader,
       });
       setJob(next);
     } catch (err) {
@@ -126,21 +129,13 @@ export const AdminImportPage: React.FC = () => {
             selectedWorkId={selectedWork?.id || null}
             onSelect={setSelectedWork}
           />
-          <div className="flex flex-wrap items-center justify-between gap-3 border border-[#111111] bg-[#F8F8F6] p-4">
-            <div className="font-mono text-xs text-[#555555]">
-              {selectedWork
-                ? `Linking edition to existing work: ${selectedWork.title_en || selectedWork.original_title}`
-                : "Creating a new work from the audited metadata above."}
-            </div>
-            <button
-              type="button"
-              onClick={() => void handleCommit()}
-              disabled={committing}
-              className="border border-[#111111] bg-[#B8FF01] px-4 py-2 font-mono text-xs font-bold disabled:opacity-50 cursor-pointer"
-            >
-              {committing ? "Starting..." : "Commit ingestion →"}
-            </button>
-          </div>
+          <AdminCommitBar
+            selectedWork={selectedWork}
+            skipReader={skipReader}
+            onToggleSkipReader={setSkipReader}
+            committing={committing}
+            onCommit={() => void handleCommit()}
+          />
         </>
       )}
     </div>
