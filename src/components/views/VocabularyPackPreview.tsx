@@ -122,8 +122,7 @@ export const VocabularyPackPreviewDialog: React.FC<VocabularyPackPreviewProps> =
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t-2 border-[#111111] pt-3">
               <p className="max-w-sm font-mono text-[11px] text-[#666666]">
-                This adds up to {preview.new_count.toLocaleString()} new Known words. Existing
-                statuses are preserved unless unchecked.
+                This adds up to {preview.new_count.toLocaleString()} new Known words. Existing statuses are preserved.
               </p>
               <div className="flex items-center gap-2">
                 <button

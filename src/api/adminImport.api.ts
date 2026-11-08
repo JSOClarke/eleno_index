@@ -1,4 +1,6 @@
 import type {
+  AdminBatchCommitPayload,
+  AdminBatchImportResponse,
   AdminCommitPayload,
   AdminImportJob,
   AdminSeriesItem,
@@ -22,8 +24,24 @@ export function uploadImport(file: File): Promise<AdminImportJob> {
   return request<AdminImportJob>("/admin/imports", { method: "POST", body });
 }
 
+export function uploadBatchImports(files: File[]): Promise<AdminBatchImportResponse> {
+  const body = new FormData();
+  files.forEach((f) => body.append("files", f));
+  return request<AdminBatchImportResponse>("/admin/imports/batch", { method: "POST", body });
+}
+
 export function fetchImport(jobId: string): Promise<AdminImportJob> {
   return request<AdminImportJob>(`/admin/imports/${jobId}`);
+}
+
+export function fetchImportsList(limit = 50): Promise<AdminImportJob[]> {
+  return request<{ jobs: AdminImportJob[] }>(`/admin/imports?limit=${limit}`).then(
+    (data) => data.jobs || []
+  );
+}
+
+export function deleteStagedImport(jobId: string): Promise<{ success: boolean }> {
+  return request<{ success: boolean }>(`/admin/imports/${jobId}`, { method: "DELETE" });
 }
 
 export function searchAdminWorks(query: string): Promise<AdminWorkMatch[]> {
@@ -40,6 +58,18 @@ export function searchAdminSeries(query: string = ""): Promise<AdminSeriesItem[]
 
 export function commitImport(jobId: string, payload: AdminCommitPayload): Promise<AdminImportJob> {
   return request<AdminImportJob>(`/admin/imports/${jobId}/commit`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function commitBatchImports(
+  jobIds: string[],
+  options?: { skip_reader?: boolean }
+): Promise<{ queued: AdminImportJob[]; count: number }> {
+  const payload: AdminBatchCommitPayload = { job_ids: jobIds, options };
+  return request<{ queued: AdminImportJob[]; count: number }>("/admin/imports/batch/commit", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

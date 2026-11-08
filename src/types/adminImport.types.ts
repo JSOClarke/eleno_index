@@ -97,3 +97,17 @@ export interface AdminCommitPayload {
   edition?: Record<string, unknown>;
   skip_reader?: boolean;
 }
+
+
+export interface AdminBatchImportResponse {
+  jobs: AdminImportJob[];
+  count: number;
+  errors: string[];
+}
+
+export interface AdminBatchCommitPayload {
+  job_ids: string[];
+  options?: {
+    skip_reader?: boolean;
+  };
+}
