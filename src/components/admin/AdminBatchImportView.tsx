@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  clearAllImports,
   commitBatchImports,
   deleteStagedImport,
   fetchImportsList,
@@ -73,6 +74,17 @@ export const AdminBatchImportView: React.FC = () => {
     }
   };
 
+  const handleClearAll = async () => {
+    if (!window.confirm("Clear all staged and completed imports from the list?")) return;
+    try {
+      await clearAllImports();
+      setSelectedIds(new Set());
+      await refreshList();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to clear imports");
+    }
+  };
+
   const handleCommitSelected = async () => {
     if (selectedIds.size === 0) return;
     setCommitting(true);
@@ -103,6 +115,7 @@ export const AdminBatchImportView: React.FC = () => {
             onToggleSelectAll={handleToggleSelectAll}
             onAuditJob={setEditingJob}
             onDeleteJob={(id) => void handleDelete(id)}
+            onClearAll={() => void handleClearAll()}
           />
           <AdminBatchCommitBar
             selectedCount={selectedIds.size}

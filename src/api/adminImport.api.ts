@@ -44,6 +44,10 @@ export function deleteStagedImport(jobId: string): Promise<{ success: boolean }>
   return request<{ success: boolean }>(`/admin/imports/${jobId}`, { method: "DELETE" });
 }
 
+export function clearAllImports(): Promise<{ cleared: number }> {
+  return request<{ cleared: number }>("/admin/imports", { method: "DELETE" });
+}
+
 export function searchAdminWorks(query: string): Promise<AdminWorkMatch[]> {
   return request<{ works: AdminWorkMatch[] }>(`/admin/works?q=${encodeURIComponent(query)}`).then(
     (data) => data.works || []

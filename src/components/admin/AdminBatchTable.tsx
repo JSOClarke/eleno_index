@@ -8,6 +8,7 @@ interface AdminBatchTableProps {
   onToggleSelectAll: () => void;
   onAuditJob: (job: AdminImportJob) => void;
   onDeleteJob: (id: string) => void;
+  onClearAll?: () => void;
 }
 
 export const AdminBatchTable: React.FC<AdminBatchTableProps> = ({
@@ -17,13 +18,28 @@ export const AdminBatchTable: React.FC<AdminBatchTableProps> = ({
   onToggleSelectAll,
   onAuditJob,
   onDeleteJob,
+  onClearAll,
 }) => {
   const allSelected = jobs.length > 0 && jobs.every((j) => selectedIds.has(j.id));
 
   return (
     <div className="overflow-x-auto border border-[#111111] bg-white">
+      <div className="flex items-center justify-between border-b border-[#111111] bg-[#F4F4F2] px-3 py-2">
+        <span className="font-mono text-[11px] font-bold text-[#111111]">
+          Staged Books ({jobs.length})
+        </span>
+        {onClearAll && (
+          <button
+            type="button"
+            onClick={onClearAll}
+            className="border border-[#CCCCCC] bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#666666] hover:border-red-600 hover:text-red-700 cursor-pointer"
+          >
+            Clear All Staged ✕
+          </button>
+        )}
+      </div>
       <table className="w-full border-collapse text-left font-mono text-xs">
-        <thead className="border-b border-[#111111] bg-[#F4F4F2] text-[11px] font-bold text-[#444444]">
+        <thead className="border-b border-[#111111] bg-[#FAFAF8] text-[11px] font-bold text-[#444444]">
           <tr>
             <th className="p-3 w-8">
               <input
