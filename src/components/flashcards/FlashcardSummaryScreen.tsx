@@ -1,15 +1,17 @@
 import React from "react";
-import { CheckCircle2, RotateCcw, BookOpen, Award } from "lucide-react";
+import { RotateCcw, BookOpen, Award, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { FlashcardSessionStats } from "@/types/flashcard.types";
 
 interface FlashcardSummaryScreenProps {
   stats: FlashcardSessionStats;
+  remainingCount?: number;
   onRestart: () => void;
 }
 
 export const FlashcardSummaryScreen: React.FC<FlashcardSummaryScreenProps> = ({
   stats,
+  remainingCount = 0,
   onRestart,
 }) => {
   const accuracy = stats.completed > 0 ? Math.round((stats.correct / stats.completed) * 100) : 0;
@@ -24,7 +26,9 @@ export const FlashcardSummaryScreen: React.FC<FlashcardSummaryScreenProps> = ({
           Session Complete!
         </h1>
         <p className="font-mono text-sm text-[#666666]">
-          All due flashcards for this session have been reviewed.
+          {remainingCount > 0
+            ? `You completed this 20-card sprint. ${remainingCount} more card${remainingCount > 1 ? "s" : ""} due in your backlog.`
+            : "Awesome work! All due flashcards in your deck have been reviewed."}
         </p>
       </div>
 
@@ -51,10 +55,10 @@ export const FlashcardSummaryScreen: React.FC<FlashcardSummaryScreenProps> = ({
         <button
           type="button"
           onClick={onRestart}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#111111] text-[#B8FF01] font-mono text-sm font-bold border-2 border-[#111111] hover:bg-[#222222] cursor-pointer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#111111] text-[#B8FF01] font-mono text-sm font-bold border-2 border-[#111111] hover:bg-[#222222] shadow-[3px_3px_0px_#111111] cursor-pointer"
         >
-          <RotateCcw className="w-4 h-4" />
-          <span>CHECK FOR MORE REVIEWS</span>
+          {remainingCount > 0 ? <ArrowRight className="w-4 h-4" /> : <RotateCcw className="w-4 h-4" />}
+          <span>{remainingCount > 0 ? `START NEXT 20 CARDS (${remainingCount} LEFT)` : "CHECK FOR MORE REVIEWS"}</span>
         </button>
         <Link
           to="/"

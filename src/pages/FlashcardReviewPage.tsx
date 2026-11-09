@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { fetchDueFlashcards, submitFlashcardReview } from "@/api/flashcards.api";
+import { fetchDueCardCount, fetchDueFlashcards, submitFlashcardReview } from "@/api/flashcards.api";
 import { checkClozeAnswer, type MatchResult } from "@/lib/clozeMatcher";
 import { ClozeCardView } from "@/components/flashcards/ClozeCardView";
 import { ClozeHeaderBar } from "@/components/flashcards/ClozeHeaderBar";
@@ -23,11 +23,13 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
   const [isRevealedWithoutAttempt, setIsRevealed] = useState(false);
   const [lenientAccents, setLenientAccents] = useState(true);
   const [stats, setStats] = useState<FlashcardSessionStats>({ total: 0, completed: 0, correct: 0, streak: 0, graduated: 0 });
+  const [remainingDue, setRemainingDue] = useState(0);
 
   const loadCards = useCallback(async () => {
     setLoading(true);
     try {
-      const dueCards = await fetchDueFlashcards(userId, 40);
+      const [dueCards, totalDue] = await Promise.all([fetchDueFlashcards(userId, 20), fetchDueCardCount(userId)]);
+      setRemainingDue(Math.max(0, totalDue - dueCards.length));
       setCards(dueCards);
       setCurrentIndex(0);
       setStats({ total: dueCards.length, completed: 0, correct: 0, streak: 0, graduated: 0 });
@@ -99,7 +101,7 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
 
   if (loading) return <div className="max-w-2xl mx-auto py-20 text-center font-mono text-sm text-[#666666] animate-pulse">Loading due flashcards...</div>;
   if (cards.length === 0) return <FlashcardEmptyDeck />;
-  if (currentIndex >= cards.length) return <FlashcardSummaryScreen stats={stats} onRestart={loadCards} />;
+  if (currentIndex >= cards.length) return <FlashcardSummaryScreen stats={stats} remainingCount={remainingDue} onRestart={loadCards} />;
 
   return (
     <div className="max-w-3xl mx-auto py-6 px-4">

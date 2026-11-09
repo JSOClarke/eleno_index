@@ -25,7 +25,7 @@ function normalizeDynamicCard(row: any, userId: string): UserFlashcard {
   };
 }
 
-export async function fetchDueFlashcards(userId: string, limit = 30): Promise<UserFlashcard[]> {
+export async function fetchDueFlashcards(userId: string, limit = 20): Promise<UserFlashcard[]> {
   const { data, error } = await supabase.rpc("get_due_flashcards_dynamic", {
     p_user_id: userId,
     p_limit: limit,
@@ -111,7 +111,7 @@ export async function submitFlashcardReview(card: UserFlashcard, isCorrect: bool
     srs_due_at: dueAt.toISOString(),
     srs_review_count: card.review_count + 1,
     srs_consecutive_correct: isCorrect ? card.consecutive_correct + 1 : 0,
-    srs_last_reviewed_at: new Date().toISOString(),
+    last_reviewed_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
 
