@@ -33,7 +33,22 @@ export const ClozeInputForm: React.FC<ClozeInputFormProps> = ({
   }, [disabled]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    // Reveal answer: Ctrl+Enter or Alt+R
+    if ((e.ctrlKey && e.key === "Enter") || (e.altKey && e.key.toLowerCase() === "r")) {
+      e.preventDefault();
+      onReveal();
+      return;
+    }
+
+    // Letter hint: Alt+H or Ctrl+H or F1
+    if ((e.altKey && e.key.toLowerCase() === "h") || (e.ctrlKey && e.key.toLowerCase() === "h") || e.key === "F1") {
+      e.preventDefault();
+      onHint();
+      return;
+    }
+
+    // Normal Check: Enter
+    if (e.key === "Enter" && !e.ctrlKey && !e.altKey) {
       e.preventDefault();
       if (input.trim()) onSubmit();
     }
@@ -81,13 +96,15 @@ export const ClozeInputForm: React.FC<ClozeInputFormProps> = ({
               type="button"
               disabled={disabled}
               onClick={onHint}
-              className="inline-flex items-center gap-1 text-[#666666] hover:text-[#111111] cursor-pointer"
+              title="Shortcut: Alt+H or F1"
+              className="inline-flex items-center gap-1.5 text-[#666666] hover:text-[#111111] cursor-pointer"
             >
               <HelpCircle className="w-3.5 h-3.5" />
-              <span>Letter hint</span>
+              <span>Hint</span>
+              <kbd className="px-1.5 py-0.5 bg-[#F2F2F0] border border-[#CCCCCC] text-[10px]">Alt+H</kbd>
             </button>
           ) : (
-            <span className="text-[#111111] font-semibold">Hint shown</span>
+            <span className="text-[#111111] font-semibold">Hint revealed</span>
           )}
         </div>
 
@@ -95,10 +112,12 @@ export const ClozeInputForm: React.FC<ClozeInputFormProps> = ({
           type="button"
           disabled={disabled}
           onClick={onReveal}
-          className="inline-flex items-center gap-1 text-[#888888] hover:text-[#111111] cursor-pointer"
+          title="Shortcut: Ctrl+Enter"
+          className="inline-flex items-center gap-1.5 text-[#888888] hover:text-[#111111] cursor-pointer"
         >
           <Key className="w-3.5 h-3.5" />
-          <span>Reveal answer</span>
+          <span>Reveal</span>
+          <kbd className="px-1.5 py-0.5 bg-[#F2F2F0] border border-[#CCCCCC] text-[10px]">Ctrl+Enter</kbd>
         </button>
       </div>
     </div>

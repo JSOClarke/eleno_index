@@ -19,7 +19,10 @@ export const ClozeFeedbackPanel: React.FC<ClozeFeedbackPanelProps> = ({
   const isCorrect = matchResult?.isMatch && !isRevealedWithoutAttempt;
 
   useEffect(() => {
+    // 250ms guard prevents the submission Enter key from accidentally advancing the feedback card
+    const mountedAt = Date.now();
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (Date.now() - mountedAt < 250) return;
       if (e.code === "Space" || e.key === "Enter") {
         e.preventDefault();
         onContinue();
@@ -101,7 +104,7 @@ export const ClozeFeedbackPanel: React.FC<ClozeFeedbackPanelProps> = ({
         >
           <span>CONTINUE</span>
           <ArrowRight className="w-4 h-4" />
-          <span className="hidden sm:inline text-xs text-[#888888] font-normal">[Space]</span>
+          <span className="hidden sm:inline text-xs text-[#888888] font-normal">[Space or Enter]</span>
         </button>
       </div>
     </div>
