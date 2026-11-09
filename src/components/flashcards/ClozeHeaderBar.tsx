@@ -24,6 +24,7 @@ export const ClozeHeaderBar: React.FC<ClozeHeaderBarProps> = ({
   lenientAccents,
   onToggleLenient,
 }) => {
+  const remaining = Math.max(0, totalCards - currentIndex);
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E2E2DF] pb-3 mb-6">
       <div className="flex items-center gap-3">
@@ -35,7 +36,7 @@ export const ClozeHeaderBar: React.FC<ClozeHeaderBarProps> = ({
           <ArrowLeft className="w-4 h-4 text-[#111111]" />
         </Link>
         <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#111111]">
-          CARD {currentIndex + 1} OF {totalCards}
+          {remaining} REMAINING
         </span>
         <span
           className={`border border-[#111111] px-2 py-0.5 font-mono text-[11px] font-bold ${
