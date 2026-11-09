@@ -9,7 +9,7 @@ interface SentenceBankCardProps {
   targetCanonicalId: string;
   statusMap: Record<string, UserVocabStatus>;
   fallbackContextLabel: string;
-  onSelectToken: (token: SentenceToken) => void;
+  onSelectToken: (token: SentenceToken, entry: BankSentence) => void;
 }
 
 export const SentenceBankCard: React.FC<SentenceBankCardProps> = ({
@@ -37,7 +37,7 @@ export const SentenceBankCard: React.FC<SentenceBankCardProps> = ({
         tokens={entry.tokens}
         targetCanonicalId={targetCanonicalId}
         statusMap={statusMap}
-        onSelectToken={onSelectToken}
+        onSelectToken={(tok) => onSelectToken(tok, entry)}
       />
       »
     </p>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { InputHubBrandLogo } from "@/components/brand/InputHubBrandLogo";
+import { FlashcardNavbarBadge } from "@/components/flashcards/FlashcardNavbarBadge";
 import { MobileNavDrawer } from "./MobileNavDrawer";
 import type { UserProfile } from "@/types/vocabulary.types";
 
@@ -32,12 +33,14 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
       label: `Known words (${knownCount})`,
       match: (p: string) => p === "/known-words",
     },
+    { to: "/reviews", label: "Reviews", match: (p: string) => p === "/reviews" },
   ];
   const drawerItems = [
     { to: "/", label: "Catalogue" },
     { to: "/saved", label: "Saved", count: savedCount },
     { to: "/history", label: "History" },
     { to: "/known-words", label: "Known words", count: knownCount },
+    { to: "/reviews", label: "Reviews" },
   ];
   const activeTo = navItems.find((item) => item.match(pathname))?.to;
 
@@ -82,6 +85,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           </div>
 
           <div className="hidden items-center gap-2 font-mono text-xs text-[#555555] sm:flex sm:gap-4">
+            <FlashcardNavbarBadge userId={user?.id} />
             <span className="hidden lg:inline">
               Spanish · target level <strong className="text-[#111111]">B1</strong>
             </span>

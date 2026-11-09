@@ -116,6 +116,11 @@ export const WordDockContent: React.FC<WordDockContentProps> = ({
         canonicalId={entry.id}
         status={status}
         onSetStatus={onSetStatus}
+        surface={surface}
+        lemma={entry.lemma}
+        pos={entry.pos}
+        sentence={sentence}
+        definitions={entry.definitions}
       />
     </div>
   );

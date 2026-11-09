@@ -20,6 +20,12 @@ interface SentenceBankDrawerProps {
 
 type Mode = "all" | "iplus1";
 
+interface TokenSelection {
+  token: SentenceToken;
+  sentence: string;
+  sourceContext?: string;
+}
+
 export const SentenceBankDrawer: React.FC<SentenceBankDrawerProps> = ({
   canonicalId,
   mediaItemId,
@@ -33,12 +39,12 @@ export const SentenceBankDrawer: React.FC<SentenceBankDrawerProps> = ({
   const [iPlusOne, setIPlusOne] = useState<BankSentence[] | null>(null);
   const [loadingAll, setLoadingAll] = useState(true);
   const [loadingI, setLoadingI] = useState(false);
-  const [selectedToken, setSelectedToken] = useState<SentenceToken | null>(null);
+  const [selection, setSelection] = useState<TokenSelection | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     setMode("all");
-    setSelectedToken(null);
+    setSelection(null);
     setAllSentences(null);
     setIPlusOne(null);
   }, [canonicalId, mediaItemId]);
@@ -56,17 +62,13 @@ export const SentenceBankDrawer: React.FC<SentenceBankDrawerProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [canonicalId, mediaItemId]);
+  }, [canonicalId, mediaItemId, reloadKey]);
 
   useEffect(() => {
-    if (mode !== "iplus1") return;
-    if (!userId) {
-      setIPlusOne([]);
-      return;
-    }
+    if (mode !== "iplus1" || iPlusOne !== null || !userId) return;
     let cancelled = false;
     setLoadingI(true);
-    fetchIPlusOneSentences(canonicalId, userId, mediaItemId, 10)
+    fetchIPlusOneSentences(canonicalId, userId, mediaItemId, 3)
       .then((rows) => {
         if (!cancelled) setIPlusOne(rows);
       })
@@ -76,37 +78,33 @@ export const SentenceBankDrawer: React.FC<SentenceBankDrawerProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [mode, canonicalId, userId, mediaItemId, reloadKey]);
+  }, [mode, canonicalId, userId, mediaItemId, iPlusOne, reloadKey]);
+
+  const refreshIPlusOne = () => {
+    setIPlusOne(null);
+    setReloadKey((prev) => prev + 1);
+  };
 
   const sentences = mode === "all" ? allSentences : iPlusOne;
   const loading = mode === "all" ? loadingAll : loadingI;
-  const changeMode = (next: Mode) => {
-    setMode(next);
-    setSelectedToken(null);
-  };
-  const refreshIPlusOne = () => {
-    window.setTimeout(() => setReloadKey((key) => key + 1), 600);
-  };
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <SentenceBankModeToggle mode={mode} userId={userId} onChange={changeMode} />
-        <span className="font-mono text-[10px] uppercase tracking-wider text-[#666666]">
-          {sentences ? `${sentences.length} found` : "loading"}
+    <div className="border-t border-[#E2E2DF] pt-3 space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-mono text-[10px] uppercase font-bold text-[#666666]">
+          AUTHENTIC CITATIONS ({sentences?.length ?? 0})
         </span>
+        <SentenceBankModeToggle mode={mode} onChange={setMode} userId={userId} />
       </div>
 
       {loading ? (
-        <div className="border-l-2 border-[#CCCCCC] pl-3 py-1 space-y-2 animate-pulse">
-          <div className="h-2.5 w-24 bg-[#DFDFDC]" />
-          <div className="h-3.5 w-11/12 bg-[#DFDFDC]" />
-          <div className="h-3.5 w-3/5 bg-[#E6E6E3]" />
+        <div className="text-xs font-mono text-[#888888] animate-pulse py-2">
+          Querying sentence_bank...
         </div>
       ) : !sentences || sentences.length === 0 ? (
-        <div className="font-mono text-xs text-[#666666]">
+        <div className="text-xs font-mono text-[#888888] italic py-1">
           {mode === "iplus1"
-            ? "No sentence where this word is the only unknown word yet."
+            ? "No i+1 sentences found for this word with your current vocabulary."
             : "No indexed example sentence found in sentence_bank."}
         </div>
       ) : (
@@ -119,17 +117,21 @@ export const SentenceBankDrawer: React.FC<SentenceBankDrawerProps> = ({
               targetCanonicalId={canonicalId}
               statusMap={statusMap}
               fallbackContextLabel={fallbackContextLabel}
-              onSelectToken={setSelectedToken}
+              onSelectToken={(tok, ent) =>
+                setSelection({ token: tok, sentence: ent.sentence, sourceContext: ent.source_context })
+              }
             />
           ))}
         </div>
       )}
 
-      {selectedToken && (
+      {selection && (
         <SentenceTokenInspector
-          token={selectedToken}
-          status={selectedToken.canonical_id ? statusMap[selectedToken.canonical_id] : undefined}
-          onClose={() => setSelectedToken(null)}
+          token={selection.token}
+          sentenceText={selection.sentence}
+          sourceContext={selection.sourceContext}
+          status={selection.token.canonical_id ? statusMap[selection.token.canonical_id] : undefined}
+          onClose={() => setSelection(null)}
           onSetWordStatus={onSetWordStatus}
           onAfterChange={refreshIPlusOne}
         />

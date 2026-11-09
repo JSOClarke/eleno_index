@@ -1,19 +1,14 @@
 import React, { useState } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { AuthModal } from "@/components/layout/AuthModal";
 import { TopNavBar } from "@/components/layout/TopNavBar";
-import { KnownWordsView } from "@/components/views/KnownWordsView";
+import { AppRoutes } from "@/components/layout/AppRoutes";
 import { ReaderAuthGate } from "@/components/views/ReaderAuthGate";
-import { SignInNotice } from "@/components/views/SignInNotice";
 import { useAuth } from "@/hooks/useAuth";
 import { useCatalogueData } from "@/hooks/useCatalogueData";
 import { useFilterState } from "@/hooks/useFilterState";
 import { useUserVocabulary } from "@/hooks/useUserVocabulary";
-import { CataloguePage } from "@/pages/CataloguePage";
-import { InspectorPage } from "@/pages/InspectorPage";
-import { AdminImportPage } from "@/pages/AdminImportPage";
 import { ReaderPage } from "@/pages/ReaderPage";
-import { WorkPage } from "@/pages/WorkPage";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
@@ -51,13 +46,6 @@ export const App: React.FC = () => {
     onToggleWord: handleTogglePreviewWord,
   };
 
-  const authModal = (    <AuthModal
-      isOpen={authModalOpen}
-      onClose={() => setAuthModalOpen(false)}
-      onSignIn={auth.signIn}
-      onSignUp={auth.signUp}
-    />
-  );
   if (location.pathname.startsWith("/read/")) {
     return (
       <ReaderAuthGate
@@ -80,6 +68,7 @@ export const App: React.FC = () => {
       </ReaderAuthGate>
     );
   }
+
   return (
     <div className="min-h-[100dvh] flex flex-col bg-white text-[#111111]">
       <TopNavBar
@@ -90,61 +79,27 @@ export const App: React.FC = () => {
         onSignOut={auth.signOut}
       />
       <main className="max-w-[1380px] w-full mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-8 flex-1">
-        <Routes>
-          <Route
-            path="/"
-            element={<CataloguePage mode="catalogue" {...sharedCataloguePageProps} />}
-          />
-          <Route
-            path="/saved"
-            element={<CataloguePage mode="saved" {...sharedCataloguePageProps} />}
-          />
-          <Route
-            path="/history"
-            element={<CataloguePage mode="history" {...sharedCataloguePageProps} />}
-          />
-          <Route
-            path="/known-words"
-            element={
-              auth.user ? (
-                <KnownWordsView
-                  userId={auth.user?.id}
-                  statusMap={userVocab.statusMap}
-                  knownCount={userVocab.knownCount}
-                  onSetWordStatus={userVocab.setWordStatus}
-                  onReloadVocabulary={handleReloadAfterPacks}
-                />
-              ) : (
-                <SignInNotice
-                  title="Vocabulary Ledger"
-                  message="Sign in to see the words you've marked as known or learning."
-                  onSignIn={() => setAuthModalOpen(true)}
-                />
-              )
-            }
-          />
-          <Route
-            path="/media/:mediaId"
-            element={
-              <InspectorPage
-                items={catalogue.items}
-                catalogueLoading={catalogue.loading}
-                userId={auth.user?.id}
-                statusMap={userVocab.statusMap}
-                onRecordHistory={filterState.recordHistory}
-                onRequireAuth={() => setAuthModalOpen(true)}
-                onSetWordStatus={userVocab.setWordStatus}
-                onBubbleBookWordToggle={catalogue.applyOptimisticWordToggle}
-              />
-            }
-          />
-          <Route path="/work/:workId" element={<WorkPage items={catalogue.items} loading={catalogue.loading} isAuthenticated={Boolean(auth.user)} onRequireAuth={() => setAuthModalOpen(true)} />} />
-          <Route path="/admin/imports" element={auth.user ? <AdminImportPage /> : <SignInNotice title="Import Workbench" message="Sign in to stage and audit book imports." onSignIn={() => setAuthModalOpen(true)} />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <AppRoutes
+          user={auth.user}
+          items={catalogue.items}
+          catalogueLoading={catalogue.loading}
+          statusMap={userVocab.statusMap}
+          knownCount={userVocab.knownCount}
+          sharedCataloguePageProps={sharedCataloguePageProps}
+          onRequireAuth={() => setAuthModalOpen(true)}
+          onSetWordStatus={userVocab.setWordStatus}
+          onBubbleBookWordToggle={catalogue.applyOptimisticWordToggle}
+          onRecordHistory={filterState.recordHistory}
+          onReloadAfterPacks={handleReloadAfterPacks}
+        />
       </main>
 
-      {authModal}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onSignIn={auth.signIn}
+        onSignUp={auth.signUp}
+      />
     </div>
   );
 };

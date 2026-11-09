@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Zap } from "lucide-react";
 import { fetchCanonicalGlosses } from "@/api/sentence.api";
+import { upsertWordFlashcard } from "@/api/flashcards.api";
+import { useAuth } from "@/hooks/useAuth";
 import type { CanonicalGloss, SentenceToken } from "@/types/sentence.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface SentenceTokenInspectorProps {
   token: SentenceToken;
+  sentenceText?: string;
+  sourceContext?: string;
   status?: UserVocabStatus;
   onClose: () => void;
   onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
@@ -14,11 +18,14 @@ interface SentenceTokenInspectorProps {
 
 export const SentenceTokenInspector: React.FC<SentenceTokenInspectorProps> = ({
   token,
+  sentenceText,
+  sourceContext,
   status,
   onClose,
   onSetWordStatus,
   onAfterChange,
 }) => {
+  const { user } = useAuth();
   const [gloss, setGloss] = useState<CanonicalGloss | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -46,9 +53,28 @@ export const SentenceTokenInspector: React.FC<SentenceTokenInspectorProps> = ({
 
   const isLearning = status === "learning";
   const isKnown = status === "known";
-  const toggle = (target: "known" | "learning") => {
-    onSetWordStatus(token.canonical_id as string, status === target ? null : target);
+
+  const toggle = async (target: "known" | "learning") => {
+    const canonicalId = token.canonical_id as string;
+    const nextStatus = status === target ? null : target;
+    onSetWordStatus(canonicalId, nextStatus);
     onAfterChange?.();
+
+    if (nextStatus === "learning" && user && sentenceText) {
+      try {
+        await upsertWordFlashcard(user.id, {
+          canonical_id: canonicalId,
+          sentence: sentenceText,
+          target_surface: token.surface,
+          target_lemma: gloss?.lemma || token.lemma || token.surface,
+          target_pos: gloss?.pos || token.pos || null,
+          english_definition: gloss?.definitions?.[0] || token.surface,
+          source_context: sourceContext,
+        });
+      } catch (err) {
+        console.warn("Failed to create flashcard:", err);
+      }
+    }
   };
 
   return (
@@ -78,8 +104,8 @@ export const SentenceTokenInspector: React.FC<SentenceTokenInspectorProps> = ({
           <div className="h-3.5 w-3/4 bg-[#DFDFDC] animate-pulse" />
         ) : gloss && gloss.definitions.length > 0 ? (
           <ol className="list-decimal list-inside space-y-0.5 font-sans leading-snug">
-            {gloss.definitions.map((definition, index) => (
-              <li key={index}>{definition}</li>
+            {gloss.definitions.map((def, idx) => (
+              <li key={idx}>{def}</li>
             ))}
           </ol>
         ) : (
@@ -93,13 +119,14 @@ export const SentenceTokenInspector: React.FC<SentenceTokenInspectorProps> = ({
         <button
           type="button"
           onClick={() => toggle("learning")}
-          className={`px-2 py-1 border cursor-pointer ${
+          className={`inline-flex items-center gap-1 px-2 py-1 border cursor-pointer ${
             isLearning
               ? "border-[#111111] bg-[#B8FF01] text-[#111111] font-semibold"
               : "border-[#CCCCCC] bg-white text-[#555555] hover:border-[#111111]"
           }`}
         >
-          {isLearning ? "● Learning" : "Learn"}
+          {isLearning ? <Zap className="w-3 h-3 fill-current" /> : null}
+          <span>{isLearning ? "Learning · SRS" : "Learn"}</span>
         </button>
         <button
           type="button"
