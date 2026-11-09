@@ -1,7 +1,5 @@
-import React, { useState } from "react";
-import { Zap, Check } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { upsertWordFlashcard } from "@/api/flashcards.api";
+import React from "react";
+import { Zap } from "lucide-react";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface WordLedgerSectionProps {
@@ -19,55 +17,26 @@ export const WordLedgerSection: React.FC<WordLedgerSectionProps> = ({
   canonicalId,
   status,
   onSetStatus,
-  surface,
-  lemma,
-  pos,
-  sentence,
-  definitions = [],
 }) => {
-  const { user } = useAuth();
-  const [flashcardSaved, setFlashcardSaved] = useState(false);
   const isLearning = status === "learning";
   const isKnown = status === "known";
-
-  const handleToggleLearning = async () => {
-    const nextStatus = isLearning ? null : "learning";
-    onSetStatus(canonicalId, nextStatus);
-
-    if (nextStatus === "learning" && user && sentence) {
-      try {
-        await upsertWordFlashcard(user.id, {
-          canonical_id: canonicalId,
-          sentence,
-          target_surface: surface || lemma || "",
-          target_lemma: lemma || surface || "",
-          target_pos: pos || null,
-          english_definition: definitions[0] || lemma || surface || "",
-        });
-        setFlashcardSaved(true);
-        setTimeout(() => setFlashcardSaved(false), 3000);
-      } catch (err) {
-        console.warn("Failed to create flashcard:", err);
-      }
-    }
-  };
 
   return (
     <div className="space-y-2 border-t-2 border-[#111111] pt-3">
       <div className="flex items-center justify-between font-mono text-[10px] font-bold uppercase text-[#666666]">
         <span>YOUR VOCABULARY LEDGER</span>
-        {flashcardSaved && (
-          <span className="flex items-center gap-1 text-[#2E7D32]">
-            <Check className="w-3 h-3" /> Flashcard created
+        {isLearning && (
+          <span className="flex items-center gap-1 text-[#111111] font-bold">
+            <Zap className="w-3 h-3 fill-[#B8FF01]" /> In SRS Deck
           </span>
         )}
       </div>
       <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
-          onClick={handleToggleLearning}
-          className={`flex items-center justify-center gap-1 border border-[#111111] py-2 font-mono text-xs font-bold cursor-pointer ${
-            isLearning ? "bg-[#B8FF01] text-[#111111]" : "bg-white text-[#111111]"
+          onClick={() => onSetStatus(canonicalId, isLearning ? null : "learning")}
+          className={`flex items-center justify-center gap-1.5 border border-[#111111] py-2 font-mono text-xs font-bold cursor-pointer transition-colors ${
+            isLearning ? "bg-[#B8FF01] text-[#111111]" : "bg-white text-[#111111] hover:bg-[#F4F4F2]"
           }`}
         >
           {isLearning ? <Zap className="w-3.5 h-3.5 fill-current" /> : null}
@@ -76,8 +45,8 @@ export const WordLedgerSection: React.FC<WordLedgerSectionProps> = ({
         <button
           type="button"
           onClick={() => onSetStatus(canonicalId, isKnown ? null : "known")}
-          className={`border border-[#111111] py-2 font-mono text-xs font-bold cursor-pointer ${
-            isKnown ? "bg-[#111111] text-white" : "bg-white text-[#111111]"
+          className={`border border-[#111111] py-2 font-mono text-xs font-bold cursor-pointer transition-colors ${
+            isKnown ? "bg-[#111111] text-white" : "bg-white text-[#111111] hover:bg-[#F4F4F2]"
           }`}
         >
           {isKnown ? "Known ✓" : "Mark Known"}
@@ -86,7 +55,7 @@ export const WordLedgerSection: React.FC<WordLedgerSectionProps> = ({
       <button
         type="button"
         onClick={() => onSetStatus(canonicalId, null)}
-        className="w-full py-0.5 text-center font-mono text-[10px] text-[#888888] cursor-pointer"
+        className="w-full py-0.5 text-center font-mono text-[10px] text-[#888888] cursor-pointer hover:text-[#111111]"
       >
         Reset to Unfamiliar / Default
       </button>

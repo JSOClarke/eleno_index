@@ -9,6 +9,7 @@ import type { UserProfile } from "@/types/vocabulary.types";
 interface TopNavBarProps {
   savedCount: number;
   knownCount: number;
+  learningCount?: number;
   user: UserProfile | null;
   onOpenAuth: () => void;
   onSignOut: () => void;
@@ -17,6 +18,7 @@ interface TopNavBarProps {
 export const TopNavBar: React.FC<TopNavBarProps> = ({
   savedCount,
   knownCount,
+  learningCount = 0,
   user,
   onOpenAuth,
   onSignOut,
@@ -85,7 +87,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           </div>
 
           <div className="hidden items-center gap-2 font-mono text-xs text-[#555555] sm:flex sm:gap-4">
-            <FlashcardNavbarBadge userId={user?.id} />
+            <FlashcardNavbarBadge userId={user?.id} learningCount={learningCount} />
             <span className="hidden lg:inline">
               Spanish · target level <strong className="text-[#111111]">B1</strong>
             </span>

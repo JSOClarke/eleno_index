@@ -75,9 +75,15 @@ export function useUserVocabulary(user: UserProfile | null) {
     [statusMap]
   );
 
+  const learningCount = useMemo(
+    () => Object.values(statusMap).filter((s) => s === "learning").length,
+    [statusMap]
+  );
+
   return {
     statusMap,
     knownCount,
+    learningCount,
     loading,
     setWordStatus,
     reloadVocab: loadVocab,

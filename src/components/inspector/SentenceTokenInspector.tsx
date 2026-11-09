@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { X, Zap } from "lucide-react";
 import { fetchCanonicalGlosses } from "@/api/sentence.api";
-import { upsertWordFlashcard } from "@/api/flashcards.api";
-import { useAuth } from "@/hooks/useAuth";
 import type { CanonicalGloss, SentenceToken } from "@/types/sentence.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
@@ -18,14 +16,11 @@ interface SentenceTokenInspectorProps {
 
 export const SentenceTokenInspector: React.FC<SentenceTokenInspectorProps> = ({
   token,
-  sentenceText,
-  sourceContext,
   status,
   onClose,
   onSetWordStatus,
   onAfterChange,
 }) => {
-  const { user } = useAuth();
   const [gloss, setGloss] = useState<CanonicalGloss | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -54,27 +49,10 @@ export const SentenceTokenInspector: React.FC<SentenceTokenInspectorProps> = ({
   const isLearning = status === "learning";
   const isKnown = status === "known";
 
-  const toggle = async (target: "known" | "learning") => {
+  const toggle = (target: "known" | "learning") => {
     const canonicalId = token.canonical_id as string;
-    const nextStatus = status === target ? null : target;
-    onSetWordStatus(canonicalId, nextStatus);
+    onSetWordStatus(canonicalId, status === target ? null : target);
     onAfterChange?.();
-
-    if (nextStatus === "learning" && user && sentenceText) {
-      try {
-        await upsertWordFlashcard(user.id, {
-          canonical_id: canonicalId,
-          sentence: sentenceText,
-          target_surface: token.surface,
-          target_lemma: gloss?.lemma || token.lemma || token.surface,
-          target_pos: gloss?.pos || token.pos || null,
-          english_definition: gloss?.definitions?.[0] || token.surface,
-          source_context: sourceContext,
-        });
-      } catch (err) {
-        console.warn("Failed to create flashcard:", err);
-      }
-    }
   };
 
   return (

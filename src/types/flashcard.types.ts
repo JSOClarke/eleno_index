@@ -15,6 +15,7 @@ export interface UserFlashcard {
   review_count: number;
   consecutive_correct: number;
   last_reviewed_at: string | null;
+  is_i_plus_one?: boolean;
   created_at?: string;
   updated_at?: string;
 }

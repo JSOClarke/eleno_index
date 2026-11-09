@@ -43,11 +43,16 @@ export const ClozeCardView: React.FC<ClozeCardViewProps> = ({
         <div className="flex items-center gap-2 text-[#666666]">
           <BookOpen className="w-3.5 h-3.5" />
           <span className="font-semibold text-[#111111]">
-            {card.source_media_title || "Unknown work"}
+            {card.source_media_title || "InputHub Library"}
           </span>
           {card.source_context && <span>· {card.source_context}</span>}
         </div>
         <div className="flex items-center gap-2">
+          {card.is_i_plus_one && (
+            <span className="bg-[#B8FF01] text-[#111111] border border-[#111111] px-1.5 py-0.5 font-bold">
+              i+1 MATCH
+            </span>
+          )}
           <span className="border border-[#111111] px-2 py-0.5 bg-[#F8F8F6] font-bold text-[#111111]">
             SRS Level {card.level}/6
           </span>

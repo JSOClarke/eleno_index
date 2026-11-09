@@ -74,6 +74,7 @@ export const App: React.FC = () => {
       <TopNavBar
         savedCount={filterState.savedIds.size}
         knownCount={userVocab.knownCount}
+        learningCount={userVocab.learningCount}
         user={auth.user}
         onOpenAuth={() => setAuthModalOpen(true)}
         onSignOut={auth.signOut}
