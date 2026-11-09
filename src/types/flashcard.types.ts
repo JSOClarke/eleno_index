@@ -1,3 +1,6 @@
+export type ReviewSessionMode = "auto" | "recognition" | "cloze";
+export type CardDisplayMode = "recognition" | "cloze";
+
 export interface UserFlashcard {
   id: string;
   user_id: string;

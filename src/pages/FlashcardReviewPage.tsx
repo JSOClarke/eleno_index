@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { Sparkles, BookOpen } from "lucide-react";
 import { fetchDueFlashcards, submitFlashcardReview } from "@/api/flashcards.api";
 import { checkClozeAnswer, type MatchResult } from "@/lib/clozeMatcher";
 import { ClozeCardView } from "@/components/flashcards/ClozeCardView";
 import { ClozeHeaderBar } from "@/components/flashcards/ClozeHeaderBar";
+import { FlashcardEmptyDeck } from "@/components/flashcards/FlashcardEmptyDeck";
 import { FlashcardSummaryScreen } from "@/components/flashcards/FlashcardSummaryScreen";
-import type { FlashcardSessionStats, UserFlashcard } from "@/types/flashcard.types";
+import type { CardDisplayMode, FlashcardSessionStats, ReviewSessionMode, UserFlashcard } from "@/types/flashcard.types";
 
 interface FlashcardReviewPageProps {
   userId: string;
@@ -16,19 +15,14 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
   const [cards, setCards] = useState<UserFlashcard[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [sessionMode, setSessionMode] = useState<ReviewSessionMode>("auto");
   const [input, setInput] = useState("");
   const [hintRevealed, setHintRevealed] = useState(false);
   const [feedbackActive, setFeedbackActive] = useState(false);
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [isRevealedWithoutAttempt, setIsRevealed] = useState(false);
   const [lenientAccents, setLenientAccents] = useState(true);
-  const [stats, setStats] = useState<FlashcardSessionStats>({
-    total: 0,
-    completed: 0,
-    correct: 0,
-    streak: 0,
-    graduated: 0,
-  });
+  const [stats, setStats] = useState<FlashcardSessionStats>({ total: 0, completed: 0, correct: 0, streak: 0, graduated: 0 });
 
   const loadCards = useCallback(async () => {
     setLoading(true);
@@ -47,6 +41,22 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
   }, [loadCards]);
 
   const currentCard = cards[currentIndex];
+  const activeCardMode: CardDisplayMode = sessionMode === "auto" ? (currentCard?.level === 1 ? "recognition" : "cloze") : sessionMode;
+
+  const handleGradeRecognition = async (isCorrect: boolean) => {
+    if (!currentCard) return;
+    const updated = await submitFlashcardReview(currentCard, isCorrect);
+    if (isCorrect) window.dispatchEvent(new CustomEvent("flashcard-reviewed"));
+    setCards((prev) => (isCorrect ? prev.map((c, i) => (i === currentIndex ? updated : c)) : [...prev.map((c, i) => (i === currentIndex ? updated : c)), updated]));
+    setStats((s) => ({
+      ...s,
+      completed: s.completed + 1,
+      correct: isCorrect ? s.correct + 1 : s.correct,
+      streak: isCorrect ? s.streak + 1 : 0,
+      graduated: updated.level >= 2 ? s.graduated + 1 : s.graduated,
+    }));
+    setCurrentIndex((prev) => prev + 1);
+  };
 
   const handleSubmit = async () => {
     if (!currentCard || !input.trim() || feedbackActive) return;
@@ -87,38 +97,9 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
     setCurrentIndex((prev) => prev + 1);
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-2xl mx-auto py-20 text-center font-mono text-sm text-[#666666] animate-pulse">
-        Loading due flashcards...
-      </div>
-    );
-  }
-
-  if (cards.length === 0) {
-    return (
-      <div className="max-w-md mx-auto py-16 px-4 text-center space-y-4">
-        <div className="inline-flex p-3 bg-[#F8F8F6] border border-[#111111]">
-          <Sparkles className="w-6 h-6 text-[#111111]" />
-        </div>
-        <h2 className="font-serif text-2xl font-bold text-[#111111]">Deck is All Clear!</h2>
-        <p className="font-mono text-xs text-[#666666]">
-          No flashcards are due right now. Mark words as learning while reading to create new cloze cards.
-        </p>
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#111111] text-[#B8FF01] font-mono text-xs font-bold border border-[#111111] hover:bg-[#222222]"
-        >
-          <BookOpen className="w-4 h-4" />
-          <span>BROWSE CATALOGUE</span>
-        </Link>
-      </div>
-    );
-  }
-
-  if (currentIndex >= cards.length) {
-    return <FlashcardSummaryScreen stats={stats} onRestart={loadCards} />;
-  }
+  if (loading) return <div className="max-w-2xl mx-auto py-20 text-center font-mono text-sm text-[#666666] animate-pulse">Loading due flashcards...</div>;
+  if (cards.length === 0) return <FlashcardEmptyDeck />;
+  if (currentIndex >= cards.length) return <FlashcardSummaryScreen stats={stats} onRestart={loadCards} />;
 
   return (
     <div className="max-w-3xl mx-auto py-6 px-4">
@@ -126,11 +107,15 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
         currentIndex={currentIndex}
         totalCards={cards.length}
         streak={stats.streak}
+        sessionMode={sessionMode}
+        onChangeSessionMode={setSessionMode}
+        activeCardMode={activeCardMode}
         lenientAccents={lenientAccents}
         onToggleLenient={() => setLenientAccents((prev) => !prev)}
       />
       <ClozeCardView
         card={currentCard}
+        cardMode={activeCardMode}
         input={input}
         onInputChange={setInput}
         onSubmit={handleSubmit}
@@ -141,6 +126,7 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
         matchResult={matchResult}
         isRevealedWithoutAttempt={isRevealedWithoutAttempt}
         onContinue={handleContinue}
+        onGradeRecognition={handleGradeRecognition}
       />
     </div>
   );
