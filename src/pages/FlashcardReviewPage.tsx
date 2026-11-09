@@ -56,6 +56,7 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
     setFeedbackActive(true);
 
     const updated = await submitFlashcardReview(currentCard, match.isMatch);
+    if (match.isMatch) window.dispatchEvent(new CustomEvent("flashcard-reviewed"));
     setCards((prev) => prev.map((c, i) => (i === currentIndex ? updated : c)));
     setStats((s) => ({
       ...s,

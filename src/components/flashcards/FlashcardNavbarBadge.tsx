@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Zap } from "lucide-react";
 import { fetchDueCardCount } from "@/api/flashcards.api";
@@ -12,24 +12,30 @@ export const FlashcardNavbarBadge: React.FC<FlashcardNavbarBadgeProps> = ({
   userId,
   learningCount = 0,
 }) => {
-  const [dueCount, setDueCount] = useState<number>(0);
+  const [dueCount, setDueCount] = useState<number | null>(null);
   const location = useLocation();
 
-  useEffect(() => {
+  const refreshCount = useCallback(() => {
     if (!userId) {
       setDueCount(0);
       return;
     }
-    let cancelled = false;
-    fetchDueCardCount(userId).then((count) => {
-      if (!cancelled) setDueCount(count);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [userId, learningCount, location.pathname]);
+    fetchDueCardCount(userId).then(setDueCount);
+  }, [userId]);
 
-  const displayCount = dueCount > 0 ? dueCount : learningCount;
+  useEffect(() => {
+    refreshCount();
+  }, [refreshCount, learningCount, location.pathname]);
+
+  useEffect(() => {
+    const onReviewed = () => {
+      setDueCount((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
+    };
+    window.addEventListener("flashcard-reviewed", onReviewed);
+    return () => window.removeEventListener("flashcard-reviewed", onReviewed);
+  }, []);
+
+  const displayCount = dueCount !== null ? dueCount : learningCount;
   if (!userId || displayCount <= 0) return null;
 
   return (
