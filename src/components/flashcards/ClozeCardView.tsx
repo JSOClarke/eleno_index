@@ -69,6 +69,8 @@ export const ClozeCardView: React.FC<ClozeCardViewProps> = ({
           <RecognitionSentenceDisplay
             sentence={card.sentence}
             targetSurface={card.target_surface}
+            targetLemma={card.target_lemma}
+            targetPos={card.target_pos}
           />
           <RecognitionActionPanel
             card={card}
