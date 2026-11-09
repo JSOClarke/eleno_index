@@ -38,7 +38,9 @@ export async function fetchDueFlashcards(userId: string, limit = 20): Promise<Us
 }
 
 export async function fetchFlashcardQueueSummary(userId: string): Promise<FlashcardQueueSummary> {
-  const { data, error } = await supabase.rpc("get_flashcard_queue_summary");
+  const { data, error } = await supabase.rpc("get_flashcard_queue_summary", {
+    p_user_id: userId,
+  });
   if (!error && Array.isArray(data) && data[0]) {
     return {
       dueReviews: Number(data[0].due_reviews || 0),

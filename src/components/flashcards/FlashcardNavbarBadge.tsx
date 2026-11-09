@@ -46,7 +46,6 @@ export const FlashcardNavbarBadge: React.FC<FlashcardNavbarBadgeProps> = ({
   }
 
   const { dueReviews, newUnstarted } = summary;
-  const pagedNew = Math.min(newUnstarted, Math.max(20 - dueReviews, 0));
 
   return (
     <Link
@@ -55,12 +54,12 @@ export const FlashcardNavbarBadge: React.FC<FlashcardNavbarBadgeProps> = ({
       className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#B8FF01] text-[#111111] border border-[#111111] font-mono text-xs font-bold hover:bg-[#a3e600] transition-colors shadow-sm"
     >
       <Zap className="w-3.5 h-3.5 fill-current" />
-      {dueReviews > 0 && pagedNew > 0 ? (
-        <span>{dueReviews} DUE · {pagedNew} NEW</span>
+      {dueReviews > 0 && newUnstarted > 0 ? (
+        <span>{dueReviews} DUE · {newUnstarted} NEW</span>
       ) : dueReviews > 0 ? (
         <span>{dueReviews} DUE</span>
       ) : (
-        <span>{pagedNew} NEW</span>
+        <span>{newUnstarted} NEW</span>
       )}
     </Link>
   );
