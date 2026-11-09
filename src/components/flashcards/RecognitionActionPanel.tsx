@@ -50,7 +50,7 @@ export const RecognitionActionPanel: React.FC<RecognitionActionPanelProps> = ({
   const handleSpeak = () => {
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(card.target_surface || card.target_lemma);
+    const u = new SpeechSynthesisUtterance(card.target_lemma || card.target_surface);
     u.lang = "es-ES";
     u.rate = 0.9;
     window.speechSynthesis.speak(u);
@@ -80,7 +80,7 @@ export const RecognitionActionPanel: React.FC<RecognitionActionPanelProps> = ({
       <div className="bg-[#F8F8F6] border-2 border-[#111111] p-5 shadow-[3px_3px_0px_#111111]">
         <div className="flex items-center justify-between border-b border-[#E2E2DF] pb-2 mb-3">
           <div className="flex items-center gap-2">
-            <span className="font-serif text-xl font-bold text-[#111111]">{card.target_surface}</span>
+            <span className="font-serif text-xl font-bold text-[#111111]">{card.target_lemma}</span>
             {card.target_pos && (
               <span className="font-mono text-xs px-1.5 py-0.5 bg-white border border-[#111111]">{card.target_pos}</span>
             )}
