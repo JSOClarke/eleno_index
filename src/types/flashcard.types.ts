@@ -40,6 +40,12 @@ export interface FlashcardSessionStats {
   graduated: number;
 }
 
+export interface FlashcardQueueSummary {
+  dueReviews: number;
+  newUnstarted: number;
+  totalLearning: number;
+}
+
 export interface CreateFlashcardPayload {
   canonical_id: string;
   sentence: string;

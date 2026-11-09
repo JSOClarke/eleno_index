@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Zap } from "lucide-react";
-import { fetchDueCardCount } from "@/api/flashcards.api";
+import { fetchFlashcardQueueSummary } from "@/api/flashcards.api";
+import type { FlashcardQueueSummary } from "@/types/flashcard.types";
 
 interface FlashcardNavbarBadgeProps {
   userId?: string | null;
@@ -12,15 +13,15 @@ export const FlashcardNavbarBadge: React.FC<FlashcardNavbarBadgeProps> = ({
   userId,
   learningCount = 0,
 }) => {
-  const [dueCount, setDueCount] = useState<number | null>(null);
+  const [summary, setSummary] = useState<FlashcardQueueSummary | null>(null);
   const location = useLocation();
 
   const refreshCount = useCallback(() => {
     if (!userId) {
-      setDueCount(0);
+      setSummary(null);
       return;
     }
-    fetchDueCardCount(userId).then(setDueCount);
+    fetchFlashcardQueueSummary(userId).then(setSummary);
   }, [userId]);
 
   useEffect(() => {
@@ -29,23 +30,38 @@ export const FlashcardNavbarBadge: React.FC<FlashcardNavbarBadgeProps> = ({
 
   useEffect(() => {
     const onReviewed = () => {
-      setDueCount((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
+      setSummary((prev) => {
+        if (!prev) return prev;
+        if (prev.dueReviews > 0) return { ...prev, dueReviews: prev.dueReviews - 1 };
+        if (prev.newUnstarted > 0) return { ...prev, newUnstarted: prev.newUnstarted - 1 };
+        return prev;
+      });
     };
     window.addEventListener("flashcard-reviewed", onReviewed);
     return () => window.removeEventListener("flashcard-reviewed", onReviewed);
   }, []);
 
-  const displayCount = dueCount !== null ? dueCount : learningCount;
-  if (!userId || displayCount <= 0) return null;
+  if (!userId || !summary || (summary.dueReviews <= 0 && summary.newUnstarted <= 0)) {
+    return null;
+  }
+
+  const { dueReviews, newUnstarted } = summary;
+  const pagedNew = Math.min(newUnstarted, Math.max(20 - dueReviews, 0));
 
   return (
     <Link
       to="/reviews"
-      title={`${displayCount} flashcard${displayCount > 1 ? "s" : ""} due for review`}
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#B8FF01] text-[#111111] border border-[#111111] font-mono text-xs font-bold hover:bg-[#a3e600] transition-colors"
+      title={`${dueReviews} due review(s), ${newUnstarted} new card(s) in backlog`}
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#B8FF01] text-[#111111] border border-[#111111] font-mono text-xs font-bold hover:bg-[#a3e600] transition-colors shadow-sm"
     >
       <Zap className="w-3.5 h-3.5 fill-current" />
-      <span>{displayCount} DUE</span>
+      {dueReviews > 0 && pagedNew > 0 ? (
+        <span>{dueReviews} DUE · {pagedNew} NEW</span>
+      ) : dueReviews > 0 ? (
+        <span>{dueReviews} DUE</span>
+      ) : (
+        <span>{pagedNew} NEW</span>
+      )}
     </Link>
   );
 };

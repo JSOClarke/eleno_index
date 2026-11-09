@@ -1,17 +1,19 @@
 import React from "react";
 import { RotateCcw, BookOpen, Award, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { FlashcardSessionStats } from "@/types/flashcard.types";
+import type { FlashcardQueueSummary, FlashcardSessionStats } from "@/types/flashcard.types";
 
 interface FlashcardSummaryScreenProps {
   stats: FlashcardSessionStats;
   remainingCount?: number;
+  queueSummary?: FlashcardQueueSummary | null;
   onRestart: () => void;
 }
 
 export const FlashcardSummaryScreen: React.FC<FlashcardSummaryScreenProps> = ({
   stats,
   remainingCount = 0,
+  queueSummary,
   onRestart,
 }) => {
   const accuracy = stats.completed > 0 ? Math.round((stats.correct / stats.completed) * 100) : 0;
@@ -27,7 +29,9 @@ export const FlashcardSummaryScreen: React.FC<FlashcardSummaryScreenProps> = ({
         </h1>
         <p className="font-mono text-sm text-[#666666]">
           {remainingCount > 0
-            ? `You completed this 20-card sprint. ${remainingCount} more card${remainingCount > 1 ? "s" : ""} due in your backlog.`
+            ? queueSummary && (queueSummary.dueReviews > 0 || queueSummary.newUnstarted > 0)
+              ? `Sprint completed. Backlog: ${queueSummary.dueReviews} due review${queueSummary.dueReviews !== 1 ? "s" : ""} · ${queueSummary.newUnstarted} new card${queueSummary.newUnstarted !== 1 ? "s" : ""}.`
+              : `You completed this 20-card sprint. ${remainingCount} more card${remainingCount > 1 ? "s" : ""} in your queue.`
             : "Awesome work! All due flashcards in your deck have been reviewed."}
         </p>
       </div>

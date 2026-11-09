@@ -12,6 +12,7 @@ interface ClozeHeaderBarProps {
   activeCardMode: CardDisplayMode;
   lenientAccents: boolean;
   onToggleLenient: () => void;
+  isNewCard?: boolean;
 }
 
 export const ClozeHeaderBar: React.FC<ClozeHeaderBarProps> = ({
@@ -23,11 +24,12 @@ export const ClozeHeaderBar: React.FC<ClozeHeaderBarProps> = ({
   activeCardMode,
   lenientAccents,
   onToggleLenient,
+  isNewCard = false,
 }) => {
   const remaining = Math.max(0, totalCards - currentIndex);
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E2E2DF] pb-3 mb-6">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
         <Link
           to="/"
           className="p-1.5 border border-[#111111] bg-white hover:bg-[#F4F4F2] cursor-pointer"
@@ -37,6 +39,15 @@ export const ClozeHeaderBar: React.FC<ClozeHeaderBarProps> = ({
         </Link>
         <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#111111]">
           {remaining} REMAINING
+        </span>
+        <span
+          className={`border border-[#111111] px-2 py-0.5 font-mono text-[11px] font-bold ${
+            isNewCard
+              ? "bg-[#E0F2FE] text-[#0369A1]"
+              : "bg-[#FEF3C7] text-[#92400E]"
+          }`}
+        >
+          {isNewCard ? "✨ NEW" : "🔄 REVIEW"}
         </span>
         <span
           className={`border border-[#111111] px-2 py-0.5 font-mono text-[11px] font-bold ${

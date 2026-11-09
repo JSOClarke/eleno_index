@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import type { CreateFlashcardPayload, UserFlashcard } from "@/types/flashcard.types";
+import type { CreateFlashcardPayload, FlashcardQueueSummary, UserFlashcard } from "@/types/flashcard.types";
 
 const INTERVALS = [1, 3, 7, 14, 30, 60];
 
@@ -34,51 +34,28 @@ export async function fetchDueFlashcards(userId: string, limit = 20): Promise<Us
   if (!error && Array.isArray(data)) {
     return data.map((row) => normalizeDynamicCard(row, userId));
   }
+  return [];
+}
 
-  // Fallback: direct query on user_vocabulary + canonical_lexical_entity
-  const { data: vocabRows, error: vocabErr } = await supabase
-    .from("user_vocabulary")
-    .select(`id, canonical_id, srs_level, srs_interval_days, srs_due_at, canonical_lexical_entity!inner (lemma, pos, definitions)`)
-    .eq("user_id", userId)
-    .eq("status", "learning")
-    .limit(limit);
-
-  if (vocabErr || !vocabRows) return [];
-
-  return vocabRows.map((r: any) => {
-    const cle = r.canonical_lexical_entity || {};
-    const lemma = String(cle.lemma || r.canonical_id);
-    const def = Array.isArray(cle.definitions) && cle.definitions[0] ? cle.definitions[0] : lemma;
-    return normalizeDynamicCard(
-      {
-        card_id: r.id,
-        canonical_id: r.canonical_id,
-        sentence: `Palabra en aprendizaje: ${lemma}.`,
-        target_surface: lemma,
-        target_lemma: lemma,
-        target_pos: cle.pos,
-        english_definition: def,
-        level: r.srs_level,
-        interval_days: r.srs_interval_days,
-        due_at: r.srs_due_at,
-        is_i_plus_one: false,
-      },
-      userId
-    );
-  });
+export async function fetchFlashcardQueueSummary(userId: string): Promise<FlashcardQueueSummary> {
+  const { data, error } = await supabase.rpc("get_flashcard_queue_summary");
+  if (!error && Array.isArray(data) && data[0]) {
+    return {
+      dueReviews: Number(data[0].due_reviews || 0),
+      newUnstarted: Number(data[0].new_unstarted || 0),
+      totalLearning: Number(data[0].total_learning || 0),
+    };
+  }
+  return { dueReviews: 0, newUnstarted: 0, totalLearning: 0 };
 }
 
 export async function fetchDueCardCount(userId: string): Promise<number> {
-  const { data, error } = await supabase.rpc("get_due_flashcard_count");
-  if (!error && typeof data === "number") return data;
-
-  const { count } = await supabase
-    .from("user_vocabulary")
-    .select("canonical_id", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .eq("status", "learning");
-
-  return count || 0;
+  const summary = await fetchFlashcardQueueSummary(userId);
+  if (summary.totalLearning > 0) {
+    return summary.dueReviews + Math.min(summary.newUnstarted, Math.max(20 - summary.dueReviews, 0));
+  }
+  const { data } = await supabase.rpc("get_due_flashcard_count");
+  return typeof data === "number" ? data : 0;
 }
 
 export async function submitFlashcardReview(card: UserFlashcard, isCorrect: boolean): Promise<UserFlashcard> {
@@ -116,15 +93,7 @@ export async function submitFlashcardReview(card: UserFlashcard, isCorrect: bool
   };
 
   await supabase.from("user_vocabulary").update(updates).eq("user_id", card.user_id).eq("canonical_id", card.canonical_id);
-
-  return {
-    ...card,
-    level: nextLevel,
-    interval_days: nextInterval,
-    due_at: updates.srs_due_at,
-    review_count: updates.srs_review_count,
-    consecutive_correct: updates.srs_consecutive_correct,
-  };
+  return { ...card, ...updates, due_at: updates.srs_due_at, review_count: updates.srs_review_count, consecutive_correct: updates.srs_consecutive_correct };
 }
 
 export async function upsertWordFlashcard(userId: string, payload: CreateFlashcardPayload): Promise<void> {
