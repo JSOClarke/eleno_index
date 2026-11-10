@@ -1,20 +1,31 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { fetchDueCardCount, fetchDueFlashcards, fetchFlashcardQueueSummary, submitFlashcardReview } from "@/api/flashcards.api";
+import React, { useState } from "react";
+import { submitFlashcardReview } from "@/api/flashcards.api";
 import { checkClozeAnswer, type MatchResult } from "@/lib/clozeMatcher";
 import { ClozeCardView } from "@/components/flashcards/ClozeCardView";
 import { ClozeHeaderBar } from "@/components/flashcards/ClozeHeaderBar";
 import { FlashcardEmptyDeck } from "@/components/flashcards/FlashcardEmptyDeck";
 import { FlashcardSummaryScreen } from "@/components/flashcards/FlashcardSummaryScreen";
-import type { CardDisplayMode, FlashcardQueueSummary, FlashcardSessionStats, ReviewSessionMode, UserFlashcard } from "@/types/flashcard.types";
+import { useFlashcardSession } from "@/hooks/useFlashcardSession";
+import type { CardDisplayMode, ReviewSessionMode } from "@/types/flashcard.types";
 
 interface FlashcardReviewPageProps {
   userId: string;
 }
 
 export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId }) => {
-  const [cards, setCards] = useState<UserFlashcard[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const {
+    cards,
+    setCards,
+    loading,
+    currentIndex,
+    setCurrentIndex,
+    stats,
+    setStats,
+    remainingDue,
+    queueSummary,
+    loadCards,
+  } = useFlashcardSession(userId);
+
   const [sessionMode, setSessionMode] = useState<ReviewSessionMode>("auto");
   const [input, setInput] = useState("");
   const [hintRevealed, setHintRevealed] = useState(false);
@@ -22,50 +33,21 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
   const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
   const [isRevealedWithoutAttempt, setIsRevealed] = useState(false);
   const [lenientAccents, setLenientAccents] = useState(true);
-  const [stats, setStats] = useState<FlashcardSessionStats>({ total: 0, completed: 0, correct: 0, streak: 0, graduated: 0 });
-  const [remainingDue, setRemainingDue] = useState(0);
-  const [queueSummary, setQueueSummary] = useState<FlashcardQueueSummary | null>(null);
-
-  const loadCards = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [dueCards, totalDue, qSummary] = await Promise.all([
-        fetchDueFlashcards(userId, 20),
-        fetchDueCardCount(userId),
-        fetchFlashcardQueueSummary(userId),
-      ]);
-      setRemainingDue(Math.max(0, totalDue - dueCards.length));
-      setQueueSummary(qSummary);
-      setCards(dueCards);
-      setCurrentIndex(0);
-      setStats({ total: dueCards.length, completed: 0, correct: 0, streak: 0, graduated: 0 });
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
-
-  useEffect(() => {
-    loadCards();
-  }, [loadCards]);
-
-  useEffect(() => {
-    if (cards.length > 0 && currentIndex >= cards.length) {
-      fetchDueCardCount(userId).then(setRemainingDue);
-      fetchFlashcardQueueSummary(userId).then(setQueueSummary);
-    }
-  }, [cards.length, currentIndex, userId]);
 
   const currentCard = cards[currentIndex];
-  const activeCardMode: CardDisplayMode = sessionMode === "auto" ? (currentCard?.level === 1 ? "recognition" : "cloze") : sessionMode;
+  const activeCardMode: CardDisplayMode =
+    sessionMode === "auto" ? (currentCard?.level === 1 ? "recognition" : "cloze") : sessionMode;
 
   const handleGradeRecognition = async (isCorrect: boolean) => {
     if (!currentCard) return;
     const updated = await submitFlashcardReview(currentCard, isCorrect);
     if (isCorrect) window.dispatchEvent(new CustomEvent("flashcard-reviewed"));
-    setCards((prev) => (isCorrect ? prev.map((c, i) => (i === currentIndex ? updated : c)) : [...prev.map((c, i) => (i === currentIndex ? updated : c)), updated]));
+    setCards((prev) => isCorrect
+      ? prev.map((c, i) => (i === currentIndex ? updated : c))
+      : [...prev.map((c, i) => (i === currentIndex ? updated : c)), updated]
+    );
     setStats((s) => ({
-      ...s,
-      completed: s.completed + 1,
+      ...s, completed: s.completed + 1,
       correct: isCorrect ? s.correct + 1 : s.correct,
       streak: isCorrect ? s.streak + 1 : 0,
       graduated: updated.level >= 2 ? s.graduated + 1 : s.graduated,
@@ -84,8 +66,7 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
     if (match.isMatch) window.dispatchEvent(new CustomEvent("flashcard-reviewed"));
     setCards((prev) => prev.map((c, i) => (i === currentIndex ? updated : c)));
     setStats((s) => ({
-      ...s,
-      completed: s.completed + 1,
+      ...s, completed: s.completed + 1,
       correct: match.isMatch ? s.correct + 1 : s.correct,
       streak: match.isMatch ? s.streak + 1 : 0,
       graduated: updated.level >= 6 ? s.graduated + 1 : s.graduated,
@@ -112,9 +93,24 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
     setCurrentIndex((prev) => prev + 1);
   };
 
-  if (loading) return <div className="max-w-2xl mx-auto py-20 text-center font-mono text-sm text-[#666666] animate-pulse">Loading due flashcards...</div>;
+  if (loading) {
+    return (
+      <div className="max-w-2xl mx-auto py-20 text-center font-mono text-sm text-[#666666] animate-pulse">
+        Loading due flashcards...
+      </div>
+    );
+  }
   if (cards.length === 0) return <FlashcardEmptyDeck />;
-  if (currentIndex >= cards.length) return <FlashcardSummaryScreen stats={stats} remainingCount={remainingDue} queueSummary={queueSummary} onRestart={loadCards} />;
+  if (currentIndex >= cards.length) {
+    return (
+      <FlashcardSummaryScreen
+        stats={stats}
+        remainingCount={remainingDue}
+        queueSummary={queueSummary}
+        onRestart={loadCards}
+      />
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto py-6 px-4">
