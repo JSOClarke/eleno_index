@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Eye, Check, X, Volume2 } from "lucide-react";
+import { Volume2 } from "lucide-react";
 import type { UserFlashcard } from "@/types/flashcard.types";
 
 interface RecognitionActionPanelProps {
@@ -32,7 +32,6 @@ export const RecognitionActionPanel: React.FC<RecognitionActionPanelProps> = ({
           handleReveal();
         }
       } else {
-        // Guard against key bleeding within 250ms of reveal
         if (Date.now() - revealedAt < 250) return;
         if (e.key === "1" || e.key.toLowerCase() === "x") {
           e.preventDefault();
@@ -58,59 +57,70 @@ export const RecognitionActionPanel: React.FC<RecognitionActionPanelProps> = ({
 
   if (!revealed) {
     return (
-      <div className="pt-4 text-center space-y-3">
+      <div className="pt-6 border-t border-[#E8E8E4] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p className="font-mono text-xs text-[#777777]">
+          Recall the meaning of <span className="text-[#111111] font-bold">{card.target_lemma || card.target_surface}</span> in this context.
+        </p>
         <button
           type="button"
           onClick={handleReveal}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#111111] text-[#B8FF01] font-mono text-sm font-bold border-2 border-[#111111] hover:bg-[#222222] shadow-[3px_3px_0px_#111111] cursor-pointer transition-colors"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3 bg-[#111111] text-white font-mono text-xs font-bold hover:bg-[#B8FF01] hover:text-[#111111] transition-colors cursor-pointer border border-[#111111]"
         >
-          <Eye className="w-4 h-4" />
-          <span>REVEAL MEANING</span>
-          <kbd className="hidden sm:inline px-1.5 py-0.5 bg-[#222222] border border-[#444444] text-[10px] text-white">Space</kbd>
+          <span>SHOW DEFINITION</span>
+          <kbd className="bg-[#222222] text-[#B8FF01] border-[#444444] px-1.5 py-0.5 text-[10px] font-mono">SPACE</kbd>
         </button>
-        <p className="font-mono text-xs text-[#888888]">
-          Read the sentence and recall the meaning of the highlighted word.
-        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5 pt-2">
-      <div className="bg-[#F8F8F6] border-2 border-[#111111] p-5 shadow-[3px_3px_0px_#111111]">
-        <div className="flex items-center justify-between border-b border-[#E2E2DF] pb-2 mb-3">
-          <div className="flex items-center gap-2">
-            <span className="font-serif text-xl font-bold text-[#111111]">{card.target_lemma}</span>
+    <div className="space-y-6 pt-2">
+      <div className="bg-[#FBFBFA] border border-[#111111] p-6 space-y-3">
+        <div className="flex items-center justify-between border-b border-[#E8E8E4] pb-2">
+          <div className="flex items-baseline gap-2.5">
+            <span className="font-serif text-2xl font-bold text-[#111111]">{card.target_lemma}</span>
             {card.target_pos && (
-              <span className="font-mono text-xs px-1.5 py-0.5 bg-white border border-[#111111]">{card.target_pos}</span>
+              <span className="font-mono text-xs px-1.5 py-0.5 bg-white border border-[#E8E8E4] text-[#666666]">{card.target_pos}</span>
             )}
-            <button type="button" onClick={handleSpeak} className="p-1 border border-[#111111] bg-white hover:bg-[#B8FF01] cursor-pointer">
-              <Volume2 className="w-3.5 h-3.5 text-[#111111]" />
+            <button
+              type="button"
+              onClick={handleSpeak}
+              className="p-1 hover:bg-[#E8E8E4] text-[#666666] hover:text-[#111111] cursor-pointer"
+              title="Pronounce"
+            >
+              <Volume2 className="w-3.5 h-3.5" />
             </button>
           </div>
-          <span className="font-mono text-xs font-bold text-[#2E7D32]">Meaning Revealed</span>
+          <span className="font-mono text-[11px] font-semibold text-[#2E7D32] tracking-wider uppercase">
+            Meaning Revealed
+          </span>
         </div>
         <div className="font-sans text-lg font-medium text-[#111111]">{card.english_definition}</div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
         <button
           type="button"
           onClick={() => onGrade(false)}
-          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-[#D32F2F] border-2 border-[#D32F2F] font-mono text-sm font-bold hover:bg-[#FFF5F5] cursor-pointer transition-colors"
+          className="flex items-center justify-between px-5 py-3.5 bg-white border border-[#111111] text-[#111111] font-mono text-xs font-bold hover:bg-[#FFF5F5] hover:border-[#D32F2F] hover:text-[#D32F2F] transition-colors cursor-pointer"
         >
-          <X className="w-4 h-4" />
-          <span>MISSED (1d)</span>
-          <kbd className="px-1.5 py-0.5 bg-[#FFF0F0] border border-[#D32F2F] text-[10px]">1</kbd>
+          <span className="flex items-center gap-2">
+            <span className="text-[#D32F2F]">✕</span>
+            <span>MISSED (RESET TO LVL 1)</span>
+          </span>
+          <kbd className="font-mono text-[10px] px-1.5 py-0.5 bg-[#F4F4F2] border border-[#D4D4D0]">1</kbd>
         </button>
+
         <button
           type="button"
           onClick={() => onGrade(true)}
-          className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#111111] text-[#B8FF01] border-2 border-[#111111] font-mono text-sm font-bold hover:bg-[#222222] shadow-[3px_3px_0px_#111111] cursor-pointer transition-colors"
+          className="flex items-center justify-between px-5 py-3.5 bg-[#111111] border border-[#111111] text-white font-mono text-xs font-bold hover:bg-[#B8FF01] hover:text-[#111111] transition-colors cursor-pointer"
         >
-          <Check className="w-4 h-4" />
-          <span>GOT IT! (Upgrade to Cloze)</span>
-          <kbd className="px-1.5 py-0.5 bg-[#222222] border border-[#444444] text-[10px] text-white">2 or Space</kbd>
+          <span className="flex items-center gap-2">
+            <span className="text-[#B8FF01]">✓</span>
+            <span>GOT IT! (PROMOTE TO LVL 2)</span>
+          </span>
+          <kbd className="font-mono text-[10px] px-1.5 py-0.5 bg-[#222222] text-white border-[#444444]">SPACE / 2</kbd>
         </button>
       </div>
     </div>

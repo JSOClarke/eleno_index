@@ -51,7 +51,7 @@ export const FlashcardNavbarBadge: React.FC<FlashcardNavbarBadgeProps> = ({
     <Link
       to="/reviews"
       title={`${dueReviews} due review(s), ${newUnstarted} new card(s) in backlog`}
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#B8FF01] text-[#111111] border border-[#111111] font-mono text-xs font-bold hover:bg-[#a3e600] transition-colors shadow-sm"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#B8FF01] text-[#111111] border border-[#111111] font-mono text-xs font-bold hover:bg-[#a3e600] transition-colors"
     >
       <Zap className="w-3.5 h-3.5 fill-current" />
       {dueReviews > 0 && newUnstarted > 0 ? (

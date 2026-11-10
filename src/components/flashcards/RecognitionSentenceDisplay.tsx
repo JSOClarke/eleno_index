@@ -28,29 +28,30 @@ export const RecognitionSentenceDisplay: React.FC<RecognitionSentenceDisplayProp
   }
 
   return (
-    <div className="space-y-4">
-      {targetLemma && (
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F8F8F6] border border-[#111111]">
-          <span className="font-mono text-[10px] uppercase font-bold text-[#666666] tracking-wider">
-            TARGET LEMMA
+    <div className="space-y-6">
+      <div className="flex items-center justify-between pb-1">
+        <div className="flex items-baseline gap-3 flex-wrap">
+          <span className="font-mono text-[11px] uppercase tracking-wider text-[#888888] font-bold">
+            TARGET WORD:
           </span>
-          <span className="font-serif text-base font-bold text-[#111111]">
-            {targetLemma}
+          <span className="font-serif text-2xl font-bold tracking-tight text-[#111111]">
+            {targetLemma || targetSurface}
           </span>
           {targetPos && (
-            <span className="font-mono text-[10px] px-1.5 py-0.5 bg-white border border-[#111111] text-[#111111]">
+            <span className="font-mono text-xs px-1.5 py-0.5 bg-[#F8F8F6] border border-[#E8E8E4] text-[#666666]">
               {targetPos}
             </span>
           )}
         </div>
-      )}
-      <div className="font-serif text-xl sm:text-2xl leading-relaxed text-[#111111] selection:bg-[#B8FF01]">
-        <span>{prefix}</span>
-        <span className="inline-flex items-center justify-center px-2.5 py-0.5 mx-1 border-2 border-[#111111] bg-[#B8FF01] font-mono text-base sm:text-lg font-bold text-[#111111] shadow-[2px_2px_0px_#111111]">
-          {match}
-        </span>
-        <span>{suffix}</span>
       </div>
+
+      <blockquote className="font-serif text-2xl sm:text-3xl leading-[1.6] text-[#111111] pl-4 border-l-2 border-[#111111]">
+        <span>{prefix}</span>
+        <mark className="bg-[#B8FF01] text-[#111111] px-1 py-0.5 font-semibold rounded-none">
+          {match}
+        </mark>
+        <span>{suffix}</span>
+      </blockquote>
     </div>
   );
 };

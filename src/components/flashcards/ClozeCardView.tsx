@@ -1,5 +1,4 @@
 import React from "react";
-import { BookOpen } from "lucide-react";
 import { ClozeSentenceDisplay } from "./ClozeSentenceDisplay";
 import { ClozeInputForm } from "./ClozeInputForm";
 import { ClozeFeedbackPanel } from "./ClozeFeedbackPanel";
@@ -42,48 +41,49 @@ export const ClozeCardView: React.FC<ClozeCardViewProps> = ({
   const targetWord = card.target_surface || card.target_lemma;
 
   return (
-    <div className="bg-white border-2 border-[#111111] p-6 sm:p-8 space-y-6 shadow-[4px_4px_0px_#111111]">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E2DF] pb-3 text-xs font-mono">
+    <article className="bg-white border border-[#111111] p-8 sm:p-10 space-y-8 transition-all">
+      {/* Card Metadata Row: Quiet Hairline */}
+      <div className="flex items-center justify-between border-b border-[#E8E8E4] pb-4 text-xs font-mono">
         <div className="flex items-center gap-2 text-[#666666]">
-          <BookOpen className="w-3.5 h-3.5" />
-          <span className="font-semibold text-[#111111]">
+          <span className="font-semibold text-[#111111] tracking-wide">
             {card.source_media_title || "InputHub Library"}
           </span>
-          {card.source_context && <span>· {card.source_context}</span>}
+          {card.source_context && (
+            <>
+              <span className="text-[#CCCCCC]">·</span>
+              <span className="text-[#888888]">{card.source_context}</span>
+            </>
+          )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           {card.is_i_plus_one && (
-            <span className="bg-[#B8FF01] text-[#111111] border border-[#111111] px-1.5 py-0.5 font-bold">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#111111] bg-[#B8FF01] px-1.5 py-0.5 border border-[#9FE000]">
               i+1 MATCH
             </span>
           )}
-          <span className="border border-[#111111] px-2 py-0.5 bg-[#F8F8F6] font-bold text-[#111111]">
-            SRS Level {card.level}/6
-          </span>
-          <span className="text-[#888888]">({card.interval_days}d interval)</span>
+          <span className="text-[#888888]">·</span>
+          <span className="text-[#555555] font-medium">SRS Level {card.level}</span>
+          <span className="text-[#AAAAAA]">({card.interval_days}d)</span>
         </div>
       </div>
 
       {cardMode === "recognition" ? (
-        <div className="space-y-6">
+        <div className="space-y-8">
           <RecognitionSentenceDisplay
             sentence={card.sentence}
             targetSurface={card.target_surface}
             targetLemma={card.target_lemma}
             targetPos={card.target_pos}
           />
-          <RecognitionActionPanel
-            card={card}
-            onGrade={onGradeRecognition}
-          />
+          <RecognitionActionPanel card={card} onGrade={onGradeRecognition} />
         </div>
       ) : (
-        <div className="space-y-6">
-          <div className="bg-[#F8F8F6] border-l-4 border-[#111111] p-4">
-            <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666] mb-1">
-              ENGLISH DEFINITION HINT
+        <div className="space-y-8">
+          <div className="border-l-2 border-[#111111] pl-4 py-1">
+            <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#888888] mb-1">
+              TARGET MEANING (PRODUCTION CUE)
             </div>
-            <div className="font-sans text-base sm:text-lg font-medium text-[#111111]">
+            <div className="font-sans text-xl sm:text-2xl font-bold text-[#111111]">
               {card.english_definition}
             </div>
           </div>
@@ -102,14 +102,7 @@ export const ClozeCardView: React.FC<ClozeCardViewProps> = ({
             }
           />
 
-          {feedbackActive ? (
-            <ClozeFeedbackPanel
-              card={card}
-              matchResult={matchResult}
-              isRevealedWithoutAttempt={isRevealedWithoutAttempt}
-              onContinue={onContinue}
-            />
-          ) : (
+          {!feedbackActive ? (
             <ClozeInputForm
               input={input}
               onChange={onInputChange}
@@ -117,13 +110,20 @@ export const ClozeCardView: React.FC<ClozeCardViewProps> = ({
               onReveal={onReveal}
               onHint={onHint}
               hintRevealed={hintRevealed}
-              firstLetter={targetWord.charAt(0)}
-              wordLength={targetWord.length}
+              firstLetter={targetWord ? targetWord[0] : ""}
+              wordLength={targetWord ? targetWord.length : 0}
               disabled={feedbackActive}
+            />
+          ) : (
+            <ClozeFeedbackPanel
+              matchResult={matchResult}
+              card={card}
+              isRevealedWithoutAttempt={isRevealedWithoutAttempt}
+              onContinue={onContinue}
             />
           )}
         </div>
       )}
-    </div>
+    </article>
   );
 };

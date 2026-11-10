@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { CheckCircle2, XCircle, Volume2, ArrowRight } from "lucide-react";
+import { Volume2, ArrowRight } from "lucide-react";
 import type { MatchResult } from "@/lib/clozeMatcher";
 import type { UserFlashcard } from "@/types/flashcard.types";
 
@@ -19,7 +19,6 @@ export const ClozeFeedbackPanel: React.FC<ClozeFeedbackPanelProps> = ({
   const isCorrect = matchResult?.isMatch && !isRevealedWithoutAttempt;
 
   useEffect(() => {
-    // 250ms guard prevents the submission Enter key from accidentally advancing the feedback card
     const mountedAt = Date.now();
     const handleKeyDown = (e: KeyboardEvent) => {
       if (Date.now() - mountedAt < 250) return;
@@ -48,65 +47,57 @@ export const ClozeFeedbackPanel: React.FC<ClozeFeedbackPanelProps> = ({
     : "Re-queued for this session (~10m)";
 
   return (
-    <div
-      className={`p-5 border-2 transition-all ${
-        isCorrect
-          ? "border-[#111111] bg-[#F4FFDC]"
-          : "border-[#FF3333] bg-[#FFF5F5]"
-      }`}
-    >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1.5">
+    <div className="space-y-4 pt-2">
+      <div className={`p-5 border space-y-3 transition-colors ${
+        isCorrect ? "border-[#111111] bg-[#FBFBFA]" : "border-[#D32F2F] bg-[#FFF5F5]"
+      }`}>
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isCorrect ? (
-              <CheckCircle2 className="w-5 h-5 text-[#2E7D32]" />
-            ) : (
-              <XCircle className="w-5 h-5 text-[#D32F2F]" />
-            )}
-            <span className="font-mono text-sm font-bold uppercase tracking-wider text-[#111111]">
-              {isCorrect ? "CORRECT" : isRevealedWithoutAttempt ? "SOLUTION REVEALED" : "INCORRECT"}
+            <span className={`font-mono text-xs font-bold px-2 py-0.5 border ${
+              isCorrect ? "bg-[#B8FF01] text-[#111111] border-[#9FE000]" : "bg-[#D32F2F] text-white border-[#D32F2F]"
+            }`}>
+              {isCorrect ? "✓ EXACT MATCH" : isRevealedWithoutAttempt ? "SOLUTION REVEALED" : "✕ INCORRECT"}
             </span>
             {matchResult?.isAccentLenient && (
-              <span className="bg-[#B8FF01] text-[#111111] px-2 py-0.5 font-mono text-xs font-semibold border border-[#111111]">
-                Accent accepted
-              </span>
+              <span className="font-mono text-xs text-[#555555]">Accent accepted</span>
             )}
-          </div>
-
-          <div className="flex items-baseline gap-2.5 pt-1">
-            <span className="font-serif text-2xl font-bold text-[#111111]">
-              {card.target_surface}
-            </span>
-            {card.target_surface.toLowerCase() !== card.target_lemma.toLowerCase() && (
-              <span className="font-serif text-sm italic text-[#666666]">
-                ({card.target_lemma})
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={handleSpeak}
-              className="p-1 border border-[#111111] bg-white hover:bg-[#111111] hover:text-white cursor-pointer transition-colors"
-              title="Pronounce"
-            >
-              <Volume2 className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="font-mono text-xs text-[#555555]">
-            <span className="font-bold text-[#111111]">Level {card.level}/6</span> · {nextIntervalLabel}
+            <span className="font-mono text-xs text-[#666666]">· {nextIntervalLabel}</span>
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={onContinue}
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#111111] text-[#B8FF01] font-mono text-sm font-bold border-2 border-[#111111] hover:bg-[#222222] cursor-pointer shadow-sm transition-colors"
-        >
-          <span>CONTINUE</span>
-          <ArrowRight className="w-4 h-4" />
-          <span className="hidden sm:inline text-xs text-[#888888] font-normal">[Space or Enter]</span>
-        </button>
+        <div className="flex items-baseline gap-2.5 pt-1">
+          <span className="font-serif text-2xl font-bold text-[#111111]">
+            {card.target_surface}
+          </span>
+          {card.target_surface.toLowerCase() !== card.target_lemma.toLowerCase() && (
+            <span className="font-serif text-base italic text-[#666666]">
+              ({card.target_lemma})
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={handleSpeak}
+            className="p-1 hover:bg-[#E8E8E4] text-[#666666] hover:text-[#111111] cursor-pointer"
+            title="Pronounce"
+          >
+            <Volume2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="font-sans text-sm text-[#555555]">
+          {card.english_definition}
+        </div>
       </div>
+
+      <button
+        type="button"
+        onClick={onContinue}
+        className="w-full flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#111111] text-white hover:bg-[#B8FF01] hover:text-[#111111] font-mono text-xs font-bold border border-[#111111] transition-colors cursor-pointer"
+      >
+        <span>CONTINUE TO NEXT CARD</span>
+        <kbd className="bg-[#222222] text-white border-[#444444] px-1.5 py-0.5 text-[10px] font-mono">SPACE / ENTER</kbd>
+        <ArrowRight className="w-3.5 h-3.5 ml-1" />
+      </button>
     </div>
   );
 };

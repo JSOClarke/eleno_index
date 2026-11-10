@@ -29,24 +29,34 @@ export const ClozeSentenceDisplay: React.FC<ClozeSentenceDisplayProps> = ({
     suffix = sentence.slice(matchIndex + targetSurface.length);
   }
 
-  const slotBg =
+  const borderColor =
     feedbackStatus === "correct"
-      ? "bg-[#B8FF01] text-[#111111] border-[#111111]"
+      ? "border-[#2E7D32]"
       : feedbackStatus === "incorrect"
-      ? "bg-[#FF3333] text-white border-[#FF3333]"
-      : isRevealed
-      ? "bg-[#111111] text-[#B8FF01] border-[#111111]"
-      : "bg-[#FAFAF8] text-[#888888] border-[#CCCCCC] border-dashed";
+      ? "border-[#D32F2F]"
+      : "border-[#E8E8E4]";
 
   return (
-    <div className="font-serif text-xl sm:text-2xl leading-relaxed text-[#111111] selection:bg-[#B8FF01]">
+    <blockquote className={`font-serif text-2xl sm:text-3xl leading-[1.6] text-[#111111] pl-4 border-l-2 ${borderColor}`}>
       <span>{prefix}</span>
-      <span
-        className={`inline-flex items-center justify-center min-w-[70px] px-2.5 py-0.5 mx-1 border font-mono text-base sm:text-lg font-bold transition-all ${slotBg}`}
-      >
-        {isRevealed ? revealedText || match : "[ · · · ]"}
-      </span>
+      {isRevealed ? (
+        <mark
+          className={`px-1.5 py-0.5 font-bold rounded-none ${
+            feedbackStatus === "correct"
+              ? "bg-[#B8FF01] text-[#111111]"
+              : feedbackStatus === "incorrect"
+              ? "bg-[#FFF0F0] text-[#D32F2F] border-b-2 border-[#D32F2F]"
+              : "bg-[#111111] text-[#B8FF01]"
+          }`}
+        >
+          {revealedText || match}
+        </mark>
+      ) : (
+        <span className="inline-block min-w-[80px] border-b-2 border-[#111111] px-2 text-center font-mono font-semibold text-[#888888]">
+          [ · · · ]
+        </span>
+      )}
       <span>{suffix}</span>
-    </div>
+    </blockquote>
   );
 };
