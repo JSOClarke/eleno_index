@@ -31,10 +31,39 @@ export async function fetchDueFlashcards(userId: string, limit = 20): Promise<Us
     p_limit: limit,
   });
 
-  if (!error && Array.isArray(data)) {
+  if (!error && Array.isArray(data) && data.length > 0) {
     return data.map((row) => normalizeDynamicCard(row, userId));
   }
-  return [];
+  if (error) console.error("[fetchDueFlashcards] RPC error, falling back:", error);
+
+  const { data: vocabRows, error: vErr } = await supabase
+    .from("user_vocabulary")
+    .select(`id, canonical_id, srs_level, srs_interval_days, srs_due_at, srs_review_count, canonical_lexical_entity!inner (lemma, pos, definitions)`)
+    .eq("user_id", userId)
+    .eq("status", "learning")
+    .order("srs_due_at", { ascending: true })
+    .limit(limit);
+
+  if (vErr || !vocabRows) return [];
+  return vocabRows.map((r: any) => {
+    const cle = r.canonical_lexical_entity || {};
+    const lemma = String(cle.lemma || r.canonical_id);
+    const def = Array.isArray(cle.definitions) && cle.definitions[0] ? cle.definitions[0] : lemma;
+    return normalizeDynamicCard({
+      card_id: r.id,
+      canonical_id: r.canonical_id,
+      sentence: `Esta palabra está en tu lista de aprendizaje: ${lemma}.`,
+      target_surface: lemma,
+      target_lemma: lemma,
+      target_pos: cle.pos,
+      english_definition: def,
+      level: r.srs_level,
+      interval_days: r.srs_interval_days,
+      due_at: r.srs_due_at,
+      review_count: r.srs_review_count,
+      is_i_plus_one: false,
+    }, userId);
+  });
 }
 
 export async function fetchFlashcardQueueSummary(userId: string): Promise<FlashcardQueueSummary> {
