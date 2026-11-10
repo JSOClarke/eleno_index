@@ -26,21 +26,15 @@ function normalizeDynamicCard(row: any, userId: string): UserFlashcard {
 }
 
 export async function fetchDueFlashcards(userId: string, limit = 20): Promise<UserFlashcard[]> {
-  const { data, error } = await supabase.rpc("get_due_flashcards_dynamic", {
-    p_user_id: userId,
-    p_limit: limit,
-  });
-
-  if (!error && Array.isArray(data) && data.length > 0) {
-    return data.map((row) => normalizeDynamicCard(row, userId));
-  }
-  if (error) console.error("[fetchDueFlashcards] RPC error, falling back:", error);
-
   const { data: vocabRows, error: vErr } = await supabase
     .from("user_vocabulary")
-    .select(`id, canonical_id, srs_level, srs_interval_days, srs_due_at, srs_review_count, canonical_lexical_entity!inner (lemma, pos, definitions)`)
+    .select(
+      `id, canonical_id, srs_level, srs_interval_days, srs_due_at, srs_review_count, srs_consecutive_correct, canonical_lexical_entity!inner (lemma, pos, definitions)`
+    )
     .eq("user_id", userId)
     .eq("status", "learning")
+    .lte("srs_due_at", new Date().toISOString())
+    .order("srs_review_count", { ascending: false })
     .order("srs_due_at", { ascending: true })
     .limit(limit);
 
@@ -57,10 +51,11 @@ export async function fetchDueFlashcards(userId: string, limit = 20): Promise<Us
       target_lemma: lemma,
       target_pos: cle.pos,
       english_definition: def,
-      level: r.srs_level,
-      interval_days: r.srs_interval_days,
+      level: Number(r.srs_level || 1),
+      interval_days: Number(r.srs_interval_days || 1),
       due_at: r.srs_due_at,
-      review_count: r.srs_review_count,
+      review_count: Number(r.srs_review_count || 0),
+      consecutive_correct: Number(r.srs_consecutive_correct || 0),
       is_i_plus_one: false,
     }, userId);
   });
