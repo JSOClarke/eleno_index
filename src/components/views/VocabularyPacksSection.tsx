@@ -6,11 +6,13 @@ import { VocabularyPackPreviewDialog } from "./VocabularyPackPreview";
 
 interface VocabularyPacksSectionProps {
   userId?: string | null;
+  activeLanguage?: string;
   onApplied: () => void | Promise<void>;
 }
 
 export const VocabularyPacksSection: React.FC<VocabularyPacksSectionProps> = ({
   userId,
+  activeLanguage = "es",
   onApplied,
 }) => {
   const [open, setOpen] = useState(false);
@@ -29,7 +31,7 @@ export const VocabularyPacksSection: React.FC<VocabularyPacksSectionProps> = ({
     closePreview,
     apply,
     undo,
-  } = useVocabularyPacks(userId, onApplied);
+  } = useVocabularyPacks(userId, onApplied, activeLanguage);
 
   const toggle = () => {
     if (open) closePreview();

@@ -88,7 +88,7 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
         <p className="font-mono text-xs text-[#666666]">Canonical {isFr ? "French" : "Spanish"} headwords tracked in your profile.</p>
       </div>
 
-      {!isFr && <VocabularyPacksSection userId={userId} onApplied={onReloadVocabulary} />}
+      <VocabularyPacksSection userId={userId} activeLanguage={activeLanguage} onApplied={onReloadVocabulary} />
 
       <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#F8F8F6] border border-[#E2E2DF] p-2.5">
         <div className="flex flex-wrap items-center gap-2">

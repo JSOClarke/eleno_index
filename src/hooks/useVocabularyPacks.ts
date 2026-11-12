@@ -8,7 +8,8 @@ import type {
 
 export function useVocabularyPacks(
   userId: string | null | undefined,
-  onApplied: () => void | Promise<void>
+  onApplied: () => void | Promise<void>,
+  language = "es"
 ) {
   const [packs, setPacks] = useState<VocabularyPack[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +25,7 @@ export function useVocabularyPacks(
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    fetchVocabularyPacks()
+    fetchVocabularyPacks(language)
       .then((rows) => {
         if (!cancelled) setPacks(rows);
       })
@@ -47,7 +48,7 @@ export function useVocabularyPacks(
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [userId, language]);
 
   const openPreview = async (pack: VocabularyPack) => {
     if (!userId) return;

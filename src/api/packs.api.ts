@@ -11,6 +11,7 @@ function toPack(row: any): VocabularyPack {
   return {
     id: String(row.id),
     slug: String(row.slug),
+    language: String(row.language || "es"),
     title: String(row.title),
     description: String(row.description || ""),
     group_label: String(row.group_label || "OTHER"),
@@ -43,11 +44,12 @@ function toPreview(row: any): VocabularyPackPreview {
   };
 }
 
-export async function fetchVocabularyPacks(): Promise<VocabularyPack[]> {
+export async function fetchVocabularyPacks(language = "es"): Promise<VocabularyPack[]> {
   const { data, error } = await supabase
     .from("vocabulary_pack")
     .select("*")
     .eq("is_active", true)
+    .eq("language", language)
     .order("group_label")
     .order("sort_order");
 

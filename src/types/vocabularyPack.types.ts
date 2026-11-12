@@ -3,6 +3,7 @@ import type { UserVocabStatus } from "./vocabulary.types";
 export interface VocabularyPack {
   id: string;
   slug: string;
+  language?: string;
   title: string;
   description: string;
   group_label: string;

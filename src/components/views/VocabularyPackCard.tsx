@@ -9,7 +9,7 @@ interface VocabularyPackCardProps {
 }
 
 function packMeta(pack: VocabularyPack): string {
-  if (pack.rule_type === "tubelex_top") {
+  if (pack.rule_type.includes("top") || pack.rule_params.limit) {
     return `${Number(pack.rule_params.limit || 0).toLocaleString()} words`;
   }
   if (pack.rule_type === "cefr_levels") {
