@@ -11,7 +11,7 @@ import type {
   UserFlashcard,
 } from "@/types/flashcard.types";
 
-export function useFlashcardSession(userId: string) {
+export function useFlashcardSession(userId: string, language = "es") {
   const [cards, setCards] = useState<UserFlashcard[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -29,7 +29,7 @@ export function useFlashcardSession(userId: string) {
     setLoading(true);
     try {
       const [dueCards, totalDue, qSummary] = await Promise.all([
-        fetchDueFlashcards(userId, 20),
+        fetchDueFlashcards(userId, 20, language),
         fetchDueCardCount(userId),
         fetchFlashcardQueueSummary(userId),
       ]);
@@ -48,7 +48,7 @@ export function useFlashcardSession(userId: string) {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, language]);
 
   useEffect(() => {
     loadCards();

@@ -1,6 +1,6 @@
 import type { KnownWordEntry, UserVocabStatus } from "@/types/vocabulary.types";
 
-const KNOWN_DETAILS_CACHE_PREFIX = "eleno_index_known_details_v2_";
+const KNOWN_DETAILS_CACHE_PREFIX = "eleno_index_known_details_v3_";
 
 interface CachedKnownDetails {
   signature: string;
@@ -19,22 +19,24 @@ export function buildKnownSignature(statusMap: Record<string, UserVocabStatus>):
 
 export function readKnownDetailsCache(
   userId?: string | null,
-  statusMap?: Record<string, UserVocabStatus>
+  statusMap?: Record<string, UserVocabStatus>,
+  language = "es"
 ): { entries: KnownWordEntry[]; isFresh: boolean } | null {
   if (!userId) return null;
+  const cacheKey = `${userId}_${language}`;
   const currentSig = statusMap ? buildKnownSignature(statusMap) : "";
 
-  const mem = memoryCache.get(userId);
+  const mem = memoryCache.get(cacheKey);
   if (mem) {
     return { entries: mem.entries, isFresh: mem.signature === currentSig };
   }
 
   try {
-    const raw = localStorage.getItem(`${KNOWN_DETAILS_CACHE_PREFIX}${userId}`);
+    const raw = localStorage.getItem(`${KNOWN_DETAILS_CACHE_PREFIX}${cacheKey}`);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as CachedKnownDetails;
     if (!parsed || !Array.isArray(parsed.entries)) return null;
-    memoryCache.set(userId, parsed);
+    memoryCache.set(cacheKey, parsed);
     return { entries: parsed.entries, isFresh: parsed.signature === currentSig };
   } catch {
     return null;
@@ -44,15 +46,17 @@ export function readKnownDetailsCache(
 export function writeKnownDetailsCache(
   userId: string,
   statusMap: Record<string, UserVocabStatus>,
-  entries: KnownWordEntry[]
+  entries: KnownWordEntry[],
+  language = "es"
 ): void {
+  const cacheKey = `${userId}_${language}`;
   const payload: CachedKnownDetails = {
     signature: buildKnownSignature(statusMap),
     entries,
   };
-  memoryCache.set(userId, payload);
+  memoryCache.set(cacheKey, payload);
   try {
-    localStorage.setItem(`${KNOWN_DETAILS_CACHE_PREFIX}${userId}`, JSON.stringify(payload));
+    localStorage.setItem(`${KNOWN_DETAILS_CACHE_PREFIX}${cacheKey}`, JSON.stringify(payload));
   } catch {
     // Ignore storage quota errors
   }

@@ -25,13 +25,14 @@ function normalizeDynamicCard(row: any, userId: string): UserFlashcard {
   };
 }
 
-export async function fetchDueFlashcards(userId: string, limit = 20): Promise<UserFlashcard[]> {
+export async function fetchDueFlashcards(userId: string, limit = 20, language = "es"): Promise<UserFlashcard[]> {
   const { data: vocabRows, error: vErr } = await supabase
     .from("user_vocabulary")
     .select(
-      `id, canonical_id, srs_level, srs_interval_days, srs_due_at, srs_review_count, srs_consecutive_correct, canonical_lexical_entity!inner (lemma, pos, definitions)`
+      `id, canonical_id, srs_level, srs_interval_days, srs_due_at, srs_review_count, srs_consecutive_correct, canonical_lexical_entity!inner (language, lemma, pos, definitions)`
     )
     .eq("user_id", userId)
+    .eq("canonical_lexical_entity.language", language)
     .eq("status", "learning")
     .lte("srs_due_at", new Date().toISOString())
     .order("srs_review_count", { ascending: false })

@@ -12,6 +12,7 @@ import type { UserProfile, UserVocabStatus } from "@/types/vocabulary.types";
 
 interface AppRoutesProps {
   user: UserProfile | null;
+  activeLanguage?: string;
   items: MediaCatalogItem[];
   catalogueLoading: boolean;
   statusMap: Record<string, UserVocabStatus>;
@@ -26,6 +27,7 @@ interface AppRoutesProps {
 
 export const AppRoutes: React.FC<AppRoutesProps> = ({
   user,
+  activeLanguage = "es",
   items,
   catalogueLoading,
   statusMap,
@@ -48,6 +50,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
           user ? (
             <KnownWordsView
               userId={user.id}
+              activeLanguage={activeLanguage}
               statusMap={statusMap}
               knownCount={knownCount}
               onSetWordStatus={onSetWordStatus}
@@ -66,7 +69,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
         path="/reviews"
         element={
           user ? (
-            <FlashcardReviewPage userId={user.id} />
+            <FlashcardReviewPage userId={user.id} activeLanguage={activeLanguage} />
           ) : (
             <SignInNotice
               title="Cloze Flashcards"

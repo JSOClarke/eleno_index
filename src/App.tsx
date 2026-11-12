@@ -22,13 +22,13 @@ import type { UserVocabStatus } from "@/types/vocabulary.types";
 export const App: React.FC = () => {
   const auth = useAuth();
   const location = useLocation();
-  const userVocab = useUserVocabulary(auth.user);
-  const catalogue = useCatalogueData(auth.user?.id, auth.loading);
-  const filterState = useFilterState();
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [activeLanguage, setActiveLanguage] = useState<SupportedLanguage>(() =>
     readActiveLanguage()
   );
+  const userVocab = useUserVocabulary(auth.user, activeLanguage);
+  const catalogue = useCatalogueData(auth.user?.id, auth.loading);
+  const filterState = useFilterState();
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   const handleChangeLanguage = (lang: SupportedLanguage) => {
     setActiveLanguage(lang);
@@ -109,6 +109,7 @@ export const App: React.FC = () => {
       <main className="max-w-[1380px] w-full mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-8 flex-1">
         <AppRoutes
           user={auth.user}
+          activeLanguage={activeLanguage}
           items={catalogue.items}
           catalogueLoading={catalogue.loading}
           statusMap={userVocab.statusMap}

@@ -4,19 +4,19 @@ import type { UserProfile, UserVocabStatus } from "@/types/vocabulary.types";
 
 const VOCAB_CACHE_PREFIX = "eleno_index_vocab_";
 
-function readCachedVocab(userId?: string): Record<string, UserVocabStatus> {
+function readCachedVocab(userId?: string, language = "es"): Record<string, UserVocabStatus> {
   if (!userId) return {};
   try {
-    const raw = localStorage.getItem(`${VOCAB_CACHE_PREFIX}${userId}`);
+    const raw = localStorage.getItem(`${VOCAB_CACHE_PREFIX}${userId}_${language}`);
     return raw ? (JSON.parse(raw) as Record<string, UserVocabStatus>) : {};
   } catch {
     return {};
   }
 }
 
-export function useUserVocabulary(user: UserProfile | null) {
+export function useUserVocabulary(user: UserProfile | null, language = "es") {
   const [statusMap, setStatusMap] = useState<Record<string, UserVocabStatus>>(() =>
-    readCachedVocab(user?.id)
+    readCachedVocab(user?.id, language)
   );
   const [loading, setLoading] = useState(false);
 
@@ -25,21 +25,19 @@ export function useUserVocabulary(user: UserProfile | null) {
       setStatusMap({});
       return;
     }
-    const cached = readCachedVocab(user.id);
-    if (Object.keys(cached).length > 0) {
-      setStatusMap(cached);
-    }
+    const cached = readCachedVocab(user.id, language);
+    setStatusMap(cached);
     setLoading(true);
     try {
-      const data = await fetchAllUserVocabulary(user.id);
+      const data = await fetchAllUserVocabulary(user.id, language);
       setStatusMap(data);
-      localStorage.setItem(`${VOCAB_CACHE_PREFIX}${user.id}`, JSON.stringify(data));
+      localStorage.setItem(`${VOCAB_CACHE_PREFIX}${user.id}_${language}`, JSON.stringify(data));
     } catch (err) {
       console.error("[useUserVocabulary] Failed to fetch user vocabulary:", err);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, language]);
 
   useEffect(() => {
     loadVocab();
@@ -56,7 +54,7 @@ export function useUserVocabulary(user: UserProfile | null) {
         } else {
           next[canonicalId] = status;
         }
-        localStorage.setItem(`${VOCAB_CACHE_PREFIX}${user.id}`, JSON.stringify(next));
+        localStorage.setItem(`${VOCAB_CACHE_PREFIX}${user.id}_${language}`, JSON.stringify(next));
         return next;
       });
 
@@ -67,7 +65,7 @@ export function useUserVocabulary(user: UserProfile | null) {
         loadVocab();
       }
     },
-    [user, loadVocab]
+    [user, language, loadVocab]
   );
 
   const knownCount = useMemo(

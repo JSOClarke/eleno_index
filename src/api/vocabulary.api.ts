@@ -6,7 +6,8 @@ import type {
 } from "@/types/vocabulary.types";
 
 export async function fetchAllUserVocabulary(
-  userId: string
+  userId: string,
+  language = "es"
 ): Promise<Record<string, UserVocabStatus>> {
   const map: Record<string, UserVocabStatus> = {};
   let from = 0;
@@ -15,8 +16,9 @@ export async function fetchAllUserVocabulary(
   while (true) {
     const { data, error } = await supabase
       .from("user_vocabulary")
-      .select("canonical_id, status")
+      .select("canonical_id, status, canonical_lexical_entity!inner(language)")
       .eq("user_id", userId)
+      .eq("canonical_lexical_entity.language", language)
       .range(from, from + pageSize - 1);
 
     if (error) throw error;
@@ -32,7 +34,10 @@ export async function fetchAllUserVocabulary(
   return map;
 }
 
-export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordEntry[]> {
+export async function fetchKnownWordsDetails(
+  userId: string,
+  language = "es"
+): Promise<KnownWordEntry[]> {
   const pageSize = 1000;
   const maxRows = 12000;
   const rows: any[] = [];
@@ -46,6 +51,7 @@ export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordE
         status,
         updated_at,
         canonical_lexical_entity!inner (
+          language,
           lemma,
           pos,
           lexical_ranking (source, cefr, rank, count),
@@ -54,6 +60,7 @@ export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordE
       `
       )
       .eq("user_id", userId)
+      .eq("canonical_lexical_entity.language", language)
       .in("status", ["known", "learning"])
       .order("updated_at", { ascending: false })
       .order("id", { ascending: true })
@@ -84,6 +91,7 @@ export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordE
 
     return {
       canonical_id: String(row.canonical_id || ""),
+      language: String(entity.language || language),
       status: (row.status || "known") as UserVocabStatus,
       updated_at: row.updated_at || null,
       lemma: String(entity.lemma || row.canonical_id || ""),

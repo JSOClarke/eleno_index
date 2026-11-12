@@ -9,6 +9,7 @@ import { VocabularyPacksSection } from "./VocabularyPacksSection";
 
 interface KnownWordsViewProps {
   userId?: string | null;
+  activeLanguage?: string;
   statusMap: Record<string, UserVocabStatus>;
   knownCount: number;
   onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
@@ -18,13 +19,10 @@ interface KnownWordsViewProps {
 const PAGE_SIZE = 20;
 
 export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
-  userId,
-  statusMap,
-  knownCount,
-  onSetWordStatus,
-  onReloadVocabulary,
+  userId, activeLanguage = "es", statusMap, knownCount, onSetWordStatus, onReloadVocabulary,
 }) => {
-  const cached = readKnownDetailsCache(userId, statusMap);
+  const isFr = activeLanguage === "fr";
+  const cached = readKnownDetailsCache(userId, statusMap, activeLanguage);
   const [words, setWords] = useState<KnownWordEntry[]>(() => cached?.entries || []);
   const [loading, setLoading] = useState<boolean>(() => !cached && !!userId);
   const [query, setQuery] = useState("");
@@ -37,19 +35,19 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
   const signature = useMemo(() => buildKnownSignature(statusMap), [statusMap]);
   useEffect(() => {
     if (!userId) { setWords([]); setLoading(false); return; }
-    const currentCache = readKnownDetailsCache(userId, statusMap);
+    const currentCache = readKnownDetailsCache(userId, statusMap, activeLanguage);
     if (currentCache) {
       setWords(currentCache.entries);
       const loadedSet = new Set(currentCache.entries.map((e) => e.canonical_id));
       const hasMissing = Object.entries(statusMap).some(([id, s]) => (s === "known" || s === "learning") && !loadedSet.has(id));
-      if (!hasMissing) { writeKnownDetailsCache(userId, statusMap, currentCache.entries); setLoading(false); return; }
+      if (!hasMissing) { writeKnownDetailsCache(userId, statusMap, currentCache.entries, activeLanguage); setLoading(false); return; }
     } else setLoading(true);
     let cancelled = false;
-    fetchKnownWordsDetails(userId)
-      .then((rows) => { if (!cancelled) { setWords(rows); writeKnownDetailsCache(userId, statusMap, rows); } })
+    fetchKnownWordsDetails(userId, activeLanguage)
+      .then((rows) => { if (!cancelled) { setWords(rows); writeKnownDetailsCache(userId, statusMap, rows, activeLanguage); } })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [userId, signature]);
+  }, [userId, signature, activeLanguage]);
   const counts = useMemo(() => {
     let known = 0, learning = 0;
     for (const s of Object.values(statusMap)) {
@@ -85,14 +83,12 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-[#111111] pb-3">
-        <div>
-          <h2 className="text-lg font-bold text-[#111111]">Vocabulary Ledger ({knownCount} Known · {counts.LEARNING} Learning)</h2>
-          <p className="font-mono text-xs text-[#666666]">Canonical Spanish headwords tracked in your profile.</p>
-        </div>
+      <div className="border-b border-[#111111] pb-3">
+        <h2 className="text-lg font-bold text-[#111111]">Vocabulary Ledger ({knownCount} Known · {counts.LEARNING} Learning)</h2>
+        <p className="font-mono text-xs text-[#666666]">Canonical {isFr ? "French" : "Spanish"} headwords tracked in your profile.</p>
       </div>
 
-      <VocabularyPacksSection userId={userId} onApplied={onReloadVocabulary} />
+      {!isFr && <VocabularyPacksSection userId={userId} onApplied={onReloadVocabulary} />}
 
       <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#F8F8F6] border border-[#E2E2DF] p-2.5">
         <div className="flex flex-wrap items-center gap-2">
@@ -105,7 +101,7 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
         </div>
         <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
           <div className="flex items-center border border-[#111111]">
-            {([["tubelex_v2025", "TUBELEX"], ["elelex_v2020", "ELELEX"]] as const).map(([src, label]) => (
+            {([["tubelex_v2025", isFr ? "LEXIQUE" : "TUBELEX"], ["elelex_v2020", isFr ? "FLELEX" : "ELELEX"]] as const).map(([src, label]) => (
               <button key={src} type="button" onClick={() => setRankingSource(src)} className={`px-2.5 py-1 cursor-pointer transition-colors ${rankingSource === src ? "bg-[#B8FF01] text-[#111111] font-semibold" : "bg-white text-[#666666] hover:text-[#111111]"}`}>{label}</button>
             ))}
           </div>
@@ -123,7 +119,7 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
           <div className="col-span-2">IPA</div>
           <button type="button" onClick={() => toggleSort("pos", "asc")} className="col-span-1 text-left hover:text-[#111111] cursor-pointer font-semibold">POS{arrow("pos")}</button>
           <button type="button" onClick={() => toggleSort("cefr", "asc")} className="col-span-1 text-left hover:text-[#111111] cursor-pointer font-semibold">CEFR{arrow("cefr")}</button>
-          <button type="button" onClick={() => toggleSort("rank", "asc")} className="col-span-2 text-left hover:text-[#111111] cursor-pointer font-semibold">{rankingSource === "tubelex_v2025" ? "TUBELEX" : "ELELEX"}{arrow("rank")}</button>
+          <button type="button" onClick={() => toggleSort("rank", "asc")} className="col-span-2 text-left hover:text-[#111111] cursor-pointer font-semibold">{rankingSource === "tubelex_v2025" ? (isFr ? "LEXIQUE" : "TUBELEX") : (isFr ? "FLELEX" : "ELELEX")}{arrow("rank")}</button>
           <button type="button" onClick={() => toggleSort("added", "desc")} className="col-span-1 text-left hover:text-[#111111] cursor-pointer font-semibold">ADDED{arrow("added")}</button>
           <div className="col-span-2 text-right">ACTIONS</div>
         </div>

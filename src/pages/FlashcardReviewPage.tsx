@@ -10,9 +10,10 @@ import type { CardDisplayMode, ReviewSessionMode } from "@/types/flashcard.types
 
 interface FlashcardReviewPageProps {
   userId: string;
+  activeLanguage?: string;
 }
 
-export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId }) => {
+export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId, activeLanguage = "es" }) => {
   const {
     cards,
     setCards,
@@ -24,7 +25,7 @@ export const FlashcardReviewPage: React.FC<FlashcardReviewPageProps> = ({ userId
     remainingDue,
     queueSummary,
     loadCards,
-  } = useFlashcardSession(userId);
+  } = useFlashcardSession(userId, activeLanguage);
 
   const [sessionMode, setSessionMode] = useState<ReviewSessionMode>("auto");
   const [input, setInput] = useState("");

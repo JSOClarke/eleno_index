@@ -30,6 +30,7 @@ export interface VocabularyWord {
 
 export interface KnownWordEntry {
   canonical_id: string;
+  language?: string;
   status: UserVocabStatus;
   updated_at: string | null;
   lemma: string;
