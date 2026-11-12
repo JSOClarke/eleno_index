@@ -6,3 +6,5 @@ dist
 *.log
 .netlify
 .temp
+public/audio_samples/
+
