@@ -5,8 +5,10 @@ export async function enrichFlashcardSentence(
   card: UserFlashcard,
   userId: string
 ): Promise<UserFlashcard> {
-  // If already enriched with an authentic sentence from sentence_bank, keep it
-  if (card.is_i_plus_one || (card.sentence && !card.sentence.startsWith("Esta palabra está"))) {
+  const isPlaceholder = !card.sentence ||
+    card.sentence.startsWith("Esta palabra está") ||
+    card.sentence.startsWith("Ce mot est");
+  if (card.is_i_plus_one || (!isPlaceholder && card.sentence)) {
     return card;
   }
 

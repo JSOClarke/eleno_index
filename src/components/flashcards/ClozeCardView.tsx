@@ -4,6 +4,7 @@ import { ClozeInputForm } from "./ClozeInputForm";
 import { ClozeFeedbackPanel } from "./ClozeFeedbackPanel";
 import { RecognitionSentenceDisplay } from "./RecognitionSentenceDisplay";
 import { RecognitionActionPanel } from "./RecognitionActionPanel";
+import { FlashcardDefinitionsList } from "./FlashcardDefinitionsList";
 import type { MatchResult } from "@/lib/clozeMatcher";
 import type { CardDisplayMode, UserFlashcard } from "@/types/flashcard.types";
 
@@ -83,9 +84,11 @@ export const ClozeCardView: React.FC<ClozeCardViewProps> = ({
             <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#888888] mb-1">
               TARGET MEANING (PRODUCTION CUE)
             </div>
-            <div className="font-sans text-xl sm:text-2xl font-bold text-[#111111]">
-              {card.english_definition}
-            </div>
+            <FlashcardDefinitionsList
+              definitions={card.definitions}
+              fallback={card.english_definition}
+              variant="cue"
+            />
           </div>
 
           <ClozeSentenceDisplay

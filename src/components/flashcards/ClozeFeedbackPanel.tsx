@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Volume2, ArrowRight } from "lucide-react";
+import { FlashcardDefinitionsList } from "./FlashcardDefinitionsList";
 import type { MatchResult } from "@/lib/clozeMatcher";
 import type { UserFlashcard } from "@/types/flashcard.types";
 
@@ -35,7 +36,7 @@ export const ClozeFeedbackPanel: React.FC<ClozeFeedbackPanelProps> = ({
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(card.target_surface || card.target_lemma);
-    u.lang = "es-ES";
+    u.lang = card.language === "fr" ? "fr-FR" : "es-ES";
     u.rate = 0.9;
     window.speechSynthesis.speak(u);
   };
@@ -84,9 +85,11 @@ export const ClozeFeedbackPanel: React.FC<ClozeFeedbackPanelProps> = ({
           </button>
         </div>
 
-        <div className="font-sans text-sm text-[#555555]">
-          {card.english_definition}
-        </div>
+        <FlashcardDefinitionsList
+          definitions={card.definitions}
+          fallback={card.english_definition}
+          variant="full"
+        />
       </div>
 
       <button

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Volume2 } from "lucide-react";
+import { FlashcardDefinitionsList } from "./FlashcardDefinitionsList";
 import type { UserFlashcard } from "@/types/flashcard.types";
 
 interface RecognitionActionPanelProps {
@@ -50,7 +51,7 @@ export const RecognitionActionPanel: React.FC<RecognitionActionPanelProps> = ({
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(card.target_lemma || card.target_surface);
-    u.lang = "es-ES";
+    u.lang = card.language === "fr" ? "fr-FR" : "es-ES";
     u.rate = 0.9;
     window.speechSynthesis.speak(u);
   };
@@ -95,7 +96,11 @@ export const RecognitionActionPanel: React.FC<RecognitionActionPanelProps> = ({
             Meaning Revealed
           </span>
         </div>
-        <div className="font-sans text-lg font-medium text-[#111111]">{card.english_definition}</div>
+        <FlashcardDefinitionsList
+          definitions={card.definitions}
+          fallback={card.english_definition}
+          variant="full"
+        />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">

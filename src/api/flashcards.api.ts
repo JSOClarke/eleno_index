@@ -4,6 +4,11 @@ import type { CreateFlashcardPayload, FlashcardQueueSummary, UserFlashcard } fro
 const INTERVALS = [1, 3, 7, 14, 30, 60];
 
 function normalizeDynamicCard(row: any, userId: string): UserFlashcard {
+  const defs = Array.isArray(row.definitions) && row.definitions.length > 0
+    ? row.definitions.map(String).filter((d: string) => d.trim().length > 0)
+    : row.english_definition ? [String(row.english_definition).trim()] : [];
+  const primaryDef = defs[0] || String(row.english_definition || row.target_lemma || "");
+
   return {
     id: String(row.card_id || row.id || row.canonical_id),
     user_id: String(row.user_id || userId),
@@ -12,16 +17,16 @@ function normalizeDynamicCard(row: any, userId: string): UserFlashcard {
     target_surface: String(row.target_surface || row.target_lemma || ""),
     target_lemma: String(row.target_lemma || ""),
     target_pos: row.target_pos ? String(row.target_pos) : null,
-    english_definition: String(row.english_definition || ""),
+    english_definition: primaryDef,
+    definitions: defs,
+    language: row.language ? String(row.language) : undefined,
     source_media_title: row.source_media_title ? String(row.source_media_title) : null,
     source_context: row.source_context ? String(row.source_context) : null,
-    level: Number(row.level || row.srs_level || 1),
-    interval_days: Number(row.interval_days || row.srs_interval_days || 1),
+    level: Number(row.level || row.srs_level || 1), interval_days: Number(row.interval_days || row.srs_interval_days || 1),
     due_at: String(row.due_at || row.srs_due_at || new Date().toISOString()),
     review_count: Number(row.review_count || row.srs_review_count || 0),
     consecutive_correct: Number(row.consecutive_correct || row.srs_consecutive_correct || 0),
-    last_reviewed_at: row.last_reviewed_at ? String(row.last_reviewed_at) : null,
-    is_i_plus_one: Boolean(row.is_i_plus_one),
+    last_reviewed_at: row.last_reviewed_at ? String(row.last_reviewed_at) : null, is_i_plus_one: Boolean(row.is_i_plus_one),
   };
 }
 
@@ -43,15 +48,24 @@ export async function fetchDueFlashcards(userId: string, limit = 20, language = 
   return vocabRows.map((r: any) => {
     const cle = r.canonical_lexical_entity || {};
     const lemma = String(cle.lemma || r.canonical_id);
-    const def = Array.isArray(cle.definitions) && cle.definitions[0] ? cle.definitions[0] : lemma;
+    const rawDefs = Array.isArray(cle.definitions) && cle.definitions.length > 0
+      ? cle.definitions.map(String).filter((d: string) => d.trim().length > 0)
+      : [];
+    const def = rawDefs[0] || lemma;
+    const placeholder = language === "fr"
+      ? `Ce mot est dans votre liste d'apprentissage : ${lemma}.`
+      : `Esta palabra está en tu lista de aprendizaje: ${lemma}.`;
+
     return normalizeDynamicCard({
       card_id: r.id,
       canonical_id: r.canonical_id,
-      sentence: `Esta palabra está en tu lista de aprendizaje: ${lemma}.`,
+      sentence: placeholder,
       target_surface: lemma,
       target_lemma: lemma,
       target_pos: cle.pos,
       english_definition: def,
+      definitions: rawDefs.length > 0 ? rawDefs : [def],
+      language: cle.language || language,
       level: Number(r.srs_level || 1),
       interval_days: Number(r.srs_interval_days || 1),
       due_at: r.srs_due_at,

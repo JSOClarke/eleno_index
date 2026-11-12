@@ -10,6 +10,8 @@ export interface UserFlashcard {
   target_lemma: string;
   target_pos: string | null;
   english_definition: string;
+  definitions?: string[];
+  language?: string;
   source_media_title: string | null;
   source_context: string | null;
   level: number;
@@ -53,6 +55,8 @@ export interface CreateFlashcardPayload {
   target_lemma: string;
   target_pos?: string | null;
   english_definition: string;
+  definitions?: string[];
+  language?: string;
   source_media_title?: string | null;
   source_context?: string | null;
 }
