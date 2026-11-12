@@ -24,7 +24,11 @@ export function getWordRankForSource(
   rankings: LexicalRanking[] | undefined,
   source: RankingSourceKey
 ): number | null {
-  const entry = rankings?.find((r) => r.source === source);
+  const entry = rankings?.find((r) =>
+    source === "tubelex_v2025"
+      ? r.source === "tubelex_v2025" || r.source === "lexique383"
+      : r.source === "elelex_v2020" || r.source === "flelex_v2020" || r.source === "flelex_v1"
+  );
   const val = entry?.rank ?? null;
   return val && val > 0 ? val : null;
 }

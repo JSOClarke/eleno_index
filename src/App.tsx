@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { AuthModal } from "@/components/layout/AuthModal";
 import { TopNavBar } from "@/components/layout/TopNavBar";
@@ -8,6 +8,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCatalogueData } from "@/hooks/useCatalogueData";
 import { useFilterState } from "@/hooks/useFilterState";
 import { useUserVocabulary } from "@/hooks/useUserVocabulary";
+import {
+  readActiveLanguage,
+  selectWorkEditionForLanguage,
+  writeActiveLanguage,
+  type SupportedLanguage,
+} from "@/lib/catalogueLanguages";
 import { inspectorCache } from "@/lib/inspectorCache";
 import { ReaderPage } from "@/pages/ReaderPage";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
@@ -20,6 +26,22 @@ export const App: React.FC = () => {
   const catalogue = useCatalogueData(auth.user?.id, auth.loading);
   const filterState = useFilterState();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [activeLanguage, setActiveLanguage] = useState<SupportedLanguage>(() =>
+    readActiveLanguage()
+  );
+
+  const handleChangeLanguage = (lang: SupportedLanguage) => {
+    setActiveLanguage(lang);
+    writeActiveLanguage(lang);
+  };
+
+  const languageCatalogueItems = useMemo(
+    () =>
+      catalogue.items
+        .map((item) => selectWorkEditionForLanguage(item, activeLanguage))
+        .filter((item): item is MediaCatalogItem => Boolean(item)),
+    [catalogue.items, activeLanguage]
+  );
 
   const handleTogglePreviewWord = (item: MediaCatalogItem, word: PreviewWordItem) => {
     if (!auth.user) {
@@ -39,7 +61,7 @@ export const App: React.FC = () => {
   };
 
   const sharedCataloguePageProps = {
-    items: catalogue.items,
+    items: languageCatalogueItems,
     loading: catalogue.loading,
     filterState,
     statusMap: userVocab.statusMap,
@@ -78,6 +100,8 @@ export const App: React.FC = () => {
         savedCount={filterState.savedIds.size}
         knownCount={userVocab.knownCount}
         learningCount={userVocab.learningCount}
+        activeLanguage={activeLanguage}
+        onChangeLanguage={handleChangeLanguage}
         user={auth.user}
         onOpenAuth={() => setAuthModalOpen(true)}
         onSignOut={auth.signOut}

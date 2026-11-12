@@ -34,12 +34,23 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
       : `Ch. ${word.first_occurrence_index} · ${word.first_context_snippet}`
     : `Chapter ${word.first_occurrence_index}`;
 
-  const rankingEntry = word.rankings?.find((r) => r.source === rankingSource);
+  const rankingEntry = word.rankings?.find((r) =>
+    rankingSource === "tubelex_v2025"
+      ? r.source === "tubelex_v2025" || r.source === "lexique383"
+      : r.source === "elelex_v2020" || r.source === "flelex_v2020" || r.source === "flelex_v1"
+  );
   const activeRank = rankingEntry?.rank ?? null;
   const rankTooltip = rankingEntry?.count
     ? `Corpus count: ${formatNumber(rankingEntry.count)}`
     : undefined;
-  const rankLabel = rankingSource === "tubelex_v2025" ? "TUBELEX" : "ELELEX";
+  const rankLabel =
+    rankingEntry?.source === "lexique383"
+      ? "LEXIQUE"
+      : rankingEntry?.source?.startsWith("flelex")
+      ? "FLELEX"
+      : rankingSource === "tubelex_v2025"
+      ? "TUBELEX"
+      : "ELELEX";
 
   const isLearning = status === "learning";
   const isKnown = status === "known";

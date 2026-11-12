@@ -13,6 +13,7 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({
 
   const cefr = metrics.cefr_level || "B1";
   const fh = (metrics.readability_score || 70).toFixed(1);
+  const isKm = (metrics as any).readability_details?.formula === "Kandel-Moles";
   const subjPct = formatPercent(metrics.verb_profile?.subjunctive_load, 1);
   const wpm = metrics.words_per_minute ? Math.round(metrics.words_per_minute) : null;
   const speechDensity = metrics.speech_density
@@ -26,9 +27,11 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({
       <div className="border border-[#E2E2DF] bg-white p-3.5">
         <div className="text-[#777777] uppercase">CEFR & Readability</div>
         <div className="text-lg font-bold text-[#111111] mt-1">
-          {cefr} · F-H {fh}
+          {cefr} · {isKm ? "K-M" : "F-H"} {fh}
         </div>
-        <div className="text-[#666666] mt-0.5">Fernández Huerta scale</div>
+        <div className="text-[#666666] mt-0.5">
+          {isKm ? "Kandel-Moles scale" : "Fernández Huerta scale"}
+        </div>
       </div>
 
       <div className="border border-[#E2E2DF] bg-white p-3.5">

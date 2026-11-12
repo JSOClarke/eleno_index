@@ -70,12 +70,12 @@ export async function fetchKnownWordsDetails(userId: string): Promise<KnownWordE
     const pronunciations = entity.lexical_pronunciation || [];
 
     const cefrRanking =
-      rankings.find((r) => r.source === "elelex_v2020" && r.cefr) ||
+      rankings.find((r) => (r.source === "elelex_v2020" || r.source === "flelex_v2020" || r.source === "flelex_v1") && r.cefr) ||
       rankings.find((r) => r.cefr);
     const cefr = cefrRanking?.cefr || "B2";
 
-    const tubelexRanking = rankings.find((r) => r.source === "tubelex_v2025");
-    const rank = tubelexRanking?.rank ? Number(tubelexRanking.rank) : null;
+    const freqRanking = rankings.find((r) => r.source === "tubelex_v2025" || r.source === "lexique383");
+    const rank = freqRanking?.rank ? Number(freqRanking.rank) : null;
 
     let ipa: string | null = null;
     if (pronunciations.length > 0 && pronunciations[0]?.transcriptions?.length > 0) {

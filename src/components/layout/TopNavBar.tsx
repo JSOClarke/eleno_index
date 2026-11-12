@@ -4,24 +4,23 @@ import { Link, useLocation } from "react-router-dom";
 import { InputHubBrandLogo } from "@/components/brand/InputHubBrandLogo";
 import { FlashcardNavbarBadge } from "@/components/flashcards/FlashcardNavbarBadge";
 import { MobileNavDrawer } from "./MobileNavDrawer";
+import { getLanguageLabel, type SupportedLanguage } from "@/lib/catalogueLanguages";
 import type { UserProfile } from "@/types/vocabulary.types";
 
 interface TopNavBarProps {
   savedCount: number;
   knownCount: number;
   learningCount?: number;
+  activeLanguage?: SupportedLanguage;
+  onChangeLanguage?: (lang: SupportedLanguage) => void;
   user: UserProfile | null;
   onOpenAuth: () => void;
   onSignOut: () => void;
 }
 
 export const TopNavBar: React.FC<TopNavBarProps> = ({
-  savedCount,
-  knownCount,
-  learningCount = 0,
-  user,
-  onOpenAuth,
-  onSignOut,
+  savedCount, knownCount, learningCount = 0, activeLanguage = "es",
+  onChangeLanguage, user, onOpenAuth, onSignOut,
 }) => {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -30,11 +29,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
     { to: "/", label: "Catalogue", match: (p: string) => p === "/" || p.startsWith("/media/") },
     { to: "/saved", label: `Saved (${savedCount})`, match: (p: string) => p === "/saved" },
     { to: "/history", label: "History", match: (p: string) => p === "/history" },
-    {
-      to: "/known-words",
-      label: `Known words (${knownCount})`,
-      match: (p: string) => p === "/known-words",
-    },
+    { to: "/known-words", label: `Known words (${knownCount})`, match: (p: string) => p === "/known-words" },
     { to: "/reviews", label: "Reviews", match: (p: string) => p === "/reviews" },
   ];
   const drawerItems = [
@@ -88,8 +83,24 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
           <div className="hidden items-center gap-2 font-mono text-xs text-[#555555] sm:flex sm:gap-4">
             <FlashcardNavbarBadge userId={user?.id} learningCount={learningCount} />
+            <div className="inline-flex border border-[#111111] bg-white" role="group" aria-label="Target language">
+              {(["es", "fr"] as const).map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  onClick={() => onChangeLanguage?.(lang)}
+                  className={`px-2 py-0.5 font-mono text-[11px] font-bold uppercase cursor-pointer ${
+                    activeLanguage === lang
+                      ? "bg-[#111111] text-[#B8FF01]"
+                      : "bg-white text-[#111111] hover:bg-[#F4F4F2]"
+                  }`}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
             <span className="hidden lg:inline">
-              Spanish · target level <strong className="text-[#111111]">B1</strong>
+              {getLanguageLabel(activeLanguage)} · target <strong className="text-[#111111]">B1</strong>
             </span>
             <span className="hidden lg:inline">·</span>
             {user ? (
@@ -119,13 +130,8 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
       </header>
 
       <MobileNavDrawer
-        open={menuOpen}
-        onClose={() => setMenuOpen(false)}
-        items={drawerItems}
-        activeTo={activeTo}
-        user={user}
-        onOpenAuth={onOpenAuth}
-        onSignOut={onSignOut}
+        open={menuOpen} onClose={() => setMenuOpen(false)} items={drawerItems}
+        activeTo={activeTo} user={user} onOpenAuth={onOpenAuth} onSignOut={onSignOut}
       />
     </>
   );
