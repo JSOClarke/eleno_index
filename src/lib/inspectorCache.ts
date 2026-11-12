@@ -48,6 +48,13 @@ export const inspectorCache = {
     }
   },
 
+  setChapters(mediaId: string, chapterMetrics: MediaChapterMetrics[]): void {
+    const existing = this.get(mediaId);
+    if (existing) {
+      this.set(mediaId, { ...existing, chapterMetrics });
+    }
+  },
+
   delete(mediaId: string): void {
     memoryMap.delete(mediaId);
     try {

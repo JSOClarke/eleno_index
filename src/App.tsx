@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCatalogueData } from "@/hooks/useCatalogueData";
 import { useFilterState } from "@/hooks/useFilterState";
 import { useUserVocabulary } from "@/hooks/useUserVocabulary";
+import { inspectorCache } from "@/lib/inspectorCache";
 import { ReaderPage } from "@/pages/ReaderPage";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
@@ -32,6 +33,7 @@ export const App: React.FC = () => {
   };
 
   const handleReloadAfterPacks = async () => {
+    inspectorCache.clear();
     await userVocab.reloadVocab();
     await catalogue.reloadCatalogue();
   };
@@ -44,6 +46,7 @@ export const App: React.FC = () => {
     isAuthenticated: Boolean(auth.user),
     onRequireAuth: () => setAuthModalOpen(true),
     onToggleWord: handleTogglePreviewWord,
+    onEnsurePreviewWords: catalogue.ensurePreviewWords,
   };
 
   if (location.pathname.startsWith("/read/")) {

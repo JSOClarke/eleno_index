@@ -49,6 +49,13 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
       setQuarantineLoaded(hit.quarantineLoaded);
       setLoading(false);
       setChaptersLoading(false);
+      fetchChapterMetricsWithComprehension(item.id, userId)
+        .then((fresh) => {
+          if (cancelled) return;
+          setChapterMetrics(fresh);
+          inspectorCache.setChapters(item.id, fresh);
+        })
+        .catch(() => {});
       return;
     }
 
@@ -67,19 +74,16 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
         setLoading(false);
         setChaptersLoading(false);
 
-        const restVocab = await fetchRemainingVocabPages(
-          item.id,
-          item.metrics?.unique_words_count || 2000
-        );
+        const restVocab = await fetchRemainingVocabPages(item.id, item.metrics?.unique_words_count || 2000);
         if (cancelled) return;
         const fullVocab = restVocab.length > 0 ? [...firstPage, ...restVocab] : firstPage;
         setVocabulary(fullVocab);
-
+        const cur = inspectorCache.get(item.id);
         inspectorCache.set(item.id, {
           vocabulary: fullVocab,
           chapterMetrics: chapters,
-          quarantineItems: inspectorCache.get(item.id)?.quarantineItems || [],
-          quarantineLoaded: inspectorCache.get(item.id)?.quarantineLoaded || false,
+          quarantineItems: cur?.quarantineItems || [],
+          quarantineLoaded: cur?.quarantineLoaded || false,
           isComplete: true,
         });
       } catch (err) {
@@ -115,11 +119,7 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
   const handleOptimisticWordChange = useCallback(
     (word: VocabularyWord, newStatus: UserVocabStatus | null, oldStatus?: UserVocabStatus) => {
       if (oldStatus === newStatus) return;
-
-      setBookComp((prev) =>
-        applyOptimisticBookDelta(prev, item.metrics, word.frequency, newStatus, oldStatus)
-      );
-
+      setBookComp((prev) => applyOptimisticBookDelta(prev, item.metrics, word.frequency, newStatus, oldStatus));
       if (userId) {
         if (syncTimerRef.current) clearTimeout(syncTimerRef.current);
         syncTimerRef.current = setTimeout(async () => {
@@ -129,6 +129,7 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
           ]);
           if (compMap[item.id]) setBookComp(compMap[item.id]);
           setChapterMetrics(freshChapters);
+          inspectorCache.setChapters(item.id, freshChapters);
         }, 1200);
       }
     },

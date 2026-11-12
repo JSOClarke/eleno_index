@@ -85,11 +85,23 @@ function toWork(row: any): MediaCatalogItem | null {
 }
 
 export async function fetchBaseCatalogueItems(): Promise<MediaCatalogItem[]> {
-  const { data, error } = await supabase
-    .from("media_work")
-    .select(WORK_SELECT)
-    .order("created_at", { ascending: false });
+  const pageSize = 1000;
+  const allRows: any[] = [];
+  let from = 0;
 
-  if (error) throw error;
-  return (data || []).map(toWork).filter((work): work is MediaCatalogItem => Boolean(work));
+  while (true) {
+    const { data, error } = await supabase
+      .from("media_work")
+      .select(WORK_SELECT)
+      .order("created_at", { ascending: false })
+      .range(from, from + pageSize - 1);
+
+    if (error) throw error;
+    const batch = data || [];
+    allRows.push(...batch);
+    if (batch.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return allRows.map(toWork).filter((work): work is MediaCatalogItem => Boolean(work));
 }

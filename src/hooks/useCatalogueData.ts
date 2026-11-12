@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  fetchCatalogueEnrichment,
   fetchMediaComprehensionMap,
+  fetchPreviewWordsBatch,
 } from "@/api/catalogue.api";
 import { fetchBaseCatalogueItems } from "@/api/catalogueWorks.api";
 import { readCachedCatalogue, writeCachedCatalogue } from "@/lib/catalogueCache";
@@ -14,9 +14,11 @@ export function useCatalogueData(userId?: string | null, authLoading = false) {
   const [loading, setLoading] = useState<boolean>(() => readCachedCatalogue().length === 0);
   const [error, setError] = useState<string | null>(null);
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const loadedPreviewIdsRef = useRef<Set<string>>(new Set());
 
   const loadCatalogue = useCallback(async () => {
     setError(null);
+    loadedPreviewIdsRef.current.clear();
     const tStart = performance.now();
     try {
       const baseItems = await fetchBaseCatalogueItems();
@@ -37,21 +39,20 @@ export function useCatalogueData(userId?: string | null, authLoading = false) {
       });
       setLoading(false);
       console.info(
-        `[inputhub /es] Stage 1 Cards + Covers rendered in ${Math.round(
-          performance.now() - tStart
-        )}ms`
+        `[inputhub /es] Stage 1 Cards rendered in ${Math.round(performance.now() - tStart)}ms`
       );
 
-      const { compMap, previewLookup } = await fetchCatalogueEnrichment(userId);
-      const enriched = baseItems.map((b) => ({
-        ...b,
-        comprehension: compMap[b.id] || null,
-        previewWords: previewLookup[b.id] || [],
-      }));
-      setItems(enriched);
-      writeCachedCatalogue(enriched);
+      const compMap = await fetchMediaComprehensionMap(userId);
+      setItems((prev) => {
+        const enriched = prev.map((b) => ({
+          ...b,
+          comprehension: compMap[b.id] || b.comprehension || null,
+        }));
+        writeCachedCatalogue(enriched);
+        return enriched;
+      });
       console.info(
-        `[inputhub /es] Stage 2 RPC Enrichment complete in ${Math.round(
+        `[inputhub /es] Stage 2 Comprehension RPC complete in ${Math.round(
           performance.now() - tStart
         )}ms`
       );
@@ -65,6 +66,27 @@ export function useCatalogueData(userId?: string | null, authLoading = false) {
     if (authLoading) return;
     loadCatalogue();
   }, [authLoading, loadCatalogue]);
+
+  const ensurePreviewWords = useCallback(
+    async (mediaIds: string[]) => {
+      const missing = mediaIds.filter((id) => id && !loadedPreviewIdsRef.current.has(id));
+      if (missing.length === 0) return;
+      missing.forEach((id) => loadedPreviewIdsRef.current.add(id));
+      try {
+        const lookup = await fetchPreviewWordsBatch(userId, missing);
+        setItems((prev) => {
+          const next = prev.map((item) =>
+            lookup[item.id] ? { ...item, previewWords: lookup[item.id] } : item
+          );
+          writeCachedCatalogue(next);
+          return next;
+        });
+      } catch {
+        missing.forEach((id) => loadedPreviewIdsRef.current.delete(id));
+      }
+    },
+    [userId]
+  );
 
   const applyOptimisticWordToggle = useCallback(
     (
@@ -111,5 +133,12 @@ export function useCatalogueData(userId?: string | null, authLoading = false) {
     [userId]
   );
 
-  return { items, loading, error, reloadCatalogue: loadCatalogue, applyOptimisticWordToggle };
+  return {
+    items,
+    loading,
+    error,
+    reloadCatalogue: loadCatalogue,
+    ensurePreviewWords,
+    applyOptimisticWordToggle,
+  };
 }

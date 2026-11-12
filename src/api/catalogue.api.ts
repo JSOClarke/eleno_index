@@ -6,13 +6,19 @@ import type {
 import { normalizeMediaComprehension } from "./normalizers";
 
 export async function fetchPreviewWordsBatch(
-  userId?: string | null
+  userId?: string | null,
+  mediaItemIds?: string[]
 ): Promise<Record<string, PreviewWordItem[]>> {
   const lookup: Record<string, PreviewWordItem[]> = {};
+  if (mediaItemIds && mediaItemIds.length === 0) return lookup;
 
   const { data: rpcData, error: rpcErr } = await supabase.rpc(
     "get_user_media_preview_words",
-    { p_user_id: userId || null, p_limit_per_item: 8 }
+    {
+      p_user_id: userId || null,
+      p_limit_per_item: 8,
+      p_media_item_ids: mediaItemIds && mediaItemIds.length > 0 ? mediaItemIds : null,
+    }
   );
 
   if (!rpcErr && rpcData) {
@@ -51,10 +57,13 @@ export async function fetchMediaComprehensionMap(
   return map;
 }
 
-export async function fetchCatalogueEnrichment(userId?: string | null) {
+export async function fetchCatalogueEnrichment(
+  userId?: string | null,
+  initialMediaIds?: string[]
+) {
   const [compMap, previewLookup] = await Promise.all([
     fetchMediaComprehensionMap(userId),
-    fetchPreviewWordsBatch(userId),
+    fetchPreviewWordsBatch(userId, initialMediaIds),
   ]);
   return { compMap, previewLookup };
 }

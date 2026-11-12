@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { updateStagedImport } from "@/api/adminImport.api";
 import { AdminImportAuditForm } from "@/components/admin/AdminImportAuditForm";
 import { AdminWorkMatchPanel } from "@/components/admin/AdminWorkMatchPanel";
 import type {
@@ -43,10 +44,10 @@ export const AdminBatchAuditModal: React.FC<AdminBatchAuditModalProps> = ({
   });
 
   const [selectedWork, setSelectedWork] = useState<AdminWorkMatch | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
-    const updatedJob: AdminImportJob = {
-      ...job,
+  const handleSave = async () => {
+    const updatedFields = {
       work_id: selectedWork?.id || job.work_id,
       work_candidate: {
         ...job.work_candidate,
@@ -66,7 +67,15 @@ export const AdminBatchAuditModal: React.FC<AdminBatchAuditModalProps> = ({
         release_year: edition.release_year ? Number(edition.release_year) : null,
       },
     };
-    onSave(updatedJob);
+    setSaving(true);
+    try {
+      const saved = await updateStagedImport(job.id, updatedFields);
+      onSave(saved);
+    } catch {
+      onSave({ ...job, ...updatedFields });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -114,10 +123,11 @@ export const AdminBatchAuditModal: React.FC<AdminBatchAuditModalProps> = ({
           </button>
           <button
             type="button"
-            onClick={handleSave}
-            className="border border-[#111111] bg-[#B8FF01] px-5 py-2 font-mono text-xs font-bold text-[#111111] cursor-pointer shadow-[2px_2px_0px_#111111]"
+            disabled={saving}
+            onClick={() => void handleSave()}
+            className="border border-[#111111] bg-[#B8FF01] px-5 py-2 font-mono text-xs font-bold text-[#111111] cursor-pointer shadow-[2px_2px_0px_#111111] disabled:opacity-50"
           >
-            Save Audited Metadata ✓
+            {saving ? "Saving..." : "Save Audited Metadata ✓"}
           </button>
         </div>
       </div>

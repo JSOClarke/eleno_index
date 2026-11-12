@@ -111,3 +111,33 @@ export interface AdminBatchCommitPayload {
     skip_reader?: boolean;
   };
 }
+
+export interface AdminMediaDetailsResponse {
+  item: {
+    id: string;
+    work_id?: string | null;
+    title: string;
+    creator: string;
+    language: string;
+    synopsis?: string | null;
+    release_year?: number | null;
+    cover_image_url?: string | null;
+    format?: string | null;
+    type?: string | null;
+    metadata?: { source_filename?: string; [key: string]: unknown } | null;
+  };
+  work?: {
+    id: string;
+    original_title: string;
+    title_en?: string | null;
+    creator: string;
+    original_language?: string | null;
+    synopsis?: string | null;
+    synopsis_en?: string | null;
+    series_id?: string | null;
+    series_name?: string | null;
+    series_order?: number | null;
+    series_label?: string | null;
+    default_cover_image_url?: string | null;
+  } | null;
+}

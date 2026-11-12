@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { AdminDeleteMediaModal } from "@/components/admin/AdminDeleteMediaModal";
+import { AdminEditMediaModal } from "@/components/admin/AdminEditMediaModal";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
+import { clearCachedCatalogue } from "@/lib/catalogueCache";
 import { formatCompactWords, formatPercent } from "@/lib/formatters";
 import type { MediaCatalogItem, MediaComprehensionStats } from "@/types/media.types";
 import { InspectorFlowPanel } from "./InspectorFlowPanel";
@@ -20,6 +22,7 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   onRequireAuth,
 }) => {
   const [showDelete, setShowDelete] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
   const fh = (m?.readability_score || 70).toFixed(1);
@@ -30,6 +33,7 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   const learnFlowPct = comprehension?.learning_text_coverage_percentage ?? 0;
   const vocabPct = comprehension?.comprehension_percentage ?? 0;
   const learnVocabPct = comprehension?.learning_percentage ?? 0;
+  const showWorkSubtitle = Boolean(item.work_title && item.work_title.trim().toLowerCase() !== item.title.trim().toLowerCase());
 
   return (
     <div className="space-y-4">
@@ -37,7 +41,7 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
         <Link to="/" className="font-mono text-xs text-[#111111] hover:underline flex items-center gap-1.5">
           ← Back to Catalogue
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {isAuthenticated ? (
             <Link to={`/read/${item.id}`} className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600]">
               Read Story →
@@ -48,14 +52,24 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
             </button>
           )}
           {isAuthenticated && (
-            <button
-              type="button"
-              onClick={() => setShowDelete(true)}
-              className="border border-red-600 bg-white px-2.5 py-1 font-mono text-xs font-bold text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
-              title="Delete from catalogue (Admin)"
-            >
-              Delete
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => setShowEdit(true)}
+                className="border border-[#111111] bg-white px-2.5 py-1 font-mono text-xs font-bold text-[#111111] hover:bg-[#111111] hover:text-white transition-colors cursor-pointer"
+                title="Edit book & work metadata (Admin)"
+              >
+                Edit Metadata
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowDelete(true)}
+                className="border border-red-600 bg-white px-2.5 py-1 font-mono text-xs font-bold text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                title="Delete from catalogue (Admin)"
+              >
+                Delete
+              </button>
+            </>
           )}
           <span className="hidden font-mono text-xs text-[#666666] sm:inline">
             MEDIA ID: {item.id.slice(0, 8).toUpperCase()}
@@ -86,43 +100,22 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
                 {item.release_year && <div className="text-[#666666]">{item.release_year}</div>}
               </div>
               <h1 className="break-words text-xl font-bold tracking-tight text-[#111111] sm:text-2xl">{item.title}</h1>
+              {showWorkSubtitle && (
+                <div className="font-mono text-xs text-[#666666]">Original / EN: {item.work_title}</div>
+              )}
             </div>
           </div>
           <p className="font-serif text-sm italic text-[#333333]">{item.sampleSnippet}</p>
         </div>
 
         <div className="col-span-12 lg:col-span-5 grid grid-cols-2 gap-4 lg:border-l border-[#E2E2DF] lg:pl-6">
-          <InspectorFlowPanel
-            index="01"
-            title="READING FLOW"
-            pct={flowPct}
-            learnPct={learnFlowPct}
-            footnote={<>{formatCompactWords(m?.total_tokens || 0)} total</>}
-            isAuthenticated={isAuthenticated}
-            onSignIn={onRequireAuth}
-          />
-          <InspectorFlowPanel
-            index="02"
-            title="VOCAB MASTERY"
-            pct={vocabPct}
-            learnPct={learnVocabPct}
-            footnote={<>F-H {fh} · {dialOrWpm}</>}
-            isAuthenticated={isAuthenticated}
-            onSignIn={onRequireAuth}
-          />
+          <InspectorFlowPanel index="01" title="READING FLOW" pct={flowPct} learnPct={learnFlowPct} footnote={<>{formatCompactWords(m?.total_tokens || 0)} total</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} />
+          <InspectorFlowPanel index="02" title="VOCAB MASTERY" pct={vocabPct} learnPct={learnVocabPct} footnote={<>F-H {fh} · {dialOrWpm}</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} />
         </div>
       </div>
 
-      <AdminDeleteMediaModal
-        isOpen={showDelete}
-        mediaId={item.id}
-        mediaTitle={item.title}
-        onClose={() => setShowDelete(false)}
-        onSuccess={() => {
-          setShowDelete(false);
-          window.location.href = "/";
-        }}
-      />
+      <AdminEditMediaModal isOpen={showEdit} mediaId={item.id} onClose={() => setShowEdit(false)} onSuccess={() => { setShowEdit(false); window.location.reload(); }} />
+      <AdminDeleteMediaModal isOpen={showDelete} mediaId={item.id} mediaTitle={item.title} onClose={() => setShowDelete(false)} onSuccess={() => { clearCachedCatalogue(); setShowDelete(false); window.location.href = "/"; }} />
     </div>
   );
 };

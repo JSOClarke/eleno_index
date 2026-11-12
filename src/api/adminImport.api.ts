@@ -3,6 +3,7 @@ import type {
   AdminBatchImportResponse,
   AdminCommitPayload,
   AdminImportJob,
+  AdminMediaDetailsResponse,
   AdminSeriesItem,
   AdminWorkMatch,
 } from "@/types/adminImport.types";
@@ -42,6 +43,17 @@ export function fetchImportsList(limit = 50): Promise<AdminImportJob[]> {
 
 export function deleteStagedImport(jobId: string): Promise<{ success: boolean }> {
   return request<{ success: boolean }>(`/admin/imports/${jobId}`, { method: "DELETE" });
+}
+
+export function updateStagedImport(
+  jobId: string,
+  payload: Partial<Pick<AdminImportJob, "work_id" | "work_candidate" | "edition_candidate">>
+): Promise<AdminImportJob> {
+  return request<AdminImportJob>(`/admin/imports/${jobId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 }
 
 export function clearAllImports(): Promise<{ cleared: number }> {
@@ -86,5 +98,20 @@ export function deleteCatalogueMediaItem(
 ): Promise<{ success: boolean; deleted_media_item_id: string; title?: string; deleted_work_id?: string }> {
   return request(`/admin/media/${mediaItemId}?delete_work=${deleteWork}`, {
     method: "DELETE",
+  });
+}
+
+export function fetchAdminMediaDetails(mediaItemId: string): Promise<AdminMediaDetailsResponse> {
+  return request<AdminMediaDetailsResponse>(`/admin/media/${mediaItemId}`);
+}
+
+export function updateAdminMediaMetadata(
+  mediaItemId: string,
+  payload: AdminCommitPayload
+): Promise<AdminMediaDetailsResponse> {
+  return request<AdminMediaDetailsResponse>(`/admin/media/${mediaItemId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
   });
 }

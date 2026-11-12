@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { resolveCoverArt } from "@/lib/coverArt";
 
 interface BookCoverPlateProps {
@@ -6,17 +6,6 @@ interface BookCoverPlateProps {
   explicitUrl: string | null;
   level: string;
   size?: "mini" | "drawer" | "card" | "hero";
-}
-
-// Keep decoded HTMLImageElement instances pinned in memory so route transitions never re-decode
-const pinnedImages = new Map<string, HTMLImageElement>();
-
-function pinImageInMemory(url: string) {
-  if (!url || pinnedImages.has(url)) return;
-  const img = new Image();
-  img.decoding = "sync";
-  img.src = url;
-  pinnedImages.set(url, img);
 }
 
 export const BookCoverPlate: React.FC<BookCoverPlateProps> = ({
@@ -28,12 +17,6 @@ export const BookCoverPlate: React.FC<BookCoverPlateProps> = ({
   const [imgFailed, setImgFailed] = useState(false);
   const meta = resolveCoverArt(title, explicitUrl);
   const showFallback = !meta.coverUrl || imgFailed;
-
-  useEffect(() => {
-    if (meta.coverUrl) {
-      pinImageInMemory(meta.coverUrl);
-    }
-  }, [meta.coverUrl]);
 
   const dims =
     size === "mini"
@@ -69,7 +52,8 @@ export const BookCoverPlate: React.FC<BookCoverPlateProps> = ({
         <img
           src={meta.coverUrl!}
           alt={title}
-          decoding="sync"
+          loading={size === "hero" ? "eager" : "lazy"}
+          decoding="async"
           onError={() => setImgFailed(true)}
           className="absolute inset-0 w-full h-full object-cover z-10"
         />

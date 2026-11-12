@@ -18,3 +18,11 @@ export function writeCachedCatalogue(list: MediaCatalogItem[]): void {
     // Ignore storage quota warnings
   }
 }
+
+export function clearCachedCatalogue(): void {
+  try {
+    localStorage.removeItem(CACHE_KEY);
+  } catch {
+    // Ignore storage errors
+  }
+}
