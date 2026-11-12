@@ -10,7 +10,7 @@ export interface InspectorCacheEntry {
 }
 
 const memoryMap = new Map<string, InspectorCacheEntry>();
-const SESSION_PREFIX = "eleno_insp_v1_";
+const SESSION_PREFIX = "eleno_insp_v2_";
 
 function readSession(mediaId: string): InspectorCacheEntry | null {
   try {
