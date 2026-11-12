@@ -14,6 +14,7 @@ interface ReaderTokenSpanProps {
   bIdx: number;
   sIdx: number;
   tIdx: number;
+  isAudioActive?: boolean;
 }
 
 export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
@@ -28,6 +29,7 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
     bIdx,
     sIdx,
     tIdx,
+    isAudioActive,
   }) => {
     if (typeof token === "string") {
       return <span>{token}</span>;
@@ -45,8 +47,10 @@ export const ReaderTokenSpan: React.FC<ReaderTokenSpanProps> = React.memo(
 
     const bandClass = getTokenUnderlineClass(entry, status, highlightMode, highlightUnknownOnly);
 
-    let styleClass = "relative inline cursor-pointer px-[1px] border-b-[2.5px] ";
-    if (bandClass) {
+    let styleClass = "relative inline cursor-pointer px-[1px] border-b-[2.5px] transition-colors ";
+    if (isAudioActive) {
+      styleClass += "bg-[#B8FF01] text-[#111111] font-semibold !border-[#111111] shadow-[0_0_8px_rgba(184,255,1,0.7)] ";
+    } else if (bandClass) {
       if (isLearning) {
         styleClass += `bg-[#B8FF01] text-[#111111] hover:bg-[#a6e600] ${bandClass}`;
       } else {

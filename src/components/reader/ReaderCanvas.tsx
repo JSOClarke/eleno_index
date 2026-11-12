@@ -24,13 +24,14 @@ interface ReaderCanvasProps {
   highlightUnknownOnly: boolean;
   onSelectToken: (surface: string, entry: ElenoLexiconEntry, bIdx: number, sIdx: number, morph?: string, tokenIndex?: number) => void;
   onToggleKnown?: (canonicalId: string, currentStatus: UserVocabStatus | undefined) => void;
+  activeSentence?: { bIdx: number; sIdx: number } | null;
+  activeWord?: { bIdx: number; sIdx: number; tIdx: number } | null;
+  onJumpToToken?: (bIdx: number, sIdx: number, tIdx: number) => void;
 }
 
 const BLOCK_STYLES: Record<string, string> = {
-  h1: "mt-8 mb-6 font-serif text-3xl font-bold text-[#111111]",
-  h2: "mt-6 mb-4 font-serif text-2xl font-semibold text-[#111111]",
-  h3: "mt-5 mb-3 font-serif text-xl font-semibold text-[#111111]",
-  quote: "my-6 border-l-4 border-[#111111] pl-4 italic text-[#333333]",
+  h1: "mt-8 mb-6 font-serif text-3xl font-bold text-[#111111]", h2: "mt-6 mb-4 font-serif text-2xl font-semibold text-[#111111]",
+  h3: "mt-5 mb-3 font-serif text-xl font-semibold text-[#111111]", quote: "my-6 border-l-4 border-[#111111] pl-4 italic text-[#333333]",
   cue: "my-2 font-sans text-sm text-[#111111] bg-[#F8F8F6] p-2.5 border border-[#111111]",
 };
 
@@ -51,6 +52,7 @@ function checkIPlusOne(sent: ElenoToken[], lexicon: ElenoLexiconEntry[], statusM
 export const ReaderCanvas: React.FC<ReaderCanvasProps> = React.memo(({
   blocks, lexicon, statusMap, fontSize, showRuby, rubyPos, showIPlusOne,
   highlightMode, highlightUnknownOnly, onSelectToken, onToggleKnown,
+  activeSentence, activeWord, onJumpToToken,
 }) => {
   const handleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const target = (e.target as HTMLElement).closest<HTMLElement>("[data-tok]");
@@ -60,6 +62,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = React.memo(({
     const s = Number(target.dataset.sidx);
     const t = Number(target.dataset.tok);
     if (Number.isNaN(b) || Number.isNaN(s) || Number.isNaN(t)) return;
+    if (e.altKey && onJumpToToken) { onJumpToToken(b, s, t); return; }
     const tok = blocks[b]?.sentences[s]?.[t];
     if (!Array.isArray(tok)) return;
     const [surface, lexIdx, morph] = tok;
@@ -69,7 +72,16 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = React.memo(({
       target.classList.add("token-selected");
       onSelectToken(surface, entry, b, s, morph, t);
     }
-  }, [blocks, lexicon, onSelectToken]);
+  }, [blocks, lexicon, onSelectToken, onJumpToToken]);
+
+  const handleDoubleClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    const target = (e.target as HTMLElement).closest<HTMLElement>("[data-tok]");
+    if (!target || !onJumpToToken) return;
+    const b = Number(target.dataset.bidx);
+    const s = Number(target.dataset.sidx);
+    const t = Number(target.dataset.tok);
+    if (!Number.isNaN(b) && !Number.isNaN(s) && !Number.isNaN(t)) onJumpToToken(b, s, t);
+  }, [onJumpToToken]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const target = (e.target as HTMLElement).closest<HTMLElement>("[data-tok]");
@@ -91,6 +103,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = React.memo(({
     <article
       id="reader-canvas-article"
       onClick={handleClick}
+      onDoubleClick={handleDoubleClick}
       onContextMenu={handleContextMenu}
       className="mx-auto w-full max-w-[740px] select-text px-4 pb-28 pt-4 sm:px-6"
     >
@@ -101,8 +114,10 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = React.memo(({
           <div key={bIdx} data-block={bIdx} className={wrapperClass} style={{ fontSize: `${fontSize}px` }}>
             {block.sentences.map((sent, sIdx) => {
               const isIPlusOne = showIPlusOne && !isHeading && checkIPlusOne(sent, lexicon, statusMap);
+              const isAudioSent = activeSentence?.bIdx === bIdx && activeSentence?.sIdx === sIdx;
+              const sentBg = isAudioSent ? "inline bg-[#B8FF01]/20 rounded-sm" : isIPlusOne ? "inline bg-[#B8FF01]/15" : "inline";
               return (
-                <span key={sIdx} className={isIPlusOne ? "inline bg-[#B8FF01]/15" : "inline"}>
+                <span key={sIdx} data-sidx={sIdx} className={sentBg}>
                   {sent.map((tok, tIdx) => {
                     const entry = Array.isArray(tok) ? lexicon[tok[1]] : undefined;
                     return (
@@ -118,6 +133,7 @@ export const ReaderCanvas: React.FC<ReaderCanvasProps> = React.memo(({
                         bIdx={bIdx}
                         sIdx={sIdx}
                         tIdx={tIdx}
+                        isAudioActive={activeWord?.bIdx === bIdx && activeWord?.sIdx === sIdx && activeWord?.tIdx === tIdx}
                       />
                     );
                   })}

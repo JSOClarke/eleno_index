@@ -5,9 +5,11 @@ import { ReaderCanvas } from "@/components/reader/ReaderCanvas";
 import { ReaderTopBar } from "@/components/reader/ReaderTopBar";
 import { ReaderWordDock } from "@/components/reader/ReaderWordDock";
 import { ReaderWordSheet } from "@/components/reader/ReaderWordSheet";
+import { ReaderAudioPlayerBar } from "@/components/reader/ReaderAudioPlayerBar";
 import { ReadingPositionRail } from "@/components/reader/ReadingPositionRail";
 import { useReaderScroll } from "@/hooks/useReaderScroll";
 import { useReaderSession } from "@/hooks/useReaderSession";
+import { useChapterAudio } from "@/hooks/useChapterAudio";
 import type { ElenoReaderManifest } from "@/types/reader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
@@ -26,6 +28,7 @@ export const BookReaderView: React.FC<BookReaderViewProps> = ({
 }) => {
   const navigate = useNavigate();
   const session = useReaderSession(mediaId, manifest);
+  const audio = useChapterAudio(mediaId, session.chapterIndex);
 
   useReaderScroll({
     chapter: session.chapter,
@@ -106,9 +109,25 @@ export const BookReaderView: React.FC<BookReaderViewProps> = ({
             highlightUnknownOnly={session.highlightUnknownOnly}
             onSelectToken={session.selectToken}
             onToggleKnown={handleToggleKnown}
+            activeSentence={audio.activeSentence}
+            activeWord={audio.activeWord}
+            onJumpToToken={audio.seekToToken}
           />
         ) : null}
       </main>
+
+      <ReaderAudioPlayerBar
+        hasAudio={audio.hasAudio}
+        isPlaying={audio.isPlaying}
+        currentTimeMs={audio.currentTimeMs}
+        durationMs={audio.durationMs}
+        playbackRate={audio.playbackRate}
+        autoScroll={audio.autoScroll}
+        onTogglePlay={audio.togglePlay}
+        onSeekMs={audio.seekToMs}
+        onChangeRate={audio.setPlaybackRate}
+        onToggleAutoScroll={audio.toggleAutoScroll}
+      />
 
       <ReaderWordDock {...dockProps} />
       <ReaderWordSheet {...dockProps} />
