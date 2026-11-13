@@ -53,6 +53,11 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
             <span className="truncate">{getMediaSubtypeLabel(item)} · {item.creator}</span>
           </div>
           <div className="ml-2 flex shrink-0 items-center gap-1.5">
+            {item.has_audio && (
+              <span className="px-1.5 py-0.2 border border-[#111111] bg-[#B8FF01] text-[#111111] font-bold text-[10px]">
+                🎧 AUDIO
+              </span>
+            )}
             <span className="px-1.5 py-0.2 border border-[#111111] text-[#111111] font-bold bg-white">{level}</span>
             <span className="px-1.5 py-0.2 border border-[#111111]/30 text-[#111111]">F-H {fh}</span>
           </div>
@@ -115,29 +120,17 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
       <div className="px-4 py-3 border-t border-[#E2E2DF] bg-[#F8F8F6] flex items-center justify-between">
         <span className="font-mono text-xs text-[#666666]">{m?.unique_words_count || 0} unique lemmas</span>
         <div className="flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={(e) => { e.stopPropagation(); onToggleSave(item.id); }}
-            className="px-2.5 py-1.5 bg-white text-[#111111] text-xs font-medium border border-[#111111] hover:bg-[#EAEAE6]"
-          >
+          <button type="button" onClick={(e) => { e.stopPropagation(); onToggleSave(item.id); }} className="px-2.5 py-1.5 bg-white text-[#111111] text-xs font-medium border border-[#111111] hover:bg-[#EAEAE6]">
             {isSaved ? "Saved ✓" : "Save"}
           </button>
           {isAuthenticated ? (
-            <Link
-              to={`/read/${item.id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="px-2.5 py-1.5 bg-[#B8FF01] text-[#111111] text-xs font-bold border border-[#111111] hover:bg-[#a6e600]"
-            >
+            <Link to={`/read/${item.id}`} onClick={(e) => e.stopPropagation()} className="px-2.5 py-1.5 bg-[#B8FF01] text-[#111111] text-xs font-bold border border-[#111111] hover:bg-[#a6e600]">
               Read →
             </Link>
           ) : (
             <button type="button" onClick={(e) => { e.stopPropagation(); onRequireAuth(); }} className="px-2.5 py-1.5 bg-[#B8FF01] text-[#111111] text-xs font-bold border border-[#111111] hover:bg-[#a6e600] cursor-pointer">Sign in to read</button>
           )}
-          <Link
-            to={item.work_id ? `/work/${item.work_id}` : `/media/${item.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="px-2.5 py-1.5 bg-[#111111] text-white text-xs font-medium border border-[#111111] hover:bg-[#333333]"
-          >
+          <Link to={item.work_id ? `/work/${item.work_id}` : `/media/${item.id}`} onClick={(e) => e.stopPropagation()} className="px-2.5 py-1.5 bg-[#111111] text-white text-xs font-medium border border-[#111111] hover:bg-[#333333]">
             Inspect
           </Link>
         </div>

@@ -85,10 +85,11 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
           </div>
         </div>
 
-        <div className="col-span-1">
+        <div className="col-span-1 flex items-center gap-1">
           <span className="inline-block border border-[#111111] bg-transparent px-1.5 py-0.5 font-mono text-xs font-medium">
             {level}
           </span>
+          {item.has_audio && <span title="Audio narration available" className="text-xs">🎧</span>}
         </div>
 
         <div className="col-span-2 font-mono text-xs tabular-nums">

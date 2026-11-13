@@ -2,6 +2,19 @@ export type NavSection = "catalogue" | "saved" | "history" | "known" | "inspecto
 export type CatalogueViewMode = "cards" | "table";
 export type LengthBucket = "under25k" | "25to80k" | "80k+";
 export type ProfileFilterId = "dialogue20" | "fh70" | "subj2";
+export type FlowTier = "all" | "fluent" | "sweet_spot" | "challenge";
+
+export type CatalogueSortOption =
+  | "flow_desc"
+  | "difficulty_asc"
+  | "difficulty_desc"
+  | "tokens_asc"
+  | "tokens_desc"
+  | "readability_desc"
+  | "dialogue_desc"
+  | "title_asc"
+  | "title_desc"
+  | "newest";
 
 export interface CommandTag {
   id: string;
@@ -16,4 +29,6 @@ export interface CatalogueFilterState {
   types: Set<string>;
   lengths: Set<LengthBucket>;
   profiles: Set<ProfileFilterId>;
+  hasAudio: boolean;
+  flowTier: FlowTier;
 }

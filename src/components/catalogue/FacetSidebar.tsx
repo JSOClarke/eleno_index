@@ -1,6 +1,7 @@
 import React from "react";
 import type {
   CatalogueFilterState,
+  FlowTier,
   LengthBucket,
   ProfileFilterId,
 } from "@/types/filter.types";
@@ -13,11 +14,15 @@ interface FacetSidebarProps {
     types: Record<string, number>;
     lengths: Record<string, number>;
     profiles: Record<string, number>;
+    audio: number;
+    flow: Record<FlowTier, number>;
   };
   onToggleLevel: (level: string) => void;
   onToggleType: (type: string) => void;
   onToggleLength: (bucket: LengthBucket) => void;
   onToggleProfile: (profile: ProfileFilterId) => void;
+  onToggleHasAudio: () => void;
+  onSetFlowTier: (tier: FlowTier) => void;
   variant?: "sidebar" | "sheet";
 }
 
@@ -28,13 +33,25 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
   onToggleType,
   onToggleLength,
   onToggleProfile,
+  onToggleHasAudio,
+  onSetFlowTier,
   variant = "sidebar",
 }) => {
-  const levelOptions = ["A1", "A2", "B1", "B2", "C1"].map((lvl) => ({
+  const levelOptions = ["A1", "A2", "B1", "B2", "C1", "C2"].map((lvl) => ({
     id: lvl,
     label: lvl,
     count: counts.levels[lvl] || 0,
   }));
+
+  const audioOptions = [
+    { id: "audio_on", label: "🎧 Audio Narration", count: counts.audio || 0 },
+  ];
+
+  const flowOptions = [
+    { id: "fluent", label: "Fluent (95%+)", count: counts.flow.fluent || 0 },
+    { id: "sweet_spot", label: "Sweet Spot (85–95%)", count: counts.flow.sweet_spot || 0 },
+    { id: "challenge", label: "Challenge (<85%)", count: counts.flow.challenge || 0 },
+  ];
 
   const typeOptions = ["Book / Reader", "Film / Subtitles"].map((t) => ({
     id: t,
@@ -43,27 +60,15 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
   }));
 
   const lengthOptions = [
-    { id: "under25k", label: "Under 25k words", count: counts.lengths.under25k || 0 },
+    { id: "under25k", label: "< 25k words", count: counts.lengths.under25k || 0 },
     { id: "25to80k", label: "25k–80k words", count: counts.lengths["25to80k"] || 0 },
     { id: "80k+", label: "80k+ words", count: counts.lengths["80k+"] || 0 },
   ];
 
   const profileOptions = [
-    {
-      id: "dialogue20",
-      label: "High dialogue (20%+)",
-      count: counts.profiles.dialogue20 || 0,
-    },
-    {
-      id: "fh70",
-      label: "F-H Accessible (70+)",
-      count: counts.profiles.fh70 || 0,
-    },
-    {
-      id: "subj2",
-      label: "Subjunctive rich",
-      count: counts.profiles.subj2 || 0,
-    },
+    { id: "dialogue20", label: "Conversational (20%+)", count: counts.profiles.dialogue20 || 0 },
+    { id: "fh70", label: "Accessible (F-H 70+)", count: counts.profiles.fh70 || 0 },
+    { id: "subj2", label: "Subjunctive Rich", count: counts.profiles.subj2 || 0 },
   ];
 
   return (
@@ -75,13 +80,25 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
       }
     >
       <FacetGroup
-        title="LEVEL"
+        title="AUDIO & MEDIA"
+        options={audioOptions}
+        selectedSet={new Set(filters.hasAudio ? ["audio_on"] : [])}
+        onToggle={onToggleHasAudio}
+      />
+      <FacetGroup
+        title="READING FLOW"
+        options={flowOptions}
+        selectedSet={new Set(filters.flowTier !== "all" ? [filters.flowTier] : [])}
+        onToggle={(id) => onSetFlowTier(filters.flowTier === id ? "all" : (id as FlowTier))}
+      />
+      <FacetGroup
+        title="CEFR LEVEL"
         options={levelOptions}
         selectedSet={filters.levels}
         onToggle={onToggleLevel}
       />
       <FacetGroup
-        title="TYPE"
+        title="MEDIA TYPE"
         options={typeOptions}
         selectedSet={filters.types}
         onToggle={onToggleType}

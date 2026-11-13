@@ -3,10 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import { CatalogueCardsGrid } from "@/components/catalogue/CatalogueCardsGrid";
 import { CatalogueFiltersSheet } from "@/components/catalogue/CatalogueFiltersSheet";
 import { CataloguePagination } from "@/components/catalogue/CataloguePagination";
+import { CatalogueQuickFilters } from "@/components/catalogue/CatalogueQuickFilters";
 import { CatalogueTable } from "@/components/catalogue/CatalogueTable";
 import { CatalogueToolbar } from "@/components/catalogue/CatalogueToolbar";
 import { CommandFilterBar } from "@/components/catalogue/CommandFilterBar";
 import { FacetSidebar } from "@/components/catalogue/FacetSidebar";
+import { useCatalogueSort } from "@/hooks/useCatalogueSort";
 import { useFacetCounts } from "@/hooks/useFacetCounts";
 import type { useFilterState } from "@/hooks/useFilterState";
 import type { CatalogueViewMode } from "@/types/filter.types";
@@ -34,12 +36,13 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const { sortOption, setSortOption } = useCatalogueSort();
 
   const { facetCounts, filteredItems } = useFacetCounts(
-    items, filterState.filters, filterState.savedIds, filterState.historyIds, mode
+    items, filterState.filters, filterState.savedIds, filterState.historyIds, mode, sortOption
   );
 
-  useEffect(() => { setCurrentPage(1); }, [mode, viewMode, filterState.filters, filterState.searchText]);
+  useEffect(() => { setCurrentPage(1); }, [mode, viewMode, filterState.filters, sortOption]);
 
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
@@ -56,7 +59,8 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
 
   const activeFilterCount =
     filterState.filters.levels.size + filterState.filters.types.size +
-    filterState.filters.lengths.size + filterState.filters.profiles.size;
+    filterState.filters.lengths.size + filterState.filters.profiles.size +
+    (filterState.filters.hasAudio ? 1 : 0) + (filterState.filters.flowTier !== "all" ? 1 : 0);
 
   const handleChangeViewMode = (nextMode: CatalogueViewMode) => {
     setSearchParams((prev) => {
@@ -80,11 +84,16 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <CommandFilterBar
         tags={filterState.filters.tags} searchText={filterState.searchText}
         onSearchChange={filterState.setSearchText} onRemoveTag={filterState.removeTag}
         onAddTag={filterState.addTag} onClearAll={filterState.clearAll}
+      />
+      <CatalogueQuickFilters
+        filters={filterState.filters} counts={facetCounts}
+        onToggleLevel={filterState.toggleLevel} onToggleHasAudio={filterState.toggleHasAudio}
+        onSetFlowTier={filterState.setFlowTier} onClearAll={filterState.clearAll}
       />
       <div className="flex flex-col md:flex-row gap-8 items-start">
         <div className="hidden md:block">
@@ -92,13 +101,14 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
             filters={filterState.filters} counts={facetCounts}
             onToggleLevel={filterState.toggleLevel} onToggleType={filterState.toggleType}
             onToggleLength={filterState.toggleLength} onToggleProfile={filterState.toggleProfile}
+            onToggleHasAudio={filterState.toggleHasAudio} onSetFlowTier={filterState.setFlowTier}
           />
         </div>
         <div className="flex-1 min-w-0 w-full">
           <CatalogueToolbar
             resultCount={filteredItems.length} viewMode={viewMode}
             onChangeViewMode={handleChangeViewMode} activeFilterCount={activeFilterCount}
-            onOpenFilters={() => setFiltersOpen(true)}
+            onOpenFilters={() => setFiltersOpen(true)} sortOption={sortOption} onChangeSort={setSortOption}
           />
           {viewMode === "cards" ? (
             <CatalogueCardsGrid {...sharedCatalogueProps} onSelectCard={toggleExpand} />
@@ -116,6 +126,7 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
         filters={filterState.filters} counts={facetCounts}
         onToggleLevel={filterState.toggleLevel} onToggleType={filterState.toggleType}
         onToggleLength={filterState.toggleLength} onToggleProfile={filterState.toggleProfile}
+        onToggleHasAudio={filterState.toggleHasAudio} onSetFlowTier={filterState.setFlowTier}
         resultCount={filteredItems.length} onClearAll={filterState.clearAll}
       />
     </div>

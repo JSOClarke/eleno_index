@@ -31,17 +31,17 @@ export const FacetGroup: React.FC<FacetGroupProps> = ({
             <label
               key={opt.id}
               onClick={() => onToggle(opt.id)}
-              className="flex items-center justify-between text-xs cursor-pointer group select-none"
+              className="flex items-center justify-between text-xs cursor-pointer group select-none py-0.5"
             >
               <span className="flex items-center gap-2.5">
                 <span
-                  className={`w-3.5 h-3.5 border border-[#111111] inline-flex items-center justify-center text-[10px] leading-none ${
-                    checked ? "bg-[#111111] text-white" : "bg-white text-transparent"
+                  className={`w-3.5 h-3.5 border border-[#111111] inline-flex items-center justify-center text-[10px] leading-none transition-colors ${
+                    checked ? "bg-[#111111] text-[#B8FF01] font-bold" : "bg-white text-transparent"
                   }`}
                 >
                   ✓
                 </span>
-                <span className="group-hover:underline text-[#111111]">
+                <span className={`text-[#111111] ${checked ? "font-semibold" : "group-hover:underline"}`}>
                   {opt.label}
                 </span>
               </span>

@@ -135,6 +135,9 @@ export interface MediaCatalogItem {
   series_label?: string | null;
   metrics: MediaMetrics | null;
   comprehension: MediaComprehensionStats | null;
+  has_audio?: boolean;
+  metadata?: Record<string, any>;
+  genres?: string[];
   previewWords: PreviewWordItem[];
   sampleSnippet: string | null;
   sampleSourceLabel: string;

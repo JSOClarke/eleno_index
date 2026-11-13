@@ -20,6 +20,8 @@ const WORK_SELECT = `
     cover_image_url,
     release_year,
     synopsis,
+    genres,
+    metadata,
     media_metrics(*)
   )
 `;
@@ -49,6 +51,9 @@ function toEdition(row: any, work: any): MediaCatalogItem {
     series_label: work.series_label || null,
     metrics,
     comprehension: null,
+    has_audio: Boolean(row.metadata?.has_audio || (row.metadata?.audio && row.metadata.audio.length > 0)),
+    metadata: row.metadata || undefined,
+    genres: Array.isArray(row.genres) ? row.genres : [],
     previewWords: [],
     sampleSnippet:
       row.synopsis ||
@@ -80,6 +85,8 @@ function toWork(row: any): MediaCatalogItem | null {
     work_synopsis: workSynopsis,
     sampleSnippet: workSynopsis || primary.sampleSnippet,
     sampleSourceLabel: workSynopsis ? "WORK SYNOPSIS · EN" : primary.sampleSourceLabel,
+    has_audio: Boolean(primary.has_audio || editions.some((ed: MediaCatalogItem) => ed.has_audio)),
+    genres: primary.genres && primary.genres.length ? primary.genres : Array.from(new Set(editions.flatMap((e: MediaCatalogItem) => e.genres || []))),
     editions,
   };
 }
