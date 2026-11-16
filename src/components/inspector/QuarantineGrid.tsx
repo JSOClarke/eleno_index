@@ -25,10 +25,10 @@ export const QuarantineGrid: React.FC<QuarantineGridProps> = ({
         {Array.from({ length: 18 }).map((_, idx) => (
           <div
             key={idx}
-            className="border border-[#E2E2DF] bg-[#F8F8F6] p-3 h-16 animate-pulse flex flex-col justify-between"
+            className="rounded-xl border border-slate-200/80 bg-white p-3 h-14 animate-pulse flex flex-col justify-between"
           >
-            <div className="h-3 w-2/3 bg-[#E2E2DF]" />
-            <div className="h-2.5 w-1/3 bg-[#E2E2DF]" />
+            <div className="h-3 w-2/3 rounded bg-slate-100" />
+            <div className="h-2.5 w-1/3 rounded bg-slate-100" />
           </div>
         ))}
       </div>
@@ -37,7 +37,7 @@ export const QuarantineGrid: React.FC<QuarantineGridProps> = ({
 
   if (filtered.length === 0) {
     return (
-      <div className="border border-[#E2E2DF] bg-[#F8F8F6] p-8 text-center font-mono text-xs text-[#666666]">
+      <div className="rounded-2xl border border-dashed border-slate-300 bg-white/70 p-8 text-center text-xs text-slate-500">
         No {mode === "characters" ? "proper nouns / character names" : "filtered noise tokens"}{" "}
         recorded for this work.
       </div>
@@ -46,7 +46,7 @@ export const QuarantineGrid: React.FC<QuarantineGridProps> = ({
 
   return (
     <div className="space-y-3">
-      <div className="font-mono text-xs text-[#666666]">
+      <div className="text-xs text-slate-500">
         {mode === "characters"
           ? "Proper nouns & character names isolated from your lexical score so they never skew comprehension:"
           : "Interjections, onomatopoeia & OCR fragments quarantined during ingestion:"}
@@ -56,13 +56,13 @@ export const QuarantineGrid: React.FC<QuarantineGridProps> = ({
         {filtered.slice(0, 120).map((item) => (
           <div
             key={item.id}
-            className="border border-[#111111] bg-white p-3 flex items-center justify-between font-mono text-xs"
+            className="flex items-center justify-between rounded-xl border border-slate-200/80 bg-white px-3 py-2.5 text-xs shadow-xs"
           >
-            <span className="font-bold text-[#111111] truncate mr-2">
+            <span className="font-semibold text-slate-900 truncate mr-2">
               {item.token}
             </span>
-            <span className="text-[#666666] tabular-nums shrink-0">
-              {item.frequency}x
+            <span className="text-slate-400 tabular-nums shrink-0">
+              {item.frequency}×
             </span>
           </div>
         ))}

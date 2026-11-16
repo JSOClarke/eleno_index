@@ -10,59 +10,49 @@ export const VocabTableSkeleton: React.FC<VocabTableSkeletonProps> = ({
   variant = "primer",
 }) => {
   return (
-    <div className="divide-y divide-[#E2E2DF]">
+    <div className="divide-y divide-slate-100">
       {Array.from({ length: rows }).map((_, idx) => (
         <div
           key={idx}
           className="grid grid-cols-12 gap-3 px-4 py-3 items-center animate-pulse"
         >
-          {/* Lemma */}
           <div className={variant === "known" ? "col-span-3" : "col-span-2"}>
-            <div className="h-3.5 w-24 bg-[#DFDFDC]" />
+            <div className="h-3.5 w-24 rounded bg-slate-200" />
           </div>
-          {/* IPA */}
           <div className="col-span-2">
-            <div className="h-3 w-20 bg-[#EAEAE6]" />
+            <div className="h-3 w-20 rounded bg-slate-100" />
           </div>
-          {/* POS */}
           <div className="col-span-1">
-            <div className="h-3 w-10 bg-[#EAEAE6]" />
+            <div className="h-3 w-10 rounded bg-slate-100" />
           </div>
-          {/* CEFR */}
           <div className="col-span-1">
-            <div className="h-5 w-7 border border-[#CCCCCC] bg-[#F4F4F2]" />
+            <div className="h-5 w-8 rounded-full bg-slate-100" />
           </div>
           {variant === "primer" ? (
             <>
-              {/* Book Freq */}
               <div className="col-span-1">
-                <div className="h-3 w-8 bg-[#EAEAE6]" />
+                <div className="h-3 w-8 rounded bg-slate-100" />
               </div>
-              {/* TubeLex Rank */}
               <div className="col-span-1">
-                <div className="h-3 w-12 bg-[#DFDFDC]" />
+                <div className="h-3 w-12 rounded bg-slate-200" />
               </div>
-              {/* Debut Chapter */}
               <div className="col-span-2">
-                <div className="h-3 w-28 bg-[#EAEAE6]" />
+                <div className="h-3 w-28 rounded bg-slate-100" />
               </div>
             </>
           ) : (
             <>
-              {/* TubeLex Rank */}
               <div className="col-span-2">
-                <div className="h-3 w-14 bg-[#DFDFDC]" />
+                <div className="h-3 w-14 rounded bg-slate-200" />
               </div>
-              {/* Added Date */}
               <div className="col-span-1">
-                <div className="h-3 w-14 bg-[#EAEAE6]" />
+                <div className="h-3 w-14 rounded bg-slate-100" />
               </div>
             </>
           )}
-          {/* Actions (Quote + Mark Known) */}
           <div className="col-span-2 flex items-center justify-end gap-1.5">
-            <div className="h-6 w-6 border border-[#CCCCCC] bg-[#F4F4F2]" />
-            <div className="h-6 w-20 border border-[#CCCCCC] bg-[#EAEAE6]" />
+            <div className="h-6 w-6 rounded-lg bg-slate-100" />
+            <div className="h-6 w-20 rounded-lg bg-slate-200" />
           </div>
         </div>
       ))}

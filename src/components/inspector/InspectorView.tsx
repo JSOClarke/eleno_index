@@ -95,7 +95,7 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
       />
 
       <div className="space-y-4 pt-2">
-        <div className="border-b border-[#111111] pb-2">
+        <div className="border-b border-slate-200/80 pb-3">
           <LedgerTabs
             active={ledgerTab}
             onChange={selectLedgerTab}

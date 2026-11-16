@@ -1,5 +1,5 @@
 import React from "react";
-import { Filter } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { CatalogueSortSelect } from "./CatalogueSortSelect";
 import type { CatalogueSortOption, CatalogueViewMode } from "@/types/filter.types";
 
@@ -23,56 +23,50 @@ export const CatalogueToolbar: React.FC<CatalogueToolbarProps> = ({
   onChangeSort,
 }) => {
   return (
-    <div className="flex flex-col gap-3 border-b border-[#111111] pb-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 border-b border-slate-200/80 pb-3.5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-2">
-        <span className="font-mono text-xs text-[#444444]">
-          <strong className="text-[#111111]">{resultCount} items</strong>
+        <span className="text-xs font-medium text-slate-500">
+          <strong className="font-semibold text-slate-900">{resultCount}</strong>{" "}
+          {resultCount === 1 ? "title" : "titles"}
         </span>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
-        {/* Mobile Filters Trigger */}
         <button
           type="button"
           onClick={onOpenFilters}
-          className="inline-flex items-center gap-1.5 border border-[#111111] bg-white px-2.5 py-1.5 font-mono text-xs font-semibold text-[#111111] shadow-[2px_2px_0px_#111111] cursor-pointer md:hidden hover:bg-[#F8F8F6]"
+          className={`inline-flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-medium shadow-xs cursor-pointer transition ${
+            activeFilterCount > 0
+              ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+          }`}
         >
-          <Filter className="h-3.5 w-3.5 text-[#555555]" />
+          <SlidersHorizontal className="h-3.5 w-3.5" />
           <span>Filters</span>
           {activeFilterCount > 0 && (
-            <span className="rounded-xs bg-[#111111] px-1 text-[10px] font-bold text-[#B8FF01]">
+            <span className="rounded-full bg-indigo-600 px-1.5 py-0.2 text-[10px] font-semibold text-white">
               {activeFilterCount}
             </span>
           )}
         </button>
 
-        {/* Sort Select */}
         <CatalogueSortSelect sortOption={sortOption} onChangeSort={onChangeSort} />
 
-        {/* Table / Cards View Switcher */}
-        <div className="inline-flex shadow-[2px_2px_0px_#111111]">
-          <button
-            type="button"
-            onClick={() => onChangeViewMode("table")}
-            className={`px-3 py-1.5 text-xs font-mono font-medium border border-[#111111] cursor-pointer transition-colors ${
-              viewMode === "table"
-                ? "bg-[#111111] text-white font-semibold"
-                : "bg-white text-[#111111] hover:bg-[#F4F4F2]"
-            }`}
-          >
-            Table
-          </button>
-          <button
-            type="button"
-            onClick={() => onChangeViewMode("cards")}
-            className={`px-3 py-1.5 text-xs font-mono font-medium border border-l-0 border-[#111111] cursor-pointer transition-colors ${
-              viewMode === "cards"
-                ? "bg-[#111111] text-white font-semibold"
-                : "bg-white text-[#111111] hover:bg-[#F4F4F2]"
-            }`}
-          >
-            Cards
-          </button>
+        <div className="inline-flex rounded-xl border border-slate-200 bg-slate-100/80 p-0.5">
+          {(["cards", "mosaic", "table"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => onChangeViewMode(mode)}
+              className={`rounded-lg px-3 py-1 text-xs font-medium capitalize cursor-pointer transition-all ${
+                viewMode === mode
+                  ? "bg-white text-slate-900 shadow-xs font-semibold"
+                  : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              {mode}
+            </button>
+          ))}
         </div>
       </div>
     </div>

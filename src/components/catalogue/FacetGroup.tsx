@@ -21,7 +21,7 @@ export const FacetGroup: React.FC<FacetGroupProps> = ({
 }) => {
   return (
     <div>
-      <div className="font-mono text-xs uppercase tracking-wider text-[#666666] border-b border-[#E2E2DF] pb-1.5 mb-2.5">
+      <div className="mb-2.5 text-xs font-semibold text-slate-500">
         {title}
       </div>
       <div className="space-y-2">
@@ -35,17 +35,19 @@ export const FacetGroup: React.FC<FacetGroupProps> = ({
             >
               <span className="flex items-center gap-2.5">
                 <span
-                  className={`w-3.5 h-3.5 border border-[#111111] inline-flex items-center justify-center text-[10px] leading-none transition-colors ${
-                    checked ? "bg-[#111111] text-[#B8FF01] font-bold" : "bg-white text-transparent"
+                  className={`h-4 w-4 rounded-md border inline-flex items-center justify-center text-[10px] leading-none transition-colors ${
+                    checked
+                      ? "border-indigo-600 bg-indigo-600 text-white font-semibold"
+                      : "border-slate-300 bg-white text-transparent group-hover:border-slate-400"
                   }`}
                 >
                   ✓
                 </span>
-                <span className={`text-[#111111] ${checked ? "font-semibold" : "group-hover:underline"}`}>
+                <span className={`transition-colors ${checked ? "font-semibold text-slate-900" : "text-slate-600 group-hover:text-slate-900"}`}>
                   {opt.label}
                 </span>
               </span>
-              <span className="font-mono text-xs text-[#888888] tabular-nums">
+              <span className="text-xs text-slate-400 tabular-nums">
                 {opt.count}
               </span>
             </label>

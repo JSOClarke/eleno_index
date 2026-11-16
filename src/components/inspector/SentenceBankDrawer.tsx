@@ -89,23 +89,23 @@ export const SentenceBankDrawer: React.FC<SentenceBankDrawerProps> = ({
   const loading = mode === "all" ? loadingAll : loadingI;
 
   return (
-    <div className="border-t border-[#E2E2DF] pt-3 space-y-3">
+    <div className="border-t border-slate-200/80 pt-3 space-y-3">
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-[10px] uppercase font-bold text-[#666666]">
-          AUTHENTIC CITATIONS ({sentences?.length ?? 0})
+        <span className="text-xs font-semibold text-slate-500">
+          Example sentences ({sentences?.length ?? 0})
         </span>
         <SentenceBankModeToggle mode={mode} onChange={setMode} userId={userId} />
       </div>
 
       {loading ? (
-        <div className="text-xs font-mono text-[#888888] animate-pulse py-2">
-          Querying sentence_bank...
+        <div className="text-xs text-slate-400 animate-pulse py-2">
+          Loading example sentences...
         </div>
       ) : !sentences || sentences.length === 0 ? (
-        <div className="text-xs font-mono text-[#888888] italic py-1">
+        <div className="text-xs text-slate-500 py-1">
           {mode === "iplus1"
             ? "No i+1 sentences found for this word with your current vocabulary."
-            : "No indexed example sentence found in sentence_bank."}
+            : "No indexed example sentences found."}
         </div>
       ) : (
         <div className="space-y-2">

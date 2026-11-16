@@ -10,14 +10,14 @@ export const CatalogueFlowBar: React.FC<CatalogueFlowBarProps> = ({
   flowPct,
   learnFlowPct = 0,
 }) => (
-  <div className="flex h-2 w-full overflow-hidden border border-[#111111] bg-white">
+  <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
     <div
-      className="h-full bg-[#111111] transition-all duration-200"
+      className={`h-full bg-emerald-500 transition-all duration-300 ${learnFlowPct > 0 ? "" : "rounded-r-full"}`}
       style={{ width: `${Math.min(100, flowPct)}%` }}
     />
     {learnFlowPct > 0 && (
       <div
-        className="h-full border-l border-[#111111]/40 bg-[#B8FF01] transition-all duration-200"
+        className="h-full rounded-r-full bg-amber-300 transition-all duration-300"
         style={{ width: `${Math.min(100 - flowPct, Math.max(learnFlowPct, 3))}%` }}
       />
     )}

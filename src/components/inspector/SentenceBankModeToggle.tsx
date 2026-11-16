@@ -11,30 +11,30 @@ export const SentenceBankModeToggle: React.FC<SentenceBankModeToggleProps> = ({
   userId,
   onChange,
 }) => (
-  <div className="inline-flex border border-[#111111] font-mono text-[10px]">
+  <div className="inline-flex rounded-full border border-slate-200 bg-slate-100/80 p-0.5 text-[11px]">
     <button
       type="button"
       onClick={() => onChange("all")}
-      className={`px-2.5 py-1 cursor-pointer ${
-        mode === "all" ? "bg-[#111111] text-[#B8FF01] font-semibold" : "bg-white text-[#555555]"
+      className={`rounded-full px-3 py-1 font-medium transition cursor-pointer ${
+        mode === "all" ? "bg-white text-slate-900 shadow-xs font-semibold" : "text-slate-600 hover:text-slate-900"
       }`}
     >
-      ALL EXAMPLES
+      All examples
     </button>
     <button
       type="button"
       disabled={!userId}
       title={userId ? "Show sentences where this is the only unknown word" : "Sign in to calculate i+1"}
       onClick={() => onChange("iplus1")}
-      className={`px-2.5 py-1 border-l border-[#111111] ${
+      className={`rounded-full px-3 py-1 font-medium transition ${
         !userId
-          ? "bg-[#F4F4F2] text-[#999999] cursor-not-allowed"
+          ? "text-slate-400 cursor-not-allowed"
           : mode === "iplus1"
-            ? "bg-[#B8FF01] text-[#111111] font-semibold cursor-pointer"
-            : "bg-white text-[#555555] cursor-pointer"
+            ? "bg-emerald-600 text-white shadow-xs font-semibold cursor-pointer"
+            : "text-slate-600 hover:text-slate-900 cursor-pointer"
       }`}
     >
-      i+1 COMPREHENSIBLE ONLY
+      i+1 comprehensible only
     </button>
   </div>
 );

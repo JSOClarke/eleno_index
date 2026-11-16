@@ -86,7 +86,7 @@ export const WorkPage: React.FC<WorkPageProps> = ({
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-semibold text-[#111111]">{edition.title}</div>
                 <div className="truncate font-mono text-[11px] text-[#666666]">
-                  {String(edition.format).toUpperCase()} · {formatCompactWords(edition.metrics?.total_tokens || 0)} ·{" "}
+                  {formatCompactWords(edition.metrics?.total_tokens || 0)} ·{" "}
                   {level} · F-H {(edition.metrics?.readability_score || 70).toFixed(1)}
                 </div>
               </div>

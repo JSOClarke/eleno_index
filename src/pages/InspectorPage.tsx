@@ -43,25 +43,25 @@ export const InspectorPage: React.FC<InspectorPageProps> = ({
   if (catalogueLoading && !item) {
     return (
       <div className="space-y-6">
-        <div className="h-44 border border-[#E2E2DF] bg-[#F8F8F6] animate-pulse" />
-        <div className="h-24 border border-[#E2E2DF] bg-[#F8F8F6] animate-pulse" />
-        <div className="h-64 border border-[#E2E2DF] bg-[#F8F8F6] animate-pulse" />
+        <div className="h-44 rounded-2xl border border-slate-200/80 bg-white animate-pulse" />
+        <div className="h-24 rounded-2xl border border-slate-200/80 bg-white animate-pulse" />
+        <div className="h-64 rounded-2xl border border-slate-200/80 bg-white animate-pulse" />
       </div>
     );
   }
 
   if (!item) {
     return (
-      <div className="border border-[#111111] p-12 text-center space-y-3 font-mono text-xs">
-        <div className="font-bold text-sm text-[#111111]">
-          MEDIA RECORD NOT FOUND
+      <div className="rounded-2xl border border-slate-200/90 bg-white p-12 text-center space-y-3 shadow-xs">
+        <div className="font-semibold text-base text-slate-900">
+          Media record not found
         </div>
-        <p className="text-[#666666]">
-          No Spanish corpus item matches ID: {mediaId}
+        <p className="text-xs text-slate-500">
+          No corpus item matches ID: {mediaId}
         </p>
         <Link
           to="/"
-          className="inline-block px-4 py-2 bg-[#111111] text-[#B8FF01] font-semibold"
+          className="inline-block rounded-xl bg-slate-900 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-600 transition"
         >
           ← Back to Catalogue
         </Link>

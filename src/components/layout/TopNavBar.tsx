@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { InputHubBrandLogo } from "@/components/brand/InputHubBrandLogo";
-import { FlashcardNavbarBadge } from "@/components/flashcards/FlashcardNavbarBadge";
+import { LanguageSelectorDropdown } from "./LanguageSelectorDropdown";
 import { MobileNavDrawer } from "./MobileNavDrawer";
-import { getLanguageLabel, type SupportedLanguage } from "@/lib/catalogueLanguages";
+import { UserAvatarMenu } from "./UserAvatarMenu";
+import type { SupportedLanguage } from "@/lib/catalogueLanguages";
 import type { UserProfile } from "@/types/vocabulary.types";
 
 interface TopNavBarProps {
@@ -19,59 +20,55 @@ interface TopNavBarProps {
 }
 
 export const TopNavBar: React.FC<TopNavBarProps> = ({
-  savedCount, knownCount, learningCount = 0, activeLanguage = "es",
+  savedCount, knownCount, activeLanguage = "es",
   onChangeLanguage, user, onOpenAuth, onSignOut,
 }) => {
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { to: "/", label: "Catalogue", match: (p: string) => p === "/" || p.startsWith("/media/") },
+    { to: "/", label: "Catalogue", match: (p: string) => p === "/" || p.startsWith("/media/") || p.startsWith("/work/") },
     { to: "/saved", label: `Saved (${savedCount})`, match: (p: string) => p === "/saved" },
-    { to: "/history", label: "History", match: (p: string) => p === "/history" },
-    { to: "/known-words", label: `Known words (${knownCount})`, match: (p: string) => p === "/known-words" },
-    { to: "/reviews", label: "Reviews", match: (p: string) => p === "/reviews" },
+    { to: "/known-words", label: "Known Words", match: (p: string) => p === "/known-words" },
   ];
   const drawerItems = [
     { to: "/", label: "Catalogue" },
     { to: "/saved", label: "Saved", count: savedCount },
-    { to: "/history", label: "History" },
-    { to: "/known-words", label: "Known words", count: knownCount },
-    { to: "/reviews", label: "Reviews" },
+    { to: "/known-words", label: "Known Words" },
   ];
   const activeTo = navItems.find((item) => item.match(pathname))?.to;
 
   return (
     <>
-      <header className="border-b border-[#E2E2DF] bg-white sticky top-0 z-30">
-        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <div className="flex min-w-0 items-center gap-2 sm:gap-4 md:gap-8">
+      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-5 md:gap-8">
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
               aria-label="Open menu"
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
-              className="-ml-1 p-2 text-[#111111] cursor-pointer md:hidden"
+              className="-ml-1 rounded-lg p-2 text-slate-700 hover:bg-slate-100 cursor-pointer md:hidden"
             >
               <Menu className="h-5 w-5" strokeWidth={2} />
             </button>
 
             <Link to="/" className="flex items-center">
-              <InputHubBrandLogo size="md" scrambleOnMount={true} />
+              <InputHubBrandLogo size="md" />
             </Link>
 
-            <nav className="hidden md:flex items-center gap-6 text-sm">
+            <nav className="hidden md:flex items-center gap-1 text-sm">
               {navItems.map((tab) => {
                 const isActive = tab.match(pathname);
                 return (
                   <Link
                     key={tab.to}
                     to={tab.to}
-                    className={`py-4 border-b-2 transition-colors ${
+                    className={`rounded-full px-3.5 py-1.5 transition-colors ${
                       isActive
-                        ? "border-[#111111] font-semibold text-[#111111]"
-                        : "border-transparent text-[#666666] hover:text-[#111111]"
+                        ? "bg-slate-100 font-semibold text-slate-900"
+                        : "font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
                     {tab.label}
@@ -81,46 +78,20 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             </nav>
           </div>
 
-          <div className="hidden items-center gap-2 font-mono text-xs text-[#555555] sm:flex sm:gap-4">
-            <FlashcardNavbarBadge userId={user?.id} learningCount={learningCount} />
-            <div className="inline-flex border border-[#111111] bg-white" role="group" aria-label="Target language">
-              {(["es", "fr"] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => onChangeLanguage?.(lang)}
-                  className={`px-2 py-0.5 font-mono text-[11px] font-bold uppercase cursor-pointer ${
-                    activeLanguage === lang
-                      ? "bg-[#111111] text-[#B8FF01]"
-                      : "bg-white text-[#111111] hover:bg-[#F4F4F2]"
-                  }`}
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
-            <span className="hidden lg:inline">
-              {getLanguageLabel(activeLanguage)} · target <strong className="text-[#111111]">B1</strong>
-            </span>
-            <span className="hidden lg:inline">·</span>
+          <div className="flex items-center gap-2.5 text-xs text-slate-500">
+            <LanguageSelectorDropdown
+              activeLanguage={activeLanguage}
+              onChangeLanguage={onChangeLanguage}
+              activeKnownCount={knownCount}
+              userId={user?.id}
+            />
             {user ? (
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="hidden sm:inline text-[#111111] font-medium truncate max-w-[160px]">
-                  {user.email}
-                </span>
-                <button
-                  type="button"
-                  onClick={onSignOut}
-                  className="px-2.5 py-1 border border-[#111111] bg-white text-[#111111] hover:bg-[#F4F4F2] cursor-pointer"
-                >
-                  Sign out
-                </button>
-              </div>
+              <UserAvatarMenu user={user} onSignOut={onSignOut} />
             ) : (
               <button
                 type="button"
                 onClick={onOpenAuth}
-                className="px-3 py-1 bg-[#111111] text-[#B8FF01] font-semibold border border-[#111111] hover:bg-[#222222] cursor-pointer"
+                className="hidden sm:inline-flex rounded-full bg-slate-900 px-4 py-1.5 font-semibold text-white hover:bg-indigo-600 cursor-pointer transition-colors shadow-xs"
               >
                 Sign in
               </button>

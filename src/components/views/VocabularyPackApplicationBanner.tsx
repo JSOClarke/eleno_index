@@ -13,18 +13,18 @@ export const VocabularyPackApplicationBanner: React.FC<
   if (!latest) return null;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-2 border border-[#111111] bg-white px-2.5 py-1.5 font-mono text-[11px]">
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700">
       <span>
-        LAST APPLIED: <strong>{latest.pack_slug}</strong> ·{" "}
-        {latest.changed_count.toLocaleString()} WORDS
+        Last applied: <strong className="font-semibold text-slate-900">{latest.pack_slug}</strong> ·{" "}
+        {latest.changed_count.toLocaleString()} words
       </span>
       <button
         type="button"
         disabled={applying}
         onClick={onUndo}
-        className="border border-[#111111] bg-white px-2 py-1 font-bold text-[#111111] disabled:opacity-40 cursor-pointer"
+        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-40 cursor-pointer transition"
       >
-        UNDO
+        Undo
       </button>
     </div>
   );

@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AdminDeleteMediaModal } from "@/components/admin/AdminDeleteMediaModal";
 import { AdminEditMediaModal } from "@/components/admin/AdminEditMediaModal";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
+import { PlatformLinkPills } from "@/components/ui/PlatformLinkPills";
 import { clearCachedCatalogue } from "@/lib/catalogueCache";
+import { getCefrBadgeClass, getPlatformLinks } from "@/lib/catalogueDisplay";
 import { formatCompactWords, formatPercent } from "@/lib/formatters";
 import type { MediaCatalogItem, MediaComprehensionStats } from "@/types/media.types";
 import { InspectorFlowPanel } from "./InspectorFlowPanel";
@@ -33,86 +36,86 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   const learnFlowPct = comprehension?.learning_text_coverage_percentage ?? 0;
   const vocabPct = comprehension?.comprehension_percentage ?? 0;
   const learnVocabPct = comprehension?.learning_percentage ?? 0;
-  const showWorkSubtitle = Boolean(item.work_title && item.work_title.trim().toLowerCase() !== item.title.trim().toLowerCase());
+  const englishTitle = item.work_title || item.title;
+  const targetTitle = item.work_title && item.work_title.trim().toLowerCase() !== item.title.trim().toLowerCase() ? item.title : null;
+  const whereTo = getPlatformLinks(item);
+  const synopsis = item.work_synopsis || item.sampleSnippet;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-[#E2E2DF] pb-3">
-        <Link to="/" className="font-mono text-xs text-[#111111] hover:underline flex items-center gap-1.5">
-          ← Back to Catalogue
+      <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
+        <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900">
+          <ArrowLeft className="h-3.5 w-3.5" /> Back to Catalogue
         </Link>
-        <div className="flex items-center gap-2.5">
-          {isAuthenticated ? (
-            <Link to={`/read/${item.id}`} className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600]">
-              Read Story →
-            </Link>
-          ) : (
-            <button type="button" onClick={onRequireAuth} className="bg-[#B8FF01] px-3 py-1 font-mono text-xs font-bold text-[#111111] transition hover:bg-[#a6e600] cursor-pointer">
-              Sign in to read
-            </button>
-          )}
+        <div className="flex items-center gap-2">
           {isAuthenticated && (
             <>
               <button
                 type="button"
                 onClick={() => setShowEdit(true)}
-                className="border border-[#111111] bg-white px-2.5 py-1 font-mono text-xs font-bold text-[#111111] hover:bg-[#111111] hover:text-white transition-colors cursor-pointer"
-                title="Edit book & work metadata (Admin)"
+                className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer shadow-xs"
               >
                 Edit Metadata
               </button>
               <button
                 type="button"
                 onClick={() => setShowDelete(true)}
-                className="border border-red-600 bg-white px-2.5 py-1 font-mono text-xs font-bold text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
-                title="Delete from catalogue (Admin)"
+                className="rounded-xl border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 cursor-pointer shadow-xs"
               >
                 Delete
               </button>
             </>
           )}
-          <span className="hidden font-mono text-xs text-[#666666] sm:inline">
-            MEDIA ID: {item.id.slice(0, 8).toUpperCase()}
+          <span className="hidden text-xs text-slate-400 sm:inline">
+            ID: {item.id.slice(0, 8)}
           </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-6 border border-[#111111] p-5 bg-white items-start">
-        <div className="col-span-12 space-y-4 lg:col-span-7">
-          <div className="flex items-start gap-4 sm:gap-5">
-            <BookCoverPlate title={item.title} explicitUrl={item.cover_image_url} level={level} size="hero" />
-            <div className="min-w-0 space-y-2">
-              <div className="space-y-1 font-mono text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="shrink-0 bg-[#B8FF01] px-2 py-0.5 font-bold text-[#111111]">{level}</span>
-                  <span className="text-[#666666]">
-                    {(item.type || "book").replace(/_/g, " ").toUpperCase()}
-                    {item.format ? ` · ${item.format.toUpperCase()}` : ""}
-                  </span>
-                </div>
-                {(item.series?.name || item.series_name) && (
-                  <div className="text-[#111111]">
-                    {item.series?.name || item.series_name}
-                    {item.series_label ? ` · ${item.series_label}` : item.series_order ? ` #${item.series_order}` : ""}
-                  </div>
-                )}
-                <div className="text-[#111111]">{item.creator}</div>
-                {item.release_year && <div className="text-[#666666]">{item.release_year}</div>}
+      <section className="grid grid-cols-12 gap-6 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm items-start">
+        <div className="col-span-12 lg:col-span-7 flex items-start gap-5">
+          <BookCoverPlate title={targetTitle || englishTitle} explicitUrl={item.cover_image_url} level={level} size="hero" />
+          <div className="min-w-0 space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCefrBadgeClass(level)}`}>{level}</span>
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-600">{item.language}</span>
+              <span className="text-xs font-medium capitalize text-slate-400">
+                {(item.type || "book").replace(/_/g, " ")}
+              </span>
+            </div>
+
+            <h1 className="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-slate-900 leading-tight break-words">
+              {englishTitle}
+            </h1>
+            {targetTitle && <div className="text-sm font-medium text-slate-600">{targetTitle}</div>}
+            {(item.series?.name || item.series_name) && (
+              <div className="text-xs font-medium text-indigo-600">
+                {item.series?.name || item.series_name}
+                {item.series_label ? ` · ${item.series_label}` : item.series_order ? ` #${item.series_order}` : ""}
               </div>
-              <h1 className="break-words text-xl font-bold tracking-tight text-[#111111] sm:text-2xl">{item.title}</h1>
-              {showWorkSubtitle && (
-                <div className="font-mono text-xs text-[#666666]">Original / EN: {item.work_title}</div>
-              )}
+            )}
+            <div className="text-xs text-slate-500">
+              {item.creator}
+              {item.release_year ? ` · ${item.release_year}` : ""}
+            </div>
+
+            <div className="pt-1">
+              <PlatformLinkPills label={whereTo.label} links={whereTo.links} />
             </div>
           </div>
-          <p className="font-serif text-sm italic text-[#333333]">{item.sampleSnippet}</p>
         </div>
 
-        <div className="col-span-12 lg:col-span-5 grid grid-cols-2 gap-4 lg:border-l border-[#E2E2DF] lg:pl-6">
-          <InspectorFlowPanel index="01" title="READING FLOW" pct={flowPct} learnPct={learnFlowPct} footnote={<>{formatCompactWords(m?.total_tokens || 0)} total</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} />
-          <InspectorFlowPanel index="02" title="VOCAB MASTERY" pct={vocabPct} learnPct={learnVocabPct} footnote={<>F-H {fh} · {dialOrWpm}</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} />
+        <div className="col-span-12 lg:col-span-5 grid grid-cols-2 gap-6 border-t pt-5 lg:border-t-0 lg:border-l border-slate-100 lg:pt-0 lg:pl-6">
+          <InspectorFlowPanel index="01" title="Reading Flow" pct={flowPct} learnPct={learnFlowPct} footnote={<>{formatCompactWords(m?.total_tokens || 0)} total</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-emerald-500" />
+          <InspectorFlowPanel index="02" title="Vocab Mastery" pct={vocabPct} learnPct={learnVocabPct} footnote={<>F-H {fh} · {dialOrWpm}</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-indigo-600" />
         </div>
-      </div>
+
+        {synopsis && (
+          <p className="col-span-12 border-t border-slate-100 pt-4 text-sm leading-relaxed text-slate-600">
+            {synopsis}
+          </p>
+        )}
+      </section>
 
       <AdminEditMediaModal isOpen={showEdit} mediaId={item.id} onClose={() => setShowEdit(false)} onSuccess={() => { setShowEdit(false); window.location.reload(); }} />
       <AdminDeleteMediaModal isOpen={showDelete} mediaId={item.id} mediaTitle={item.title} onClose={() => setShowDelete(false)} onSuccess={() => { clearCachedCatalogue(); setShowDelete(false); window.location.href = "/"; }} />

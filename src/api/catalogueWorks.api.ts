@@ -21,6 +21,7 @@ const WORK_SELECT = `
     release_year,
     synopsis,
     genres,
+    external_ids,
     metadata,
     media_metrics(*)
   )
@@ -52,6 +53,7 @@ function toEdition(row: any, work: any): MediaCatalogItem {
     metrics,
     comprehension: null,
     has_audio: Boolean(row.metadata?.has_audio || (row.metadata?.audio && row.metadata.audio.length > 0)),
+    external_ids: row.external_ids || undefined,
     metadata: row.metadata || undefined,
     genres: Array.isArray(row.genres) ? row.genres : [],
     previewWords: [],
@@ -59,9 +61,7 @@ function toEdition(row: any, work: any): MediaCatalogItem {
       row.synopsis ||
       work.synopsis ||
       "«Texto auténtico indexado en el banco de oraciones del corpus español.»",
-    sampleSourceLabel: row.synopsis
-      ? `SYNOPSIS · ${String(row.format || "MEDIA").toUpperCase()}`
-      : "CORPUS ARCHIVE",
+    sampleSourceLabel: row.synopsis ? "Synopsis" : "Archive",
   };
 }
 

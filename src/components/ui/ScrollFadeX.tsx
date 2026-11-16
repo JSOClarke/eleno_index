@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ScrollFadeXProps {
   children: React.ReactNode;
@@ -19,7 +20,7 @@ export const ScrollFadeX: React.FC<ScrollFadeXProps> = ({
   className = "",
   fadeFromClassName = "from-white",
   arrows = false,
-  arrowClassName = "bg-white",
+  arrowClassName = "bg-white/95",
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
@@ -73,9 +74,9 @@ export const ScrollFadeX: React.FC<ScrollFadeXProps> = ({
           type="button"
           aria-label="Scroll left"
           onClick={() => scrollByPage(-1)}
-          className={`absolute left-1 top-1/2 z-10 h-8 w-7 -translate-y-1/2 border border-[#111111] font-mono text-sm font-bold text-[#111111] cursor-pointer ${arrowClassName}`}
+          className={`absolute left-1.5 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/90 text-slate-600 shadow-md backdrop-blur-xs transition hover:border-slate-300 hover:text-slate-900 cursor-pointer ${arrowClassName}`}
         >
-          ‹
+          <ChevronLeft className="h-4 w-4" />
         </button>
       )}
       {arrows && showRight && (
@@ -83,9 +84,9 @@ export const ScrollFadeX: React.FC<ScrollFadeXProps> = ({
           type="button"
           aria-label="Scroll right"
           onClick={() => scrollByPage(1)}
-          className={`absolute right-1 top-1/2 z-10 h-8 w-7 -translate-y-1/2 border border-[#111111] font-mono text-sm font-bold text-[#111111] cursor-pointer ${arrowClassName}`}
+          className={`absolute right-1.5 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200/90 text-slate-600 shadow-md backdrop-blur-xs transition hover:border-slate-300 hover:text-slate-900 cursor-pointer ${arrowClassName}`}
         >
-          ›
+          <ChevronRight className="h-4 w-4" />
         </button>
       )}
     </div>

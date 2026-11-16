@@ -34,6 +34,22 @@ export async function fetchAllUserVocabulary(
   return map;
 }
 
+export async function fetchKnownCountsByLanguage(
+  userId: string
+): Promise<Record<"es" | "fr", number>> {
+  const countFor = async (lang: "es" | "fr") => {
+    const { count, error } = await supabase
+      .from("user_vocabulary")
+      .select("canonical_id, canonical_lexical_entity!inner(language)", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("status", "known")
+      .eq("canonical_lexical_entity.language", lang);
+    return error ? 0 : count ?? 0;
+  };
+  const [es, fr] = await Promise.all([countFor("es"), countFor("fr")]);
+  return { es, fr };
+}
+
 export async function fetchKnownWordsDetails(
   userId: string,
   language = "es"

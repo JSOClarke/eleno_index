@@ -52,24 +52,24 @@ export const ChapterPacingSummary: React.FC<ChapterPacingSummaryProps> = ({
   const dialogue = isAll ? bookMetrics?.dialogue_ratio : currentCh.dialogue_ratio;
 
   return (
-    <div className="border-t border-[#E2E2DF] pt-2.5 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
+    <div className="border-t border-slate-100 pt-3 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600">
       <div>
-        <span className="font-bold text-[#111111]">{title}</span>
-        <span className="text-[#666666] ml-2">
+        <span className="font-semibold text-slate-900">{title}</span>
+        <span className="text-slate-400 ml-2">
           · {formatNumber(totalTokens)} tokens · {formatNumber(uniqueWords)} lemmas
         </span>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4 tabular-nums">
         <span>
-          F-H: <strong>{(readability || 70).toFixed(1)}</strong>
+          F-H: <strong className="text-slate-900">{(readability || 70).toFixed(1)}</strong>
         </span>
         <span>
-          Dialogue: <strong>{formatPercent(dialogue, 1)}</strong>
+          Dialogue: <strong className="text-slate-900">{formatPercent(dialogue, 1)}</strong>
         </span>
         {flowPct !== null && (
           <span>
-            Flow: <strong>{flowPct.toFixed(1)}%</strong>
-            {learnFlowPct > 0 ? ` (${formatLearningDelta(learnFlowPct)} learning)` : ""}
+            Flow: <strong className="text-emerald-700">{flowPct.toFixed(1)}%</strong>
+            {learnFlowPct > 0 ? <span className="ml-1 text-amber-700">({formatLearningDelta(learnFlowPct)} learning)</span> : ""}
           </span>
         )}
       </div>

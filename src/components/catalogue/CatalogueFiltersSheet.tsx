@@ -46,7 +46,7 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
   resultCount,
   onClearAll,
 }) => (
-  <Sheet open={open} onClose={onClose} title="Filters">
+  <Sheet open={open} onClose={onClose} title="Filters" side="left">
     <div className="space-y-6">
       <FacetSidebar
         variant="sheet"
@@ -60,18 +60,18 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
         onSetFlowTier={onSetFlowTier}
       />
 
-      <div className="sticky bottom-0 -mx-4 flex gap-2 border-t border-[#E2E2DF] bg-white px-4 pt-3">
+      <div className="sticky bottom-0 -mx-5 flex gap-2 border-t border-slate-200 bg-white px-5 py-3">
         <button
           type="button"
           onClick={onClearAll}
-          className="flex-1 border border-[#111111] bg-white px-3 py-2 font-mono text-xs font-bold text-[#111111] cursor-pointer hover:bg-[#F8F8F6]"
+          className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 cursor-pointer hover:bg-slate-50"
         >
           Clear all
         </button>
         <button
           type="button"
           onClick={onClose}
-          className="flex-[2] border border-[#111111] bg-[#111111] px-3 py-2 font-mono text-xs font-bold text-[#B8FF01] cursor-pointer shadow-[2px_2px_0px_#111111]"
+          className="flex-[2] rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white cursor-pointer hover:bg-indigo-600 shadow-xs"
         >
           Show {resultCount} results
         </button>

@@ -30,21 +30,19 @@ export const CatalogueCardsGrid: React.FC<CatalogueCardsGridProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pt-5">
         {[1, 2, 3, 4].map((n) => (
           <div
             key={n}
-            className="border border-[#E2E2DF] bg-[#F8F8F6] h-72 animate-pulse p-4 flex flex-col justify-between"
+            className="rounded-2xl border border-slate-200/80 bg-white h-64 animate-pulse overflow-hidden flex"
           >
-            <div className="flex gap-4">
-              <div className="w-20 h-28 bg-[#E2E2DF]" />
-              <div className="flex-1 space-y-3">
-                <div className="h-4 w-3/4 bg-[#E2E2DF]" />
-                <div className="h-3 w-1/2 bg-[#E2E2DF]" />
-                <div className="h-10 w-full bg-[#E2E2DF]" />
-              </div>
+            <div className="w-44 bg-slate-100 shrink-0" />
+            <div className="flex-1 p-5 space-y-3">
+              <div className="h-5 w-2/3 rounded bg-slate-100" />
+              <div className="h-3 w-1/3 rounded bg-slate-100" />
+              <div className="h-3 w-full rounded bg-slate-100 mt-4" />
+              <div className="h-14 w-full rounded bg-slate-100 mt-4" />
             </div>
-            <div className="h-12 bg-[#E2E2DF]" />
           </div>
         ))}
       </div>
@@ -53,14 +51,14 @@ export const CatalogueCardsGrid: React.FC<CatalogueCardsGridProps> = ({
 
   if (items.length === 0) {
     return (
-      <div className="border border-dashed border-[#111111] py-16 text-center font-mono text-xs text-[#666666] mt-4">
-        No Spanish corpus works match the active filters.
+      <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white/70 py-16 text-center text-sm text-slate-500">
+        No titles match your active filters. Try clearing a filter or broadening your search.
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-4">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pt-5">
       {items.map((item) => (
         <CatalogueCard
           key={item.id}

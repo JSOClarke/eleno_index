@@ -10,22 +10,23 @@ interface LedgerTabsProps {
 }
 
 const TABS: { id: LedgerTab; label: string }[] = [
-  { id: "canonical", label: "CANONICAL PRIMER" },
-  { id: "characters", label: "CAST OF CHARACTERS" },
-  { id: "noise", label: "FILTERED NOISE" },
+  { id: "canonical", label: "Vocabulary" },
+  { id: "characters", label: "Cast of Characters" },
+  { id: "noise", label: "Filtered Noise" },
 ];
 
-/** Scrollable ledger tabs; the edge fade signals the off-screen third tab. */
 export const LedgerTabs: React.FC<LedgerTabsProps> = ({ active, onChange, canonicalCount }) => (
-  <ScrollFadeX className="min-w-0 flex-1 font-mono text-xs">
-    <div className="flex w-max gap-1">
+  <ScrollFadeX className="min-w-0 flex-1 text-xs">
+    <div className="flex w-max gap-1.5 py-0.5">
       {TABS.map((tab) => (
         <button
           key={tab.id}
           type="button"
           onClick={() => onChange(tab.id)}
-          className={`shrink-0 whitespace-nowrap border border-[#111111] px-3.5 py-1.5 cursor-pointer ${
-            active === tab.id ? "bg-[#111111] text-white font-semibold" : "bg-white text-[#111111]"
+          className={`shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 font-medium cursor-pointer transition ${
+            active === tab.id
+              ? "bg-slate-900 text-white shadow-xs"
+              : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
           }`}
         >
           {tab.label}

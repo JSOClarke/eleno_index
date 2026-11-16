@@ -1,6 +1,34 @@
 import React from "react";
+import { Search, X } from "lucide-react";
 import { CoverageGate } from "@/components/ui/CoverageGate";
+import { FilterSelectDropdown } from "@/components/ui/FilterSelectDropdown";
 import type { RankingSourceKey, VocabStatusFilter } from "@/lib/vocabSorting";
+
+const STATUS_OPTS: ReadonlyArray<readonly [VocabStatusFilter, string]> = [
+  ["ALL", "All"], ["UNKNOWN", "Unknown"], ["LEARNING", "Learning"], ["KNOWN", "Known"],
+];
+
+const POS_OPTS = [
+  { value: "ALL", label: "All" },
+  { value: "NOUN", label: "Noun" },
+  { value: "VERB", label: "Verb" },
+  { value: "ADJ", label: "Adj" },
+  { value: "ADV", label: "Adv" },
+] as const;
+
+const RANK_OPTS: ReadonlyArray<{ value: RankingSourceKey; label: string }> = [
+  { value: "tubelex_v2025", label: "TubeLex" },
+  { value: "elelex_v2020", label: "ELELex" },
+];
+
+const MOBILE_SORT_OPTS = [
+  { value: "frequency:desc", label: "Frequency ↓" },
+  { value: "rank:asc", label: "Rank ↑" },
+  { value: "lemma:asc", label: "Lemma A–Z" },
+  { value: "cefr:asc", label: "CEFR" },
+  { value: "debut:asc", label: "Debut" },
+  { value: "pos:asc", label: "POS" },
+] as const;
 
 interface PrimerFilterBarProps {
   query: string;
@@ -22,125 +50,89 @@ interface PrimerFilterBarProps {
   onRequireAuth: () => void;
 }
 
-/** Search, status/pos/ranking filters and the mobile-only sort control. */
 export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
-  query,
-  onQueryChange,
-  statusFilter,
-  onStatusFilter,
-  statusCounts,
-  posFilter,
-  onPosFilter,
-  rankingSource,
-  onRankingSource,
-  selectedChapter,
-  onClearChapter,
-  isEpisodeMode,
-  sortValue,
-  onSortChange,
-  resultCount,
-  userId,
-  onRequireAuth,
+  query, onQueryChange, statusFilter, onStatusFilter, statusCounts, posFilter, onPosFilter,
+  rankingSource, onRankingSource, selectedChapter, onClearChapter, isEpisodeMode,
+  sortValue, onSortChange, resultCount, userId, onRequireAuth,
 }) => (
   <>
-    <div className="flex flex-wrap items-center justify-between gap-2.5 border border-[#E2E2DF] bg-[#F8F8F6] p-2.5">
+    <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-xs">
       <div className="flex flex-wrap items-center gap-2">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Search canonical lemma..."
-          className="w-full border border-[#111111] bg-white px-3 py-1 font-mono text-xs outline-none sm:w-52"
-        />
+        <div className="relative w-full sm:w-56">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            placeholder="Search canonical lemma..."
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-1.5 pl-8 pr-3 text-xs text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-400 focus:bg-white"
+          />
+        </div>
         {selectedChapter !== "all" && (
           <button
             type="button"
             onClick={onClearChapter}
-            className="border border-[#111111] bg-[#B8FF01] px-2.5 py-1 font-mono text-xs font-semibold text-[#111111] cursor-pointer"
+            className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-200 cursor-pointer"
           >
-            Debut in {isEpisodeMode ? `EP.${selectedChapter}` : `CH.${selectedChapter}`} ×
+            <span>Debut in {isEpisodeMode ? `Ep.${selectedChapter}` : `Ch.${selectedChapter}`}</span>
+            <X className="h-3 w-3" />
           </button>
         )}
         {userId ? (
-          <div className="flex max-w-full items-center overflow-x-auto border border-[#111111] font-mono text-[11px]">
-            {(["ALL", "UNKNOWN", "LEARNING", "KNOWN"] as const).map((st) => (
+          <div className="flex max-w-full items-center overflow-x-auto rounded-full border border-slate-200 bg-slate-50 p-0.5 text-xs">
+            {STATUS_OPTS.map(([id, label]) => (
               <button
-                key={st}
+                key={id}
                 type="button"
-                onClick={() => onStatusFilter(st)}
-                className={`px-2 py-1 cursor-pointer transition-colors ${
-                  statusFilter === st
-                    ? "bg-[#111111] text-[#B8FF01] font-semibold"
-                    : "bg-white text-[#555555] hover:text-[#111111]"
+                onClick={() => onStatusFilter(id)}
+                className={`rounded-full px-3 py-1 cursor-pointer transition ${
+                  statusFilter === id
+                    ? "bg-slate-900 text-white font-semibold shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                {st} ({statusCounts[st]})
+                {label} ({statusCounts[id]})
               </button>
             ))}
           </div>
         ) : (
-          <div className="w-full">
+          <div className="w-full sm:w-64">
             <CoverageGate
               onSignIn={onRequireAuth}
-              label="Sign in to filter by Unknown / Learning / Known"
+              label="Sign in to filter by status"
             />
           </div>
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-        <div className="flex items-center border border-[#111111]">
-          {([["tubelex_v2025", "TUBELEX"], ["elelex_v2020", "ELELEX"]] as const).map(([src, label]) => (
-            <button
-              key={src}
-              type="button"
-              onClick={() => onRankingSource(src)}
-              className={`px-2.5 py-1 cursor-pointer transition-colors ${
-                rankingSource === src
-                  ? "bg-[#B8FF01] text-[#111111] font-semibold"
-                  : "bg-white text-[#666666] hover:text-[#111111]"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-1">
-          {["ALL", "NOUN", "VERB", "ADJ", "ADV"].map((pos) => (
-            <button
-              key={pos}
-              type="button"
-              onClick={() => onPosFilter(pos)}
-              className={`px-2 py-1 border cursor-pointer ${
-                posFilter === pos
-                  ? "border-[#111111] bg-[#111111] text-white"
-                  : "border-[#CCCCCC] bg-white text-[#111111]"
-              }`}
-            >
-              {pos}
-            </button>
-          ))}
-        </div>
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        <FilterSelectDropdown
+          prefix="Rank"
+          value={rankingSource}
+          options={RANK_OPTS}
+          onChange={onRankingSource}
+          ariaLabel="Frequency ranking source"
+        />
+        <FilterSelectDropdown
+          prefix="POS"
+          value={posFilter}
+          options={POS_OPTS}
+          onChange={onPosFilter}
+          ariaLabel="Part of speech filter"
+        />
       </div>
     </div>
 
-    <div className="flex items-center justify-between gap-2 font-mono text-[11px] md:hidden">
-      <label className="flex items-center gap-1.5 text-[#666666]">
-        SORT
-        <select
-          value={sortValue}
-          onChange={(e) => onSortChange(e.target.value)}
-          className="border border-[#111111] bg-white px-2 py-1 font-mono text-[11px] text-[#111111]"
-        >
-          <option value="frequency:desc">Frequency ↓</option>
-          <option value="rank:asc">Rank ↑</option>
-          <option value="lemma:asc">Lemma A–Z</option>
-          <option value="cefr:asc">CEFR</option>
-          <option value="debut:asc">Debut</option>
-          <option value="pos:asc">POS</option>
-        </select>
-      </label>
-      <span className="text-[#666666]">{resultCount} lemmas</span>
+    <div className="flex items-center justify-between gap-2 text-xs md:hidden">
+      <FilterSelectDropdown
+        prefix="Sort"
+        value={sortValue}
+        options={MOBILE_SORT_OPTS}
+        onChange={onSortChange}
+        ariaLabel="Sort vocabulary table"
+        align="left"
+      />
+      <span className="text-slate-500">{resultCount} lemmas</span>
     </div>
   </>
 );

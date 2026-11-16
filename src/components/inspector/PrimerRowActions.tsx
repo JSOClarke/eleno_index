@@ -11,7 +11,6 @@ interface PrimerRowActionsProps {
   className?: string;
 }
 
-/** Shared status/context actions for the desktop row and the mobile card. */
 export const PrimerRowActions: React.FC<PrimerRowActionsProps> = ({
   isOpen,
   isLearning,
@@ -21,13 +20,15 @@ export const PrimerRowActions: React.FC<PrimerRowActionsProps> = ({
   onKnown,
   className = "",
 }) => (
-  <div className={`flex items-center gap-1 ${className}`}>
+  <div className={`flex items-center justify-center gap-1.5 ${className}`}>
     <button
       type="button"
       onClick={onToggleOpen}
       title="Show dictionary definitions & authentic sentences"
-      className={`p-1.5 border border-[#111111] transition-colors cursor-pointer ${
-        isOpen ? "bg-[#B8FF01] text-[#111111]" : "bg-white text-[#111111] hover:bg-[#F4F4F2]"
+      className={`rounded-lg border p-1.5 transition-colors cursor-pointer ${
+        isOpen
+          ? "border-slate-900 bg-slate-900 text-white"
+          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
       }`}
     >
       <Quote className="w-3.5 h-3.5" />
@@ -36,25 +37,27 @@ export const PrimerRowActions: React.FC<PrimerRowActionsProps> = ({
       type="button"
       onClick={onLearn}
       title={isLearning ? "Reset to Unknown" : "Mark as Learning"}
-      className={`px-2 py-1 font-mono text-[11px] border transition-colors cursor-pointer ${
+      aria-pressed={isLearning}
+      className={`rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
         isLearning
-          ? "border-[#111111] bg-[#B8FF01] text-[#111111] font-semibold"
-          : "border-[#CCCCCC] bg-white text-[#555555] hover:border-[#111111] hover:text-[#111111]"
+          ? "border-amber-300 bg-amber-100 text-amber-800"
+          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
       }`}
     >
-      {isLearning ? "● Learning" : "Learn"}
+      Learn
     </button>
     <button
       type="button"
       onClick={onKnown}
       title={isKnown ? "Reset to Unknown" : "Mark as Known"}
-      className={`px-2.5 py-1 font-mono text-[11px] border transition-colors cursor-pointer ${
+      aria-pressed={isKnown}
+      className={`rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
         isKnown
-          ? "border-[#111111] bg-[#111111] text-[#B8FF01] font-semibold"
-          : "border-[#111111] bg-white text-[#111111] hover:bg-[#B8FF01]"
+          ? "border-emerald-600 bg-emerald-600 text-white"
+          : "border-slate-200 bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200"
       }`}
     >
-      {isKnown ? "✓ Known" : "Known"}
+      Known
     </button>
   </div>
 );

@@ -10,9 +10,9 @@ interface InspectorFlowPanelProps {
   footnote: React.ReactNode;
   isAuthenticated: boolean;
   onSignIn: () => void;
+  barColorClass?: string;
 }
 
-/** One of the two coverage panels in the inspector header. */
 export const InspectorFlowPanel: React.FC<InspectorFlowPanelProps> = ({
   index,
   title,
@@ -21,38 +21,41 @@ export const InspectorFlowPanel: React.FC<InspectorFlowPanelProps> = ({
   footnote,
   isAuthenticated,
   onSignIn,
+  barColorClass = "bg-emerald-500",
 }) => (
   <div>
-    <div className="font-mono text-xs uppercase text-[#666666]">
-      {index} / {title}
+    <div className="text-xs font-medium text-slate-500">
+      {index} · {title}
     </div>
 
     {isAuthenticated ? (
       <>
-        <div className="mt-1 flex items-baseline gap-2">
-          <span className="font-mono text-3xl font-bold tabular-nums">{Math.round(pct)}%</span>
+        <div className="mt-1.5 flex flex-wrap items-baseline gap-2">
+          <span className="text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
+            {Math.round(pct)}%
+          </span>
           {learnPct > 0 && (
-            <span className="border border-[#111111] bg-[#B8FF01] px-1.5 py-0.5 font-mono text-xs font-semibold">
+            <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-700 ring-1 ring-amber-200/80">
               {formatLearningDelta(learnPct)} learn
             </span>
           )}
         </div>
-        <div className="mt-2 flex h-2.5 w-full overflow-hidden border border-[#111111] bg-white">
+        <div className="mt-2.5 flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className="h-full bg-[#111111] transition-all duration-200"
+            className={`h-full transition-all duration-300 ${barColorClass} ${learnPct > 0 ? "" : "rounded-r-full"}`}
             style={{ width: `${Math.min(100, pct)}%` }}
           />
           {learnPct > 0 && (
             <div
-              className="h-full border-l border-[#111111]/40 bg-[#B8FF01] transition-all duration-200"
-              style={{ width: `${Math.min(100 - pct, Math.max(learnPct, 1.5))}%` }}
+              className="h-full rounded-r-full bg-amber-300 transition-all duration-300"
+              style={{ width: `${Math.min(100 - pct, Math.max(learnPct, 2))}%` }}
             />
           )}
         </div>
-        <div className="mt-1.5 font-mono text-xs text-[#666666]">{footnote}</div>
+        <div className="mt-1.5 text-xs text-slate-500">{footnote}</div>
       </>
     ) : (
-      <div className="mt-1">
+      <div className="mt-2">
         <CoverageGate
           onSignIn={onSignIn}
           rows={2}

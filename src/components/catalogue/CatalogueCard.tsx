@@ -1,10 +1,14 @@
 import React from "react";
+import { Bookmark, Headphones } from "lucide-react";
 import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
+import { PlatformLinkPills } from "@/components/ui/PlatformLinkPills";
+import { getCefrBadgeClass, getPlatformLinks } from "@/lib/catalogueDisplay";
 import { formatCompactWords, formatPercent, getMediaSubtypeLabel } from "@/lib/formatters";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { CardCoveragePanel } from "./CardCoveragePanel";
+import { PreviewWordChips } from "./PreviewWordChips";
 
 interface CatalogueCardProps {
   item: MediaCatalogItem;
@@ -19,122 +23,121 @@ interface CatalogueCardProps {
 }
 
 export const CatalogueCard: React.FC<CatalogueCardProps> = ({
-  item,
-  isSelected,
-  isSaved,
-  statusMap,
-  isAuthenticated,
-  onRequireAuth,
-  onSelectCard,
-  onToggleSave,
-  onToggleWord,
+  item, isSelected, isSaved, statusMap, isAuthenticated,
+  onRequireAuth, onSelectCard, onToggleSave, onToggleWord,
 }) => {
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
-  const fh = Math.round(m?.readability_score || 70);
   const wpm = m?.words_per_minute ? Math.round(m.words_per_minute) : null;
-  const dialOrSpeedLabel = wpm ? `${wpm} WPM` : `${formatPercent(m?.dialogue_ratio, 1)} dialogue`;
-  const subjPct = formatPercent(m?.verb_profile?.subjunctive_load, 1);
+  const dialOrSpeedLabel = wpm ? `${wpm} WPM` : `${formatPercent(m?.dialogue_ratio, 0)} dialogue`;
+  const englishTitle = item.work_title || item.title;
+  const targetTitle = item.work_title && item.title !== item.work_title ? item.title : null;
+  const synopsis = item.work_synopsis || item.sampleSnippet;
+  const whereTo = getPlatformLinks(item);
+  const subtype = getMediaSubtypeLabel(item);
 
   return (
-    <div
+    <article
       onClick={() => onSelectCard(item.id)}
-      className={`border border-[#111111] bg-white flex flex-col justify-between transition-all cursor-pointer ${
-        isSelected ? "shadow-[4px_4px_0px_#111111]" : "hover:bg-[#FAFAFA]"
+      className={`group flex flex-col sm:flex-row overflow-hidden rounded-2xl border bg-white transition-all duration-200 cursor-pointer ${
+        isSelected
+          ? "border-indigo-400 ring-2 ring-indigo-100 shadow-md"
+          : "border-slate-200/90 shadow-sm hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
       }`}
     >
-      <div>
-        <div
-          className={`flex items-center justify-between px-4 py-2.5 border-b border-[#111111] font-mono text-xs ${
-            isSelected ? "bg-[#B8FF01] text-[#111111] font-semibold" : "bg-[#F8F8F6] text-[#555555]"
-          }`}
-        >
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <span className="truncate">{getMediaSubtypeLabel(item)} · {item.creator}</span>
-          </div>
-          <div className="ml-2 flex shrink-0 items-center gap-1.5">
-            {item.has_audio && (
-              <span className="px-1.5 py-0.2 border border-[#111111] bg-[#B8FF01] text-[#111111] font-bold text-[10px]">
-                🎧 AUDIO
-              </span>
-            )}
-            <span className="px-1.5 py-0.2 border border-[#111111] text-[#111111] font-bold bg-white">{level}</span>
-            <span className="px-1.5 py-0.2 border border-[#111111]/30 text-[#111111]">F-H {fh}</span>
-          </div>
-        </div>
+      <BookCoverPlate title={targetTitle || englishTitle} creator={`${item.creator} · ${subtype}`} explicitUrl={item.cover_image_url} level={level} size="showcase" badgeText={subtype} />
 
-        <div className="p-4 space-y-3.5">
-          <div className="flex gap-4 items-start">
-            <BookCoverPlate title={item.work_title || item.title} explicitUrl={item.cover_image_url} level={level} size="card" />
-            <div className="flex-1 min-w-0 space-y-2.5">
-              <div>
-                <Link
-                  to={item.work_id ? `/work/${item.work_id}` : `/media/${item.id}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-base font-bold text-[#111111] leading-snug hover:underline block"
-                >
-                  {item.work_title || item.title}
-                </Link>
-                <div className="font-mono text-xs text-[#666666] mt-0.5 truncate">
-                  {item.title} · {item.language.toUpperCase()}
-                  {item.editions && item.editions.length > 1 ? ` · ${item.editions.length} editions` : ""}
-                </div>
-                <div className="font-mono text-xs text-[#666666] mt-0.5">
-                  {formatCompactWords(m?.total_tokens || 0)} · {dialOrSpeedLabel} · {subjPct} subj
-                </div>
-              </div>
-              <CardCoveragePanel item={item} isAuthenticated={isAuthenticated} onRequireAuth={onRequireAuth} />
-            </div>
-          </div>
-
-          <div className="border-l-2 border-[#111111] pl-3 py-0.5">
-            <div className="font-mono text-xs uppercase text-[#777777] mb-0.5">{item.sampleSourceLabel}</div>
-            <p className="font-serif text-sm text-[#222222] italic line-clamp-2">{item.sampleSnippet}</p>
-          </div>
-
-          <div>
-            <div className="font-mono text-xs uppercase text-[#777777] mb-1.5">NEW WORDS FOR YOU</div>
-            <div className="flex flex-wrap gap-1.5">
-              {item.previewWords.slice(0, 6).map((w) => {
-                const isKnown = statusMap[w.canonical_id] === "known";
-                return (
-                  <button
-                    key={w.canonical_id}
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); onToggleWord(item, w); }}
-                    className={`px-2 py-0.5 text-xs font-mono border transition-colors cursor-pointer ${
-                      isKnown
-                        ? "border-[#111111] bg-[#111111] text-[#B8FF01] font-semibold"
-                        : "border-[#CCCCCC] bg-white text-[#111111] hover:border-[#111111]"
-                    }`}
+      <div className="flex flex-1 flex-col justify-between p-5 min-w-0">
+        <div className="space-y-3.5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <Link
+                to={`/media/${item.id}`}
+                onClick={(e) => e.stopPropagation()}
+                className="block text-lg font-semibold tracking-tight text-slate-900 leading-snug hover:text-indigo-700 transition-colors"
+              >
+                {englishTitle}
+              </Link>
+              {targetTitle && (
+                <div className="mt-0.5 text-xs font-medium text-slate-600">{targetTitle}</div>
+              )}
+              <div className="mt-0.5 text-xs text-slate-400">
+                {item.creator}
+                {item.editions && item.editions.length > 1 && item.work_id && (
+                  <Link
+                    to={`/work/${item.work_id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="ml-2 text-indigo-600 hover:underline"
                   >
-                    {isKnown ? "✓ " : ""}{w.lemma} <span className="opacity-60">{w.frequency}x</span>
-                  </button>
-                );
-              })}
+                    · {item.editions.length} editions
+                  </Link>
+                )}
+              </div>
             </div>
+
+            <div className="flex shrink-0 items-center gap-1.5">
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-600">
+                {item.language}
+              </span>
+              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCefrBadgeClass(level)}`}>
+                {level}
+              </span>
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <CardCoveragePanel item={item} isAuthenticated={isAuthenticated} onRequireAuth={onRequireAuth} />
+            <div className="text-xs text-slate-400">
+              {formatCompactWords(m?.total_tokens || 0)} · {dialOrSpeedLabel} · {m?.unique_words_count || 0} unique
+            </div>
+          </div>
+
+          {synopsis && (
+            <p className="text-xs leading-relaxed text-slate-600 line-clamp-3">{synopsis}</p>
+          )}
+
+          {item.previewWords.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="text-[11px] font-medium text-slate-400">Most common words</div>
+              <PreviewWordChips item={item} words={item.previewWords.slice(0, 6)} statusMap={statusMap} onToggleWord={onToggleWord} compact />
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3.5">
+          <PlatformLinkPills
+            label={whereTo.label}
+            links={whereTo.links}
+            extraSlot={
+              item.has_audio ? (
+                <span className="inline-flex items-center gap-1 rounded-md bg-indigo-50 px-2 py-0.5 font-medium text-indigo-700">
+                  <Headphones className="h-3 w-3" /> Audio
+                </span>
+              ) : undefined
+            }
+          />
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              title={isSaved ? "Saved" : "Save"}
+              onClick={(e) => { e.stopPropagation(); onToggleSave(item.id); }}
+              className={`rounded-xl p-2 transition cursor-pointer ${
+                isSaved ? "bg-indigo-50 text-indigo-600" : "text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              }`}
+            >
+              <Bookmark className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
+            </button>
+            <Link
+              to={`/media/${item.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="rounded-xl bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-white shadow-xs transition hover:bg-indigo-600"
+            >
+              Inspect Vocab →
+            </Link>
           </div>
         </div>
       </div>
-
-      <div className="px-4 py-3 border-t border-[#E2E2DF] bg-[#F8F8F6] flex items-center justify-between">
-        <span className="font-mono text-xs text-[#666666]">{m?.unique_words_count || 0} unique lemmas</span>
-        <div className="flex items-center gap-1.5">
-          <button type="button" onClick={(e) => { e.stopPropagation(); onToggleSave(item.id); }} className="px-2.5 py-1.5 bg-white text-[#111111] text-xs font-medium border border-[#111111] hover:bg-[#EAEAE6]">
-            {isSaved ? "Saved ✓" : "Save"}
-          </button>
-          {isAuthenticated ? (
-            <Link to={`/read/${item.id}`} onClick={(e) => e.stopPropagation()} className="px-2.5 py-1.5 bg-[#B8FF01] text-[#111111] text-xs font-bold border border-[#111111] hover:bg-[#a6e600]">
-              Read →
-            </Link>
-          ) : (
-            <button type="button" onClick={(e) => { e.stopPropagation(); onRequireAuth(); }} className="px-2.5 py-1.5 bg-[#B8FF01] text-[#111111] text-xs font-bold border border-[#111111] hover:bg-[#a6e600] cursor-pointer">Sign in to read</button>
-          )}
-          <Link to={item.work_id ? `/work/${item.work_id}` : `/media/${item.id}`} onClick={(e) => e.stopPropagation()} className="px-2.5 py-1.5 bg-[#111111] text-white text-xs font-medium border border-[#111111] hover:bg-[#333333]">
-            Inspect
-          </Link>
-        </div>
-      </div>
-    </div>
+    </article>
   );
 };

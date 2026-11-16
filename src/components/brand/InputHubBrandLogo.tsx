@@ -1,89 +1,64 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 
-const TARGET_NAME = "inputhub";
-const GLYPHS = "!/<>-_\\#[]{}—=+*^?#";
+interface ThresholdMarkProps {
+  className?: string;
+}
+
+/** Standalone three-step Threshold geometric mark (no wordmark). */
+export const ThresholdMark: React.FC<ThresholdMarkProps> = ({ className = "h-5 w-5" }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+    className={className}
+  >
+    <path d="M2 20V14.75H8.5V9.5H15.5V4H22V20H2Z" fill="currentColor" />
+  </svg>
+);
 
 interface InputHubBrandLogoProps {
   size?: "sm" | "md" | "lg";
   locale?: string;
+  showWordmark?: boolean;
   scrambleOnMount?: boolean;
   className?: string;
 }
 
 export const InputHubBrandLogo: React.FC<InputHubBrandLogoProps> = ({
   size = "md",
-  locale = "es",
-  scrambleOnMount = false,
+  locale,
+  showWordmark = true,
   className = "",
 }) => {
-  const [displayText, setDisplayText] = useState<string>(TARGET_NAME);
-  const [recoiling, setRecoiling] = useState<boolean>(false);
-
-  const triggerScramble = () => {
-    let frame = 0;
-    const interval = setInterval(() => {
-      frame++;
-      setDisplayText(
-        TARGET_NAME.split("")
-          .map((char, index) => {
-            if (index < frame / 2) return char;
-            return GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-          })
-          .join("")
-      );
-      if (frame >= TARGET_NAME.length * 2) {
-        clearInterval(interval);
-        setDisplayText(TARGET_NAME);
-      }
-    }, 30);
+  const iconSizes = {
+    sm: "h-4 w-4",
+    md: "h-5 w-5",
+    lg: "h-7 w-7",
   };
-
-  useEffect(() => {
-    if (scrambleOnMount) {
-      triggerScramble();
-    }
-  }, [scrambleOnMount]);
-
-  const handleBadgeClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setRecoiling(true);
-    setTimeout(() => setRecoiling(false), 380);
-  };
-
   const textSizes = {
-    sm: "text-sm",
-    md: "text-base",
-    lg: "text-2xl font-black",
-  };
-
-  const badgeSizes = {
-    sm: "px-1 py-0.2 text-[10px]",
-    md: "px-1.5 py-0.5 text-xs",
-    lg: "px-2 py-0.5 text-sm",
+    sm: "text-base",
+    md: "text-xl",
+    lg: "text-2xl",
   };
 
   return (
     <div
-      onMouseEnter={() => {
-        setRecoiling(true);
-        setTimeout(() => setRecoiling(false), 380);
-      }}
-      className={`inline-flex items-center gap-1.5 font-mono font-bold tracking-tight select-none ${textSizes[size]} ${className}`}
+      className={`inline-flex items-center gap-2.5 select-none ${className}`}
+      aria-label="Threshold"
     >
-      <span className="tracking-tighter transition-colors text-[#111111]">
-        {displayText}
-      </span>
-
-      <span
-        onClick={handleBadgeClick}
-        title="inputhub /es — Neo-Swiss language acquisition"
-        className={`inline-flex items-center border border-[#111111] bg-[#B8FF01] font-bold text-[#111111] shadow-[2px_2px_0px_#111111] transition-transform cursor-pointer ${
-          badgeSizes[size]
-        } ${recoiling ? "animate-recoil-impact" : "hover:-translate-x-0.5 hover:-translate-y-0.5"}`}
-      >
-        <span>/</span>
-        <span>{locale}</span>
-      </span>
+      <ThresholdMark className={`shrink-0 text-slate-900 ${iconSizes[size]}`} />
+      {showWordmark && (
+        <span className={`font-serif font-medium tracking-tight text-slate-900 ${textSizes[size]}`}>
+          Threshold
+        </span>
+      )}
+      {locale && (
+        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium uppercase text-slate-600">
+          {locale}
+        </span>
+      )}
     </div>
   );
 };
+
+export const ThresholdLogo = InputHubBrandLogo;

@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { X } from "lucide-react";
+import { InputHubBrandLogo } from "@/components/brand/InputHubBrandLogo";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -40,38 +42,51 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-white border-2 border-[#111111] shadow-[6px_6px_0px_#111111] w-full max-w-md p-6 space-y-5">
-        <div className="flex items-center justify-between border-b border-[#111111] pb-3">
-          <div className="flex items-center gap-2 font-mono text-sm font-bold">
-            <span className="bg-[#B8FF01] px-1.5 py-0.5">/es</span>
-            <span>{mode === "signin" ? "SIGN IN TO INDEX" : "CREATE INDEX ACCOUNT"}</span>
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 bg-slate-900/35 backdrop-blur-xs flex items-center justify-center p-4"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl space-y-5"
+      >
+        <div className="flex items-start justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="space-y-1.5">
+            <InputHubBrandLogo showWordmark={false} size="md" />
+            <h2 className="font-serif text-xl font-medium text-slate-900 pt-0.5">
+              {mode === "signin" ? "Sign in to Threshold" : "Create a Threshold account"}
+            </h2>
+            <p className="text-xs text-slate-500">
+              Sync your known vocabulary and reading coverage across devices.
+            </p>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="font-mono text-xs px-2 py-0.5 border border-[#111111] hover:bg-[#F4F4F2] cursor-pointer"
+            aria-label="Close sign in dialog"
+            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer"
           >
-            ✕
+            <X className="h-4 w-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block font-mono text-xs uppercase text-[#555555] mb-1">
-              Email Address
+            <label className="block text-xs font-medium text-slate-600 mb-1.5">
+              Email address
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-[#111111] px-3 py-2 font-mono text-sm outline-none focus:bg-[#B8FF01]/10"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100 transition"
               placeholder="reader@example.com"
             />
           </div>
 
           <div>
-            <label className="block font-mono text-xs uppercase text-[#555555] mb-1">
+            <label className="block text-xs font-medium text-slate-600 mb-1.5">
               Password
             </label>
             <input
@@ -79,13 +94,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-[#111111] px-3 py-2 font-mono text-sm outline-none focus:bg-[#B8FF01]/10"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100 transition"
               placeholder="••••••••"
             />
           </div>
 
           {error && (
-            <div className="border border-red-600 bg-red-50 px-3 py-2 font-mono text-xs text-red-700">
+            <div className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
               {error}
             </div>
           )}
@@ -93,26 +108,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-2.5 bg-[#111111] text-[#B8FF01] font-mono text-xs font-bold uppercase tracking-wider border border-[#111111] hover:bg-[#222222] cursor-pointer"
+            className="w-full rounded-xl bg-slate-900 py-2.5 text-xs font-semibold text-white hover:bg-indigo-600 transition cursor-pointer disabled:opacity-60"
           >
             {submitting
-              ? "Processing..."
+              ? "Please wait..."
               : mode === "signin"
-              ? "Sign In →"
-              : "Create Account →"}
+              ? "Sign in"
+              : "Create account"}
           </button>
         </form>
 
-        <div className="border-t border-[#E2E2DF] pt-3 flex justify-between items-center font-mono text-xs">
-          <span className="text-[#666666]">
+        <div className="border-t border-slate-100 pt-4 flex justify-between items-center text-xs">
+          <span className="text-slate-500">
             {mode === "signin" ? "Need an account?" : "Already registered?"}
           </span>
           <button
             type="button"
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            className="underline font-semibold text-[#111111] cursor-pointer"
+            onClick={() => {
+              setError(null);
+              setMode(mode === "signin" ? "signup" : "signin");
+            }}
+            className="font-semibold text-indigo-600 hover:text-indigo-700 cursor-pointer"
           >
-            {mode === "signin" ? "Register" : "Sign In"}
+            {mode === "signin" ? "Create account" : "Sign in"}
           </button>
         </div>
       </div>

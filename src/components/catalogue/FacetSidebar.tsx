@@ -80,37 +80,37 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
       }
     >
       <FacetGroup
-        title="AUDIO & MEDIA"
+        title="Audio & Media"
         options={audioOptions}
         selectedSet={new Set(filters.hasAudio ? ["audio_on"] : [])}
         onToggle={onToggleHasAudio}
       />
       <FacetGroup
-        title="READING FLOW"
+        title="Reading Flow"
         options={flowOptions}
         selectedSet={new Set(filters.flowTier !== "all" ? [filters.flowTier] : [])}
         onToggle={(id) => onSetFlowTier(filters.flowTier === id ? "all" : (id as FlowTier))}
       />
       <FacetGroup
-        title="CEFR LEVEL"
+        title="CEFR Level"
         options={levelOptions}
         selectedSet={filters.levels}
         onToggle={onToggleLevel}
       />
       <FacetGroup
-        title="MEDIA TYPE"
+        title="Media Type"
         options={typeOptions}
         selectedSet={filters.types}
         onToggle={onToggleType}
       />
       <FacetGroup
-        title="LENGTH"
+        title="Length"
         options={lengthOptions}
         selectedSet={filters.lengths as Set<string>}
         onToggle={(id) => onToggleLength(id as LengthBucket)}
       />
       <FacetGroup
-        title="LINGUISTIC PROFILE"
+        title="Linguistic Profile"
         options={profileOptions}
         selectedSet={filters.profiles as Set<string>}
         onToggle={(id) => onToggleProfile(id as ProfileFilterId)}

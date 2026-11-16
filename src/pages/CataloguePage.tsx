@@ -2,12 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { CatalogueCardsGrid } from "@/components/catalogue/CatalogueCardsGrid";
 import { CatalogueFiltersSheet } from "@/components/catalogue/CatalogueFiltersSheet";
+import { CatalogueMosaicGrid } from "@/components/catalogue/CatalogueMosaicGrid";
 import { CataloguePagination } from "@/components/catalogue/CataloguePagination";
-import { CatalogueQuickFilters } from "@/components/catalogue/CatalogueQuickFilters";
 import { CatalogueTable } from "@/components/catalogue/CatalogueTable";
 import { CatalogueToolbar } from "@/components/catalogue/CatalogueToolbar";
 import { CommandFilterBar } from "@/components/catalogue/CommandFilterBar";
-import { FacetSidebar } from "@/components/catalogue/FacetSidebar";
 import { useCatalogueSort } from "@/hooks/useCatalogueSort";
 import { useFacetCounts } from "@/hooks/useFacetCounts";
 import type { useFilterState } from "@/hooks/useFilterState";
@@ -31,8 +30,9 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
   mode, items, loading, filterState, statusMap, isAuthenticated, onRequireAuth, onToggleWord, onEnsurePreviewWords,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const viewMode: CatalogueViewMode = searchParams.get("view") === "table" ? "table" : "cards";
-  const pageSize = viewMode === "table" ? 40 : 24;
+  const rawView = searchParams.get("view");
+  const viewMode: CatalogueViewMode = rawView === "table" ? "table" : rawView === "mosaic" ? "mosaic" : "cards";
+  const pageSize = viewMode === "table" ? 40 : viewMode === "mosaic" ? 30 : 24;
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -84,43 +84,38 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <CommandFilterBar
         tags={filterState.filters.tags} searchText={filterState.searchText}
         onSearchChange={filterState.setSearchText} onRemoveTag={filterState.removeTag}
         onAddTag={filterState.addTag} onClearAll={filterState.clearAll}
       />
-      <CatalogueQuickFilters
-        filters={filterState.filters} counts={facetCounts}
-        onToggleLevel={filterState.toggleLevel} onToggleHasAudio={filterState.toggleHasAudio}
-        onSetFlowTier={filterState.setFlowTier} onClearAll={filterState.clearAll}
-      />
-      <div className="flex flex-col md:flex-row gap-8 items-start">
-        <div className="hidden md:block">
-          <FacetSidebar
-            filters={filterState.filters} counts={facetCounts}
-            onToggleLevel={filterState.toggleLevel} onToggleType={filterState.toggleType}
-            onToggleLength={filterState.toggleLength} onToggleProfile={filterState.toggleProfile}
-            onToggleHasAudio={filterState.toggleHasAudio} onSetFlowTier={filterState.setFlowTier}
+
+      <div className="w-full">
+        <CatalogueToolbar
+          resultCount={filteredItems.length} viewMode={viewMode}
+          onChangeViewMode={handleChangeViewMode} activeFilterCount={activeFilterCount}
+          onOpenFilters={() => setFiltersOpen(true)} sortOption={sortOption} onChangeSort={setSortOption}
+        />
+        {viewMode === "cards" ? (
+          <CatalogueCardsGrid {...sharedCatalogueProps} onSelectCard={toggleExpand} />
+        ) : viewMode === "mosaic" ? (
+          <CatalogueMosaicGrid
+            items={pagedItems}
+            loading={loading}
+            savedIds={filterState.savedIds}
+            isAuthenticated={isAuthenticated}
+            onToggleSave={filterState.toggleSave}
           />
-        </div>
-        <div className="flex-1 min-w-0 w-full">
-          <CatalogueToolbar
-            resultCount={filteredItems.length} viewMode={viewMode}
-            onChangeViewMode={handleChangeViewMode} activeFilterCount={activeFilterCount}
-            onOpenFilters={() => setFiltersOpen(true)} sortOption={sortOption} onChangeSort={setSortOption}
-          />
-          {viewMode === "cards" ? (
-            <CatalogueCardsGrid {...sharedCatalogueProps} onSelectCard={toggleExpand} />
-          ) : (
-            <CatalogueTable {...sharedCatalogueProps} onToggleExpand={toggleExpand} />
-          )}
-          <CataloguePagination
-            currentPage={safePage} totalPages={totalPages}
-            totalItems={filteredItems.length} pageSize={pageSize} onPageChange={handlePageChange}
-          />
-        </div>
+        ) : (
+          <CatalogueTable {...sharedCatalogueProps} onToggleExpand={toggleExpand} />
+        )}
+        <CataloguePagination
+          currentPage={safePage} totalPages={totalPages}
+          totalItems={filteredItems.length} pageSize={pageSize} onPageChange={handlePageChange}
+        />
       </div>
+
       <CatalogueFiltersSheet
         open={filtersOpen} onClose={() => setFiltersOpen(false)}
         filters={filterState.filters} counts={facetCounts}

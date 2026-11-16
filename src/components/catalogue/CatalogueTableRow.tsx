@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
-import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
 import { CoverageGate } from "@/components/ui/CoverageGate";
+import { getCefrBadgeClass } from "@/lib/catalogueDisplay";
+import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { CatalogueFlowBar } from "./CatalogueFlowBar";
@@ -35,16 +36,10 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
   const fh = Math.round(m?.readability_score || 70);
-  const flowPct =
-    item.comprehension?.text_coverage_percentage ??
-    item.comprehension?.comprehension_percentage ??
-    0;
+  const flowPct = item.comprehension?.text_coverage_percentage ?? item.comprehension?.comprehension_percentage ?? 0;
   const learnFlowPct = item.comprehension?.learning_text_coverage_percentage ?? 0;
-  const flowTitle =
-    learnFlowPct > 0
-      ? `${flowPct.toFixed(1)}% known + ${learnFlowPct.toFixed(1)}% learning`
-      : `${flowPct.toFixed(1)}% known`;
-  const tone = isExpanded ? "bg-[#B8FF01] text-[#111111]" : "hover:bg-[#F8F8F6]";
+  const englishTitle = item.work_title || item.title;
+  const targetTitle = item.work_title && item.title !== item.work_title ? item.title : null;
 
   return (
     <div>
@@ -58,68 +53,63 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
 
       <div
         onClick={() => onToggleExpand(item.id)}
-        className={`hidden cursor-pointer grid-cols-12 items-center gap-3 px-3.5 py-3.5 transition-colors md:grid ${tone}`}
+        className={`hidden cursor-pointer grid-cols-12 items-center gap-3 px-4 py-3.5 transition-colors md:grid ${
+          isExpanded ? "bg-indigo-50/40" : "hover:bg-slate-50/80"
+        }`}
       >
-        <div className="col-span-4 flex items-center gap-3 pr-2">
+        <div className="col-span-4 flex items-center gap-3 pr-2 min-w-0">
           <BookCoverPlate
-            title={item.work_title || item.title}
+            title={targetTitle || englishTitle}
             explicitUrl={item.cover_image_url}
             level={level}
             size="mini"
           />
           <div className="min-w-0">
             <Link
-              to={item.work_id ? `/work/${item.work_id}` : `/media/${item.id}`}
+              to={`/media/${item.id}`}
               onClick={(event) => event.stopPropagation()}
-              className="block truncate text-sm font-semibold leading-snug text-[#111111] hover:underline"
+              className="block truncate text-sm font-semibold text-slate-900 hover:text-indigo-700"
             >
-              {item.work_title || item.title}
+              {englishTitle}
             </Link>
-            <div className={`mt-0.5 truncate font-mono text-xs ${isExpanded ? "text-[#333333]" : "text-[#777777]"}`}>
-              {item.title} · {item.language.toUpperCase()}
-              {item.editions && item.editions.length > 1 ? ` · ${item.editions.length} editions` : ""}
-            </div>
-            <div className={`mt-0.5 font-mono text-xs ${isExpanded ? "text-[#333333]" : "text-[#777777]"}`}>
-              {getMediaSubtypeLabel(item)}
+            {targetTitle && (
+              <div className="truncate text-xs text-slate-600">{targetTitle}</div>
+            )}
+            <div className="mt-0.5 text-[11px] text-slate-400">
+              {item.language.toUpperCase()} · {getMediaSubtypeLabel(item)}
             </div>
           </div>
         </div>
 
-        <div className="col-span-1 flex items-center gap-1">
-          <span className="inline-block border border-[#111111] bg-transparent px-1.5 py-0.5 font-mono text-xs font-medium">
+        <div className="col-span-1 flex items-center gap-1.5">
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${getCefrBadgeClass(level)}`}>
             {level}
           </span>
           {item.has_audio && <span title="Audio narration available" className="text-xs">🎧</span>}
         </div>
 
-        <div className="col-span-2 font-mono text-xs tabular-nums">
+        <div className="col-span-2 text-xs text-slate-600 tabular-nums">
           {formatCompactWords(m?.total_tokens || 0)}
         </div>
 
-        <div className="col-span-2 truncate text-xs">{item.creator}</div>
+        <div className="col-span-2 truncate text-xs text-slate-500">{item.creator}</div>
 
-        <div className="col-span-2 flex items-center gap-2.5" title={flowTitle}>
+        <div className="col-span-2 flex items-center gap-2.5">
           {isAuthenticated ? (
             <>
-              <div className="w-24">
+              <div className="w-20">
                 <CatalogueFlowBar flowPct={flowPct} learnFlowPct={learnFlowPct} />
               </div>
-              <span className="font-mono text-xs font-medium tabular-nums">
+              <span className="text-xs font-semibold text-emerald-700 tabular-nums">
                 {Math.round(flowPct)}%
               </span>
             </>
           ) : (
-            <CoverageGate onSignIn={onRequireAuth} label="Sign in for coverage" />
+            <CoverageGate onSignIn={onRequireAuth} label="Sign in" />
           )}
         </div>
 
-        <div
-          className={`col-span-1 text-right font-mono text-xs ${
-            isExpanded ? "text-[#222222]" : "text-[#666666]"
-          }`}
-        >
-          F-H {fh}
-        </div>
+        <div className="col-span-1 text-right text-xs text-slate-500 tabular-nums">F-H {fh}</div>
       </div>
 
       {isExpanded && (

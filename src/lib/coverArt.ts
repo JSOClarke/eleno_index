@@ -1,17 +1,18 @@
 export interface CoverArtMeta {
   coverUrl: string | null;
   coverBg: string;
+  coverGradient: string;
   coverAccent: string;
   coverCode: string;
 }
 
-const FALLBACK_PALETTE: Array<{ bg: string; accent: string }> = [
-  { bg: "#111111", accent: "#B8FF01" },
-  { bg: "#1E3A8A", accent: "#93C5FD" },
-  { bg: "#14532D", accent: "#86EFAC" },
-  { bg: "#7F1D1D", accent: "#FBBF24" },
-  { bg: "#312E81", accent: "#C7D2FE" },
-  { bg: "#3B0764", accent: "#F3E8FF" },
+const FALLBACK_PALETTE: Array<{ bg: string; gradient: string; accent: string }> = [
+  { bg: "#1E1B4B", gradient: "linear-gradient(145deg, #0F0B29 0%, #2B0938 52%, #6E1431 100%)", accent: "#FDE68A" },
+  { bg: "#1E3A8A", gradient: "linear-gradient(145deg, #0B193C 0%, #1E3A8A 55%, #0F766E 100%)", accent: "#BAE6FD" },
+  { bg: "#14532D", gradient: "linear-gradient(145deg, #0A2E1D 0%, #14532D 52%, #365314 100%)", accent: "#BBF7D0" },
+  { bg: "#581C87", gradient: "linear-gradient(145deg, #1E1038 0%, #4C1D95 52%, #831843 100%)", accent: "#E9D5FF" },
+  { bg: "#7C2D12", gradient: "linear-gradient(145deg, #27130C 0%, #7C2D12 55%, #9A3412 100%)", accent: "#FED7AA" },
+  { bg: "#0F172A", gradient: "linear-gradient(145deg, #0F172A 0%, #1E293B 55%, #334155 100%)", accent: "#CBD5E1" },
 ];
 
 function buildTitleInitials(title: string): string {
@@ -41,6 +42,7 @@ export function resolveCoverArt(title: string, explicitUrl: string | null): Cove
   return {
     coverUrl: explicitUrl,
     coverBg: palette.bg,
+    coverGradient: palette.gradient,
     coverAccent: palette.accent,
     coverCode: `${initials}·ES`,
   };

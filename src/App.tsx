@@ -104,7 +104,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-white text-[#111111]">
+    <div className="min-h-[100dvh] flex flex-col bg-[#FAF9F6] text-slate-900">
       <TopNavBar
         savedCount={filterState.savedIds.size}
         knownCount={userVocab.knownCount}
@@ -115,7 +115,7 @@ export const App: React.FC = () => {
         onOpenAuth={() => setAuthModalOpen(true)}
         onSignOut={auth.signOut}
       />
-      <main className="max-w-[1380px] w-full mx-auto px-4 sm:px-6 pt-4 sm:pt-6 pb-8 flex-1">
+      <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10 flex-1">
         <AppRoutes
           user={auth.user}
           activeLanguage={activeLanguage}

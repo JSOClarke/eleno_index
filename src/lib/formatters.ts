@@ -54,32 +54,30 @@ export function getMediaCategoryLabel(item: MediaCatalogItem): string {
 
 export function getMediaSubtypeLabel(item: MediaCatalogItem): string {
   const mType = (item.type || "").toLowerCase();
-  const fmt = (item.format || "epub").toUpperCase();
+  const fmt = (item.format || "").toLowerCase();
   const seriesName = item.series?.name || item.series_name;
-  if (mType === "movie" || mType.startsWith("tv") || fmt === "SRT" || fmt === "VTT") {
+  if (mType === "movie" || mType.startsWith("tv") || fmt === "srt" || fmt === "vtt") {
     const durMin = item.metrics?.duration_seconds
       ? Math.round(item.metrics.duration_seconds / 60)
       : null;
     const prefix = seriesName
-      ? `${seriesName.toUpperCase()}${item.series_label ? ` ${item.series_label.toUpperCase()}` : item.series_order ? ` S${item.series_order}` : ""}`
+      ? `${seriesName}${item.series_label ? ` ${item.series_label}` : item.series_order ? ` S${item.series_order}` : ""}`
       : mType.startsWith("tv")
-      ? "TV SERIES"
-      : "FILM";
-    if (durMin && item.release_year) return `${prefix} · ${item.release_year} · ${durMin}M`;
-    if (durMin) return `${prefix} · ${durMin} MIN`;
-    return `${prefix} · ${item.release_year || fmt}`;
+      ? "TV Series"
+      : "Film";
+    if (durMin && item.release_year) return `${prefix} · ${item.release_year} · ${durMin}m`;
+    if (durMin) return `${prefix} · ${durMin} min`;
+    return item.release_year ? `${prefix} · ${item.release_year}` : prefix;
   }
+  const typeLabel = mType === "manga" ? "Manga" : mType === "comic" ? "Comic" : mType === "podcast" ? "Podcast" : mType === "article" ? "Article" : "Book";
   if (seriesName) {
     const orderTag = item.series_label
       ? ` · ${item.series_label}`
       : item.series_order !== null && item.series_order !== undefined
-      ? ` #${Number.isInteger(item.series_order) ? item.series_order : item.series_order}`
+      ? ` #${item.series_order}`
       : "";
     const yearTag = item.release_year ? ` · ${item.release_year}` : "";
-    return `${seriesName.toUpperCase()}${orderTag}${yearTag}`;
+    return `${seriesName}${orderTag}${yearTag}`;
   }
-  if (item.release_year) {
-    return `BOOK · ${item.release_year}`;
-  }
-  return `BOOK · ${fmt}`;
+  return item.release_year ? `${typeLabel} · ${item.release_year}` : typeLabel;
 }

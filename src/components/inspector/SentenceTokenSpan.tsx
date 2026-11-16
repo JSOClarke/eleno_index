@@ -16,15 +16,21 @@ export const SentenceTokenSpan: React.FC<SentenceTokenSpanProps> = ({
   onSelect,
 }) => {
   const clickable = Boolean(token.canonical_id && onSelect);
-  let tone = "text-[#111111]";
+  let tone = "text-slate-700";
 
   if (isTarget) {
-    tone = "bg-[#B8FF01] text-[#111111] font-bold px-0.5";
+    tone = "rounded bg-indigo-50 text-indigo-700 font-semibold px-1 py-0.5 ring-1 ring-indigo-200/80";
   } else if (token.canonical_id && status === "learning") {
-    tone = "text-[#111111] border-b-2 border-[#B8FF01]";
+    tone = "text-slate-900 border-b-2 border-amber-400";
   } else if (token.canonical_id && (!status || status === "ignored")) {
-    tone = "border-b border-dotted border-[#888888]";
+    tone = "text-slate-700 border-b border-dotted border-slate-300";
   }
+
+  const hoverTone = clickable
+    ? isTarget
+      ? "cursor-pointer hover:bg-indigo-100 transition-colors"
+      : "cursor-pointer hover:bg-slate-100 rounded-sm transition-colors"
+    : "";
 
   return (
     <span
@@ -39,7 +45,7 @@ export const SentenceTokenSpan: React.FC<SentenceTokenSpanProps> = ({
             }
           : undefined
       }
-      className={`${tone} ${clickable ? "cursor-pointer hover:bg-[#F4F4F2]" : ""}`}
+      className={`${tone} ${hoverTone}`}
     >
       {token.surface}
     </span>

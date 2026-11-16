@@ -109,23 +109,23 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
         onRequireAuth={onRequireAuth}
       />
 
-      <div className="border border-[#111111]">
-        <div className="hidden grid-cols-12 gap-3 px-4 py-2.5 bg-[#F4F4F2] border-b border-[#111111] font-mono text-xs text-[#666666] uppercase md:grid">
-          <button type="button" onClick={() => toggleSort("lemma", "asc")} className="col-span-2 text-left hover:text-[#111111] cursor-pointer font-semibold">LEMMA{arrow("lemma")}</button>
-          <div className="col-span-2">IPA</div>
-          <button type="button" onClick={() => toggleSort("pos", "asc")} className="col-span-1 text-left hover:text-[#111111] cursor-pointer font-semibold">POS{arrow("pos")}</button>
-          <button type="button" onClick={() => toggleSort("cefr", "asc")} className="col-span-1 text-left hover:text-[#111111] cursor-pointer font-semibold">CEFR{arrow("cefr")}</button>
-          <button type="button" onClick={() => toggleSort("frequency", "desc")} className="col-span-1 text-left hover:text-[#111111] cursor-pointer font-semibold">FREQ{arrow("frequency")}</button>
-          <button type="button" onClick={() => toggleSort("rank", "asc")} className="col-span-1 text-left hover:text-[#111111] cursor-pointer font-semibold">{rankingSource === "tubelex_v2025" ? "TUBELEX" : "ELELEX"}{arrow("rank")}</button>
-          <button type="button" onClick={() => toggleSort("debut", "asc")} className="col-span-2 text-left hover:text-[#111111] cursor-pointer font-semibold">{isEpisodeMode ? "DEBUT EPISODE" : "DEBUT CHAPTER"}{arrow("debut")}</button>
-          <div className="col-span-2 text-right">ACTIONS</div>
+      <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
+        <div className="hidden grid-cols-12 divide-x divide-slate-200/80 border-b border-slate-200/80 bg-slate-50/80 px-4 py-3 text-xs font-semibold text-slate-500 md:grid">
+          <button type="button" onClick={() => toggleSort("lemma", "asc")} className="col-span-2 px-2 text-center hover:text-slate-900 cursor-pointer">Lemma{arrow("lemma")}</button>
+          <div className="col-span-2 px-2 text-center">IPA</div>
+          <button type="button" onClick={() => toggleSort("pos", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">POS{arrow("pos")}</button>
+          <button type="button" onClick={() => toggleSort("cefr", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">CEFR{arrow("cefr")}</button>
+          <button type="button" onClick={() => toggleSort("frequency", "desc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">Freq{arrow("frequency")}</button>
+          <button type="button" onClick={() => toggleSort("rank", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">{rankingSource === "tubelex_v2025" ? "TubeLex" : "ELELex"}{arrow("rank")}</button>
+          <button type="button" onClick={() => toggleSort("debut", "asc")} className="col-span-2 px-2 text-center hover:text-slate-900 cursor-pointer">{isEpisodeMode ? "Debut Episode" : "Debut Chapter"}{arrow("debut")}</button>
+          <div className="col-span-2 px-2 text-center">Actions</div>
         </div>
 
-        <div className="divide-y divide-[#E2E2DF]">
+        <div className="divide-y divide-slate-100">
           {loading ? (
             <VocabTableSkeleton rows={10} variant="primer" />
           ) : slice.length === 0 ? (
-            <div className="p-8 text-center font-mono text-xs text-[#666666]">No matching canonical lemmas.</div>
+            <div className="p-8 text-center text-xs text-slate-500">No matching canonical lemmas.</div>
           ) : (
             slice.map((w) => (
               <CanonicalPrimerRow key={w.canonical_id} mediaItemId={mediaItemId} word={w} rankingSource={rankingSource} status={statusMap[w.canonical_id]} statusMap={statusMap} userId={userId} onChangeWordStatus={onChangeWordStatus} onSetWordStatus={onSetWordStatus} />
@@ -134,12 +134,12 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col gap-2 pt-1 font-mono text-xs sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-[#666666]">Showing {sortedAndFiltered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sortedAndFiltered.length)} of {sortedAndFiltered.length} lemmas (20 / page)</span>
+      <div className="flex flex-col gap-2 pt-1 text-xs sm:flex-row sm:items-center sm:justify-between text-slate-500">
+        <span>Showing {sortedAndFiltered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sortedAndFiltered.length)} of {sortedAndFiltered.length} lemmas (20 / page)</span>
         <div className="flex items-center justify-between gap-2 sm:justify-end">
-          <button type="button" disabled={safePage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} className="px-3 py-1 border border-[#111111] bg-white disabled:opacity-40 cursor-pointer">← Prev</button>
+          <button type="button" disabled={safePage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 disabled:opacity-40 cursor-pointer hover:bg-slate-50">← Prev</button>
           <span>Page {safePage} / {totalPages}</span>
-          <button type="button" disabled={safePage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="px-3 py-1 border border-[#111111] bg-white disabled:opacity-40 cursor-pointer">Next →</button>
+          <button type="button" disabled={safePage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))} className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 disabled:opacity-40 cursor-pointer hover:bg-slate-50">Next →</button>
         </div>
       </div>
     </div>

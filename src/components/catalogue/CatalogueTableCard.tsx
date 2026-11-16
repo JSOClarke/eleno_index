@@ -1,8 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
-import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
 import { CoverageGate } from "@/components/ui/CoverageGate";
+import { getCefrBadgeClass } from "@/lib/catalogueDisplay";
+import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
 import type { MediaCatalogItem } from "@/types/media.types";
 import { CatalogueFlowBar } from "./CatalogueFlowBar";
 
@@ -14,10 +15,6 @@ interface CatalogueTableCardProps {
   onToggleSave: (id: string) => void;
 }
 
-/**
- * Phone layout for a catalogue table row. Deliberately has no expand/accordion:
- * Save and Open are one tap each, with no parent click handler competing.
- */
 export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
   item,
   isSaved,
@@ -28,73 +25,57 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
   const fh = Math.round(m?.readability_score || 70);
-  const flowPct =
-    item.comprehension?.text_coverage_percentage ??
-    item.comprehension?.comprehension_percentage ??
-    0;
+  const flowPct = item.comprehension?.text_coverage_percentage ?? item.comprehension?.comprehension_percentage ?? 0;
   const learnFlowPct = item.comprehension?.learning_text_coverage_percentage ?? 0;
-  const flowTitle =
-    learnFlowPct > 0
-      ? `${flowPct.toFixed(1)}% known + ${learnFlowPct.toFixed(1)}% learning`
-      : `${flowPct.toFixed(1)}% known`;
+  const englishTitle = item.work_title || item.title;
+  const targetTitle = item.work_title && item.title !== item.work_title ? item.title : null;
 
   return (
-    <div className="px-3.5 py-3 md:hidden">
+    <div className="px-4 py-3.5 md:hidden">
       <div className="flex items-start gap-3">
         <BookCoverPlate
-          title={item.work_title || item.title}
+          title={targetTitle || englishTitle}
           explicitUrl={item.cover_image_url}
           level={level}
           size="mini"
         />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-semibold leading-snug text-[#111111]">
-            {item.work_title || item.title}
+          <div className="truncate text-sm font-semibold text-slate-900">{englishTitle}</div>
+          {targetTitle && <div className="truncate text-xs text-slate-600">{targetTitle}</div>}
+          <div className="mt-0.5 text-[11px] text-slate-400">
+            {item.creator} · {item.language.toUpperCase()} · {getMediaSubtypeLabel(item)}
           </div>
-          <div className="mt-0.5 truncate font-mono text-[11px] text-[#777777]">
-            {item.title} · {item.language.toUpperCase()}
-            {item.editions && item.editions.length > 1 ? ` · ${item.editions.length} editions` : ""}
-          </div>
-          <div className="mt-0.5 truncate font-mono text-[11px] text-[#777777]">
-            {getMediaSubtypeLabel(item)}
-          </div>
-          <div className="truncate font-mono text-[11px] text-[#555555]">{item.creator}</div>
 
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px]">
-            <span className="border border-[#111111] bg-white px-1.5 py-0.5">{level}</span>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
+            <span className={`rounded-full px-2 py-0.5 font-semibold ${getCefrBadgeClass(level)}`}>{level}</span>
             <span>{formatCompactWords(m?.total_tokens || 0)}</span>
             <span>F-H {fh}</span>
-            {isAuthenticated && (
-              <span className="font-semibold">{Math.round(flowPct)}% known</span>
-            )}
+            {isAuthenticated && <span className="font-semibold text-emerald-700">{Math.round(flowPct)}% known</span>}
           </div>
 
-          <div className="mt-1.5" title={isAuthenticated ? flowTitle : undefined}>
+          <div className="mt-2">
             {isAuthenticated ? (
               <CatalogueFlowBar flowPct={flowPct} learnFlowPct={learnFlowPct} />
             ) : (
-              <CoverageGate onSignIn={onRequireAuth} label="Sign in to see coverage" />
+              <CoverageGate onSignIn={onRequireAuth} label="Sign in to see match" />
             )}
           </div>
 
-          <div className="mt-2 flex gap-2">
+          <div className="mt-3 flex gap-2">
             <button
               type="button"
               onClick={() => onToggleSave(item.id)}
-              aria-pressed={isSaved}
-              className={`flex-1 border border-[#111111] px-2 py-1.5 font-mono text-xs font-bold cursor-pointer ${
-                isSaved
-                  ? "bg-[#111111] text-[#B8FF01]"
-                  : "bg-white text-[#111111]"
+              className={`flex-1 rounded-xl px-3 py-1.5 text-xs font-medium cursor-pointer transition ${
+                isSaved ? "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200" : "border border-slate-200 bg-white text-slate-700"
               }`}
             >
               {isSaved ? "Saved ✓" : "Save"}
             </button>
             <Link
-              to={item.work_id ? `/work/${item.work_id}` : `/media/${item.id}`}
-              className="flex-1 border border-[#111111] bg-[#B8FF01] px-2 py-1.5 text-center font-mono text-xs font-bold text-[#111111]"
+              to={`/media/${item.id}`}
+              className="flex-1 rounded-xl bg-slate-900 px-3 py-1.5 text-center text-xs font-medium text-white hover:bg-indigo-600"
             >
-              Open →
+              Inspect Vocab →
             </Link>
           </div>
         </div>

@@ -55,17 +55,17 @@ export const WordContextDrawer: React.FC<WordContextDrawerProps> = ({
   }, [canonicalId, definitions]);
 
   return (
-    <div className="bg-[#F4F4F2] border-t border-[#E2E2DF] px-6 py-4 grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
+    <div className="bg-slate-50/80 border-t border-slate-100 px-6 py-4 grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
       <div className="md:col-span-5 space-y-1.5">
-        <div className="font-mono text-[10px] uppercase tracking-wider text-[#666666]">
-          CANONICAL DEFINITIONS · {lemma.toUpperCase()} ({pos})
+        <div className="text-xs font-semibold text-slate-500">
+          Definitions · {lemma} ({pos.toLowerCase()})
         </div>
         {loadingDefs ? (
-          <div className="font-mono text-xs text-[#777777] animate-pulse">
+          <div className="text-xs text-slate-400 animate-pulse">
             Loading dictionary senses...
           </div>
         ) : resolvedDefs.length > 0 ? (
-          <ol className="list-decimal list-inside space-y-1 text-xs text-[#111111] font-sans">
+          <ol className="list-decimal list-inside space-y-1 text-xs text-slate-800">
             {resolvedDefs.map((gloss, i) => (
               <li key={i} className="leading-snug">
                 {gloss}
@@ -73,7 +73,7 @@ export const WordContextDrawer: React.FC<WordContextDrawerProps> = ({
             ))}
           </ol>
         ) : (
-          <div className="font-mono text-xs text-[#777777]">
+          <div className="text-xs text-slate-500">
             No dictionary senses recorded for this headword.
           </div>
         )}

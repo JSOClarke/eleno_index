@@ -20,18 +20,17 @@ export const SentenceBankCard: React.FC<SentenceBankCardProps> = ({
   fallbackContextLabel,
   onSelectToken,
 }) => (
-  <div className="border-l-2 border-[#111111] pl-3 py-1">
-    <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase text-[#666666]">
-      <span>{entry.source_context || fallbackContextLabel}</span>
+  <div className="rounded-xl border border-slate-200/80 bg-white px-3.5 py-2.5 space-y-1">
+    <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+      <span className="font-medium text-slate-600">{entry.source_context || fallbackContextLabel}</span>
       <span>· {entry.token_count} words</span>
       {showMatch && (
-        <span className="bg-[#B8FF01] text-[#111111] border border-[#9FE000] px-1.5 py-0.5 font-semibold">
-          i+1 MATCH
+        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-200">
+          i+1 match
         </span>
       )}
     </div>
-    <p className="font-serif text-sm text-[#111111] italic mt-0.5">
-      «
+    <p className="font-sans text-[13px] text-slate-800 leading-relaxed">
       <SentenceTokenLine
         sentence={entry.sentence}
         tokens={entry.tokens}
@@ -39,7 +38,6 @@ export const SentenceBankCard: React.FC<SentenceBankCardProps> = ({
         statusMap={statusMap}
         onSelectToken={(tok) => onSelectToken(tok, entry)}
       />
-      »
     </p>
   </div>
 );

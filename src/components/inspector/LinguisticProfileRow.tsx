@@ -22,43 +22,45 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({
   const dialPct = formatPercent(metrics.dialogue_ratio, 1);
   const cov95 = metrics.coverage_95_lemmas || Math.round(metrics.unique_words_count * 0.42);
 
+  const cards = [
+    {
+      label: "CEFR & Readability",
+      value: `${cefr} · ${isKm ? "K-M" : "F-H"} ${fh}`,
+      sub: isKm ? "Kandel-Moles scale" : "Fernández Huerta scale",
+    },
+    {
+      label: "Subjunctive Load",
+      value: subjPct,
+      sub: "of finite verb forms",
+    },
+    {
+      label: wpm ? "Speaking Rate" : "Dialogue Share",
+      value: wpm ? `${wpm} WPM` : dialPct,
+      sub: wpm ? speechDensity : "conversational lines",
+    },
+    {
+      label: "95% Target Threshold",
+      value: `${formatNumber(cov95)} lemmas`,
+      sub: "for unassisted reading",
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 font-mono text-xs">
-      <div className="border border-[#E2E2DF] bg-white p-3.5">
-        <div className="text-[#777777] uppercase">CEFR & Readability</div>
-        <div className="text-lg font-bold text-[#111111] mt-1">
-          {cefr} · {isKm ? "K-M" : "F-H"} {fh}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      {cards.map((c) => (
+        <div
+          key={c.label}
+          className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs"
+        >
+          <div className="text-xs font-medium text-slate-500">
+            {c.label}
+          </div>
+          <div className="mt-1.5 text-lg font-bold text-slate-900 tabular-nums">
+            {c.value}
+          </div>
+          <div className="mt-0.5 text-xs text-slate-500">{c.sub}</div>
         </div>
-        <div className="text-[#666666] mt-0.5">
-          {isKm ? "Kandel-Moles scale" : "Fernández Huerta scale"}
-        </div>
-      </div>
-
-      <div className="border border-[#E2E2DF] bg-white p-3.5">
-        <div className="text-[#777777] uppercase">Subjunctive Load</div>
-        <div className="text-lg font-bold text-[#111111] mt-1">{subjPct}</div>
-        <div className="text-[#666666] mt-0.5">of finite verb forms</div>
-      </div>
-
-      <div className="border border-[#E2E2DF] bg-white p-3.5">
-        <div className="text-[#777777] uppercase">
-          {wpm ? "Speaking Rate" : "Dialogue Share"}
-        </div>
-        <div className="text-lg font-bold text-[#111111] mt-1">
-          {wpm ? `${wpm} WPM` : dialPct}
-        </div>
-        <div className="text-[#666666] mt-0.5">
-          {wpm ? speechDensity : "conversational lines"}
-        </div>
-      </div>
-
-      <div className="border border-[#E2E2DF] bg-white p-3.5">
-        <div className="text-[#777777] uppercase">95% Target Threshold</div>
-        <div className="text-lg font-bold text-[#111111] mt-1">
-          {formatNumber(cov95)} lemmas
-        </div>
-        <div className="text-[#666666] mt-0.5">for unassisted reading</div>
-      </div>
+      ))}
     </div>
   );
 };

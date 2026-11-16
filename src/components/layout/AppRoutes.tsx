@@ -43,7 +43,7 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
     <Routes>
       <Route path="/" element={<CataloguePage mode="catalogue" {...sharedCataloguePageProps} />} />
       <Route path="/saved" element={<CataloguePage mode="saved" {...sharedCataloguePageProps} />} />
-      <Route path="/history" element={<CataloguePage mode="history" {...sharedCataloguePageProps} />} />
+      <Route path="/history" element={<Navigate to="/" replace />} />
       <Route
         path="/known-words"
         element={

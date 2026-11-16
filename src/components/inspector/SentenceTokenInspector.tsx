@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { X, Zap } from "lucide-react";
+import { X } from "lucide-react";
 import { fetchCanonicalGlosses } from "@/api/sentence.api";
 import type { CanonicalGloss, SentenceToken } from "@/types/sentence.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
@@ -56,66 +56,67 @@ export const SentenceTokenInspector: React.FC<SentenceTokenInspectorProps> = ({
   };
 
   return (
-    <div className="bg-[#F8F8F6] border border-[#111111] p-3 space-y-2">
+    <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3 space-y-2.5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="font-mono text-xs font-bold text-[#111111]">
+          <div className="text-xs font-semibold text-slate-900">
             {gloss?.lemma || token.lemma || token.surface}{" "}
-            <span className="text-[#666666] font-normal">({gloss?.pos || token.pos || "—"})</span>
+            <span className="text-slate-500 font-normal">({gloss?.pos || token.pos || "—"})</span>
           </div>
-          <div className="font-mono text-[10px] text-[#666666]">
-            {token.morph || "NO MORPHOLOGY RECORDED"}
+          <div className="text-[11px] text-slate-500 mt-0.5">
+            {token.morph || "No morphology recorded"}
           </div>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="p-1 border border-[#111111] bg-white hover:bg-[#B8FF01] cursor-pointer"
+          className="rounded-lg p-1 border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 hover:text-slate-900 cursor-pointer"
           title="Close token definition"
         >
-          <X className="w-3 h-3" />
+          <X className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      <div className="text-xs text-[#111111]">
+      <div className="text-xs text-slate-700">
         {loading ? (
-          <div className="h-3.5 w-3/4 bg-[#DFDFDC] animate-pulse" />
+          <div className="h-3.5 w-3/4 rounded bg-slate-200 animate-pulse" />
         ) : gloss && gloss.definitions.length > 0 ? (
-          <ol className="list-decimal list-inside space-y-0.5 font-sans leading-snug">
+          <ol className="list-decimal list-inside space-y-0.5 leading-snug">
             {gloss.definitions.map((def, idx) => (
               <li key={idx}>{def}</li>
             ))}
           </ol>
         ) : (
-          <span className="font-mono text-[11px] text-[#666666]">
+          <span className="text-[11px] text-slate-500">
             No dictionary senses recorded for this token.
           </span>
         )}
       </div>
 
-      <div className="flex items-center gap-1 font-mono text-[11px]">
+      <div className="flex items-center gap-1.5 text-[11px]">
         <button
           type="button"
           onClick={() => toggle("learning")}
-          className={`inline-flex items-center gap-1 px-2 py-1 border cursor-pointer ${
+          aria-pressed={isLearning}
+          className={`rounded-lg px-2.5 py-1 border font-medium transition cursor-pointer ${
             isLearning
-              ? "border-[#111111] bg-[#B8FF01] text-[#111111] font-semibold"
-              : "border-[#CCCCCC] bg-white text-[#555555] hover:border-[#111111]"
+              ? "border-amber-300 bg-amber-100 text-amber-800"
+              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
           }`}
         >
-          {isLearning ? <Zap className="w-3 h-3 fill-current" /> : null}
-          <span>{isLearning ? "Learning · SRS" : "Learn"}</span>
+          Learn
         </button>
         <button
           type="button"
           onClick={() => toggle("known")}
-          className={`px-2.5 py-1 border cursor-pointer ${
+          aria-pressed={isKnown}
+          className={`rounded-lg px-2.5 py-1 border font-medium transition cursor-pointer ${
             isKnown
-              ? "border-[#111111] bg-[#111111] text-[#B8FF01] font-semibold"
-              : "border-[#111111] bg-white text-[#111111] hover:bg-[#B8FF01]"
+              ? "border-emerald-600 bg-emerald-600 text-white"
+              : "border-slate-200 bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200"
           }`}
         >
-          {isKnown ? "✓ Known" : "Known"}
+          Known
         </button>
       </div>
     </div>

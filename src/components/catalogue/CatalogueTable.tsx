@@ -29,31 +29,28 @@ export const CatalogueTable: React.FC<CatalogueTableProps> = ({
   onToggleWord,
 }) => {
   return (
-    <div>
-      <div className="hidden grid-cols-12 gap-3 px-3.5 py-2.5 border-b border-[#E2E2DF] font-mono text-xs text-[#777777] uppercase tracking-wider md:grid">
-        <div className="col-span-4">TITLE</div>
-        <div className="col-span-1">LEVEL</div>
-        <div className="col-span-2">LENGTH</div>
-        <div className="col-span-2">AUTHOR</div>
-        <div className="col-span-2">KNOWN WORDS</div>
-        <div className="col-span-1 text-right">PROFILE</div>
+    <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
+      <div className="hidden grid-cols-12 gap-3 border-b border-slate-200/80 bg-slate-50/80 px-4 py-3 text-xs font-semibold text-slate-500 md:grid">
+        <div className="col-span-4">Title</div>
+        <div className="col-span-1">Level</div>
+        <div className="col-span-2">Length</div>
+        <div className="col-span-2">Creator</div>
+        <div className="col-span-2">Vocab Match</div>
+        <div className="col-span-1 text-right">Readability</div>
       </div>
 
       {loading ? (
-        <div className="divide-y divide-[#E2E2DF]">
+        <div className="divide-y divide-slate-100">
           {[1, 2, 3, 4, 5].map((n) => (
-            <div
-              key={n}
-              className="h-16 bg-[#F8F8F6] animate-pulse px-3.5 flex items-center"
-            />
+            <div key={n} className="h-16 bg-slate-50/50 animate-pulse px-4 flex items-center" />
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="py-16 text-center font-mono text-xs text-[#666666]">
-          No Spanish corpus works match the active filters.
+        <div className="py-16 text-center text-sm text-slate-500">
+          No works match the active filters.
         </div>
       ) : (
-        <div className="divide-y divide-[#E2E2DF]">
+        <div className="divide-y divide-slate-100">
           {items.map((item) => (
             <CatalogueTableRow
               key={item.id}

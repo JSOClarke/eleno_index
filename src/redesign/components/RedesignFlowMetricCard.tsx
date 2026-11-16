@@ -37,12 +37,12 @@ export const RedesignFlowMetricCard: React.FC<RedesignFlowMetricCardProps> = ({
 
       <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
         <div
-          className={`h-full rounded-full transition-all duration-300 ${barColorClass}`}
+          className={`h-full transition-all duration-300 ${barColorClass} ${learnPct > 0 ? "" : "rounded-r-full"}`}
           style={{ width: `${Math.min(100, pct)}%` }}
         />
         {learnPct > 0 && (
           <div
-            className="h-full bg-amber-300 transition-all duration-300"
+            className="h-full rounded-r-full bg-amber-300 transition-all duration-300"
             style={{ width: `${Math.min(100 - pct, Math.max(learnPct, 2))}%` }}
           />
         )}

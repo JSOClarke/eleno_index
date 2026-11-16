@@ -4,13 +4,7 @@ export type MediaFormat = "epub" | "elenocbz" | "srt" | "vtt" | "txt" | "markdow
 export interface FrequencyTiers {
   tokens?: Record<string, number>;
   lemmas?: Record<string, number>;
-  percentages?: {
-    top_1k_pct?: number;
-    k1_to_5k_pct?: number;
-    k5_to_10k_pct?: number;
-    rare_pct?: number;
-    unranked_pct?: number;
-  };
+  percentages?: { top_1k_pct?: number; k1_to_5k_pct?: number; k5_to_10k_pct?: number; rare_pct?: number; unranked_pct?: number; };
 }
 
 export interface VerbProfile {
@@ -114,6 +108,13 @@ export interface MediaSeries {
   metadata?: Record<string, any>;
 }
 
+export interface MediaPlatformLink {
+  label: string;
+  url: string;
+  provider?: string;
+  kind?: "buy" | "stream" | "listen" | "read" | "info";
+}
+
 export interface MediaCatalogItem {
   id: string;
   work_id?: string | null;
@@ -136,6 +137,7 @@ export interface MediaCatalogItem {
   metrics: MediaMetrics | null;
   comprehension: MediaComprehensionStats | null;
   has_audio?: boolean;
+  external_ids?: Record<string, any>;
   metadata?: Record<string, any>;
   genres?: string[];
   previewWords: PreviewWordItem[];
