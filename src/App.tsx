@@ -16,6 +16,7 @@ import {
 } from "@/lib/catalogueLanguages";
 import { inspectorCache } from "@/lib/inspectorCache";
 import { ReaderPage } from "@/pages/ReaderPage";
+import { RedesignPreviewRouter } from "@/redesign/RedesignPreviewRouter";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
@@ -70,6 +71,14 @@ export const App: React.FC = () => {
     onToggleWord: handleTogglePreviewWord,
     onEnsurePreviewWords: catalogue.ensurePreviewWords,
   };
+
+  if (location.pathname.startsWith("/preview")) {
+    return (
+      <Routes>
+        <Route path="/preview/*" element={<RedesignPreviewRouter />} />
+      </Routes>
+    );
+  }
 
   if (location.pathname.startsWith("/read/")) {
     return (
