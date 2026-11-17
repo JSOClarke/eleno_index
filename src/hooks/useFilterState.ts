@@ -33,6 +33,9 @@ export function useFilterState() {
   const [types, setTypes] = useState<Set<string>>(() => new Set());
   const [lengths, setLengths] = useState<Set<LengthBucket>>(() => new Set());
   const [profiles, setProfiles] = useState<Set<ProfileFilterId>>(() => new Set());
+  const [genres, setGenres] = useState<Set<string>>(() => new Set());
+  const [publishers, setPublishers] = useState<Set<string>>(() => new Set());
+  const [years, setYears] = useState<Set<string>>(() => new Set());
   const [hasAudio, setHasAudio] = useState(false);
   const [flowTier, setFlowTier] = useState<FlowTier>("all");
   const [savedIds, setSavedIds] = useState<Set<string>>(() => new Set());
@@ -70,6 +73,30 @@ export function useFilterState() {
     });
   }, []);
 
+  const toggleGenre = useCallback((g: string) => {
+    setGenres((prev) => {
+      const next = new Set(prev);
+      next.has(g) ? next.delete(g) : next.add(g);
+      return next;
+    });
+  }, []);
+
+  const togglePublisher = useCallback((p: string) => {
+    setPublishers((prev) => {
+      const next = new Set(prev);
+      next.has(p) ? next.delete(p) : next.add(p);
+      return next;
+    });
+  }, []);
+
+  const toggleYear = useCallback((y: string) => {
+    setYears((prev) => {
+      const next = new Set(prev);
+      next.has(y) ? next.delete(y) : next.add(y);
+      return next;
+    });
+  }, []);
+
   const toggleHasAudio = useCallback(() => setHasAudio((prev) => !prev), []);
   const toggleSave = useCallback((id: string) => {
     setSavedIds((prev) => {
@@ -86,11 +113,14 @@ export function useFilterState() {
     types.forEach((t) => list.push({ id: `type:${t}`, key: "type", value: t }));
     lengths.forEach((l) => list.push({ id: `length:${l}`, key: "length", value: LENGTH_LABELS[l] }));
     profiles.forEach((p) => list.push({ id: `profile:${p}`, key: "profile", value: PROFILE_LABELS[p] }));
+    genres.forEach((g) => list.push({ id: `genre:${g}`, key: "genre", value: g }));
+    publishers.forEach((p) => list.push({ id: `publisher:${p}`, key: "publisher", value: p }));
+    years.forEach((y) => list.push({ id: `year:${y}`, key: "year", value: y }));
     if (hasAudio) list.push({ id: "audio:yes", key: "audio", value: "Narration" });
     if (flowTier !== "all") list.push({ id: `flow:${flowTier}`, key: "flow", value: FLOW_LABELS[flowTier] });
     customWords.forEach((w) => list.push({ id: `word:${w}`, key: "search", value: w }));
     return list;
-  }, [levels, types, lengths, profiles, hasAudio, flowTier, customWords]);
+  }, [levels, types, lengths, profiles, genres, publishers, years, hasAudio, flowTier, customWords]);
 
   const removeTag = useCallback((id: string) => {
     if (id === "levels") setLevels(new Set());
@@ -105,6 +135,15 @@ export function useFilterState() {
     } else if (id.startsWith("profile:")) {
       const val = id.slice(8) as ProfileFilterId;
       setProfiles((prev) => { const n = new Set(prev); n.delete(val); return n; });
+    } else if (id.startsWith("genre:")) {
+      const val = id.slice(6);
+      setGenres((prev) => { const n = new Set(prev); n.delete(val); return n; });
+    } else if (id.startsWith("publisher:")) {
+      const val = id.slice(10);
+      setPublishers((prev) => { const n = new Set(prev); n.delete(val); return n; });
+    } else if (id.startsWith("year:")) {
+      const val = id.slice(5);
+      setYears((prev) => { const n = new Set(prev); n.delete(val); return n; });
     } else if (id.startsWith("word:")) {
       const w = id.slice(5);
       setCustomWords((prev) => prev.filter((x) => x !== w));
@@ -120,6 +159,9 @@ export function useFilterState() {
     setTypes(new Set());
     setLengths(new Set());
     setProfiles(new Set());
+    setGenres(new Set());
+    setPublishers(new Set());
+    setYears(new Set());
     setHasAudio(false);
     setFlowTier("all");
     setCustomWords([]);
@@ -128,12 +170,13 @@ export function useFilterState() {
 
   const filters: CatalogueFilterState = useMemo(() => ({
     searchText: [searchText, ...customWords].join(" ").trim(),
-    tags, levels, types, lengths, profiles, hasAudio, flowTier,
-  }), [searchText, customWords, tags, levels, types, lengths, profiles, hasAudio, flowTier]);
+    tags, levels, types, lengths, profiles, genres, publishers, years, hasAudio, flowTier,
+  }), [searchText, customWords, tags, levels, types, lengths, profiles, genres, publishers, years, hasAudio, flowTier]);
 
   return {
     filters, searchText, setSearchText, savedIds, historyIds,
-    toggleLevel, toggleType, toggleLength, toggleProfile, toggleHasAudio, setFlowTier,
+    toggleLevel, toggleType, toggleLength, toggleProfile, toggleGenre, togglePublisher, toggleYear,
+    toggleHasAudio, setFlowTier,
     toggleSave, recordHistory, removeTag, addTag, clearAll,
   };
 }

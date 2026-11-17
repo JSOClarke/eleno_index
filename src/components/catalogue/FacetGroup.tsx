@@ -27,27 +27,40 @@ export const FacetGroup: React.FC<FacetGroupProps> = ({
       <div className="space-y-2">
         {options.map((opt) => {
           const checked = selectedSet.has(opt.id);
+          const disabled = opt.count === 0 && !checked;
           return (
             <label
               key={opt.id}
-              onClick={() => onToggle(opt.id)}
-              className="flex items-center justify-between text-xs cursor-pointer group select-none py-0.5"
+              onClick={() => { if (!disabled) onToggle(opt.id); }}
+              className={`flex items-center justify-between text-xs select-none py-0.5 ${
+                disabled ? "cursor-not-allowed" : "cursor-pointer group"
+              }`}
             >
               <span className="flex items-center gap-2.5">
                 <span
                   className={`h-4 w-4 rounded-md border inline-flex items-center justify-center text-[10px] leading-none transition-colors ${
                     checked
                       ? "border-indigo-600 bg-indigo-600 text-white font-semibold"
-                      : "border-slate-300 bg-white text-transparent group-hover:border-slate-400"
+                      : disabled
+                        ? "border-slate-200 bg-slate-50 text-transparent"
+                        : "border-slate-300 bg-white text-transparent group-hover:border-slate-400"
                   }`}
                 >
                   ✓
                 </span>
-                <span className={`transition-colors ${checked ? "font-semibold text-slate-900" : "text-slate-600 group-hover:text-slate-900"}`}>
+                <span
+                  className={`transition-colors ${
+                    checked
+                      ? "font-semibold text-slate-900"
+                      : disabled
+                        ? "text-slate-400"
+                        : "text-slate-600 group-hover:text-slate-900"
+                  }`}
+                >
                   {opt.label}
                 </span>
               </span>
-              <span className="text-xs text-slate-400 tabular-nums">
+              <span className={`text-xs tabular-nums ${disabled ? "text-slate-300" : "text-slate-400"}`}>
                 {opt.count}
               </span>
             </label>

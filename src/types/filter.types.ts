@@ -29,6 +29,9 @@ export interface CatalogueFilterState {
   types: Set<string>;
   lengths: Set<LengthBucket>;
   profiles: Set<ProfileFilterId>;
+  genres: Set<string>;
+  publishers: Set<string>;
+  years: Set<string>;
   hasAudio: boolean;
   flowTier: FlowTier;
 }

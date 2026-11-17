@@ -13,6 +13,9 @@ interface FacetCounts {
   types: Record<string, number>;
   lengths: Record<string, number>;
   profiles: Record<string, number>;
+  genres: Record<string, number>;
+  publishers: Record<string, number>;
+  years: Record<string, number>;
   audio: number;
   flow: Record<FlowTier, number>;
 }
@@ -26,6 +29,9 @@ interface CatalogueFiltersSheetProps {
   onToggleType: (type: string) => void;
   onToggleLength: (bucket: LengthBucket) => void;
   onToggleProfile: (profile: ProfileFilterId) => void;
+  onToggleGenre: (genre: string) => void;
+  onTogglePublisher: (publisher: string) => void;
+  onToggleYear: (year: string) => void;
   onToggleHasAudio: () => void;
   onSetFlowTier: (tier: FlowTier) => void;
   resultCount: number;
@@ -41,6 +47,9 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
   onToggleType,
   onToggleLength,
   onToggleProfile,
+  onToggleGenre,
+  onTogglePublisher,
+  onToggleYear,
   onToggleHasAudio,
   onSetFlowTier,
   resultCount,
@@ -56,6 +65,9 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
         onToggleType={onToggleType}
         onToggleLength={onToggleLength}
         onToggleProfile={onToggleProfile}
+        onToggleGenre={onToggleGenre}
+        onTogglePublisher={onTogglePublisher}
+        onToggleYear={onToggleYear}
         onToggleHasAudio={onToggleHasAudio}
         onSetFlowTier={onSetFlowTier}
       />

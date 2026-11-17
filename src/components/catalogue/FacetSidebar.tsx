@@ -14,6 +14,9 @@ interface FacetSidebarProps {
     types: Record<string, number>;
     lengths: Record<string, number>;
     profiles: Record<string, number>;
+    genres: Record<string, number>;
+    publishers: Record<string, number>;
+    years: Record<string, number>;
     audio: number;
     flow: Record<FlowTier, number>;
   };
@@ -21,10 +24,27 @@ interface FacetSidebarProps {
   onToggleType: (type: string) => void;
   onToggleLength: (bucket: LengthBucket) => void;
   onToggleProfile: (profile: ProfileFilterId) => void;
+  onToggleGenre: (genre: string) => void;
+  onTogglePublisher: (publisher: string) => void;
+  onToggleYear: (year: string) => void;
   onToggleHasAudio: () => void;
   onSetFlowTier: (tier: FlowTier) => void;
   variant?: "sidebar" | "sheet";
 }
+
+const sortOptions = (counts: Record<string, number>) =>
+  Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([id, count]) => ({ id, label: id, count }));
+
+const sortYears = (counts: Record<string, number>) =>
+  Object.entries(counts)
+    .sort((a, b) => {
+      if (a[0] === "Unknown") return 1;
+      if (b[0] === "Unknown") return -1;
+      return a[0].localeCompare(b[0], undefined, { numeric: true });
+    })
+    .map(([id, count]) => ({ id, label: id, count }));
 
 export const FacetSidebar: React.FC<FacetSidebarProps> = ({
   filters,
@@ -33,6 +53,9 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
   onToggleType,
   onToggleLength,
   onToggleProfile,
+  onToggleGenre,
+  onTogglePublisher,
+  onToggleYear,
   onToggleHasAudio,
   onSetFlowTier,
   variant = "sidebar",
@@ -70,6 +93,10 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
     { id: "fh70", label: "Accessible (F-H 70+)", count: counts.profiles.fh70 || 0 },
     { id: "subj2", label: "Subjunctive Rich", count: counts.profiles.subj2 || 0 },
   ];
+
+  const genreOptions = sortOptions(counts.genres);
+  const publisherOptions = sortOptions(counts.publishers);
+  const yearOptions = sortYears(counts.years);
 
   return (
     <aside
@@ -114,6 +141,24 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
         options={profileOptions}
         selectedSet={filters.profiles as Set<string>}
         onToggle={(id) => onToggleProfile(id as ProfileFilterId)}
+      />
+      <FacetGroup
+        title="Genre"
+        options={genreOptions}
+        selectedSet={filters.genres}
+        onToggle={onToggleGenre}
+      />
+      <FacetGroup
+        title="Publisher"
+        options={publisherOptions}
+        selectedSet={filters.publishers}
+        onToggle={onTogglePublisher}
+      />
+      <FacetGroup
+        title="Decade"
+        options={yearOptions}
+        selectedSet={filters.years}
+        onToggle={onToggleYear}
       />
     </aside>
   );

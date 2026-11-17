@@ -132,6 +132,8 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
         filters={filterState.filters} counts={facetCounts}
         onToggleLevel={filterState.toggleLevel} onToggleType={filterState.toggleType}
         onToggleLength={filterState.toggleLength} onToggleProfile={filterState.toggleProfile}
+        onToggleGenre={filterState.toggleGenre} onTogglePublisher={filterState.togglePublisher}
+        onToggleYear={filterState.toggleYear}
         onToggleHasAudio={filterState.toggleHasAudio} onSetFlowTier={filterState.setFlowTier}
         resultCount={filteredItems.length} onClearAll={filterState.clearAll}
       />

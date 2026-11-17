@@ -12,7 +12,10 @@ export function useFacetCounts(
   activeNav: string,
   sortOption: CatalogueSortOption = "flow_desc"
 ) {
-  const facetCounts = useMemo(() => calculateFacetCounts(items), [items]);
+  const facetCounts = useMemo(
+    () => calculateFacetCounts(items, filters, savedIds, historyIds, activeNav),
+    [items, filters, savedIds, historyIds, activeNav]
+  );
 
   const filteredItems = useMemo(() => {
     const matched = items.filter((item) =>

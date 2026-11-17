@@ -9,6 +9,11 @@ export function matchesFlowTier(coverage: number, tier: FlowTier): boolean {
   return true;
 }
 
+export function getDecade(year: number | null | undefined): string {
+  if (year == null || year < 1800 || year > 2100) return "Unknown";
+  return `${Math.floor(year / 10) * 10}s`;
+}
+
 export function matchesCatalogueFilters(
   item: MediaCatalogItem,
   filters: CatalogueFilterState,
@@ -42,6 +47,21 @@ export function matchesCatalogueFilters(
     return false;
   }
 
+  if (filters.genres.size > 0) {
+    const itemGenres = new Set((item.genres || []).map((g) => g.toLowerCase()));
+    const hasGenre = Array.from(filters.genres).some((g) => itemGenres.has(g.toLowerCase()));
+    if (!hasGenre) return false;
+  }
+
+  if (filters.publishers.size > 0) {
+    const pub = (item.metadata?.publisher as string | undefined) || "";
+    if (!pub || !filters.publishers.has(pub)) return false;
+  }
+
+  if (filters.years.size > 0 && !filters.years.has(getDecade(item.release_year))) {
+    return false;
+  }
+
   if (filters.hasAudio && !item.has_audio) {
     return false;
   }
@@ -67,36 +87,118 @@ export function matchesCatalogueFilters(
   return true;
 }
 
-export function calculateFacetCounts(items: MediaCatalogItem[]) {
+function cloneFilters(f: CatalogueFilterState): CatalogueFilterState {
+  return {
+    searchText: f.searchText,
+    tags: f.tags,
+    levels: new Set(f.levels),
+    types: new Set(f.types),
+    lengths: new Set(f.lengths),
+    profiles: new Set(f.profiles),
+    genres: new Set(f.genres),
+    publishers: new Set(f.publishers),
+    years: new Set(f.years),
+    hasAudio: f.hasAudio,
+    flowTier: f.flowTier,
+  };
+}
+
+function scopedItems(
+  items: MediaCatalogItem[],
+  filters: CatalogueFilterState,
+  savedIds: Set<string>,
+  historyIds: Set<string>,
+  activeNav: string,
+  clearSelf: (f: CatalogueFilterState) => void
+): MediaCatalogItem[] {
+  const scoped = cloneFilters(filters);
+  clearSelf(scoped);
+  return items.filter((item) =>
+    matchesCatalogueFilters(item, scoped, savedIds, historyIds, activeNav)
+  );
+}
+
+export function calculateFacetCounts(
+  items: MediaCatalogItem[],
+  filters: CatalogueFilterState,
+  savedIds: Set<string>,
+  historyIds: Set<string>,
+  activeNav: string
+) {
   const levels: Record<string, number> = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 };
   const types: Record<string, number> = { "Book / Reader": 0, "Film / Subtitles": 0 };
   const lengths: Record<string, number> = { under25k: 0, "25to80k": 0, "80k+": 0 };
   const profiles: Record<string, number> = { dialogue20: 0, fh70: 0, subj2: 0 };
+  const genres: Record<string, number> = {};
+  const publishers: Record<string, number> = {};
+  const years: Record<string, number> = {};
   let audio = 0;
-  const flow: Record<FlowTier, number> = { all: items.length, fluent: 0, sweet_spot: 0, challenge: 0 };
+  const flow: Record<FlowTier, number> = { all: 0, fluent: 0, sweet_spot: 0, challenge: 0 };
 
+  // Seed the full taxonomy universe so zero-count options stay visible (greyed).
   for (const item of items) {
-    const m = item.metrics;
-    const cefr = m?.cefr_level || "B1";
-    if (levels[cefr] !== undefined) levels[cefr] += 1;
+    for (const g of item.genres || []) {
+      if (g && genres[g] === undefined) genres[g] = 0;
+    }
+    const pub = (item.metadata?.publisher as string | undefined) || "";
+    if (pub && publishers[pub] === undefined) publishers[pub] = 0;
+    const decade = getDecade(item.release_year);
+    if (years[decade] === undefined) years[decade] = 0;
+  }
 
+  const scope = (clearSelf: (f: CatalogueFilterState) => void) =>
+    scopedItems(items, filters, savedIds, historyIds, activeNav, clearSelf);
+
+  for (const item of scope((f) => { f.levels = new Set(); })) {
+    const cefr = item.metrics?.cefr_level || "B1";
+    if (levels[cefr] !== undefined) levels[cefr] += 1;
+  }
+
+  for (const item of scope((f) => { f.types = new Set(); })) {
     const cat = getMediaCategoryLabel(item);
     if (types[cat] !== undefined) types[cat] += 1;
+  }
 
-    const bucket = getLengthBucket(m?.total_tokens || 0);
+  for (const item of scope((f) => { f.lengths = new Set(); })) {
+    const bucket = getLengthBucket(item.metrics?.total_tokens || 0);
     lengths[bucket] = (lengths[bucket] || 0) + 1;
+  }
 
+  for (const item of scope((f) => { f.profiles = new Set(); })) {
+    const m = item.metrics;
     if (toPercentNumber(m?.dialogue_ratio) >= 20) profiles.dialogue20 += 1;
     if ((m?.readability_score || 0) >= 70) profiles.fh70 += 1;
     if (toPercentNumber(m?.verb_profile?.subjunctive_load) >= 5) profiles.subj2 += 1;
+  }
 
+  for (const item of scope((f) => { f.genres = new Set(); })) {
+    for (const g of item.genres || []) {
+      if (g) genres[g] = (genres[g] || 0) + 1;
+    }
+  }
+
+  for (const item of scope((f) => { f.publishers = new Set(); })) {
+    const pub = (item.metadata?.publisher as string | undefined) || "";
+    if (pub) publishers[pub] = (publishers[pub] || 0) + 1;
+  }
+
+  for (const item of scope((f) => { f.years = new Set(); })) {
+    const decade = getDecade(item.release_year);
+    years[decade] = (years[decade] || 0) + 1;
+  }
+
+  for (const item of scope((f) => { f.hasAudio = false; })) {
     if (item.has_audio) audio += 1;
+  }
 
+  const flowScoped = scope((f) => { f.flowTier = "all"; });
+  flow.all = flowScoped.length;
+  for (const item of flowScoped) {
     const coverage = item.comprehension?.text_coverage_percentage ?? 0;
     if (coverage >= 95) flow.fluent += 1;
     else if (coverage >= 85) flow.sweet_spot += 1;
     else flow.challenge += 1;
   }
 
-  return { levels, types, lengths, profiles, audio, flow };
+  return { levels, types, lengths, profiles, genres, publishers, years, audio, flow };
 }
