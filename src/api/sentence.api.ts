@@ -41,7 +41,7 @@ export async function fetchCanonicalSentences(
   limit = 3
 ): Promise<BankSentence[]> {
   let query = supabase
-    .from("sentence_bank")
+    .from("sentence_examples")
     .select(SENTENCE_SELECT)
     .contains("canonical_ids", [canonicalId])
     .order("token_count", { ascending: true })
@@ -67,14 +67,15 @@ export async function fetchIPlusOneSentences(
     p_user_id: userId,
     p_canonical_id: canonicalId,
     p_media_item_id: mediaItemId ?? null,
-    p_limit: limit,
+    p_limit: Math.min(Math.max(limit * 10, limit), 50),
   });
 
   if (error) {
     console.error("[sentence.api] Failed to fetch i+1 sentences:", error);
     return [];
   }
-  return (data || []).map(toBankSentence);
+  // The RPC already returns only policy-approved rows, ordered by sentence length.
+  return (data || []).slice(0, limit).map(toBankSentence);
 }
 
 const glossCache = new Map<string, CanonicalGloss>();
