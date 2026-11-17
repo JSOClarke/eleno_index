@@ -102,6 +102,8 @@ src/
 ---
 
 ## 4. Development & Build
+> Full local stack start-up (local Supabase in Docker, Admin API, GPU ingestion, `.env` setup) is documented in [`eleno_backend/README.md` §0 Quick Start](file:///home/drjopari/Documents/eleno_backend/README.md).
+
 ```bash
 npm install
 npm run dev -- --host 0.0.0.0   # Starts Vite dev server on http://localhost:3001 and LAN IP
