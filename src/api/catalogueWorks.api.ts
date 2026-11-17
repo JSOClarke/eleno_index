@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { resolveLocalHostUrl, supabase } from "@/lib/supabase";
 import { PRIMARY_EDITION_PRIORITY } from "@/lib/catalogueLanguages";
 import type { MediaCatalogItem, MediaMetrics } from "@/types/media.types";
 
@@ -43,7 +43,7 @@ function toEdition(row: any, work: any): MediaCatalogItem {
     creator: String(row.creator || work.creator || "Unknown Creator"),
     language: String(row.language || work.original_language || "es"),
     format: row.format || "epub",
-    cover_image_url: row.cover_image_url || work.default_cover_image_url || null,
+    cover_image_url: resolveLocalHostUrl(row.cover_image_url || work.default_cover_image_url || null),
     release_year: row.release_year || null,
     series_id: work.series_id || null,
     series: seriesObj,
@@ -57,10 +57,7 @@ function toEdition(row: any, work: any): MediaCatalogItem {
     metadata: row.metadata || undefined,
     genres: Array.isArray(row.genres) ? row.genres : [],
     previewWords: [],
-    sampleSnippet:
-      row.synopsis ||
-      work.synopsis ||
-      "«Texto auténtico indexado en el banco de oraciones del corpus español.»",
+    sampleSnippet: row.synopsis || work.synopsis || null,
     sampleSourceLabel: row.synopsis ? "Synopsis" : "Archive",
   };
 }

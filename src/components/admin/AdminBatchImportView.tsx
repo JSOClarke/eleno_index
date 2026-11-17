@@ -105,7 +105,7 @@ export const AdminBatchImportView: React.FC = () => {
   return (
     <div className="space-y-5">
       <AdminBatchDropzone uploading={uploading} onUploadBatch={(f) => void handleUploadBatch(f)} />
-      {error && <div className="border border-red-600 bg-white p-3 font-mono text-xs text-red-700">{error}</div>}
+      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>}
       {jobs.length > 0 && (
         <>
           <AdminBatchTable

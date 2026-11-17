@@ -7,13 +7,11 @@ interface AdminEditionFieldsProps {
 }
 
 const inputClass =
-  "w-full border border-[#CCCCCC] bg-white px-2.5 py-1.5 font-sans text-sm text-[#111111] outline-none focus:border-[#111111]";
+  "w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100 transition";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="block space-y-1">
-    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
-      {label}
-    </span>
+    <span className="text-xs font-medium text-slate-600">{label}</span>
     {children}
   </label>
 );
@@ -22,13 +20,13 @@ export const AdminEditionFields: React.FC<AdminEditionFieldsProps> = ({
   edition,
   onChange,
 }) => (
-  <section className="space-y-3 border border-[#111111] bg-white p-4">
+  <section className="space-y-3 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs">
     <div>
-      <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
-        Edition · localized reading item
+      <div className="text-xs font-semibold text-slate-900">
+        Edition · localized release
       </div>
-      <p className="mt-1 text-xs text-[#666666]">
-        This is the file being ingested and the title students will read.
+      <p className="mt-0.5 text-xs text-slate-500">
+        Target-language file details shown in the stats inspector.
       </p>
     </div>
 
@@ -40,8 +38,8 @@ export const AdminEditionFields: React.FC<AdminEditionFieldsProps> = ({
       />
     </Field>
 
-    <div className="grid grid-cols-2 gap-2">
-      <Field label="Author">
+    <div className="grid grid-cols-2 gap-2.5">
+      <Field label="Author / Director">
         <input
           className={inputClass}
           value={edition.author}

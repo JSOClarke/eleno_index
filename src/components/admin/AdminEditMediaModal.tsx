@@ -46,6 +46,7 @@ export const AdminEditMediaModal: React.FC<AdminEditMediaModalProps> = ({
           title_en: w?.title_en || w?.original_title || it.title || "",
           creator: w?.creator || it.creator || "",
           original_language: w?.original_language || "en",
+          type: w?.type || it.type || "book",
           synopsis_en: w?.synopsis_en || w?.synopsis || "",
           series_id: w?.series_id || undefined,
           series_name: w?.series_name || "",
@@ -99,29 +100,29 @@ export const AdminEditMediaModal: React.FC<AdminEditMediaModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto border-2 border-[#111111] bg-white p-6 shadow-[6px_6px_0px_#111111] space-y-5">
-        <div className="flex items-center justify-between border-b border-[#111111] pb-3">
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 backdrop-blur-xs p-4">
+      <div onClick={(e) => e.stopPropagation()} className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl space-y-5">
+        <div className="flex items-start justify-between border-b border-slate-100 pb-3.5">
           <div>
-            <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
-              Edit Ingested Book & Umbrella Work Metadata
+            <div className="text-xs font-medium text-slate-500">
+              Edit media & work metadata
             </div>
-            <h2 className="font-serif text-lg font-bold text-[#111111] truncate max-w-xl">
+            <h2 className="font-serif text-xl font-medium text-slate-900 truncate max-w-xl">
               {edition.title || "Loading..."}
             </h2>
             {sourceFilename && (
-              <div className="font-mono text-[11px] text-[#555555]">Source file: {sourceFilename}</div>
+              <div className="text-xs text-slate-400">Source: {sourceFilename}</div>
             )}
           </div>
-          <button type="button" onClick={onClose} className="border border-[#111111] px-3 py-1 font-mono text-xs hover:bg-[#F0F0ED] cursor-pointer">
-            ✕ Cancel
+          <button type="button" onClick={onClose} className="rounded-lg px-2.5 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 cursor-pointer">
+            ✕ Close
           </button>
         </div>
 
-        {error && <div className="border border-red-600 bg-red-50 p-2 font-mono text-xs font-bold text-red-700">{error}</div>}
+        {error && <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">{error}</div>}
 
         {loading ? (
-          <div className="py-12 text-center font-mono text-xs text-[#666666]">Loading metadata from database...</div>
+          <div className="py-12 text-center text-xs text-slate-500">Loading metadata...</div>
         ) : (
           <AdminImportAuditForm
             work={work}
@@ -132,12 +133,12 @@ export const AdminEditMediaModal: React.FC<AdminEditMediaModalProps> = ({
           />
         )}
 
-        <div className="flex justify-end gap-3 border-t border-[#111111] pt-4">
-          <button type="button" disabled={saving} onClick={onClose} className="border border-[#CCCCCC] px-4 py-2 font-mono text-xs text-[#666666] hover:bg-[#F5F5F3] cursor-pointer">
+        <div className="flex justify-end gap-2.5 border-t border-slate-100 pt-4">
+          <button type="button" disabled={saving} onClick={onClose} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 cursor-pointer">
             Cancel
           </button>
-          <button type="button" disabled={loading || saving} onClick={handleSave} className="border border-[#111111] bg-[#B8FF01] px-5 py-2 font-mono text-xs font-bold text-[#111111] cursor-pointer shadow-[2px_2px_0px_#111111] disabled:opacity-50">
-            {saving ? "Saving..." : "Save Metadata ✓"}
+          <button type="button" disabled={loading || saving} onClick={handleSave} className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-semibold text-white hover:bg-indigo-600 cursor-pointer disabled:opacity-50 transition">
+            {saving ? "Saving..." : "Save metadata"}
           </button>
         </div>
       </div>

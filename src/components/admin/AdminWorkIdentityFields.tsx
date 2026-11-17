@@ -7,70 +7,66 @@ interface AdminWorkIdentityFieldsProps {
 }
 
 const inputClass =
-  "w-full border border-[#CCCCCC] bg-white px-2.5 py-1.5 font-sans text-sm text-[#111111] outline-none focus:border-[#111111]";
+  "w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:bg-white focus:ring-2 focus:ring-indigo-100 transition";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="block space-y-1">
-    <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
-      {label}
-    </span>
+    <span className="text-xs font-medium text-slate-600">{label}</span>
     {children}
   </label>
 );
+
+const MEDIA_TYPES = [
+  ["book", "Book"], ["movie", "Movie"], ["tv_show", "TV Show"],
+  ["comic", "Comic"], ["manga", "Manga"], ["podcast", "Podcast"], ["article", "Article"],
+] as const;
 
 export const AdminWorkIdentityFields: React.FC<AdminWorkIdentityFieldsProps> = ({
   work,
   onChange,
 }) => (
-  <section className="space-y-3 border border-[#111111] bg-white p-4">
+  <section className="space-y-3 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs">
     <div>
-      <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
+      <div className="text-xs font-semibold text-slate-900">
         Work identity · English discovery
       </div>
-      <p className="mt-1 text-xs text-[#666666]">
-        This is what English readers search and see. It is not the localized edition.
+      <p className="mt-0.5 text-xs text-slate-500">
+        Shown on catalogue cards and search results across editions.
       </p>
     </div>
 
-    <Field label="English title">
-      <input
-        className={inputClass}
-        value={work.title_en}
-        onChange={(e) => onChange("title_en", e.target.value)}
-      />
-    </Field>
+    <div className="grid grid-cols-3 gap-2.5">
+      <div className="col-span-2">
+        <Field label="English title">
+          <input className={inputClass} value={work.title_en} onChange={(e) => onChange("title_en", e.target.value)} />
+        </Field>
+      </div>
+      <Field label="Media type">
+        <select className={inputClass} value={work.type || "book"} onChange={(e) => onChange("type", e.target.value)}>
+          {MEDIA_TYPES.map(([val, label]) => <option key={val} value={val}>{label}</option>)}
+        </select>
+      </Field>
+    </div>
 
     <Field label="Original title">
-      <input
-        className={inputClass}
-        value={work.original_title}
-        onChange={(e) => onChange("original_title", e.target.value)}
-      />
+      <input className={inputClass} value={work.original_title} onChange={(e) => onChange("original_title", e.target.value)} />
     </Field>
 
-    <div className="grid grid-cols-2 gap-2">
-      <Field label="Creator">
-        <input
-          className={inputClass}
-          value={work.creator}
-          onChange={(e) => onChange("creator", e.target.value)}
-        />
+    <div className="grid grid-cols-2 gap-2.5">
+      <Field label="Creator / Director">
+        <input className={inputClass} value={work.creator} onChange={(e) => onChange("creator", e.target.value)} />
       </Field>
       <Field label="Original language">
-        <input
-          className={inputClass}
-          value={work.original_language}
-          onChange={(e) => onChange("original_language", e.target.value)}
-        />
+        <input className={inputClass} value={work.original_language} onChange={(e) => onChange("original_language", e.target.value)} />
       </Field>
     </div>
 
     {Boolean(work.series_name) && (
-      <div className="border border-[#111111] bg-[#F8F8F6] p-2.5">
-        <div className="mb-2 font-mono text-[10px] font-bold uppercase tracking-wider text-[#111111]">
+      <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3">
+        <div className="mb-2 text-xs font-semibold text-slate-800">
           Position in {work.series_name}
         </div>
-        <Field label="Volume / Order #">
+        <Field label={work.type === "tv_show" ? "Season #" : "Volume / Order #"}>
           <input
             type="number"
             min="1"

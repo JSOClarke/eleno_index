@@ -8,6 +8,7 @@ interface CatalogueCardsGridProps {
   loading: boolean;
   expandedRowId: string | null;
   savedIds: Set<string>;
+  seriesSiblingsMap?: Map<string, MediaCatalogItem[]>;
   statusMap: Record<string, UserVocabStatus>;
   isAuthenticated: boolean;
   onRequireAuth: () => void;
@@ -21,6 +22,7 @@ export const CatalogueCardsGrid: React.FC<CatalogueCardsGridProps> = ({
   loading,
   expandedRowId,
   savedIds,
+  seriesSiblingsMap,
   statusMap,
   isAuthenticated,
   onRequireAuth,
@@ -65,6 +67,7 @@ export const CatalogueCardsGrid: React.FC<CatalogueCardsGridProps> = ({
           item={item}
           isSelected={expandedRowId === item.id}
           isSaved={savedIds.has(item.id)}
+          seriesSiblings={item.series_id ? seriesSiblingsMap?.get(item.series_id) : undefined}
           statusMap={statusMap}
           isAuthenticated={isAuthenticated}
           onRequireAuth={onRequireAuth}

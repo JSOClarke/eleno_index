@@ -28,6 +28,7 @@ export const AdminBatchAuditModal: React.FC<AdminBatchAuditModalProps> = ({
     title_en: cand.title_en || cand.original_title || job.metadata.title || "",
     creator: cand.creator || job.metadata.author || "",
     original_language: cand.original_language || job.metadata.language || "en",
+    type: cand.type || job.metadata.type || "book",
     synopsis_en: cand.synopsis_en || cand.synopsis || "",
     series_id: cand.series_id || undefined,
     series_name: cand.series_name || "",
@@ -54,7 +55,7 @@ export const AdminBatchAuditModal: React.FC<AdminBatchAuditModalProps> = ({
         ...work,
         series_id: work.series_id || undefined,
         series_order: work.series_order ? Number(work.series_order) : null,
-        series_label: work.series_label || (work.series_order ? `Book ${work.series_order}` : null),
+        series_label: work.series_label || (work.series_order ? `${work.type === "tv_show" ? "Season" : "Book"} ${work.series_order}` : null),
         synopsis_en: work.synopsis_en,
         title_en: work.title_en || work.original_title,
       },
@@ -79,23 +80,15 @@ export const AdminBatchAuditModal: React.FC<AdminBatchAuditModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto border-2 border-[#111111] bg-white p-6 shadow-2xl space-y-5">
-        <div className="flex items-center justify-between border-b border-[#111111] pb-3">
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 backdrop-blur-xs p-4">
+      <div onClick={(e) => e.stopPropagation()} className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl space-y-5">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
           <div>
-            <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
-              Audit Staged Book Metadata
-            </div>
-            <h2 className="font-serif text-lg font-bold text-[#111111] truncate max-w-xl">
-              {job.filename}
-            </h2>
+            <div className="text-xs font-medium text-slate-500">Audit staged metadata</div>
+            <h2 className="font-serif text-xl font-medium text-slate-900 truncate max-w-xl">{job.filename}</h2>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="border border-[#111111] px-3 py-1 font-mono text-xs hover:bg-[#F0F0ED] cursor-pointer"
-          >
-            ✕ Cancel
+          <button type="button" onClick={onClose} className="rounded-lg px-2.5 py-1 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 cursor-pointer">
+            ✕ Close
           </button>
         </div>
 
@@ -113,21 +106,12 @@ export const AdminBatchAuditModal: React.FC<AdminBatchAuditModalProps> = ({
           onSelect={setSelectedWork}
         />
 
-        <div className="flex justify-end gap-3 border-t border-[#111111] pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="border border-[#CCCCCC] px-4 py-2 font-mono text-xs text-[#666666] hover:bg-[#F5F5F3] cursor-pointer"
-          >
+        <div className="flex justify-end gap-2.5 border-t border-slate-100 pt-4">
+          <button type="button" onClick={onClose} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 cursor-pointer">
             Cancel
           </button>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => void handleSave()}
-            className="border border-[#111111] bg-[#B8FF01] px-5 py-2 font-mono text-xs font-bold text-[#111111] cursor-pointer shadow-[2px_2px_0px_#111111] disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Save Audited Metadata ✓"}
+          <button type="button" disabled={saving} onClick={() => void handleSave()} className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-semibold text-white hover:bg-indigo-600 cursor-pointer disabled:opacity-50 transition">
+            {saving ? "Saving..." : "Save metadata"}
           </button>
         </div>
       </div>

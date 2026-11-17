@@ -23,100 +23,93 @@ export const AdminBatchTable: React.FC<AdminBatchTableProps> = ({
   const allSelected = jobs.length > 0 && jobs.every((j) => selectedIds.has(j.id));
 
   return (
-    <div className="overflow-x-auto border border-[#111111] bg-white">
-      <div className="flex items-center justify-between border-b border-[#111111] bg-[#F4F4F2] px-3 py-2">
-        <span className="font-mono text-[11px] font-bold text-[#111111]">
-          Staged Books ({jobs.length})
+    <div className="overflow-x-auto rounded-2xl border border-slate-200/90 bg-white shadow-xs">
+      <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/80 px-4 py-2.5">
+        <span className="text-xs font-semibold text-slate-900">
+          Staged Media ({jobs.length})
         </span>
         {onClearAll && (
           <button
             type="button"
             onClick={onClearAll}
-            className="border border-[#CCCCCC] bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#666666] hover:border-red-600 hover:text-red-700 cursor-pointer"
+            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:border-red-300 hover:text-red-700 cursor-pointer transition"
           >
-            Clear All Staged ✕
+            Clear all
           </button>
         )}
       </div>
-      <table className="w-full border-collapse text-left font-mono text-xs">
-        <thead className="border-b border-[#111111] bg-[#FAFAF8] text-[11px] font-bold text-[#444444]">
+      <table className="w-full border-collapse text-left text-xs">
+        <thead className="border-b border-slate-200/80 bg-slate-50/50 text-[11px] font-medium text-slate-500">
           <tr>
             <th className="p-3 w-8">
-              <input
-                type="checkbox"
-                checked={allSelected}
-                onChange={onToggleSelectAll}
-                className="cursor-pointer"
-              />
+              <input type="checkbox" checked={allSelected} onChange={onToggleSelectAll} className="rounded accent-slate-900 cursor-pointer" />
             </th>
-            <th className="p-3">Book & Author</th>
+            <th className="p-3">Title & Creator</th>
             <th className="p-3">Series / Franchise</th>
             <th className="p-3 text-right">Words</th>
             <th className="p-3 text-center">Status</th>
             <th className="p-3 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#E5E5E3]">
+        <tbody className="divide-y divide-slate-100">
           {jobs.map((job) => {
             const isSelected = selectedIds.has(job.id);
-            const title = job.work_candidate?.original_title || job.metadata?.title || job.filename;
+            const title = job.work_candidate?.title_en || job.work_candidate?.original_title || job.metadata?.title || job.filename;
             const author = job.work_candidate?.creator || job.metadata?.author || "Unknown";
+            const mediaType = (job.work_candidate?.type || job.metadata?.type || "book").replace(/_/g, " ");
             const series = job.work_candidate?.series_name || null;
             const isPending = job.status === "staged" || job.status === "ready";
             const isRunning = job.status === "queued" || job.status === "processing";
 
             return (
-              <tr key={job.id} className={`hover:bg-[#FAF9F6] ${isSelected ? "bg-[#F7FCE8]" : ""}`}>
+              <tr key={job.id} className={`transition-colors hover:bg-slate-50/70 ${isSelected ? "bg-indigo-50/40" : ""}`}>
                 <td className="p-3">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    disabled={isRunning}
-                    onChange={() => onToggleSelect(job.id)}
-                    className="cursor-pointer"
-                  />
+                  <input type="checkbox" checked={isSelected} disabled={isRunning} onChange={() => onToggleSelect(job.id)} className="rounded accent-slate-900 cursor-pointer" />
                 </td>
                 <td className="p-3">
-                  <div className="font-serif text-sm font-bold text-[#111111] truncate max-w-xs">{title}</div>
-                  <div className="text-[11px] text-[#666666]">{author}</div>
-                  <div className="text-[10px] text-[#999999] truncate max-w-xs">{job.filename}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-slate-900 truncate max-w-xs">{title}</span>
+                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium capitalize text-slate-600">{mediaType}</span>
+                  </div>
+                  <div className="text-xs text-slate-500">{author}</div>
+                  <div className="text-[11px] text-slate-400 truncate max-w-xs">{job.filename}</div>
                 </td>
-                <td className="p-3 text-[#555555]">
+                <td className="p-3 text-slate-600">
                   {series ? (
-                    <span className="inline-block border border-[#CCCCCC] bg-[#EEEEEC] px-1.5 py-0.5 text-[10px] font-semibold text-[#333333]">
+                    <span className="inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-medium text-slate-700">
                       {series} {job.work_candidate?.series_order ? `#${job.work_candidate.series_order}` : ""}
                     </span>
                   ) : (
-                    <span className="text-[#AAAAAA] italic text-[11px]">Standalone</span>
+                    <span className="text-slate-400 text-[11px]">Standalone</span>
                   )}
                 </td>
-                <td className="p-3 text-right text-[#555555]">
+                <td className="p-3 text-right tabular-nums text-slate-600">
                   {job.word_count ? job.word_count.toLocaleString() : "—"}
                 </td>
                 <td className="p-3 text-center">
                   <span
-                    className={`inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                    className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ${
                       job.status === "completed"
-                        ? "bg-[#D4EDDA] text-[#155724] border border-[#C3E6CB]"
+                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
                         : job.status === "processing"
-                        ? "bg-[#B8FF01] text-[#111111] animate-pulse border border-[#111111]"
+                        ? "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200 animate-pulse"
                         : job.status === "queued"
-                        ? "bg-[#CCE5FF] text-[#004085] border border-[#B8DAFF]"
+                        ? "bg-sky-50 text-sky-700 ring-1 ring-sky-200"
                         : job.status === "failed"
-                        ? "bg-[#F8D7DA] text-[#721C24] border border-[#F5C6CB]"
-                        : "bg-[#E2E3E5] text-[#383D41] border border-[#D6D8DB]"
+                        ? "bg-red-50 text-red-700 ring-1 ring-red-200"
+                        : "bg-slate-100 text-slate-700"
                     }`}
                   >
                     {job.status === "ready" ? "staged" : job.status}
                   </span>
                 </td>
                 <td className="p-3 text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex items-center justify-end gap-1.5">
                     {isPending && (
                       <button
                         type="button"
                         onClick={() => onAuditJob(job)}
-                        className="border border-[#111111] bg-white px-2 py-1 text-[11px] font-bold text-[#111111] hover:bg-[#F0F0ED] cursor-pointer"
+                        className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
                       >
                         Audit
                       </button>
@@ -126,7 +119,7 @@ export const AdminBatchTable: React.FC<AdminBatchTableProps> = ({
                         type="button"
                         onClick={() => onDeleteJob(job.id)}
                         title="Remove from batch"
-                        className="border border-transparent px-2 py-1 text-[11px] text-[#999999] hover:border-red-500 hover:text-red-700 cursor-pointer"
+                        className="rounded-lg px-2 py-1 text-xs text-slate-400 hover:bg-red-50 hover:text-red-600 cursor-pointer"
                       >
                         ✕
                       </button>

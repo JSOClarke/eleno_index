@@ -76,9 +76,11 @@ export interface AdminWorkDraft {
   title_en: string;
   creator: string;
   original_language: string;
+  type?: string;
   synopsis_en: string;
   series_id?: string;
   series_name: string;
+  series_kind?: string;
   series_order: string;
   series_label: string;
 }
@@ -132,6 +134,7 @@ export interface AdminMediaDetailsResponse {
     title_en?: string | null;
     creator: string;
     original_language?: string | null;
+    type?: string | null;
     synopsis?: string | null;
     synopsis_en?: string | null;
     series_id?: string | null;

@@ -38,6 +38,17 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { sortOption, setSortOption } = useCatalogueSort();
 
+  const seriesSiblingsMap = useMemo(() => {
+    const map = new Map<string, MediaCatalogItem[]>();
+    for (const it of items) {
+      if (!it.series_id) continue;
+      const list = map.get(it.series_id);
+      if (list) list.push(it);
+      else map.set(it.series_id, [it]);
+    }
+    return map;
+  }, [items]);
+
   const { facetCounts, filteredItems } = useFacetCounts(
     items, filterState.filters, filterState.savedIds, filterState.historyIds, mode, sortOption
   );
@@ -98,7 +109,7 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
           onOpenFilters={() => setFiltersOpen(true)} sortOption={sortOption} onChangeSort={setSortOption}
         />
         {viewMode === "cards" ? (
-          <CatalogueCardsGrid {...sharedCatalogueProps} onSelectCard={toggleExpand} />
+          <CatalogueCardsGrid {...sharedCatalogueProps} seriesSiblingsMap={seriesSiblingsMap} onSelectCard={toggleExpand} />
         ) : viewMode === "mosaic" ? (
           <CatalogueMosaicGrid
             items={pagedItems}

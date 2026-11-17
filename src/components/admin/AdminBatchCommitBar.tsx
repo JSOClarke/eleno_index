@@ -18,22 +18,22 @@ export const AdminBatchCommitBar: React.FC<AdminBatchCommitBarProps> = ({
   onCommitSelected,
 }) => {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 border border-[#111111] bg-[#F8F8F6] p-4">
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-xs">
       <div className="space-y-1.5">
-        <div className="font-mono text-xs text-[#555555]">
-          <span className="font-bold text-[#111111]">{selectedCount}</span> of{" "}
-          <span>{totalStagedCount}</span> books selected for batch commit.
+        <div className="text-xs text-slate-600">
+          <span className="font-semibold text-slate-900">{selectedCount}</span> of{" "}
+          <span>{totalStagedCount}</span> staged items selected for commit.
         </div>
-        <label className="flex items-center gap-2 font-mono text-xs text-[#111111] cursor-pointer select-none">
+        <label className="flex items-center gap-2 text-xs text-slate-800 cursor-pointer select-none">
           <input
             type="checkbox"
             checked={skipReader}
             onChange={(e) => onToggleSkipReader(e.target.checked)}
-            className="cursor-pointer"
+            className="rounded accent-slate-900 cursor-pointer"
           />
-          <span className="font-bold">Skip reader pre-tokenization for all</span>
-          <span className="text-[#666666]">
-            (fast mode: 2x faster, metrics & vocabulary only)
+          <span className="font-medium">Skip reader pre-tokenization for all</span>
+          <span className="text-slate-400">
+            (fast mode: metrics & vocabulary only)
           </span>
         </label>
       </div>
@@ -42,11 +42,11 @@ export const AdminBatchCommitBar: React.FC<AdminBatchCommitBarProps> = ({
         type="button"
         onClick={onCommitSelected}
         disabled={committing || selectedCount === 0}
-        className="border border-[#111111] bg-[#B8FF01] px-5 py-2.5 font-mono text-xs font-bold text-[#111111] disabled:opacity-40 cursor-pointer shadow-[2px_2px_0px_#111111] transition-transform active:translate-x-[1px] active:translate-y-[1px]"
+        className="rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white hover:bg-indigo-600 disabled:opacity-40 cursor-pointer shadow-xs transition"
       >
         {committing
-          ? "Queueing books..."
-          : `Commit Selected (${selectedCount} books) →`}
+          ? "Queueing..."
+          : `Commit Selected (${selectedCount}) →`}
       </button>
     </div>
   );

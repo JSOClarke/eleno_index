@@ -13,7 +13,7 @@ import type {
 } from "@/types/adminImport.types";
 
 const emptyWork: AdminWorkDraft = {
-  original_title: "", title_en: "", creator: "", original_language: "en",
+  original_title: "", title_en: "", creator: "", original_language: "en", type: "book",
   synopsis_en: "", series_id: undefined, series_name: "", series_order: "", series_label: "",
 };
 
@@ -53,6 +53,7 @@ export const AdminSingleImportView: React.FC = () => {
         title_en: cand.title_en || cand.original_title || next.metadata.title || "",
         creator: cand.creator || next.metadata.author || "",
         original_language: cand.original_language || next.metadata.language || "en",
+        type: cand.type || next.metadata.type || "book",
         synopsis_en: cand.synopsis_en || cand.synopsis || "",
         series_id: cand.series_id || undefined,
         series_name: cand.series_name || "",
@@ -82,7 +83,7 @@ export const AdminSingleImportView: React.FC = () => {
         ...work,
         series_id: work.series_id || undefined,
         series_order: work.series_order ? Number(work.series_order) : null,
-        series_label: work.series_label || (work.series_order ? `Book ${work.series_order}` : null),
+        series_label: work.series_label || (work.series_order ? `${work.type === "tv_show" ? "Season" : "Book"} ${work.series_order}` : null),
         synopsis: work.synopsis_en,
         title_en: work.title_en || work.original_title,
       };
@@ -105,7 +106,7 @@ export const AdminSingleImportView: React.FC = () => {
   return (
     <div className="space-y-5">
       <AdminImportUpload uploading={uploading} onUpload={(file) => void handleUpload(file)} />
-      {error && <div className="border border-red-600 bg-white p-3 font-mono text-xs text-red-700">{error}</div>}
+      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">{error}</div>}
       {job && <AdminImportStatus job={job} />}
 
       {job && ready && (

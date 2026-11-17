@@ -9,11 +9,13 @@ import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { CardCoveragePanel } from "./CardCoveragePanel";
 import { PreviewWordChips } from "./PreviewWordChips";
+import { SeriesSiblingsStrip } from "./SeriesSiblingsStrip";
 
 interface CatalogueCardProps {
   item: MediaCatalogItem;
   isSelected: boolean;
   isSaved: boolean;
+  seriesSiblings?: MediaCatalogItem[];
   statusMap: Record<string, UserVocabStatus>;
   isAuthenticated: boolean;
   onRequireAuth: () => void;
@@ -23,7 +25,7 @@ interface CatalogueCardProps {
 }
 
 export const CatalogueCard: React.FC<CatalogueCardProps> = ({
-  item, isSelected, isSaved, statusMap, isAuthenticated,
+  item, isSelected, isSaved, seriesSiblings, statusMap, isAuthenticated,
   onRequireAuth, onSelectCard, onToggleSave, onToggleWord,
 }) => {
   const m = item.metrics;
@@ -102,6 +104,8 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
               <PreviewWordChips item={item} words={item.previewWords.slice(0, 6)} statusMap={statusMap} onToggleWord={onToggleWord} compact />
             </div>
           )}
+
+          <SeriesSiblingsStrip currentId={item.id} seriesName={item.series?.name || item.series_name} siblings={seriesSiblings} isAuthenticated={isAuthenticated} />
         </div>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3.5">

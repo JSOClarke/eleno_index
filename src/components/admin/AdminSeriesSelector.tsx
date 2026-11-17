@@ -53,21 +53,21 @@ export const AdminSeriesSelector: React.FC<AdminSeriesSelectorProps> = ({
   const isExisting = Boolean(seriesId);
 
   return (
-    <section className="border border-[#111111] bg-[#F8F8F6] p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E5E5] pb-2">
+    <section className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div>
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
+          <span className="text-xs font-semibold text-slate-900">
             Franchise / Series Assignment
           </span>
-          <p className="text-xs text-[#555555]">
-            Link this work to an overarching franchise or leave empty for a standalone book.
+          <p className="text-xs text-slate-500">
+            Link this work to a book/film/TV series or leave empty for a standalone title.
           </p>
         </div>
         {seriesName && (
           <button
             type="button"
             onClick={() => onChange(undefined, "")}
-            className="font-mono text-[11px] text-[#666666] underline hover:text-[#111111] cursor-pointer"
+            className="text-xs font-medium text-slate-500 underline hover:text-slate-900 cursor-pointer"
           >
             Clear / Standalone
           </button>
@@ -76,11 +76,11 @@ export const AdminSeriesSelector: React.FC<AdminSeriesSelectorProps> = ({
 
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <label className="block space-y-1">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
+          <span className="text-xs font-medium text-slate-600">
             Pick existing series {loading ? "(loading...)" : `(${options.length})`}
           </span>
           <select
-            className="w-full border border-[#CCCCCC] bg-white px-2.5 py-1.5 font-sans text-sm text-[#111111] outline-none focus:border-[#111111]"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:bg-white"
             value={seriesId || ""}
             onChange={handleSelect}
           >
@@ -94,27 +94,27 @@ export const AdminSeriesSelector: React.FC<AdminSeriesSelectorProps> = ({
         </label>
 
         <label className="block space-y-1">
-          <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
-            Series Name (or create new)
+          <span className="text-xs font-medium text-slate-600">
+            Series name (or create new)
           </span>
           <input
-            className="w-full border border-[#CCCCCC] bg-white px-2.5 py-1.5 font-sans text-sm text-[#111111] outline-none focus:border-[#111111]"
-            placeholder="e.g. Harry Potter, Nacidos de la bruma..."
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-400 focus:bg-white"
+            placeholder="e.g. Harry Potter, Élite..."
             value={seriesName}
             onChange={handleNameChange}
           />
         </label>
       </div>
 
-      <div className="mt-2 font-mono text-[11px]">
+      <div className="mt-2.5 text-xs">
         {seriesName ? (
           isExisting ? (
-            <span className="text-emerald-700 font-bold">✓ Linked to existing series in database</span>
+            <span className="font-medium text-emerald-700">✓ Linked to existing series</span>
           ) : (
-            <span className="text-amber-700 font-bold">★ New series will be registered on commit</span>
+            <span className="font-medium text-amber-700">★ New series will be created on commit</span>
           )
         ) : (
-          <span className="text-[#888888]">○ Standalone work (no series)</span>
+          <span className="text-slate-400">Standalone work (no series)</span>
         )}
       </div>
     </section>

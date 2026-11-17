@@ -36,41 +36,41 @@ export const AdminDeleteMediaModal: React.FC<AdminDeleteMediaModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 font-mono select-none">
-      <div className="w-full max-w-md border-2 border-[#111111] bg-white p-6 shadow-[6px_6px_0px_#111111]">
-        <div className="text-xs font-bold uppercase tracking-wider text-red-600 mb-1">
-          DANGER ZONE · CATALOGUE DELETION
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/35 backdrop-blur-xs p-4 select-none">
+      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl">
+        <div className="text-xs font-semibold text-red-600 mb-1">
+          Permanent deletion
         </div>
-        <h3 className="text-lg font-bold text-[#111111] leading-snug">
+        <h3 className="font-serif text-xl font-medium text-slate-900 leading-snug">
           Delete «{mediaTitle}»?
         </h3>
-        <p className="mt-3 text-xs text-[#555555] leading-relaxed">
-          This permanently removes this edition from Supabase, including all parsed sentences,
-          vocabulary links, chapter pacing metrics, and cloud reader files.
+        <p className="mt-2.5 text-xs text-slate-500 leading-relaxed">
+          This permanently removes this edition from the database, including all indexed sentences,
+          vocabulary links, and chapter breakdown metrics.
         </p>
 
-        <label className="mt-4 flex items-start gap-2.5 cursor-pointer text-xs text-[#111111]">
+        <label className="mt-4 flex items-start gap-2.5 cursor-pointer text-xs text-slate-700">
           <input
             type="checkbox"
             checked={deleteWork}
             onChange={(e) => setDeleteWork(e.target.checked)}
-            className="mt-0.5"
+            className="mt-0.5 rounded accent-slate-900"
           />
-          <span>Also delete master work record if no other editions exist (enables clean re-ingest)</span>
+          <span>Also delete parent work if no other editions remain</span>
         </label>
 
         {error && (
-          <div className="mt-3 border border-red-600 bg-red-50 p-2 text-xs font-bold text-red-700">
+          <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-2.5 text-xs text-red-700">
             {error}
           </div>
         )}
 
-        <div className="mt-6 flex items-center justify-end gap-3 pt-3 border-t border-[#E2E2DF]">
+        <div className="mt-6 flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
           <button
             type="button"
             disabled={loading}
             onClick={onClose}
-            className="border border-[#111111] bg-white px-3.5 py-1.5 text-xs font-bold text-[#111111] hover:bg-[#F4F4F2] cursor-pointer"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 cursor-pointer"
           >
             Cancel
           </button>
@@ -78,9 +78,9 @@ export const AdminDeleteMediaModal: React.FC<AdminDeleteMediaModalProps> = ({
             type="button"
             disabled={loading}
             onClick={handleDelete}
-            className="border border-red-700 bg-red-600 px-4 py-1.5 text-xs font-bold text-white shadow-[2px_2px_0px_#111111] hover:bg-red-700 disabled:opacity-50 cursor-pointer"
+            className="rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50 cursor-pointer transition"
           >
-            {loading ? "Deleting..." : "Confirm Delete"}
+            {loading ? "Deleting..." : "Confirm delete"}
           </button>
         </div>
       </div>

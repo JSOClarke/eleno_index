@@ -31,21 +31,23 @@ export const AdminWorkMatchPanel: React.FC<AdminWorkMatchPanelProps> = ({
   };
 
   return (
-    <section className="space-y-3 border border-[#111111] bg-white p-4">
+    <section className="space-y-3 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <div className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#666666]">
-            2 / Link to work
+          <div className="text-xs font-semibold text-slate-900">
+            2. Link to work
           </div>
-          <p className="mt-1 text-xs text-[#666666]">
-            Select an existing work or leave blank to create a new work from the fields above.
+          <p className="mt-0.5 text-xs text-slate-500">
+            Select an existing work or leave unset to create a new work from the fields above.
           </p>
         </div>
         <button
           type="button"
           onClick={() => onSelect(null)}
-          className={`border px-2.5 py-1 font-mono text-[11px] font-bold cursor-pointer ${
-            selectedWorkId ? "border-[#CCCCCC] bg-white" : "border-[#111111] bg-[#B8FF01]"
+          className={`rounded-full px-3 py-1 text-xs font-medium cursor-pointer transition ${
+            selectedWorkId
+              ? "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+              : "bg-slate-900 text-white shadow-xs"
           }`}
         >
           Create new work
@@ -58,23 +60,23 @@ export const AdminWorkMatchPanel: React.FC<AdminWorkMatchPanelProps> = ({
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => event.key === "Enter" && void search()}
           placeholder="Search works by English or original title..."
-          className="min-w-0 flex-1 border border-[#CCCCCC] px-2.5 py-1.5 font-mono text-xs outline-none focus:border-[#111111]"
+          className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50/70 px-3 py-1.5 text-xs text-slate-900 outline-none focus:border-indigo-400 focus:bg-white"
         />
         <button
           type="button"
           onClick={() => void search()}
           disabled={loading}
-          className="border border-[#111111] bg-white px-3 py-1 font-mono text-xs font-bold disabled:opacity-50 cursor-pointer"
+          className="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
         >
           {loading ? "..." : "Search"}
         </button>
       </div>
 
-      {error && <p className="font-mono text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-red-600">{error}</p>}
 
-      <div className="max-h-64 space-y-1 overflow-y-auto">
+      <div className="max-h-64 space-y-1.5 overflow-y-auto">
         {matches.length === 0 ? (
-          <p className="font-mono text-xs text-[#888888]">No matching works.</p>
+          <p className="text-xs text-slate-400">No matching works.</p>
         ) : (
           matches.map((match) => {
             const selected = selectedWorkId === match.id;
@@ -83,14 +85,16 @@ export const AdminWorkMatchPanel: React.FC<AdminWorkMatchPanelProps> = ({
                 key={match.id}
                 type="button"
                 onClick={() => onSelect(match)}
-                className={`block w-full border px-3 py-2 text-left cursor-pointer ${
-                  selected ? "border-[#111111] bg-[#B8FF01]" : "border-[#E2E2DF] bg-white hover:border-[#111111]"
+                className={`block w-full rounded-xl border px-3.5 py-2.5 text-left transition cursor-pointer ${
+                  selected
+                    ? "border-indigo-400 bg-indigo-50/60 ring-1 ring-indigo-200"
+                    : "border-slate-200/80 bg-white hover:border-slate-300 hover:bg-slate-50/60"
                 }`}
               >
-                <div className="font-sans text-sm font-bold text-[#111111]">
+                <div className="text-sm font-semibold text-slate-900">
                   {match.title_en || match.original_title}
                 </div>
-                <div className="font-mono text-[11px] text-[#666666]">
+                <div className="text-xs text-slate-500">
                   {match.creator} · {match.media_item?.length || 0} editions
                   {match.media_item?.length
                     ? ` · ${match.media_item.map((edition) => edition.language.toUpperCase()).join(", ")}`
