@@ -1,4 +1,4 @@
-# InputHub (`inputhub /es`) — Agent Guidelines & Architectural Rules
+# InputHub (`inputhub /es | /fr | /zh`) — Agent Guidelines & Architectural Rules
 
 - **Strict Approval Before Coding**: Do NOT write code, create files, edit files, or execute implementation commands without the user explicitly asking to do so.
 - **Collaborate First**: Discuss architectural decisions, explain concepts, answer questions, and propose plans first. Wait for specific confirmation and instruction from the user before executing changes.
@@ -9,6 +9,8 @@
   - Never import `@supabase/supabase-js` or `@/lib/supabase` outside `src/lib/supabase.ts` and `src/api/*.api.ts`.
   - All Postgres `BIGINT` and `NUMERIC` fields returned by Supabase RPCs must be coerced via `Number()` in `src/api/normalizers.ts`.
 - **Zero Hardcoded Mock Data**:
-  - All media items, series labels, cover art, dictionary definitions, and linguistic metrics come strictly from Supabase (`c:\Users\drjopari\Documents\eleno_backend`).
+  - All media items, series labels, cover art, dictionary definitions, and linguistic metrics come strictly from Supabase (`/home/drjopari/Documents/eleno_backend`).
+- **LAN Host Resolution (`resolveLocalHostUrl`)**:
+  - Any URL configured with `127.0.0.1` or `localhost` (Supabase URL, Storage cover art URLs, Admin API URL) must pass through `resolveLocalHostUrl` in `src/lib/supabase.ts` so devices on the local network (`192.168.x.x`) resolve against the active host automatically.
 - **Optimistic UI & Caching**:
   - Marking a word as `Known`, `Learning`, or `Unknown` must apply a `0ms` optimistic update to local state (`useUserVocabulary`, `useCatalogueData`, `useMediaInspector`) followed by a debounced (`1.2s`) RPC reconciliation.

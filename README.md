@@ -1,6 +1,6 @@
-# InputHub (`inputhub /es`)
+# InputHub (`inputhub /es | /fr | /zh`)
 
-A Neo-Swiss brutalist **"Dense Faceted Index"** frontend for Spanish corpus-driven language acquisition, built with React 19, TypeScript, Tailwind CSS, and Supabase. Companion frontend to [`eleno_backend`](file:///c:/Users/drjopari/Documents/eleno_backend).
+A Neo-Swiss brutalist **"Dense Faceted Index"** frontend for multi-language corpus-driven language acquisition (`es`, `fr`, `zh`), built with React 19, TypeScript, Tailwind CSS, and Supabase. Companion frontend to [`eleno_backend`](file:///home/drjopari/Documents/eleno_backend).
 
 ---
 
@@ -16,15 +16,19 @@ A Neo-Swiss brutalist **"Dense Faceted Index"** frontend for Spanish corpus-driv
 ```
 src/
 ├── api/
+│   ├── adminImports.api.ts    # Admin EPUB staging, folder batch scan, approval, and commit API
 │   ├── catalogue.api.ts       # Base media_item + media_work + media_metrics fetch & RPC batch enrichment
+│   ├── catalogueWorks.api.ts  # Work-level grouping, series normalization, and cover URL resolution
 │   ├── inspector.api.ts       # Media vocabulary, chapter comprehension, quarantine, & sentence_bank queries
 │   ├── normalizers.ts         # BIGINT/NUMERIC -> Number() coercion at the API boundary
 │   ├── reader.api.ts          # Storage artifact manifest/chapter fetches & reading progress persistence
 │   ├── sentence.api.ts        # Tokenized sentence_bank queries & i+1 RPC
+│   ├── seriesSiblings.api.ts  # Series sibling work lookup sorted by series_order
 │   └── vocabulary.api.ts      # User vocabulary status persistence & tracked words ledger queries
 ├── components/
+│   ├── admin/                 # AdminBatchPanel & staging inspector UI for /admin/imports
 │   ├── catalogue/             # FacetSidebar, CommandFilterBar, CatalogueTable, CatalogueCardsGrid, InlinePreviewDrawer
-│   ├── inspector/             # InspectorSpecHeader, LinguisticProfileRow, ChapterPacingStrip, CanonicalPrimerTable/Row, SentenceBankDrawer/Token*
+│   ├── inspector/             # InspectorSpecHeader, SeriesSiblingsStrip, LinguisticProfileRow, ChapterPacingStrip, CanonicalPrimerTable/Row, SentenceBankDrawer/Token*
 │   ├── layout/                # TopNavBar, BookCoverPlate, VocabTableSkeleton, WordContextDrawer, AuthModal
 │   ├── reader/                # ReaderTopBar, ReaderBottomBar, ReaderCanvas, ReaderTokenSpan, ReaderWordDock, ReaderHighlightControls
 │   └── views/                 # KnownWordsView & KnownWordRow (/known-words ledger)
@@ -45,9 +49,10 @@ src/
 │   ├── knownWordsCache.ts     # Signature-verified memory + localStorage cache for /known-words
 │   ├── readerCache.ts         # IndexedDB / localStorage multi-chapter reader artifact cache
 │   ├── readerHighlight.ts     # CEFR & Frequency rank color band definitions and class resolvers
-│   ├── supabase.ts            # Singleton Supabase client
+│   ├── supabase.ts            # Singleton Supabase client + resolveLocalHostUrl LAN host rewrite
 │   └── vocabSorting.ts        # Shared sorting & status-filtering logic for Canonical Primer & Known Words
 ├── pages/
+│   ├── AdminImportsPage.tsx   # /admin/imports single EPUB & folder batch staging workbench
 │   ├── CataloguePage.tsx      # /, /saved, /history routes
 │   ├── InspectorPage.tsx      # /media/:mediaId route
 │   └── ReaderPage.tsx         # /read/:mediaId pre-tokenized book reader route
@@ -66,6 +71,7 @@ src/
    - Table view & Card Grid view with live faceted filtering (Media Type, CEFR Level, Comprehension Bracket, Length/Word Count, Reading Flow %).
    - Expandable **Inline Preview Drawer** showing synopsis, top unknown content lemmas (`get_user_media_preview_words`), and 1-click `Mark Known`.
 2. **Media Details Inspector (`/media/:mediaId`)**:
+   - **Series Siblings Strip**: Horizontal strip displaying all sibling books in the same `series_name` ordered by `series_order` (`#1`, `#2`, ...) with cover thumbnails and active badge.
    - **Linguistic Profile Row**: Adaptive metrics for Books (`Dialogue Ratio`, `Coverage 90%/95%/98%`, `Verb Profile`) vs Movies & TV Series (`Speaking Speed WPM`, `Speech Density %`, `Active Speaking Time / Total Runtime`).
    - **Chapter / Episode Pacing Strip**: Interactive cumulative stacked bar chart where outline height = chapter/episode length, solid ink (`#111111`) = Known Flow %, and stacked volt cap (`#B8FF01`) = Learning Flow %. Clicking any bar filters the Canonical Primer Table to words debuting in that chapter/episode.
    - **Canonical Primer Table**:
@@ -89,15 +95,17 @@ src/
    - Each authentic sentence is ingested once per media item with a full token array (surface, character offsets, lemma, POS, morphology) and a GIN-indexed `canonical_ids UUID[]` array.
    - The `<Quote />` drawer renders every sentence token-by-token: Volt target word, dotted unknown words, Learning/known states, and click-through Kaikki definitions with Learn/Known toggles.
    - Segmented `All Examples | i+1 Comprehensible Only` filter calls `get_i_plus_one_sentences` to surface sentences where the target word is the only unknown.
-   - Migration: [`eleno_backend/supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql`](file:///c:/Users/drjopari/Documents/eleno_backend/supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql).
+   - Migration: [`eleno_backend/supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql`](file:///home/drjopari/Documents/eleno_backend/supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql).
+6. **Admin Import Workbench (`/admin/imports`)**:
+   - Supports both single EPUB staging and folder batch scanning (`/admin/imports/batch/scan`), bulk candidate approval, and sequentially queued ingestion jobs.
 
 ---
 
 ## 4. Development & Build
-```powershell
+```bash
 npm install
-npm run dev      # Starts Vite dev server on http://localhost:3001
-npm run build    # Runs tsc && vite build
+npm run dev -- --host 0.0.0.0   # Starts Vite dev server on http://localhost:3001 and LAN IP
+npm run build                   # Runs tsc && vite build
 ```
 
 Image providers are registered in `src/lib/imageProviders.ts`. Wikipedia works without credentials. Pixabay is opt-in: the reader adds their own API key from the image panel, and it is stored only in that browser's localStorage. Additional providers can be attached with `registerImageProvider(...)`.
