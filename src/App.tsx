@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { AuthModal } from "@/components/layout/AuthModal";
+import { BackdropBlobs } from "@/components/layout/BackdropBlobs";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { AppRoutes } from "@/components/layout/AppRoutes";
 import { ReaderAuthGate } from "@/components/views/ReaderAuthGate";
@@ -104,7 +105,8 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-[#FAF9F6] text-slate-900">
+    <div className="relative isolate min-h-[100dvh] flex flex-col bg-[#FAF9F6] text-slate-900">
+      <BackdropBlobs />
       <TopNavBar
         savedCount={filterState.savedIds.size}
         knownCount={userVocab.knownCount}
