@@ -15,6 +15,7 @@ const VOCAB_SELECT = `
   canonical_lexical_entity!inner (
     lemma,
     pos,
+    definitions,
     lexical_ranking (source, cefr, rank, count),
     lexical_pronunciation (transcriptions)
   )

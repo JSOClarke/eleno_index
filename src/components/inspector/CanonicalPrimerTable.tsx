@@ -16,12 +16,14 @@ interface CanonicalPrimerTableProps {
   onRequireAuth: () => void;
   onChangeWordStatus: (word: VocabularyWord, targetStatus: UserVocabStatus) => void;
   onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
+  mediaTitle?: string;
 }
 
 const PAGE_SIZE = 20;
 
 export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
   mediaItemId,
+  mediaTitle,
   words,
   loading,
   selectedChapter,
@@ -104,7 +106,8 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
         isEpisodeMode={isEpisodeMode}
         sortValue={`${sortField}:${sortDir}`}
         onSortChange={changeSort}
-        resultCount={sortedAndFiltered.length}
+        resultCount={sortedAndFiltered.length} exportWords={sortedAndFiltered}
+        statusMap={statusMap} mediaTitle={mediaTitle} mediaItemId={mediaItemId}
         userId={userId}
         onRequireAuth={onRequireAuth}
       />

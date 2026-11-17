@@ -106,6 +106,7 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
         {ledgerTab === "canonical" ? (
           <CanonicalPrimerTable
             mediaItemId={item.id}
+            mediaTitle={item.title}
             words={inspector.vocabulary}
             loading={inspector.loading}
             selectedChapter={selectedChapter}

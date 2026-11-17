@@ -3,6 +3,8 @@ import { Search, X } from "lucide-react";
 import { CoverageGate } from "@/components/ui/CoverageGate";
 import { FilterSelectDropdown } from "@/components/ui/FilterSelectDropdown";
 import type { RankingSourceKey, VocabStatusFilter } from "@/lib/vocabSorting";
+import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
+import { ExportAnkiButton } from "./ExportAnkiButton";
 
 const STATUS_OPTS: ReadonlyArray<readonly [VocabStatusFilter, string]> = [
   ["ALL", "All"], ["UNKNOWN", "Unknown"], ["LEARNING", "Learning"], ["KNOWN", "Known"],
@@ -46,6 +48,10 @@ interface PrimerFilterBarProps {
   sortValue: string;
   onSortChange: (value: string) => void;
   resultCount: number;
+  exportWords: VocabularyWord[];
+  statusMap: Record<string, UserVocabStatus>;
+  mediaTitle?: string;
+  mediaItemId?: string;
   userId?: string | null;
   onRequireAuth: () => void;
 }
@@ -53,7 +59,7 @@ interface PrimerFilterBarProps {
 export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
   query, onQueryChange, statusFilter, onStatusFilter, statusCounts, posFilter, onPosFilter,
   rankingSource, onRankingSource, selectedChapter, onClearChapter, isEpisodeMode,
-  sortValue, onSortChange, resultCount, userId, onRequireAuth,
+  sortValue, onSortChange, resultCount, exportWords, statusMap, mediaTitle, mediaItemId, userId, onRequireAuth,
 }) => (
   <>
     <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-xs">
@@ -120,6 +126,7 @@ export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
           onChange={onPosFilter}
           ariaLabel="Part of speech filter"
         />
+        <ExportAnkiButton words={exportWords} statusMap={statusMap} mediaTitle={mediaTitle} mediaItemId={mediaItemId} rankingSource={rankingSource} />
       </div>
     </div>
 
