@@ -8,6 +8,7 @@ import { CatalogueTable } from "@/components/catalogue/CatalogueTable";
 import { CatalogueToolbar } from "@/components/catalogue/CatalogueToolbar";
 import { CommandFilterBar } from "@/components/catalogue/CommandFilterBar";
 import { useCatalogueSort } from "@/hooks/useCatalogueSort";
+import { readStoredCatalogueView, writeStoredCatalogueView } from "@/lib/catalogueView";
 import { useFacetCounts } from "@/hooks/useFacetCounts";
 import type { useFilterState } from "@/hooks/useFilterState";
 import type { CatalogueViewMode } from "@/types/filter.types";
@@ -31,7 +32,10 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const rawView = searchParams.get("view");
-  const viewMode: CatalogueViewMode = rawView === "table" ? "table" : rawView === "mosaic" ? "mosaic" : "cards";
+  const viewMode: CatalogueViewMode =
+    rawView === "table" || rawView === "mosaic" || rawView === "cards"
+      ? rawView
+      : readStoredCatalogueView();
   const pageSize = viewMode === "table" ? 40 : viewMode === "mosaic" ? 30 : 24;
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
@@ -74,6 +78,7 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
     (filterState.filters.hasAudio ? 1 : 0) + (filterState.filters.flowTier !== "all" ? 1 : 0);
 
   const handleChangeViewMode = (nextMode: CatalogueViewMode) => {
+    writeStoredCatalogueView(nextMode);
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       if (nextMode === "cards") next.delete("view");
