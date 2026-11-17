@@ -55,24 +55,13 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
   resultCount,
   onClearAll,
 }) => (
-  <Sheet open={open} onClose={onClose} title="Filters" side="left">
-    <div className="space-y-6">
-      <FacetSidebar
-        variant="sheet"
-        filters={filters}
-        counts={counts}
-        onToggleLevel={onToggleLevel}
-        onToggleType={onToggleType}
-        onToggleLength={onToggleLength}
-        onToggleProfile={onToggleProfile}
-        onToggleGenre={onToggleGenre}
-        onTogglePublisher={onTogglePublisher}
-        onToggleYear={onToggleYear}
-        onToggleHasAudio={onToggleHasAudio}
-        onSetFlowTier={onSetFlowTier}
-      />
-
-      <div className="sticky bottom-0 -mx-5 flex gap-2 border-t border-slate-200 bg-white px-5 py-3">
+  <Sheet
+    open={open}
+    onClose={onClose}
+    title="Filters"
+    side="left"
+    footer={
+      <div className="flex gap-2">
         <button
           type="button"
           onClick={onClearAll}
@@ -88,6 +77,21 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
           Show {resultCount} results
         </button>
       </div>
-    </div>
+    }
+  >
+    <FacetSidebar
+      variant="sheet"
+      filters={filters}
+      counts={counts}
+      onToggleLevel={onToggleLevel}
+      onToggleType={onToggleType}
+      onToggleLength={onToggleLength}
+      onToggleProfile={onToggleProfile}
+      onToggleGenre={onToggleGenre}
+      onTogglePublisher={onTogglePublisher}
+      onToggleYear={onToggleYear}
+      onToggleHasAudio={onToggleHasAudio}
+      onSetFlowTier={onSetFlowTier}
+    />
   </Sheet>
 );

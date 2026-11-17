@@ -9,6 +9,8 @@ interface SheetProps {
   children: React.ReactNode;
   className?: string;
   side?: "bottom" | "left";
+  /** Rendered outside the scroll area, pinned to the bottom of the panel. */
+  footer?: React.ReactNode;
 }
 
 export const Sheet: React.FC<SheetProps> = ({
@@ -18,6 +20,7 @@ export const Sheet: React.FC<SheetProps> = ({
   children,
   className = "",
   side = "bottom",
+  footer,
 }) => {
   const [entered, setEntered] = useState(false);
 
@@ -87,6 +90,11 @@ export const Sheet: React.FC<SheetProps> = ({
         <div className="flex-1 overflow-y-auto px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4">
           {children}
         </div>
+        {footer ? (
+          <div className="shrink-0 border-t border-slate-200 bg-white px-5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3">
+            {footer}
+          </div>
+        ) : null}
       </div>
     </div>,
     document.body
