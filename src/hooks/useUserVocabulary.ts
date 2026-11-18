@@ -43,6 +43,19 @@ export function useUserVocabulary(user: UserProfile | null, language = "es") {
     loadVocab();
   }, [loadVocab]);
 
+  useEffect(() => {
+    if (!user) return;
+    const onFocus = () => {
+      if (document.visibilityState === "visible") loadVocab();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [user, loadVocab]);
+
   const setWordStatus = useCallback(
     async (canonicalId: string, status: UserVocabStatus | null) => {
       if (!user) return;
