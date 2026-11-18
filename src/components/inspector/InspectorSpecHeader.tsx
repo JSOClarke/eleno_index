@@ -1,11 +1,6 @@
-import React, { useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
-import { AdminDeleteMediaModal } from "@/components/admin/AdminDeleteMediaModal";
-import { AdminEditMediaModal } from "@/components/admin/AdminEditMediaModal";
+import React from "react";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { PlatformLinkPills } from "@/components/ui/PlatformLinkPills";
-import { clearCachedCatalogue } from "@/lib/catalogueCache";
 import { getCefrBadgeClass, getPlatformLinks } from "@/lib/catalogueDisplay";
 import { formatCompactWords, formatPercent } from "@/lib/formatters";
 import type { MediaCatalogItem, MediaComprehensionStats } from "@/types/media.types";
@@ -24,8 +19,6 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   isAuthenticated,
   onRequireAuth,
 }) => {
-  const [showDelete, setShowDelete] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
   const m = item.metrics;
   const level = m?.cefr_level || "B1";
   const fh = (m?.readability_score || 70).toFixed(1);
@@ -43,35 +36,6 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
-        <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900">
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to Catalogue
-        </Link>
-        <div className="flex items-center gap-2">
-          {isAuthenticated && (
-            <>
-              <button
-                type="button"
-                onClick={() => setShowEdit(true)}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer shadow-xs"
-              >
-                Edit Metadata
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowDelete(true)}
-                className="rounded-xl border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 cursor-pointer shadow-xs"
-              >
-                Delete
-              </button>
-            </>
-          )}
-          <span className="hidden text-xs text-slate-400 sm:inline">
-            ID: {item.id.slice(0, 8)}
-          </span>
-        </div>
-      </div>
-
       <section className="grid grid-cols-12 gap-6 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm items-start">
         <div className="col-span-12 lg:col-span-7 flex items-start gap-5">
           <BookCoverPlate title={targetTitle || englishTitle} explicitUrl={item.cover_image_url} level={level} size="hero" />
@@ -116,9 +80,6 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
           </p>
         )}
       </section>
-
-      <AdminEditMediaModal isOpen={showEdit} mediaId={item.id} onClose={() => setShowEdit(false)} onSuccess={() => { setShowEdit(false); window.location.reload(); }} />
-      <AdminDeleteMediaModal isOpen={showDelete} mediaId={item.id} mediaTitle={item.title} onClose={() => setShowDelete(false)} onSuccess={() => { clearCachedCatalogue(); setShowDelete(false); window.location.href = "/"; }} />
     </div>
   );
 };

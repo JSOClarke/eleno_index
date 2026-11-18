@@ -118,7 +118,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
                     <div className="space-y-1">
                       <div className="flex items-baseline justify-between text-[11px] tabular-nums">
                         <span className="font-semibold text-slate-900">{Math.round(chFlow)}%</span>
-                        {chLearn > 0 && <span className="text-[10px] font-medium text-amber-700">{formatLearningDelta(chLearn)}</span>}
+                        {chLearn > 0 && <span className="text-[10px] font-medium text-[#111111]">{formatLearningDelta(chLearn)}</span>}
                       </div>
                       <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
                         <div className={`h-full transition-all ${learnFillPct > 0 ? "" : "rounded-r-full"} bg-emerald-500`} style={{ width: `${knownFillPct}%` }} />

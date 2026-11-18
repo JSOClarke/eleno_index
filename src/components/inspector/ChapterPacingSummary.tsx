@@ -69,7 +69,7 @@ export const ChapterPacingSummary: React.FC<ChapterPacingSummaryProps> = ({
         {flowPct !== null && (
           <span>
             Flow: <strong className="text-emerald-700">{flowPct.toFixed(1)}%</strong>
-            {learnFlowPct > 0 ? <span className="ml-1 text-amber-700">({formatLearningDelta(learnFlowPct)} learning)</span> : ""}
+            {learnFlowPct > 0 ? <span className="ml-1 text-[#111111]">({formatLearningDelta(learnFlowPct)} learning)</span> : ""}
           </span>
         )}
       </div>
