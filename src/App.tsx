@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { AuthModal } from "@/components/layout/AuthModal";
-import { BackdropBlobs } from "@/components/layout/BackdropBlobs";
 import { TopNavBar } from "@/components/layout/TopNavBar";
+import { ReadflowTopNav } from "@/redesign/components/ReadflowTopNav";
 import { AppRoutes } from "@/components/layout/AppRoutes";
 import { ReaderAuthGate } from "@/components/views/ReaderAuthGate";
 import { useAuth } from "@/hooks/useAuth";
@@ -73,13 +73,7 @@ export const App: React.FC = () => {
     onEnsurePreviewWords: catalogue.ensurePreviewWords,
   };
 
-  if (location.pathname.startsWith("/preview")) {
-    return (
-      <Routes>
-        <Route path="/preview/*" element={<RedesignPreviewRouter />} />
-      </Routes>
-    );
-  }
+  const isPreview = location.pathname.startsWith("/preview");
 
   if (location.pathname.startsWith("/read/")) {
     return (
@@ -104,42 +98,49 @@ export const App: React.FC = () => {
     );
   }
 
-  return (
-    <div className="relative isolate min-h-[100dvh] flex flex-col bg-[#FAF9F6] text-slate-900">
-      <BackdropBlobs />
-      <TopNavBar
-        savedCount={filterState.savedIds.size}
-        knownCount={userVocab.knownCount}
-        learningCount={userVocab.learningCount}
-        activeLanguage={activeLanguage}
-        onChangeLanguage={handleChangeLanguage}
-        user={auth.user}
-        onOpenAuth={() => setAuthModalOpen(true)}
-        onSignOut={auth.signOut}
-      />
-      <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10 flex-1">
-        <AppRoutes
-          user={auth.user}
-          activeLanguage={activeLanguage}
-          items={catalogue.items}
-          catalogueLoading={catalogue.loading}
-          statusMap={userVocab.statusMap}
-          knownCount={userVocab.knownCount}
-          sharedCataloguePageProps={sharedCataloguePageProps}
-          onRequireAuth={() => setAuthModalOpen(true)}
-          onSetWordStatus={userVocab.setWordStatus}
-          onBubbleBookWordToggle={catalogue.applyOptimisticWordToggle}
-          onRecordHistory={filterState.recordHistory}
-          onReloadAfterPacks={handleReloadAfterPacks}
-        />
-      </main>
+  const previewProps = {
+    items: languageCatalogueItems,
+    loading: catalogue.loading,
+    activeLanguage,
+    onChangeLanguage: handleChangeLanguage,
+    knownCount: userVocab.knownCount,
+    savedIds: filterState.savedIds,
+    onToggleSaved: filterState.toggleSave,
+    userId: auth.user?.id,
+    statusMap: userVocab.statusMap,
+    onRequireAuth: () => setAuthModalOpen(true),
+    onSetWordStatus: userVocab.setWordStatus,
+    onBubbleBookWordToggle: catalogue.applyOptimisticWordToggle,
+  };
 
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        onSignIn={auth.signIn}
-        onSignUp={auth.signUp}
-      />
+  const navProps = {
+    savedCount: filterState.savedIds.size, knownCount: userVocab.knownCount,
+    learningCount: userVocab.learningCount, activeLanguage,
+    onChangeLanguage: handleChangeLanguage, user: auth.user,
+    onOpenAuth: () => setAuthModalOpen(true), onSignOut: auth.signOut,
+  };
+
+  return (
+    <div className="relative isolate min-h-[100dvh] flex flex-col bg-[#FAF9F6] hero-grid-bg text-slate-900">
+      {isPreview ? <ReadflowTopNav {...navProps} /> : <TopNavBar {...navProps} />}
+      {isPreview ? (
+        <Routes>
+          <Route path="/preview/*" element={<RedesignPreviewRouter {...previewProps} />} />
+        </Routes>
+      ) : (
+        <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10 flex-1">
+          <AppRoutes
+            user={auth.user} activeLanguage={activeLanguage} items={catalogue.items}
+            catalogueLoading={catalogue.loading} statusMap={userVocab.statusMap}
+            knownCount={userVocab.knownCount} sharedCataloguePageProps={sharedCataloguePageProps}
+            onRequireAuth={() => setAuthModalOpen(true)} onSetWordStatus={userVocab.setWordStatus}
+            onBubbleBookWordToggle={catalogue.applyOptimisticWordToggle}
+            onRecordHistory={filterState.recordHistory} onReloadAfterPacks={handleReloadAfterPacks}
+          />
+        </main>
+      )}
+
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} onSignIn={auth.signIn} onSignUp={auth.signUp} />
     </div>
   );
 };

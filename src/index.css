@@ -59,3 +59,42 @@ rt {
 .animate-slam-entrance {
   animation: heavySlamRecoil 0.55s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
 }
+
+/* Readflow preview design primitives */
+.font-editorial { font-family: "Instrument Serif", Georgia, serif; letter-spacing: -0.025em; line-height: 0.96; }
+.font-jakarta { font-family: "Plus Jakarta Sans", "Inter", sans-serif; }
+.hero-grid-bg {
+  background-size: 44px 44px;
+  background-image:
+    linear-gradient(to right, rgba(4, 4, 4, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(4, 4, 4, 0.03) 1px, transparent 1px);
+}
+.lexya-btn {
+  display: inline-flex; align-items: center; gap: 10px; background: #040404; color: #fff;
+  padding: 6px 6px 6px 14px; border-radius: 12px; font-size: 13px; font-weight: 600;
+  letter-spacing: -0.01em; transition: transform 0.18s ease, background-color 0.18s ease; cursor: pointer;
+}
+.lexya-btn:hover { transform: translateY(-1px); background: #1c1c1e; }
+.lexya-btn-icon {
+  display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px;
+  background: #fff; color: #040404; border-radius: 7px; flex-shrink: 0;
+}
+.token-known { color: #040404; padding: 1px 2px; border-radius: 4px; cursor: pointer; }
+.token-known:hover { background: rgba(4, 4, 4, 0.08); }
+.token-target {
+  background: #D8D6FA; border-bottom: 2px solid #040404; padding: 1px 4px;
+  border-radius: 5px; font-weight: 700; cursor: pointer;
+}
+.token-unknown {
+  background: #F3E1E6; border-bottom: 2px dashed #040404; padding: 1px 4px;
+  border-radius: 5px; font-weight: 700; cursor: pointer;
+}
+.token-target.selected, .token-unknown.selected, .token-known.selected {
+  outline: 2px solid #040404; background: #fff;
+}
+.poster-frame { position: relative; overflow: hidden; background-color: #09090B; }
+.poster-frame::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.14;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.35) 0.75px, transparent 0.75px);
+  background-size: 6px 6px; mix-blend-mode: overlay;
+}

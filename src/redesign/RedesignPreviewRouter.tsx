@@ -1,46 +1,59 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { Navigate, Route, Routes, useParams } from "react-router-dom";
-import { useFilterState } from "@/hooks/useFilterState";
-import { RedesignInspectorView } from "./components/RedesignInspectorView";
-import { RedesignShell } from "./components/RedesignShell";
-import { MOCK_CATALOGUE_ITEMS } from "./mocks/catalogueMocks";
-import { RedesignCataloguePage } from "./pages/RedesignCataloguePage";
+import type { SupportedLanguage } from "@/lib/catalogueLanguages";
+import type { MediaCatalogItem } from "@/types/media.types";
+import type { UserVocabStatus } from "@/types/vocabulary.types";
+import { ReadflowInspectorPage } from "./pages/ReadflowInspectorPage";
+import { ReadflowPreviewPage } from "./pages/ReadflowPreviewPage";
 
-const InspectorRouteWrapper: React.FC = () => {
+export interface RedesignPreviewRouterProps {
+  items: MediaCatalogItem[];
+  loading: boolean;
+  activeLanguage: SupportedLanguage;
+  onChangeLanguage: (lang: SupportedLanguage) => void;
+  knownCount: number;
+  savedIds: Set<string>;
+  onToggleSaved: (id: string) => void;
+  userId?: string;
+  statusMap: Record<string, UserVocabStatus>;
+  onRequireAuth: () => void;
+  onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
+  onBubbleBookWordToggle: (
+    mediaItemId: string,
+    wordFrequency: number,
+    newStatus: UserVocabStatus | null,
+    oldStatus: UserVocabStatus | undefined
+  ) => void;
+}
+
+const InspectorRouteWrapper: React.FC<RedesignPreviewRouterProps> = (props) => {
   const { mediaId } = useParams<{ mediaId: string }>();
-  const item = MOCK_CATALOGUE_ITEMS.find((x) => x.id === mediaId) || MOCK_CATALOGUE_ITEMS[0];
-  return <RedesignInspectorView item={item} />;
+  const item = props.items.find((x) => x.id === mediaId) || props.items[0];
+  if (!item) {
+    return (
+      <div className="min-h-screen bg-[#FAFAFA] py-16 text-center text-sm text-[#5A595C]">
+        {props.loading ? "Loading media item..." : "Media item not found."}
+      </div>
+    );
+  }
+  return (
+    <ReadflowInspectorPage
+      item={item}
+      userId={props.userId}
+      statusMap={props.statusMap}
+      onRequireAuth={props.onRequireAuth}
+      onSetWordStatus={props.onSetWordStatus}
+      onBubbleBookWordToggle={props.onBubbleBookWordToggle}
+    />
+  );
 };
 
-const PlaceholderView: React.FC<{ title: string; subtitle: string }> = ({ title, subtitle }) => (
-  <div className="rounded-2xl border border-slate-200/90 bg-white p-10 text-center shadow-xs">
-    <h2 className="font-serif text-2xl font-medium text-slate-900">{title}</h2>
-    <p className="mt-2 text-sm text-slate-500">{subtitle}</p>
-  </div>
-);
-
-export const RedesignPreviewRouter: React.FC = () => {
-  const [activeLang, setActiveLang] = useState<"es" | "fr" | "zh">("es");
-  const filterState = useFilterState();
-
-  const langItems = useMemo(
-    () => MOCK_CATALOGUE_ITEMS.filter((it) => it.language === activeLang),
-    [activeLang]
-  );
-
+export const RedesignPreviewRouter: React.FC<RedesignPreviewRouterProps> = (props) => {
   return (
-    <RedesignShell
-      activeLang={activeLang}
-      onChangeLang={setActiveLang}
-      savedCount={filterState.savedIds.size}
-    >
-      <Routes>
-        <Route index element={<RedesignCataloguePage mode="catalogue" items={langItems} filterState={filterState} />} />
-        <Route path="saved" element={<RedesignCataloguePage mode="saved" items={langItems} filterState={filterState} />} />
-        <Route path="media/:mediaId" element={<InspectorRouteWrapper />} />
-        <Route path="words" element={<PlaceholderView title="My Words Ledger (UI Preview)" subtitle="Ready to design next — known & learning vocabulary with definitions, rankings, and packs." />} />
-        <Route path="*" element={<Navigate to="/preview" replace />} />
-      </Routes>
-    </RedesignShell>
+    <Routes>
+      <Route index element={<ReadflowPreviewPage {...props} />} />
+      <Route path="media/:mediaId" element={<InspectorRouteWrapper {...props} />} />
+      <Route path="*" element={<Navigate to="/preview" replace />} />
+    </Routes>
   );
 };
