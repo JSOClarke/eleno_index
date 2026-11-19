@@ -27,13 +27,13 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { to: "/", label: "Catalogue", match: (p: string) => p === "/" || p.startsWith("/media/") || p.startsWith("/work/") },
+    { to: "/catalogue", label: "Catalogue", match: (p: string) => p === "/catalogue" || p.startsWith("/media/") || p.startsWith("/work/") },
     { to: "/dictionary", label: "Dictionary", match: (p: string) => p === "/dictionary" },
     { to: "/saved", label: `Saved (${savedCount})`, match: (p: string) => p === "/saved" },
     { to: "/known-words", label: "Known Words", match: (p: string) => p === "/known-words" },
   ];
   const drawerItems = [
-    { to: "/", label: "Catalogue" },
+    { to: "/catalogue", label: "Catalogue" },
     { to: "/dictionary", label: "Dictionary" },
     { to: "/saved", label: "Saved", count: savedCount },
     { to: "/known-words", label: "Known Words" },
@@ -43,7 +43,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0A0A0C]/95 text-white backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3 sm:gap-5 md:gap-8">
             <button
               type="button"
@@ -67,7 +67,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                   <Link
                     key={tab.to}
                     to={tab.to}
-                    className={`rounded-full px-3.5 py-1.5 transition-colors ${
+                    className={`rounded-full px-3 py-1 transition-colors ${
                       isActive
                         ? "bg-white font-semibold text-slate-950"
                         : "font-medium text-white/70 hover:bg-white/10 hover:text-white"
@@ -94,7 +94,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               <button
                 type="button"
                 onClick={onOpenAuth}
-                className="hidden sm:inline-flex rounded-full bg-white px-4 py-1.5 font-semibold text-slate-950 hover:bg-slate-200 cursor-pointer transition-colors shadow-xs"
+                className="hidden sm:inline-flex rounded-full bg-white px-3.5 py-1 font-semibold text-slate-950 hover:bg-slate-200 cursor-pointer transition-colors shadow-xs"
               >
                 Sign in
               </button>

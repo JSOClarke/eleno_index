@@ -55,31 +55,34 @@ export const WordContextDrawer: React.FC<WordContextDrawerProps> = ({
   }, [canonicalId, definitions]);
 
   return (
-    <div className="bg-slate-50/80 border-t border-slate-100 px-6 py-4 grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
-      <div className="md:col-span-5 space-y-1.5">
-        <div className="text-xs font-semibold text-slate-500">
-          Definitions · {lemma} ({pos.toLowerCase()})
+    <div className="bg-slate-50/50 border-t border-slate-200/70 p-4 sm:p-5 grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+      <div className="md:col-span-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs space-y-2.5">
+        <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-2.5">
+          <span className="font-serif text-lg font-medium tracking-tight text-slate-900">{lemma}</span>
+          {pos && (
+            <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[10px] font-semibold uppercase text-slate-600">
+              {pos}
+            </span>
+          )}
         </div>
+        <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">Definitions</div>
         {loadingDefs ? (
-          <div className="text-xs text-slate-400 animate-pulse">
-            Loading dictionary senses...
+          <div className="space-y-1.5">
+            <div className="h-4 w-3/4 rounded bg-slate-100 animate-pulse" />
+            <div className="h-4 w-1/2 rounded bg-slate-100 animate-pulse" />
           </div>
         ) : resolvedDefs.length > 0 ? (
-          <ol className="list-decimal list-inside space-y-1 text-xs text-slate-800">
-            {resolvedDefs.map((gloss, i) => (
-              <li key={i} className="leading-snug">
-                {gloss}
-              </li>
+          <ol className="list-decimal list-inside space-y-1 text-sm text-slate-700 leading-relaxed">
+            {resolvedDefs.slice(0, 6).map((gloss, i) => (
+              <li key={i}>{gloss}</li>
             ))}
           </ol>
         ) : (
-          <div className="text-xs text-slate-500">
-            No dictionary senses recorded for this headword.
-          </div>
+          <div className="text-xs text-slate-400">No English definition recorded.</div>
         )}
       </div>
 
-      <div className="md:col-span-7 space-y-2">
+      <div className="md:col-span-7">
         <SentenceBankDrawer
           canonicalId={canonicalId}
           mediaItemId={mediaItemId}

@@ -124,7 +124,7 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
       />
       <CataloguePagination {...paginationProps} placement="top" />
       {viewMode === "cards" ? (
-        <CatalogueCardsGrid {...sharedCatalogueProps} seriesSiblingsMap={seriesSiblingsMap} onSelectCard={toggleExpand} />
+        <CatalogueCardsGrid {...sharedCatalogueProps} seriesSiblingsMap={seriesSiblingsMap} searchText={filterState.searchText} onSelectCard={toggleExpand} />
       ) : viewMode === "mosaic" ? (
         <CatalogueMosaicGrid
           items={pagedItems} loading={loading} savedIds={filterState.savedIds}

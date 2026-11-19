@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { AuthModal } from "@/components/layout/AuthModal";
+import { FeedbackHub } from "@/components/layout/FeedbackHub";
 import { TopNavBar } from "@/components/layout/TopNavBar";
 import { ReadflowTopNav } from "@/redesign/components/ReadflowTopNav";
 import { AppRoutes } from "@/components/layout/AppRoutes";
@@ -139,6 +140,7 @@ export const App: React.FC = () => {
           />
         </main>
       )}
+      {!isPreview && <FeedbackHub activeLanguage={activeLanguage} userId={auth.user?.id} />}
 
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} onSignIn={auth.signIn} onSignUp={auth.signUp} />
     </div>

@@ -33,7 +33,7 @@ export const WorkPage: React.FC<WorkPageProps> = ({
     return (
       <div className="mx-auto max-w-3xl space-y-4 py-20 text-center">
         <p className="font-mono text-xs text-[#666666]">Work not found.</p>
-        <Link to="/" className="font-mono text-xs font-bold underline">
+        <Link to="/catalogue" className="font-mono text-xs font-bold underline">
           Back to catalogue
         </Link>
       </div>
@@ -44,7 +44,7 @@ export const WorkPage: React.FC<WorkPageProps> = ({
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <Link to="/" className="font-mono text-xs text-[#111111] hover:underline">
+      <Link to="/catalogue" className="font-mono text-xs text-[#111111] hover:underline">
         ← Back to Catalogue
       </Link>
 

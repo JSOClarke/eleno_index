@@ -1,4 +1,5 @@
 import React from "react";
+import { openFeedbackModal } from "@/components/layout/FeedbackHub";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { CatalogueCard } from "./CatalogueCard";
@@ -9,6 +10,7 @@ interface CatalogueCardsGridProps {
   expandedRowId: string | null;
   savedIds: Set<string>;
   seriesSiblingsMap?: Map<string, MediaCatalogItem[]>;
+  searchText?: string;
   statusMap: Record<string, UserVocabStatus>;
   isAuthenticated: boolean;
   onRequireAuth: () => void;
@@ -23,6 +25,7 @@ export const CatalogueCardsGrid: React.FC<CatalogueCardsGridProps> = ({
   expandedRowId,
   savedIds,
   seriesSiblingsMap,
+  searchText,
   statusMap,
   isAuthenticated,
   onRequireAuth,
@@ -52,9 +55,19 @@ export const CatalogueCardsGrid: React.FC<CatalogueCardsGridProps> = ({
   }
 
   if (items.length === 0) {
+    const q = searchText?.trim();
     return (
-      <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white/70 py-16 text-center text-sm text-slate-500">
-        No titles match your active filters. Try clearing a filter or broadening your search.
+      <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white/70 py-16 px-4 text-center text-sm text-slate-500 space-y-3">
+        <p>No titles match your active filters. Try clearing a filter or broadening your search.</p>
+        {q && (
+          <button
+            type="button"
+            onClick={() => openFeedbackModal({ kind: "media_request", title: q })}
+            className="inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 cursor-pointer transition"
+          >
+            Request “{q}” for the library
+          </button>
+        )}
       </div>
     );
   }

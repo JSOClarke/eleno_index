@@ -60,7 +60,7 @@ export const InspectorPage: React.FC<InspectorPageProps> = ({
           No corpus item matches ID: {mediaId}
         </p>
         <Link
-          to="/"
+          to="/catalogue"
           className="inline-block rounded-xl bg-slate-900 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-600 transition"
         >
           ← Back to Catalogue

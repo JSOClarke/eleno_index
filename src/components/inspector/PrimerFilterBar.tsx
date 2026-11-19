@@ -71,14 +71,14 @@ export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="Search canonical lemma..."
-            className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-1.5 pl-8 pr-3 text-xs text-slate-900 placeholder-slate-400 outline-none focus:border-indigo-400 focus:bg-white"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50/70 py-1.5 pl-8 pr-3 text-xs text-slate-900 placeholder-slate-400 outline-none focus:border-slate-900 focus:bg-white"
           />
         </div>
         {selectedChapter !== "all" && (
           <button
             type="button"
             onClick={onClearChapter}
-            className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-200 cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white hover:bg-slate-800 transition cursor-pointer"
           >
             <span>Debut in {isEpisodeMode ? `Ep.${selectedChapter}` : `Ch.${selectedChapter}`}</span>
             <X className="h-3 w-3" />
