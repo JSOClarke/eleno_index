@@ -40,7 +40,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur-md">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#0A0A0C]/95 text-white backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-3 sm:gap-5 md:gap-8">
             <button
@@ -49,13 +49,13 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               aria-label="Open menu"
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
-              className="-ml-1 rounded-lg p-2 text-slate-700 hover:bg-slate-100 cursor-pointer md:hidden"
+              className="-ml-1 rounded-lg p-2 text-white/80 hover:bg-white/10 hover:text-white cursor-pointer md:hidden"
             >
               <Menu className="h-5 w-5" strokeWidth={2} />
             </button>
 
             <Link to="/" className="flex items-center">
-              <InputHubBrandLogo size="md" />
+              <InputHubBrandLogo size="md" inverted />
             </Link>
 
             <nav className="hidden md:flex items-center gap-1 text-sm">
@@ -67,8 +67,8 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
                     to={tab.to}
                     className={`rounded-full px-3.5 py-1.5 transition-colors ${
                       isActive
-                        ? "bg-slate-100 font-semibold text-slate-900"
-                        : "font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        ? "bg-white font-semibold text-slate-950"
+                        : "font-medium text-white/70 hover:bg-white/10 hover:text-white"
                     }`}
                   >
                     {tab.label}
@@ -78,12 +78,13 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
             </nav>
           </div>
 
-          <div className="flex items-center gap-2.5 text-xs text-slate-500">
+          <div className="flex items-center gap-2.5 text-xs text-white/70">
             <LanguageSelectorDropdown
               activeLanguage={activeLanguage}
               onChangeLanguage={onChangeLanguage}
               activeKnownCount={knownCount}
               userId={user?.id}
+              inverted
             />
             {user ? (
               <UserAvatarMenu user={user} onSignOut={onSignOut} />
@@ -91,7 +92,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               <button
                 type="button"
                 onClick={onOpenAuth}
-                className="hidden sm:inline-flex rounded-full bg-slate-900 px-4 py-1.5 font-semibold text-white hover:bg-indigo-600 cursor-pointer transition-colors shadow-xs"
+                className="hidden sm:inline-flex rounded-full bg-white px-4 py-1.5 font-semibold text-slate-950 hover:bg-slate-200 cursor-pointer transition-colors shadow-xs"
               >
                 Sign in
               </button>

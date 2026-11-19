@@ -37,6 +37,7 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
   const synopsis = item.work_synopsis || item.sampleSnippet;
   const whereTo = getPlatformLinks(item);
   const subtype = getMediaSubtypeLabel(item);
+  const isNative = Boolean(item.work_language && item.work_language.toLowerCase() === item.language.toLowerCase());
   const [synopsisExpanded, setSynopsisExpanded] = useState(false);
 
   return (
@@ -70,6 +71,11 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
             </div>
 
             <div className="flex shrink-0 items-center gap-1.5">
+              {isNative && (
+                <span title="Originally written in this language" className="rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                  Native
+                </span>
+              )}
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-600">
                 {item.language}
               </span>

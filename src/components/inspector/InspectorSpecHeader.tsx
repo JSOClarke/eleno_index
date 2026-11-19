@@ -33,6 +33,7 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   const targetTitle = item.work_title && item.work_title.trim().toLowerCase() !== item.title.trim().toLowerCase() ? item.title : null;
   const whereTo = getPlatformLinks(item);
   const synopsis = item.work_synopsis || item.sampleSnippet;
+  const isNative = Boolean(item.work_language && item.work_language.toLowerCase() === item.language.toLowerCase());
   const [synopsisExpanded, setSynopsisExpanded] = useState(false);
 
   return (
@@ -44,6 +45,11 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
             <div className="flex flex-wrap items-center gap-2">
               <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCefrBadgeClass(level)}`}>{level}</span>
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-600">{item.language}</span>
+              {isNative && (
+                <span title="Originally written in this language" className="rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                  Native
+                </span>
+              )}
               <span className="text-xs font-medium capitalize text-slate-400">
                 {(item.type || "book").replace(/_/g, " ")}
               </span>

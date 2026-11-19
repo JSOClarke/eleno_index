@@ -77,6 +77,11 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
             )}
             <div className="mt-0.5 text-[11px] text-slate-400">
               {item.language.toUpperCase()} · {getMediaSubtypeLabel(item)}
+              {item.work_language && item.work_language.toLowerCase() === item.language.toLowerCase() && (
+                <span title="Originally written in this language" className="ml-1.5 rounded bg-slate-900 px-1.5 py-0.2 text-[9px] font-semibold uppercase text-white">
+                  Native
+                </span>
+              )}
             </div>
           </div>
         </div>

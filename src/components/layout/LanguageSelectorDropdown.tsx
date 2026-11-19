@@ -9,6 +9,7 @@ interface LanguageSelectorDropdownProps {
   onChangeLanguage?: (lang: SupportedLanguage) => void;
   activeKnownCount: number;
   userId?: string | null;
+  inverted?: boolean;
 }
 
 const LANGUAGES: Array<{ code: SupportedLanguage; label: string }> = [
@@ -36,6 +37,7 @@ export const LanguageSelectorDropdown: React.FC<LanguageSelectorDropdownProps> =
   onChangeLanguage,
   activeKnownCount,
   userId,
+  inverted = false,
 }) => {
   const [open, setOpen] = useState(false);
   const [counts, setCounts] = useState<Record<SupportedLanguage, number>>({ es: 0, fr: 0 });
@@ -84,16 +86,20 @@ export const LanguageSelectorDropdown: React.FC<LanguageSelectorDropdownProps> =
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs transition hover:border-slate-300 hover:bg-slate-50 cursor-pointer"
+        className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium shadow-2xs transition cursor-pointer ${
+          inverted
+            ? "border-white/15 bg-white/10 text-white hover:border-white/25 hover:bg-white/15"
+            : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+        }`}
       >
         <FlagIcon code={activeOption.code} />
-        <span className="font-semibold text-slate-900">{activeOption.label}</span>
+        <span className={`font-semibold ${inverted ? "text-white" : "text-slate-900"}`}>{activeOption.label}</span>
         {userId && (
-          <span className="hidden lg:inline text-[11px] text-slate-500 tabular-nums">
+          <span className={`hidden lg:inline text-[11px] tabular-nums ${inverted ? "text-white/65" : "text-slate-500"}`}>
             · {formatNumber(countFor(activeOption.code))} known
           </span>
         )}
-        <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${inverted ? "text-white/60" : "text-slate-400"} ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (

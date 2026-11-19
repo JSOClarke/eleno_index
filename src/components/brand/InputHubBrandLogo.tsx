@@ -21,6 +21,7 @@ interface InputHubBrandLogoProps {
   locale?: string;
   showWordmark?: boolean;
   scrambleOnMount?: boolean;
+  inverted?: boolean;
   className?: string;
 }
 
@@ -28,6 +29,7 @@ export const InputHubBrandLogo: React.FC<InputHubBrandLogoProps> = ({
   size = "md",
   locale,
   showWordmark = true,
+  inverted = false,
   className = "",
 }) => {
   const iconSizes = {
@@ -46,9 +48,9 @@ export const InputHubBrandLogo: React.FC<InputHubBrandLogoProps> = ({
       className={`inline-flex items-center gap-2.5 select-none ${className}`}
       aria-label="Threshold"
     >
-      <ThresholdMark className={`shrink-0 text-slate-900 ${iconSizes[size]}`} />
+      <ThresholdMark className={`shrink-0 ${inverted ? "text-white" : "text-slate-900"} ${iconSizes[size]}`} />
       {showWordmark && (
-        <span className={`font-serif font-medium tracking-tight text-slate-900 ${textSizes[size]}`}>
+        <span className={`font-serif font-medium tracking-tight ${inverted ? "text-white" : "text-slate-900"} ${textSizes[size]}`}>
           Threshold
         </span>
       )}
