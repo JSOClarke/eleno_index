@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { fetchKnownWordsDetails } from "@/api/vocabulary.api";
 import { VocabTableSkeleton } from "@/components/layout/VocabTableSkeleton";
-import { formatNumber } from "@/lib/formatters";
 import { buildKnownSignature, readKnownDetailsCache, writeKnownDetailsCache } from "@/lib/knownWordsCache";
 import { sortKnownWords, type KnownSortField, type RankingSourceKey, type SortDirection } from "@/lib/vocabSorting";
 import type { KnownWordEntry, UserVocabStatus } from "@/types/vocabulary.types";
@@ -21,7 +20,7 @@ interface KnownWordsViewProps {
 const PAGE_SIZE = 20;
 
 export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
-  userId, activeLanguage = "es", statusMap, knownCount, onSetWordStatus, onReloadVocabulary,
+  userId, activeLanguage = "es", statusMap, onSetWordStatus, onReloadVocabulary,
 }) => {
   const isFr = activeLanguage === "fr";
   const cached = readKnownDetailsCache(userId, statusMap, activeLanguage);
@@ -85,17 +84,6 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-slate-900">Vocabulary Ledger</h1>
-          <p className="mt-1 text-xs text-slate-500">Canonical {isFr ? "French" : "Spanish"} headwords tracked in your profile.</p>
-        </div>
-        <div className="flex items-center gap-2 text-xs">
-          <span className="rounded-full bg-emerald-50 px-3 py-1 font-semibold text-emerald-700 ring-1 ring-emerald-200/80 tabular-nums">{formatNumber(knownCount)} known</span>
-          <span className="rounded-full bg-amber-50 px-3 py-1 font-semibold text-amber-700 ring-1 ring-amber-200/80 tabular-nums">{formatNumber(counts.LEARNING)} learning</span>
-        </div>
-      </div>
-
       <VocabularyPacksSection userId={userId} activeLanguage={activeLanguage} onApplied={onReloadVocabulary} />
 
       <KnownWordsFilterBar

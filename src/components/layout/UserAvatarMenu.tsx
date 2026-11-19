@@ -20,16 +20,19 @@ export function readStoredAvatar(userId?: string): AvatarId {
   return AVATAR_OPTIONS.some((a) => a.id === raw) ? (raw as AvatarId) : "default";
 }
 
-export const AvatarBadge: React.FC<{ avatarId: AvatarId; size?: "sm" | "md" }> = ({
+export const AvatarBadge: React.FC<{ avatarId: AvatarId; size?: "sm" | "md"; inverted?: boolean }> = ({
   avatarId,
   size = "md",
+  inverted = false,
 }) => {
   const opt = AVATAR_OPTIONS.find((a) => a.id === avatarId) || AVATAR_OPTIONS[0];
   const Icon = opt.Icon;
   const dims = size === "sm" ? "h-7 w-7" : "h-9 w-9";
   const iconSize = size === "sm" ? "h-3.5 w-3.5" : "h-4 w-4";
+  const bg = inverted && opt.id === "default" ? "bg-white text-slate-950" : opt.bg;
+  const ring = inverted ? "ring-1 ring-white/25" : "ring-1 ring-black/10";
   return (
-    <span className={`inline-flex shrink-0 items-center justify-center rounded-full ring-1 ring-black/10 ${dims} ${opt.bg}`}>
+    <span className={`inline-flex shrink-0 items-center justify-center rounded-full ${ring} ${dims} ${bg}`}>
       <Icon className={iconSize} />
     </span>
   );
@@ -38,9 +41,10 @@ export const AvatarBadge: React.FC<{ avatarId: AvatarId; size?: "sm" | "md" }> =
 interface UserAvatarMenuProps {
   user: UserProfile;
   onSignOut: () => void;
+  inverted?: boolean;
 }
 
-export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({ user, onSignOut }) => {
+export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({ user, onSignOut, inverted = false }) => {
   const [open, setOpen] = useState(false);
   const [avatarId, setAvatarId] = useState<AvatarId>(() => readStoredAvatar(user.id));
   const menuRef = useRef<HTMLDivElement>(null);
@@ -81,9 +85,11 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({ user, onSignOut 
         aria-haspopup="menu"
         aria-label="Account menu"
         title={user.email || "Account"}
-        className="rounded-full transition-transform hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
+        className={`rounded-full transition-transform hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 ${
+          inverted ? "focus:ring-white focus:ring-offset-2 focus:ring-offset-[#0A0A0C]" : "focus:ring-slate-900 focus:ring-offset-2"
+        }`}
       >
-        <AvatarBadge avatarId={avatarId} />
+        <AvatarBadge avatarId={avatarId} inverted={inverted} />
       </button>
 
       {open && (

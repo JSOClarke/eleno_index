@@ -28,11 +28,13 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
   const navItems = [
     { to: "/", label: "Catalogue", match: (p: string) => p === "/" || p.startsWith("/media/") || p.startsWith("/work/") },
+    { to: "/dictionary", label: "Dictionary", match: (p: string) => p === "/dictionary" },
     { to: "/saved", label: `Saved (${savedCount})`, match: (p: string) => p === "/saved" },
     { to: "/known-words", label: "Known Words", match: (p: string) => p === "/known-words" },
   ];
   const drawerItems = [
     { to: "/", label: "Catalogue" },
+    { to: "/dictionary", label: "Dictionary" },
     { to: "/saved", label: "Saved", count: savedCount },
     { to: "/known-words", label: "Known Words" },
   ];
@@ -87,7 +89,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
               inverted
             />
             {user ? (
-              <UserAvatarMenu user={user} onSignOut={onSignOut} />
+              <UserAvatarMenu user={user} onSignOut={onSignOut} inverted />
             ) : (
               <button
                 type="button"

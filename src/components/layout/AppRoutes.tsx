@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { KnownWordsView } from "@/components/views/KnownWordsView";
 import { SignInNotice } from "@/components/views/SignInNotice";
 import { CataloguePage } from "@/pages/CataloguePage";
+import { DictionaryPage } from "@/pages/DictionaryPage";
 import { InspectorPage } from "@/pages/InspectorPage";
 import { AdminImportPage } from "@/pages/AdminImportPage";
 import { FlashcardReviewPage } from "@/pages/FlashcardReviewPage";
@@ -43,6 +44,18 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
     <Routes>
       <Route path="/" element={<CataloguePage mode="catalogue" {...sharedCataloguePageProps} />} />
       <Route path="/saved" element={<CataloguePage mode="saved" {...sharedCataloguePageProps} />} />
+      <Route
+        path="/dictionary"
+        element={
+          <DictionaryPage
+            activeLanguage={activeLanguage}
+            userId={user?.id}
+            statusMap={statusMap}
+            onRequireAuth={onRequireAuth}
+            onSetWordStatus={onSetWordStatus}
+          />
+        }
+      />
       <Route path="/history" element={<Navigate to="/" replace />} />
       <Route
         path="/known-words"
