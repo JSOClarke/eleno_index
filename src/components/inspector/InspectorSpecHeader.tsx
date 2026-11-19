@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { PlatformLinkPills } from "@/components/ui/PlatformLinkPills";
 import { getCefrBadgeClass, getPlatformLinks } from "@/lib/catalogueDisplay";
@@ -33,6 +33,7 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   const targetTitle = item.work_title && item.work_title.trim().toLowerCase() !== item.title.trim().toLowerCase() ? item.title : null;
   const whereTo = getPlatformLinks(item);
   const synopsis = item.work_synopsis || item.sampleSnippet;
+  const [synopsisExpanded, setSynopsisExpanded] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -69,15 +70,26 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
           </div>
         </div>
 
-        <div className="col-span-12 lg:col-span-5 grid grid-cols-2 gap-6 border-t pt-5 lg:border-t-0 lg:border-l border-slate-100 lg:pt-0 lg:pl-6">
+        <div className="col-span-12 lg:col-span-5 grid grid-cols-2 gap-4 sm:gap-6 border-t pt-5 lg:border-t-0 lg:border-l border-slate-100 lg:pt-0 lg:pl-6">
           <InspectorFlowPanel index="01" title="Reading Flow" pct={flowPct} learnPct={learnFlowPct} footnote={<>{formatCompactWords(m?.total_tokens || 0)} total</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-emerald-500" />
           <InspectorFlowPanel index="02" title="Vocab Mastery" pct={vocabPct} learnPct={learnVocabPct} footnote={<>F-H {fh} · {dialOrWpm}</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-indigo-600" />
         </div>
 
         {synopsis && (
-          <p className="col-span-12 border-t border-slate-100 pt-4 text-sm leading-relaxed text-slate-600">
-            {synopsis}
-          </p>
+          <div className="col-span-12 border-t border-slate-100 pt-4">
+            <p className={`text-sm leading-relaxed text-slate-600 ${synopsisExpanded ? "" : "line-clamp-3"}`}>
+              {synopsis}
+            </p>
+            {synopsis.length > 180 && (
+              <button
+                type="button"
+                onClick={() => setSynopsisExpanded((v) => !v)}
+                className="mt-1.5 text-xs font-semibold text-slate-900 hover:underline cursor-pointer"
+              >
+                {synopsisExpanded ? "Show less" : "Show more"}
+              </button>
+            )}
+          </div>
         )}
       </section>
     </div>

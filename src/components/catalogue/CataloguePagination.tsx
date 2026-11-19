@@ -6,6 +6,7 @@ interface CataloguePaginationProps {
   totalItems: number;
   pageSize: number;
   onPageChange: (page: number) => void;
+  placement?: "top" | "bottom";
 }
 
 function buildPageNumbers(current: number, total: number): (number | "...")[] {
@@ -31,15 +32,17 @@ export const CataloguePagination: React.FC<CataloguePaginationProps> = ({
   totalItems,
   pageSize,
   onPageChange,
+  placement = "bottom",
 }) => {
   if (totalPages <= 1) return null;
 
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(totalItems, currentPage * pageSize);
   const pages = buildPageNumbers(currentPage, totalPages);
+  const marginClass = placement === "top" ? "mt-3 mb-4" : "mt-6";
 
   return (
-    <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white px-4 py-3 text-xs shadow-xs">
+    <div className={`${marginClass} flex flex-col sm:flex-row items-center justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white px-4 py-2.5 text-xs shadow-xs`}>
       <div className="text-slate-500">
         Showing <span className="font-semibold text-slate-900">{startItem}–{endItem}</span> of{" "}
         <span className="font-semibold text-slate-900">{totalItems}</span> works

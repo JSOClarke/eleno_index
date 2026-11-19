@@ -65,7 +65,7 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
             <button
               type="button"
               onClick={() => onToggleSave(item.id)}
-              className={`flex-1 rounded-xl px-3 py-1.5 text-xs font-medium cursor-pointer transition ${
+              className={`inline-flex h-8 flex-1 items-center justify-center whitespace-nowrap rounded-xl px-3 text-xs font-medium cursor-pointer transition ${
                 isSaved ? "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200" : "border border-slate-200 bg-white text-slate-700"
               }`}
             >
@@ -73,7 +73,7 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
             </button>
             <Link
               to={`/media/${item.id}`}
-              className="flex-1 rounded-xl bg-slate-900 px-3 py-1.5 text-center text-xs font-medium text-white hover:bg-indigo-600"
+              className="inline-flex h-8 flex-1 items-center justify-center whitespace-nowrap rounded-xl border border-transparent bg-slate-900 px-3 text-center text-xs font-medium text-white hover:bg-indigo-600"
             >
               Inspect Vocab →
             </Link>

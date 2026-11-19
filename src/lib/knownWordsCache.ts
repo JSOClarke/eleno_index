@@ -1,6 +1,8 @@
+import { getIdbValue, setIdbValue } from "@/lib/idbCache";
 import type { KnownWordEntry, UserVocabStatus } from "@/types/vocabulary.types";
 
-const KNOWN_DETAILS_CACHE_PREFIX = "eleno_index_known_details_v3_";
+const KNOWN_DETAILS_CACHE_PREFIX = "eleno_index_known_details_v4_";
+const LEGACY_PREFIX = "eleno_index_known_details_v3_";
 
 interface CachedKnownDetails {
   signature: string;
@@ -25,22 +27,32 @@ export function readKnownDetailsCache(
   if (!userId) return null;
   const cacheKey = `${userId}_${language}`;
   const currentSig = statusMap ? buildKnownSignature(statusMap) : "";
-
   const mem = memoryCache.get(cacheKey);
   if (mem) {
     return { entries: mem.entries, isFresh: mem.signature === currentSig };
   }
+  return null;
+}
 
+export async function readKnownDetailsCacheAsync(
+  userId?: string | null,
+  statusMap?: Record<string, UserVocabStatus>,
+  language = "es"
+): Promise<{ entries: KnownWordEntry[]; isFresh: boolean } | null> {
+  const mem = readKnownDetailsCache(userId, statusMap, language);
+  if (mem) return mem;
+  if (!userId) return null;
+  const cacheKey = `${userId}_${language}`;
   try {
-    const raw = localStorage.getItem(`${KNOWN_DETAILS_CACHE_PREFIX}${cacheKey}`);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as CachedKnownDetails;
-    if (!parsed || !Array.isArray(parsed.entries)) return null;
-    memoryCache.set(cacheKey, parsed);
-    return { entries: parsed.entries, isFresh: parsed.signature === currentSig };
+    localStorage.removeItem(`${LEGACY_PREFIX}${cacheKey}`);
   } catch {
-    return null;
+    // Ignore restricted localStorage environments
   }
+  const stored = await getIdbValue<CachedKnownDetails>(`${KNOWN_DETAILS_CACHE_PREFIX}${cacheKey}`);
+  if (!stored || !Array.isArray(stored.entries)) return null;
+  memoryCache.set(cacheKey, stored);
+  const currentSig = statusMap ? buildKnownSignature(statusMap) : "";
+  return { entries: stored.entries, isFresh: stored.signature === currentSig };
 }
 
 export function writeKnownDetailsCache(
@@ -55,9 +67,5 @@ export function writeKnownDetailsCache(
     entries,
   };
   memoryCache.set(cacheKey, payload);
-  try {
-    localStorage.setItem(`${KNOWN_DETAILS_CACHE_PREFIX}${cacheKey}`, JSON.stringify(payload));
-  } catch {
-    // Ignore storage quota errors
-  }
+  void setIdbValue(`${KNOWN_DETAILS_CACHE_PREFIX}${cacheKey}`, payload);
 }

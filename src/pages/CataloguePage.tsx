@@ -1,12 +1,13 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { buildFilterSignature, buildPageSearchParams, parsePageParam } from "@/lib/cataloguePagination";
 import { CatalogueCardsGrid } from "@/components/catalogue/CatalogueCardsGrid";
 import { CatalogueFiltersSheet } from "@/components/catalogue/CatalogueFiltersSheet";
 import { CatalogueMosaicGrid } from "@/components/catalogue/CatalogueMosaicGrid";
 import { CataloguePagination } from "@/components/catalogue/CataloguePagination";
 import { CatalogueTable } from "@/components/catalogue/CatalogueTable";
 import { CatalogueToolbar } from "@/components/catalogue/CatalogueToolbar";
-import { CommandFilterBar } from "@/components/catalogue/CommandFilterBar";
+import { CommandFilterBar, PinnedFilterTags } from "@/components/catalogue/CommandFilterBar";
 import { useCatalogueSort } from "@/hooks/useCatalogueSort";
 import { readStoredCatalogueView, writeStoredCatalogueView } from "@/lib/catalogueView";
 import { useFacetCounts } from "@/hooks/useFacetCounts";
@@ -36,8 +37,8 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
     rawView === "table" || rawView === "mosaic" || rawView === "cards"
       ? rawView
       : readStoredCatalogueView();
-  const pageSize = viewMode === "table" ? 40 : viewMode === "mosaic" ? 30 : 24;
-  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 24;
+  const currentPage = parsePageParam(searchParams.get("page"));
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { sortOption, setSortOption } = useCatalogueSort();
@@ -57,7 +58,13 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
     items, filterState.filters, filterState.savedIds, filterState.historyIds, mode, sortOption
   );
 
-  useEffect(() => { setCurrentPage(1); }, [mode, viewMode, filterState.filters, sortOption]);
+  const filterSignature = useMemo(() => buildFilterSignature(mode, sortOption, filterState.filters), [mode, sortOption, filterState.filters]);
+  const prevFilterSigRef = useRef(filterSignature);
+  useEffect(() => {
+    if (prevFilterSigRef.current === filterSignature) return;
+    prevFilterSigRef.current = filterSignature;
+    setSearchParams((prev) => buildPageSearchParams(prev, 1), { replace: true });
+  }, [filterSignature, setSearchParams]);
 
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);
@@ -72,8 +79,7 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
     }
   }, [pagedItems, onEnsurePreviewWords]);
 
-  const activeFilterCount =
-    filterState.filters.levels.size + filterState.filters.types.size +
+  const activeFilterCount = filterState.filters.levels.size + filterState.filters.types.size +
     filterState.filters.lengths.size + filterState.filters.profiles.size +
     (filterState.filters.hasAudio ? 1 : 0) + (filterState.filters.flowTier !== "all" ? 1 : 0);
 
@@ -88,7 +94,7 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
   };
 
   const handlePageChange = (nextPage: number) => {
-    setCurrentPage(nextPage);
+    setSearchParams((prev) => buildPageSearchParams(prev, nextPage));
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -99,38 +105,35 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
     statusMap, isAuthenticated, onRequireAuth, onToggleSave: filterState.toggleSave, onToggleWord,
   };
 
-  return (
-    <div className="space-y-6">
-      <CommandFilterBar
-        tags={filterState.filters.tags} searchText={filterState.searchText}
-        onSearchChange={filterState.setSearchText} onRemoveTag={filterState.removeTag}
-        onAddTag={filterState.addTag} onClearAll={filterState.clearAll}
-      />
+  const paginationProps = { currentPage: safePage, totalPages, totalItems: filteredItems.length, pageSize, onPageChange: handlePageChange };
 
-      <div className="w-full">
-        <CatalogueToolbar
-          resultCount={filteredItems.length} viewMode={viewMode}
-          onChangeViewMode={handleChangeViewMode} activeFilterCount={activeFilterCount}
-          onOpenFilters={() => setFiltersOpen(true)} sortOption={sortOption} onChangeSort={setSortOption}
-        />
-        {viewMode === "cards" ? (
-          <CatalogueCardsGrid {...sharedCatalogueProps} seriesSiblingsMap={seriesSiblingsMap} onSelectCard={toggleExpand} />
-        ) : viewMode === "mosaic" ? (
-          <CatalogueMosaicGrid
-            items={pagedItems}
-            loading={loading}
-            savedIds={filterState.savedIds}
-            isAuthenticated={isAuthenticated}
-            onToggleSave={filterState.toggleSave}
+  return (
+    <div className="w-full">
+      <CatalogueToolbar
+        viewMode={viewMode}
+        onChangeViewMode={handleChangeViewMode} activeFilterCount={activeFilterCount}
+        onOpenFilters={() => setFiltersOpen(true)} sortOption={sortOption} onChangeSort={setSortOption}
+        searchSlot={
+          <CommandFilterBar
+            tags={filterState.filters.tags} searchText={filterState.searchText}
+            onSearchChange={filterState.setSearchText} onRemoveTag={filterState.removeTag}
+            onAddTag={filterState.addTag} onClearAll={filterState.clearAll}
           />
-        ) : (
-          <CatalogueTable {...sharedCatalogueProps} onToggleExpand={toggleExpand} />
-        )}
-        <CataloguePagination
-          currentPage={safePage} totalPages={totalPages}
-          totalItems={filteredItems.length} pageSize={pageSize} onPageChange={handlePageChange}
+        }
+        tagsSlot={<PinnedFilterTags tags={filterState.filters.tags} onRemoveTag={filterState.removeTag} />}
+      />
+      <CataloguePagination {...paginationProps} placement="top" />
+      {viewMode === "cards" ? (
+        <CatalogueCardsGrid {...sharedCatalogueProps} seriesSiblingsMap={seriesSiblingsMap} onSelectCard={toggleExpand} />
+      ) : viewMode === "mosaic" ? (
+        <CatalogueMosaicGrid
+          items={pagedItems} loading={loading} savedIds={filterState.savedIds}
+          isAuthenticated={isAuthenticated} onToggleSave={filterState.toggleSave}
         />
-      </div>
+      ) : (
+        <CatalogueTable {...sharedCatalogueProps} onToggleExpand={toggleExpand} />
+      )}
+      <CataloguePagination {...paginationProps} />
 
       <CatalogueFiltersSheet
         open={filtersOpen} onClose={() => setFiltersOpen(false)}

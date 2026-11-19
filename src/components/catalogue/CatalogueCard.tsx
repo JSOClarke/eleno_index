@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Bookmark, Headphones } from "lucide-react";
 import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
@@ -37,6 +37,7 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
   const synopsis = item.work_synopsis || item.sampleSnippet;
   const whereTo = getPlatformLinks(item);
   const subtype = getMediaSubtypeLabel(item);
+  const [synopsisExpanded, setSynopsisExpanded] = useState(false);
 
   return (
     <article
@@ -53,24 +54,15 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
         <div className="space-y-3.5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <Link
-                to={`/media/${item.id}`}
-                onClick={(e) => e.stopPropagation()}
-                className="block text-lg font-semibold tracking-tight text-slate-900 leading-snug hover:text-indigo-700 transition-colors"
-              >
+              <Link to={`/media/${item.id}`} onClick={(e) => e.stopPropagation()}
+                className="block text-lg font-semibold tracking-tight text-slate-900 leading-snug hover:text-indigo-700 transition-colors">
                 {englishTitle}
               </Link>
-              {targetTitle && (
-                <div className="mt-0.5 text-xs font-medium text-slate-600">{targetTitle}</div>
-              )}
+              {targetTitle && <div className="mt-0.5 text-xs font-medium text-slate-600">{targetTitle}</div>}
               <div className="mt-0.5 text-xs text-slate-400">
                 {item.creator}
                 {item.editions && item.editions.length > 1 && item.work_id && (
-                  <Link
-                    to={`/work/${item.work_id}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="ml-2 text-indigo-600 hover:underline"
-                  >
+                  <Link to={`/work/${item.work_id}`} onClick={(e) => e.stopPropagation()} className="ml-2 text-indigo-600 hover:underline">
                     · {item.editions.length} editions
                   </Link>
                 )}
@@ -95,15 +87,29 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
           </div>
 
           {synopsis && (
-            <p className="text-xs leading-relaxed text-slate-600 line-clamp-3">{synopsis}</p>
-          )}
-
-          {item.previewWords.length > 0 && (
-            <div className="space-y-1.5">
-              <div className="text-[11px] font-medium text-slate-400">Most common words</div>
-              <PreviewWordChips item={item} words={item.previewWords.slice(0, 6)} statusMap={statusMap} onToggleWord={onToggleWord} compact />
+            <div className="min-h-[58px]">
+              <p className={`text-xs leading-relaxed text-slate-600 ${synopsisExpanded ? "" : "line-clamp-3"}`}>{synopsis}</p>
+              {synopsis.length > 140 && (
+                <button type="button" onClick={(e) => { e.stopPropagation(); setSynopsisExpanded((v) => !v); }}
+                  className="mt-1 text-[11px] font-semibold text-slate-900 hover:underline cursor-pointer">
+                  {synopsisExpanded ? "Show less" : "Show more"}
+                </button>
+              )}
             </div>
           )}
+
+          <div className="space-y-1.5 min-h-[68px]">
+            <div className="text-[11px] font-medium text-slate-400">Most common words</div>
+            {item.previewWords.length > 0 ? (
+              <div className="max-h-[48px] overflow-hidden">
+                <PreviewWordChips item={item} words={item.previewWords.slice(0, 5)} statusMap={statusMap} onToggleWord={onToggleWord} compact />
+              </div>
+            ) : (
+              <div className="flex gap-1.5">
+                {[1, 2, 3].map((n) => <span key={n} className="h-[22px] w-16 rounded-full bg-slate-100 animate-pulse" />)}
+              </div>
+            )}
+          </div>
 
           <SeriesSiblingsStrip currentId={item.id} seriesName={item.series?.name || item.series_name} siblings={seriesSiblings} isAuthenticated={isAuthenticated} />
         </div>
@@ -122,21 +128,12 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
           />
 
           <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              title={isSaved ? "Saved" : "Save"}
-              onClick={(e) => { e.stopPropagation(); onToggleSave(item.id); }}
-              className={`rounded-xl p-2 transition cursor-pointer ${
-                isSaved ? "bg-indigo-50 text-indigo-600" : "text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-              }`}
-            >
+            <button type="button" title={isSaved ? "Saved" : "Save"} onClick={(e) => { e.stopPropagation(); onToggleSave(item.id); }}
+              className={`rounded-xl p-2 transition cursor-pointer ${isSaved ? "bg-indigo-50 text-indigo-600" : "text-slate-400 hover:bg-slate-100 hover:text-slate-700"}`}>
               <Bookmark className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
             </button>
-            <Link
-              to={`/media/${item.id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="rounded-xl bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-white shadow-xs transition hover:bg-indigo-600"
-            >
+            <Link to={`/media/${item.id}`} onClick={(e) => e.stopPropagation()}
+              className="rounded-xl bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-white shadow-xs transition hover:bg-indigo-600">
               Inspect Vocab →
             </Link>
           </div>

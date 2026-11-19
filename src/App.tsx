@@ -121,7 +121,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="relative isolate min-h-[100dvh] flex flex-col bg-[#FAF9F6] hero-grid-bg text-slate-900">
+    <div className="relative isolate min-h-[100dvh] flex flex-col bg-white text-slate-900">
       {isPreview ? <ReadflowTopNav {...navProps} /> : <TopNavBar {...navProps} />}
       {isPreview ? (
         <Routes>

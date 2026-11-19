@@ -30,12 +30,12 @@ export const InspectorFlowPanel: React.FC<InspectorFlowPanelProps> = ({
 
     {isAuthenticated ? (
       <>
-        <div className="mt-1.5 flex flex-wrap items-baseline gap-2">
-          <span className="text-3xl font-bold tracking-tight text-slate-900 tabular-nums">
+        <div className="mt-1.5 flex flex-nowrap items-baseline gap-1.5">
+          <span className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 tabular-nums shrink-0">
             {Math.round(pct)}%
           </span>
           {learnPct > 0 && (
-            <span className="rounded-full bg-[#111111] px-2 py-0.5 text-[11px] font-semibold text-white">
+            <span className="whitespace-nowrap shrink-0 rounded-full bg-[#111111] px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-white">
               {formatLearningDelta(learnPct)} learn
             </span>
           )}

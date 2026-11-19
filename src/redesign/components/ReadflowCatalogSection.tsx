@@ -1,4 +1,6 @@
 import React, { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { buildPageSearchParams, parsePageParam } from "@/lib/cataloguePagination";
 import type { MediaCatalogItem } from "@/types/media.types";
 import { ReadflowMediaCard } from "./ReadflowMediaCard";
 
@@ -34,9 +36,14 @@ const matchesFormat = (type: string, fmt: FormatGroup): boolean => {
 export const ReadflowCatalogSection: React.FC<ReadflowCatalogSectionProps> = ({
   items, loading, searchQuery, savedIds, onToggleSaved,
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [format, setFormat] = useState<FormatGroup>("all");
   const [sortBy, setSortBy] = useState<SortMode>("comprehension");
-  const [page, setPage] = useState(1);
+  const page = parsePageParam(searchParams.get("page"));
+  const setPage = (nextPage: number | ((prev: number) => number)) => {
+    const resolved = typeof nextPage === "function" ? nextPage(page) : nextPage;
+    setSearchParams((prev) => buildPageSearchParams(prev, resolved));
+  };
 
   const sorted = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();

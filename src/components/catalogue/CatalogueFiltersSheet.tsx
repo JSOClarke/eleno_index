@@ -72,7 +72,7 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="flex-[2] rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white cursor-pointer hover:bg-indigo-600 shadow-xs"
+          className="flex-[2] rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white cursor-pointer hover:bg-slate-800 shadow-xs"
         >
           Show {resultCount} results
         </button>

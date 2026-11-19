@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Bookmark } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { MediaCatalogItem } from "@/types/media.types";
+
+const LOADED_POSTER_URLS = new Set<string>();
 
 interface ReadflowMediaCardProps {
   item: MediaCatalogItem;
@@ -30,14 +32,29 @@ export const ReadflowMediaCard: React.FC<ReadflowMediaCardProps> = ({ item, isSa
   const langCode = (item.language || "es").toUpperCase();
   const englishTitle = item.work_title || item.title;
   const targetTitle = item.work_title && item.title !== item.work_title ? item.title : null;
+  const [imgLoaded, setImgLoaded] = useState(() => Boolean(item.cover_image_url && LOADED_POSTER_URLS.has(item.cover_image_url)));
+  const imgRef = useRef<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    const u = item.cover_image_url;
+    if (u && LOADED_POSTER_URLS.has(u)) { setImgLoaded(true); return; }
+    const el = imgRef.current;
+    const ready = Boolean(el && el.complete && el.naturalWidth > 0);
+    if (ready && u) LOADED_POSTER_URLS.add(u);
+    setImgLoaded(ready);
+  }, [item.cover_image_url]);
 
   return (
     <article className="group bg-white rounded-3xl border border-[#ECECEF] overflow-hidden flex flex-col sm:flex-row transition-transform duration-200 hover:-translate-y-0.5">
       <div className="poster-frame w-full sm:w-[38%] aspect-[3/2] sm:aspect-auto sm:min-h-[268px] shrink-0 border-b sm:border-b-0 sm:border-r border-[#ECECEF] relative">
         <Link to={`/preview/media/${item.id}`} className="block w-full h-full">
           {item.cover_image_url ? (
-            <img src={item.cover_image_url} alt={item.title} loading="lazy"
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+            <>
+              {!imgLoaded && <div className="absolute inset-0 animate-pulse bg-[#18181B]" />}
+              <img ref={imgRef} src={item.cover_image_url} alt={item.title} loading="lazy" decoding="async"
+                onLoad={() => { if (item.cover_image_url) LOADED_POSTER_URLS.add(item.cover_image_url); setImgLoaded(true); }}
+                className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-[1.03] ${imgLoaded ? "opacity-100" : "opacity-0"}`} />
+            </>
           ) : (
             <div className="w-full h-full flex items-center justify-center p-6 bg-gradient-to-br from-[#18181B] to-[#09090B]">
               <span className="font-editorial text-4xl text-white/80 text-center leading-tight line-clamp-3">{item.title}</span>
@@ -96,28 +113,14 @@ export const ReadflowMediaCard: React.FC<ReadflowMediaCardProps> = ({ item, isSa
           </div>
 
           <div className="mt-4 pt-3.5 border-t border-[#ECECEF] grid grid-cols-4 divide-x divide-[#E5E5E5] text-center sm:text-left">
-            <div className="pr-2">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-[#5A595C]">Tokens</span>
-              <span className="text-[12px] sm:text-[13px] font-extrabold text-[#040404] mt-0.5 block">
-                {totalTokens >= 1000 ? `${(totalTokens / 1000).toFixed(1)}k` : totalTokens}
-              </span>
-            </div>
-            <div className="px-2.5">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-[#5A595C]">Lemmas</span>
-              <span className="text-[12px] sm:text-[13px] font-extrabold text-[#040404] mt-0.5 block">{uniqueLemmas.toLocaleString()}</span>
-            </div>
-            <div className="px-2.5">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-[#5A595C]">Hapax</span>
-              <span className="text-[12px] sm:text-[13px] font-extrabold text-[#040404] mt-0.5 block">
-                {hapax != null ? `${hapax.toFixed(1)}%` : "—"}
-              </span>
-            </div>
-            <div className="pl-2.5">
-              <span className="block text-[10px] font-bold uppercase tracking-wider text-[#5A595C]">Avg Sent.</span>
-              <span className="text-[12px] sm:text-[13px] font-extrabold text-[#040404] mt-0.5 block">
-                {avgSent != null ? `${avgSent.toFixed(0)}w` : "—"}
-              </span>
-            </div>
+            <div className="pr-2"><span className="block text-[10px] font-bold uppercase tracking-wider text-[#5A595C]">Tokens</span>
+              <span className="text-[12px] sm:text-[13px] font-extrabold text-[#040404] mt-0.5 block">{totalTokens >= 1000 ? `${(totalTokens / 1000).toFixed(1)}k` : totalTokens}</span></div>
+            <div className="px-2.5"><span className="block text-[10px] font-bold uppercase tracking-wider text-[#5A595C]">Lemmas</span>
+              <span className="text-[12px] sm:text-[13px] font-extrabold text-[#040404] mt-0.5 block">{uniqueLemmas.toLocaleString()}</span></div>
+            <div className="px-2.5"><span className="block text-[10px] font-bold uppercase tracking-wider text-[#5A595C]">Hapax</span>
+              <span className="text-[12px] sm:text-[13px] font-extrabold text-[#040404] mt-0.5 block">{hapax != null ? `${hapax.toFixed(1)}%` : "—"}</span></div>
+            <div className="pl-2.5"><span className="block text-[10px] font-bold uppercase tracking-wider text-[#5A595C]">Avg Sent.</span>
+              <span className="text-[12px] sm:text-[13px] font-extrabold text-[#040404] mt-0.5 block">{avgSent != null ? `${avgSent.toFixed(0)}w` : "—"}</span></div>
           </div>
         </div>
 

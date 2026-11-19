@@ -4,7 +4,11 @@ import {
   fetchPreviewWordsBatch,
 } from "@/api/catalogue.api";
 import { fetchBaseCatalogueItems } from "@/api/catalogueWorks.api";
-import { readCachedCatalogue, writeCachedCatalogue } from "@/lib/catalogueCache";
+import {
+  readCachedCatalogue,
+  readCachedCatalogueAsync,
+  writeCachedCatalogue,
+} from "@/lib/catalogueCache";
 import { applyOptimisticBookDelta } from "@/lib/optimisticMath";
 import type { MediaCatalogItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
@@ -21,38 +25,26 @@ export function useCatalogueData(userId?: string | null, authLoading = false) {
     loadedPreviewIdsRef.current.clear();
     const tStart = performance.now();
     try {
-      const baseItems = await fetchBaseCatalogueItems();
+      const [baseItems, compMap] = await Promise.all([
+        fetchBaseCatalogueItems(),
+        fetchMediaComprehensionMap(userId),
+      ]);
       setItems((prev) => {
         const prevMap = new Map(prev.map((p) => [p.id, p]));
-        const merged = baseItems.map((b) => {
+        const enriched = baseItems.map((b) => {
           const cached = prevMap.get(b.id);
-          return cached
-            ? {
-                ...b,
-                comprehension: cached.comprehension,
-                previewWords: cached.previewWords,
-              }
-            : b;
+          return {
+            ...b,
+            comprehension: compMap[b.id] || cached?.comprehension || null,
+            previewWords: cached?.previewWords || b.previewWords,
+          };
         });
-        writeCachedCatalogue(merged);
-        return merged;
-      });
-      setLoading(false);
-      console.info(
-        `[inputhub /es] Stage 1 Cards rendered in ${Math.round(performance.now() - tStart)}ms`
-      );
-
-      const compMap = await fetchMediaComprehensionMap(userId);
-      setItems((prev) => {
-        const enriched = prev.map((b) => ({
-          ...b,
-          comprehension: compMap[b.id] || b.comprehension || null,
-        }));
         writeCachedCatalogue(enriched);
         return enriched;
       });
+      setLoading(false);
       console.info(
-        `[inputhub /es] Stage 2 Comprehension RPC complete in ${Math.round(
+        `[inputhub /es] Catalogue + Comprehension loaded in ${Math.round(
           performance.now() - tStart
         )}ms`
       );
@@ -61,6 +53,18 @@ export function useCatalogueData(userId?: string | null, authLoading = false) {
       setLoading(false);
     }
   }, [userId]);
+
+  useEffect(() => {
+    let active = true;
+    readCachedCatalogueAsync().then((cached) => {
+      if (!active || cached.length === 0) return;
+      setItems((prev) => (prev.length > 0 ? prev : cached));
+      setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (authLoading) return;

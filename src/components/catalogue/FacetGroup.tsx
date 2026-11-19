@@ -40,7 +40,7 @@ export const FacetGroup: React.FC<FacetGroupProps> = ({
                 <span
                   className={`h-4 w-4 rounded-md border inline-flex items-center justify-center text-[10px] leading-none transition-colors ${
                     checked
-                      ? "border-indigo-600 bg-indigo-600 text-white font-semibold"
+                      ? "border-slate-900 bg-slate-900 text-white font-semibold"
                       : disabled
                         ? "border-slate-200 bg-slate-50 text-transparent"
                         : "border-slate-300 bg-white text-transparent group-hover:border-slate-400"

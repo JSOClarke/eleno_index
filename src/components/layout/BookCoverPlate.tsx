@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { resolveCoverArt } from "@/lib/coverArt";
+
+const LOADED_COVER_URLS = new Set<string>();
 
 interface BookCoverPlateProps {
   title: string;
@@ -18,9 +20,23 @@ export const BookCoverPlate: React.FC<BookCoverPlateProps> = ({
   size = "card",
   badgeText,
 }) => {
-  const [imgFailed, setImgFailed] = useState(false);
   const meta = resolveCoverArt(title, explicitUrl);
+  const [imgFailed, setImgFailed] = useState(false);
+  const [loaded, setLoaded] = useState(() => Boolean(meta.coverUrl && LOADED_COVER_URLS.has(meta.coverUrl)));
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const showFallback = !meta.coverUrl || imgFailed;
+
+  useEffect(() => {
+    setImgFailed(false);
+    if (meta.coverUrl && LOADED_COVER_URLS.has(meta.coverUrl)) {
+      setLoaded(true);
+      return;
+    }
+    const el = imgRef.current;
+    const isReady = Boolean(el && el.complete && el.naturalWidth > 0);
+    if (isReady && meta.coverUrl) LOADED_COVER_URLS.add(meta.coverUrl);
+    setLoaded(isReady);
+  }, [meta.coverUrl]);
 
   const dims =
     size === "mini"
@@ -69,13 +85,27 @@ export const BookCoverPlate: React.FC<BookCoverPlateProps> = ({
         )
       ) : (
         <>
+          {!loaded && (
+            <div
+              className="absolute inset-0 z-0 animate-pulse"
+              style={{ background: meta.coverGradient }}
+            />
+          )}
           <img
+            ref={imgRef}
             src={meta.coverUrl!}
             alt={title}
             loading={size === "hero" || size === "showcase" ? "eager" : "lazy"}
+            fetchPriority={size === "hero" || size === "showcase" ? "high" : "auto"}
             decoding="async"
+            onLoad={() => {
+              if (meta.coverUrl) LOADED_COVER_URLS.add(meta.coverUrl);
+              setLoaded(true);
+            }}
             onError={() => setImgFailed(true)}
-            className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-300 group-hover:scale-[1.03]"
+            className={`absolute inset-0 w-full h-full object-cover z-0 transition-all duration-300 group-hover:scale-[1.03] ${
+              loaded ? "opacity-100" : "opacity-0"
+            }`}
           />
           {badgeText && (
             <span className="relative z-10 self-start rounded-full bg-slate-900/65 px-2.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-xs">
