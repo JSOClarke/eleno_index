@@ -20,7 +20,6 @@ export const SORT_OPTIONS: { id: CatalogueSortOption; label: string }[] = [
   { id: "dialogue_desc", label: "Dialogue Heavy (High %)" },
   { id: "title_asc", label: "Title: A → Z" },
   { id: "title_desc", label: "Title: Z → A" },
-  { id: "newest", label: "Release Year: Newest" },
 ];
 
 export function sortCatalogueItems(

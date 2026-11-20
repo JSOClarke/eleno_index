@@ -154,12 +154,6 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
         selectedSet={filters.publishers}
         onToggle={onTogglePublisher}
       />
-      <FacetGroup
-        title="Decade"
-        options={yearOptions}
-        selectedSet={filters.years}
-        onToggle={onToggleYear}
-      />
     </aside>
   );
 };
