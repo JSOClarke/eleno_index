@@ -26,8 +26,8 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
     <div className="rounded-2xl border border-slate-200/80 bg-[#0A0A0C] p-4 space-y-3">
       <StepThreeHighlightBar mode={highlightMode} onChange={setHighlightMode} />
 
-      <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5">
-        <p className="font-serif text-[15px] leading-[1.65] text-[#0F172A]">
+      <div className="rounded-xl border border-slate-200 bg-white px-4 py-3">
+        <p className="font-sans text-[16.5px] leading-[1.65] text-[#0F172A]">
           {HP_CH1_TOKENS.map((t, idx) => (
             <React.Fragment key={idx}>
               {idx > 0 && " "}
