@@ -1,65 +1,62 @@
 import React from "react";
 import type { DemoHighlightMode, ParsedDemoToken } from "./landingExtensionMocks";
 
-const CEFR_BADGE: Record<string, string> = {
-  A1: "bg-emerald-400/25 text-emerald-100 decoration-emerald-300/60",
-  A2: "bg-cyan-400/25 text-cyan-100 decoration-cyan-300/60",
-  B1: "bg-yellow-400/25 text-yellow-100 decoration-yellow-300/60",
-  B2: "bg-orange-400/25 text-orange-100 decoration-orange-300/60",
-  C1: "bg-rose-400/25 text-rose-100 decoration-rose-300/60",
-  C2: "bg-violet-400/25 text-violet-100 decoration-violet-300/60",
+const CEFR_RGBA: Record<string, string> = {
+  A1: "rgba(16, 185, 129, 0.16)",
+  A2: "rgba(6, 182, 212, 0.16)",
+  B1: "rgba(234, 179, 8, 0.18)",
+  B2: "rgba(249, 115, 22, 0.18)",
+  C1: "rgba(244, 63, 94, 0.18)",
+  C2: "rgba(139, 92, 246, 0.18)",
 };
 
-const LEGEND_BY_MODE: Record<DemoHighlightMode, Array<{ label: string; dot: string }>> = {
+const LEGEND_BY_MODE: Record<DemoHighlightMode, Array<{ label: string; color: string }>> = {
   status: [
-    { label: "Unknown", dot: "bg-sky-400" },
-    { label: "Learning", dot: "bg-amber-400" },
-    { label: "Known", dot: "bg-white/25" },
+    { label: "Unknown", color: "rgba(14, 165, 233, 0.16)" },
+    { label: "Learning", color: "rgba(245, 158, 11, 0.24)" },
+    { label: "Known", color: "transparent" },
   ],
   cefr: [
-    { label: "A1", dot: "bg-emerald-400" },
-    { label: "A2", dot: "bg-cyan-400" },
-    { label: "B1+", dot: "bg-yellow-400" },
+    { label: "A1", color: "rgba(16, 185, 129, 0.16)" },
+    { label: "A2", color: "rgba(6, 182, 212, 0.16)" },
+    { label: "B1+", color: "rgba(234, 179, 8, 0.18)" },
   ],
   rank: [
-    { label: "Top 3k", dot: "bg-emerald-400" },
-    { label: "Top 10k", dot: "bg-orange-400" },
-    { label: "Rare", dot: "bg-rose-400" },
+    { label: "Top 3k", color: "rgba(16, 185, 129, 0.16)" },
+    { label: "Top 10k", color: "rgba(249, 115, 22, 0.18)" },
+    { label: "Rare", color: "rgba(244, 63, 94, 0.18)" },
   ],
-  none: [{ label: "No highlights", dot: "bg-white/25" }],
+  none: [{ label: "No highlights", color: "transparent" }],
 };
 
-export function getDemoTokenClass(
+export function getDemoTokenStyle(
   token: ParsedDemoToken,
   mode: DemoHighlightMode,
   isActive: boolean,
-): string {
-  const ring = isActive ? "ring-1 ring-white/80 font-medium" : "";
-  if (mode === "none") {
-    return `${isActive ? "bg-white/20 text-white" : "hover:bg-white/10 text-white/85"} underline decoration-white/25 ${ring}`;
-  }
+): React.CSSProperties {
+  if (isActive) return { backgroundColor: "rgba(15, 23, 42, 0.16)" };
+  if (mode === "none") return {};
   if (mode === "status") {
-    if (token.demoStatus === "unknown") return `bg-sky-400/25 text-sky-100 underline decoration-sky-300/60 ${ring}`;
-    if (token.demoStatus === "learning") return `bg-amber-400/25 text-amber-100 underline decoration-amber-300/60 ${ring}`;
-    return `${isActive ? "bg-white/15 text-white" : "hover:bg-white/10 text-white/75"} underline decoration-white/20 ${ring}`;
+    if (token.demoStatus === "unknown") return { backgroundColor: "rgba(14, 165, 233, 0.16)" };
+    if (token.demoStatus === "learning") return { backgroundColor: "rgba(245, 158, 11, 0.24)" };
+    return {};
   }
   if (mode === "cefr") {
-    const cefr = token.canonical?.cefr || "";
-    const cls = CEFR_BADGE[cefr] || "hover:bg-white/10 text-white/80 decoration-white/25";
-    return `${cls} underline ${ring}`;
+    const bg = CEFR_RGBA[token.canonical?.cefr || ""];
+    return bg ? { backgroundColor: bg } : {};
   }
   const rank = token.canonical?.tubelex_rank || token.canonical?.elelex_rank || null;
-  if (!rank || rank > 10000) return `bg-rose-400/25 text-rose-100 underline decoration-rose-300/60 ${ring}`;
-  if (rank > 5000) return `bg-orange-400/25 text-orange-100 underline decoration-orange-300/60 ${ring}`;
-  if (rank > 3000) return `bg-yellow-400/25 text-yellow-100 underline decoration-yellow-300/60 ${ring}`;
-  return `bg-emerald-400/25 text-emerald-100 underline decoration-emerald-300/60 ${ring}`;
+  if (!rank || rank > 10000) return { backgroundColor: "rgba(244, 63, 94, 0.18)" };
+  if (rank > 5000) return { backgroundColor: "rgba(249, 115, 22, 0.18)" };
+  if (rank > 3000) return { backgroundColor: "rgba(234, 179, 8, 0.18)" };
+  return { backgroundColor: "rgba(16, 185, 129, 0.16)" };
 }
 
 export const StepThreeHighlightBar: React.FC<{
   mode: DemoHighlightMode;
   onChange: (mode: DemoHighlightMode) => void;
 }> = ({ mode, onChange }) => (
-  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+  <div className="flex flex-wrap items-center justify-between gap-2">
     <label className="inline-flex items-center gap-1.5 text-[11px] font-medium text-white/60">
       <span>Highlight</span>
       <select
@@ -75,10 +72,13 @@ export const StepThreeHighlightBar: React.FC<{
       </select>
     </label>
 
-    <div className="flex flex-wrap items-center gap-2.5 text-[10.5px] text-white/65">
+    <div className="flex flex-wrap items-center gap-2.5 text-[10.5px] text-white/70">
       {LEGEND_BY_MODE[mode].map((item) => (
-        <span key={item.label} className="inline-flex items-center gap-1">
-          <span className={`h-2 w-2 rounded-full ${item.dot}`} />
+        <span key={item.label} className="inline-flex items-center gap-1.5">
+          <span
+            className="h-2.5 w-2.5 rounded-[3px] border border-white/25 bg-white"
+            style={{ backgroundImage: `linear-gradient(${item.color}, ${item.color})` }}
+          />
           <span>{item.label}</span>
         </span>
       ))}

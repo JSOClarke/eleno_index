@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { BookOpen, Check, Eye, GraduationCap, HelpCircle, Image as ImageIcon, Languages, Layers, Tag, Volume2, X } from "lucide-react";
 import { ThresholdMark } from "@/components/brand/InputHubBrandLogo";
 import { type DemoHighlightMode, getFrequencyBandLabel, HP_CH1_TOKENS, POS_META, speakSpanishDemo } from "./landingExtensionMocks";
-import { getDemoTokenClass, StepThreeHighlightBar } from "./StepThreeHighlightBar";
+import { getDemoTokenStyle, StepThreeHighlightBar } from "./StepThreeHighlightBar";
 import { ContextTabBody, ImageTabBody, MeaningTabBody } from "./StepThreeTabBodies";
 
 export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRequireAuth }) => {
@@ -26,20 +26,23 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
     <div className="rounded-2xl border border-slate-200/80 bg-[#0A0A0C] p-4 space-y-3">
       <StepThreeHighlightBar mode={highlightMode} onChange={setHighlightMode} />
 
-      <p className="font-serif text-sm leading-relaxed text-white/85">
-        {HP_CH1_TOKENS.map((t, idx) => (
-          <React.Fragment key={idx}>
-            {idx > 0 && " "}
-            <button
-              type="button"
-              onClick={() => { setTokenIdx(idx); setCandIdx(0); setShowAllSenses(false); setShowPosDetail(false); }}
-              className={`rounded px-1 py-0.5 transition cursor-pointer ${getDemoTokenClass(t, highlightMode, idx === tokenIdx)}`}
-            >
-              {t.surface}
-            </button>
-          </React.Fragment>
-        ))}.
-      </p>
+      <div className="rounded-xl border border-slate-200 bg-white px-3.5 py-2.5">
+        <p className="font-serif text-[15px] leading-[1.65] text-[#0F172A]">
+          {HP_CH1_TOKENS.map((t, idx) => (
+            <React.Fragment key={idx}>
+              {idx > 0 && " "}
+              <button
+                type="button"
+                onClick={() => { setTokenIdx(idx); setCandIdx(0); setShowAllSenses(false); setShowPosDetail(false); }}
+                style={getDemoTokenStyle(t, highlightMode, idx === tokenIdx)}
+                className="rounded-[3px] py-[1px] transition-colors hover:brightness-95 cursor-pointer"
+              >
+                {t.surface}
+              </button>
+            </React.Fragment>
+          ))}.
+        </p>
+      </div>
 
       <div className="w-full max-w-[376px] overflow-hidden rounded-[16px] bg-white text-[#0F172A] shadow-[0_20px_45px_rgba(15,23,42,0.16),0_4px_12px_rgba(15,23,42,0.08)]">
         <div className="h-[3px] w-full bg-[#0F172A]" />
