@@ -67,7 +67,6 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
             )}
             <div className="text-xs text-slate-500">
               {item.creator}
-              {item.release_year ? ` · ${item.release_year}` : ""}
             </div>
 
             <div className="pt-1">

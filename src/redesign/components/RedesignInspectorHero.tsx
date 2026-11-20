@@ -76,7 +76,6 @@ export const RedesignInspectorHero: React.FC<RedesignInspectorHeroProps> = ({ it
             )}
             <div className="text-xs text-slate-500">
               {item.creator}
-              {item.release_year ? ` · ${item.release_year}` : ""}
             </div>
 
             <div className="pt-1 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
