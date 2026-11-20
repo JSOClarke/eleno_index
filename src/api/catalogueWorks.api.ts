@@ -36,6 +36,9 @@ function metricsOf(row: any): MediaMetrics | null {
 function toEdition(row: any, work: any): MediaCatalogItem {
   const metrics = metricsOf(row);
   const seriesObj = work.media_series || null;
+  const origYear = Number(work.metadata?.original_release_year) || null;
+  const itemYear = Number(row.release_year) || null;
+  const releaseYear = origYear && itemYear ? Math.min(origYear, itemYear) : origYear || itemYear;
   return {
     id: String(row.id),
     type: work.type,
@@ -44,7 +47,7 @@ function toEdition(row: any, work: any): MediaCatalogItem {
     language: String(row.language || work.original_language || "es"),
     format: row.format || "epub",
     cover_image_url: resolveLocalHostUrl(row.cover_image_url || work.default_cover_image_url || null),
-    release_year: row.release_year || null,
+    release_year: releaseYear,
     series_id: work.series_id || null,
     series: seriesObj,
     series_name: seriesObj?.name || null,
