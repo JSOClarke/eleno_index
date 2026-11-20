@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { InputHubBrandLogo } from "@/components/brand/InputHubBrandLogo";
-import { LanguageSelectorDropdown } from "./LanguageSelectorDropdown";
 import { MobileNavDrawer } from "./MobileNavDrawer";
 import { UserAvatarMenu } from "./UserAvatarMenu";
 import type { SupportedLanguage } from "@/lib/catalogueLanguages";
@@ -81,15 +80,15 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           </div>
 
           <div className="flex items-center gap-2.5 text-xs text-white/70">
-            <LanguageSelectorDropdown
-              activeLanguage={activeLanguage}
-              onChangeLanguage={onChangeLanguage}
-              activeKnownCount={knownCount}
-              userId={user?.id}
-              inverted
-            />
             {user ? (
-              <UserAvatarMenu user={user} onSignOut={onSignOut} inverted />
+              <UserAvatarMenu
+                user={user}
+                onSignOut={onSignOut}
+                inverted
+                activeLanguage={activeLanguage}
+                onChangeLanguage={onChangeLanguage}
+                activeKnownCount={knownCount}
+              />
             ) : (
               <button
                 type="button"
@@ -106,6 +105,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
       <MobileNavDrawer
         open={menuOpen} onClose={() => setMenuOpen(false)} items={drawerItems}
         activeTo={activeTo} user={user} onOpenAuth={onOpenAuth} onSignOut={onSignOut}
+        activeLanguage={activeLanguage} onChangeLanguage={onChangeLanguage} activeKnownCount={knownCount}
       />
     </>
   );

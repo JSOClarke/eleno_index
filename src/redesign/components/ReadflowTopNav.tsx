@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { ArrowUpRight, Menu } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { LanguageSelectorDropdown } from "@/components/layout/LanguageSelectorDropdown";
 import { MobileNavDrawer } from "@/components/layout/MobileNavDrawer";
 import { UserAvatarMenu } from "@/components/layout/UserAvatarMenu";
 import type { SupportedLanguage } from "@/lib/catalogueLanguages";
@@ -76,12 +75,14 @@ export const ReadflowTopNav: React.FC<ReadflowTopNavProps> = ({
           </div>
 
           <div className="flex items-center gap-2.5 sm:gap-3">
-            <LanguageSelectorDropdown
-              activeLanguage={activeLanguage} onChangeLanguage={onChangeLanguage}
-              activeKnownCount={knownCount} userId={user?.id}
-            />
             {user ? (
-              <UserAvatarMenu user={user} onSignOut={onSignOut} />
+              <UserAvatarMenu
+                user={user}
+                onSignOut={onSignOut}
+                activeLanguage={activeLanguage}
+                onChangeLanguage={onChangeLanguage}
+                activeKnownCount={knownCount}
+              />
             ) : (
               <button type="button" onClick={onOpenAuth} className="lexya-btn hidden sm:inline-flex">
                 <span>Sign in</span>

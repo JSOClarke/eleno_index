@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { InputHubBrandLogo } from "@/components/brand/InputHubBrandLogo";
+import { ProfileLanguageSection } from "./ProfileLanguageSection";
+import type { SupportedLanguage } from "@/lib/catalogueLanguages";
 import type { UserProfile } from "@/types/vocabulary.types";
 
 export interface MobileNavItem {
@@ -18,6 +20,9 @@ interface MobileNavDrawerProps {
   user: UserProfile | null;
   onOpenAuth: () => void;
   onSignOut: () => void;
+  activeLanguage?: SupportedLanguage;
+  onChangeLanguage?: (lang: SupportedLanguage) => void;
+  activeKnownCount?: number;
 }
 
 /** Slide-in primary navigation for phones; desktop keeps the inline nav. */
@@ -29,6 +34,9 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
   user,
   onOpenAuth,
   onSignOut,
+  activeLanguage = "es",
+  onChangeLanguage,
+  activeKnownCount = 0,
 }) => {
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -98,7 +106,16 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
           ))}
         </div>
 
-        <div className="border-t border-slate-200/80 p-4">
+        <div className="border-t border-slate-200/80 p-4 space-y-3">
+          {onChangeLanguage && (
+            <ProfileLanguageSection
+              activeLanguage={activeLanguage}
+              onChangeLanguage={onChangeLanguage}
+              activeKnownCount={activeKnownCount}
+              userId={user?.id}
+              onSelect={onClose}
+            />
+          )}
           {user ? (
             <>
               <div className="truncate text-xs text-slate-500">{user.email}</div>
