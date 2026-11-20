@@ -33,23 +33,27 @@ export function getDemoTokenStyle(
   token: ParsedDemoToken,
   mode: DemoHighlightMode,
   isActive: boolean,
+  inPhrase = false,
 ): React.CSSProperties {
-  if (isActive) return { backgroundColor: "rgba(15, 23, 42, 0.16)" };
+  const phraseStyle: React.CSSProperties = inPhrase && mode !== "none"
+    ? { textDecoration: "underline dotted rgba(14, 116, 144, 0.85)", textUnderlineOffset: "3px" }
+    : {};
+  if (isActive) return { ...phraseStyle, backgroundColor: "rgba(15, 23, 42, 0.16)" };
   if (mode === "none") return {};
   if (mode === "status") {
-    if (token.demoStatus === "unknown") return { backgroundColor: "rgba(14, 165, 233, 0.16)" };
-    if (token.demoStatus === "learning") return { backgroundColor: "rgba(245, 158, 11, 0.24)" };
-    return {};
+    if (token.demoStatus === "unknown") return { ...phraseStyle, backgroundColor: "rgba(14, 165, 233, 0.16)" };
+    if (token.demoStatus === "learning") return { ...phraseStyle, backgroundColor: "rgba(245, 158, 11, 0.24)" };
+    return phraseStyle;
   }
   if (mode === "cefr") {
     const bg = CEFR_RGBA[token.canonical?.cefr || ""];
-    return bg ? { backgroundColor: bg } : {};
+    return bg ? { ...phraseStyle, backgroundColor: bg } : phraseStyle;
   }
   const rank = token.canonical?.tubelex_rank || token.canonical?.elelex_rank || null;
-  if (!rank || rank > 10000) return { backgroundColor: "rgba(244, 63, 94, 0.18)" };
-  if (rank > 5000) return { backgroundColor: "rgba(249, 115, 22, 0.18)" };
-  if (rank > 3000) return { backgroundColor: "rgba(234, 179, 8, 0.18)" };
-  return { backgroundColor: "rgba(16, 185, 129, 0.16)" };
+  if (!rank || rank > 10000) return { ...phraseStyle, backgroundColor: "rgba(244, 63, 94, 0.18)" };
+  if (rank > 5000) return { ...phraseStyle, backgroundColor: "rgba(249, 115, 22, 0.18)" };
+  if (rank > 3000) return { ...phraseStyle, backgroundColor: "rgba(234, 179, 8, 0.18)" };
+  return { ...phraseStyle, backgroundColor: "rgba(16, 185, 129, 0.16)" };
 }
 
 export const StepThreeHighlightBar: React.FC<{

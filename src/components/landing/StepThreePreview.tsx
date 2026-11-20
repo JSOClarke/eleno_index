@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { BookOpen, Check, Eye, GraduationCap, HelpCircle, Image as ImageIcon, Languages, Layers, Tag, Volume2, X } from "lucide-react";
 import { ThresholdMark } from "@/components/brand/InputHubBrandLogo";
-import { type DemoHighlightMode, getFrequencyBandLabel, HP_CH1_TOKENS, POS_META, speakSpanishDemo } from "./landingExtensionMocks";
+import { type DemoHighlightMode, getFrequencyBandLabel, HP_CH1_PHRASES, HP_CH1_TOKENS, POS_META, speakSpanishDemo } from "./landingExtensionMocks";
 import { getDemoTokenStyle, StepThreeHighlightBar } from "./StepThreeHighlightBar";
 import { ContextTabBody, ImageTabBody, MeaningTabBody } from "./StepThreeTabBodies";
 
 export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRequireAuth }) => {
-  const [tokenIdx, setTokenIdx] = useState(4); // "lechuza" by default
+  const [tokenIdx, setTokenIdx] = useState(10); // "volvía" (volver a + infinitivo periphrasis)
   const [candIdx, setCandIdx] = useState(0);
   const [tab, setTab] = useState<"meaning" | "context" | "image">("meaning");
   const [showAllSenses, setShowAllSenses] = useState(false);
@@ -21,6 +21,7 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
   const pos = can?.pos || token.pos;
   const rank = can?.tubelex_rank || can?.elelex_rank || null;
   const posMeta = POS_META[pos];
+  const matchingPhrases = HP_CH1_PHRASES.filter((p) => tokenIdx >= p.tokenStart && tokenIdx <= p.tokenEnd);
 
   return (
     <div className="rounded-2xl border border-slate-200/80 bg-[#0A0A0C] p-4 space-y-3">
@@ -34,11 +35,9 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
               <button
                 type="button"
                 onClick={() => { setTokenIdx(idx); setCandIdx(0); setShowAllSenses(false); setShowPosDetail(false); }}
-                style={getDemoTokenStyle(t, highlightMode, idx === tokenIdx)}
+                style={getDemoTokenStyle(t, highlightMode, idx === tokenIdx, HP_CH1_PHRASES.some((p) => idx >= p.tokenStart && idx <= p.tokenEnd))}
                 className="rounded-[3px] py-[1px] transition-colors hover:brightness-95 cursor-pointer"
-              >
-                {t.surface}
-              </button>
+              >{t.surface}</button>
             </React.Fragment>
           ))}.
         </p>
@@ -72,36 +71,19 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
               </div>
 
               <div className="flex flex-wrap items-center gap-1 text-[10px] font-medium">
-                {can?.cefr && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-[#0F172A] bg-[#0F172A] px-[7px] py-[2px] text-white">
-                    <GraduationCap className="h-2.5 w-2.5" /><span>{can.cefr}</span>
-                  </span>
-                )}
-                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-[7px] py-[2px] text-[#0F172A]">
-                  <Layers className="h-2.5 w-2.5" /><span>{getFrequencyBandLabel(rank)}</span>
-                </span>
+                {can?.cefr && <span className="inline-flex items-center gap-1 rounded-full border border-[#0F172A] bg-[#0F172A] px-[7px] py-[2px] text-white"><GraduationCap className="h-2.5 w-2.5" /><span>{can.cefr}</span></span>}
+                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-[7px] py-[2px] text-[#0F172A]"><Layers className="h-2.5 w-2.5" /><span>{getFrequencyBandLabel(rank)}</span></span>
                 {posMeta && (
-                  <button
-                    type="button" onClick={() => setShowPosDetail((v) => !v)}
-                    className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-[7px] py-[2px] text-slate-600 hover:bg-slate-100 cursor-pointer"
-                  >
-                    <Tag className="h-2.5 w-2.5" /><span>{posMeta.label}</span><HelpCircle className="h-2.5 w-2.5" />
-                  </button>
+                  <button type="button" onClick={() => setShowPosDetail((v) => !v)} className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-[7px] py-[2px] text-slate-600 hover:bg-slate-100 cursor-pointer"><Tag className="h-2.5 w-2.5" /><span>{posMeta.label}</span><HelpCircle className="h-2.5 w-2.5" /></button>
                 )}
               </div>
 
               {candidates.length > 1 && (
                 <div className="flex items-center gap-1.5">
                   {candidates.map((c, idx) => (
-                    <button
-                      key={c.id} type="button" aria-label={`Switch to ${c.lemma}`}
-                      onClick={() => { setCandIdx(idx); setShowAllSenses(false); setShowPosDetail(false); }}
-                      className={`h-[7px] rounded-full transition-all cursor-pointer ${idx === candIdx ? "w-[18px] bg-[#0F172A]" : "w-[7px] bg-slate-300 hover:bg-slate-400"}`}
-                    />
+                    <button key={c.id} type="button" aria-label={`Switch to ${c.lemma}`} onClick={() => { setCandIdx(idx); setShowAllSenses(false); setShowPosDetail(false); }} className={`h-[7px] rounded-full transition-all cursor-pointer ${idx === candIdx ? "w-[18px] bg-[#0F172A]" : "w-[7px] bg-slate-300 hover:bg-slate-400"}`} />
                   ))}
-                  <span className="ml-auto font-mono text-[10px] text-slate-500">
-                    {candIdx === 0 ? `Parsed · 1/${candidates.length}` : `Alt · ${candIdx + 1}/${candidates.length}`}
-                  </span>
+                  <span className="ml-auto font-mono text-[10px] text-slate-500">{candIdx === 0 ? `Parsed · 1/${candidates.length}` : `Alt · ${candIdx + 1}/${candidates.length}`}</span>
                 </div>
               )}
 
@@ -111,6 +93,12 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
                   <div className="mt-0.5 text-slate-500">{posMeta.desc}</div>
                 </div>
               )}
+
+              {matchingPhrases.map((ph) => (
+                <div key={ph.canonical_phrase} className="rounded-[12px] border border-slate-200 bg-[#F8FAFC] px-3 py-2 text-[11px] leading-[1.38] text-[#0F172A]">
+                  <strong>{ph.type === "periphrasis" ? "Periphrasis" : "Idiom"} · {ph.canonical_phrase}</strong> — {ph.gloss}
+                </div>
+              ))}
 
               <MeaningTabBody defs={can?.definitions || []} showAllSenses={showAllSenses} onToggleExpand={() => setShowAllSenses((v) => !v)} />
 
