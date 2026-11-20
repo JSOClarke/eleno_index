@@ -1,17 +1,9 @@
 import React, { useState } from "react";
 import { BookOpen, Check, Eye, GraduationCap, HelpCircle, Image as ImageIcon, Languages, Layers, Tag, Volume2, X } from "lucide-react";
 import { ThresholdMark } from "@/components/brand/InputHubBrandLogo";
-import { getFrequencyBandLabel, HP_CH1_TOKENS, POS_META } from "./landingExtensionMocks";
+import { type DemoHighlightMode, getFrequencyBandLabel, HP_CH1_TOKENS, POS_META, speakSpanishDemo } from "./landingExtensionMocks";
+import { getDemoTokenClass, StepThreeHighlightBar } from "./StepThreeHighlightBar";
 import { ContextTabBody, ImageTabBody, MeaningTabBody } from "./StepThreeTabBodies";
-
-const speakSpanish = (text: string, rate = 1.0) => {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "es-ES";
-  u.rate = rate;
-  window.speechSynthesis.speak(u);
-};
 
 export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRequireAuth }) => {
   const [tokenIdx, setTokenIdx] = useState(4); // "lechuza" by default
@@ -20,6 +12,7 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
   const [showAllSenses, setShowAllSenses] = useState(false);
   const [showPosDetail, setShowPosDetail] = useState(false);
   const [translated, setTranslated] = useState(false);
+  const [highlightMode, setHighlightMode] = useState<DemoHighlightMode>("status");
 
   const token = HP_CH1_TOKENS[tokenIdx] || HP_CH1_TOKENS[4];
   const candidates = [token.canonical, ...token.alternatives].filter((c): c is NonNullable<typeof c> => Boolean(c));
@@ -31,6 +24,8 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
 
   return (
     <div className="rounded-2xl border border-slate-200/80 bg-[#0A0A0C] p-4 space-y-3">
+      <StepThreeHighlightBar mode={highlightMode} onChange={setHighlightMode} />
+
       <p className="font-serif text-sm leading-relaxed text-white/85">
         {HP_CH1_TOKENS.map((t, idx) => (
           <React.Fragment key={idx}>
@@ -38,11 +33,7 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
             <button
               type="button"
               onClick={() => { setTokenIdx(idx); setCandIdx(0); setShowAllSenses(false); setShowPosDetail(false); }}
-              className={`rounded px-1 transition cursor-pointer ${
-                idx === tokenIdx
-                  ? "bg-white/20 text-white underline decoration-white/70"
-                  : "hover:bg-white/10 hover:text-white underline decoration-white/25"
-              }`}
+              className={`rounded px-1 py-0.5 transition cursor-pointer ${getDemoTokenClass(t, highlightMode, idx === tokenIdx)}`}
             >
               {t.surface}
             </button>
@@ -62,12 +53,10 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
                     {can?.ipa && <span className="pb-0.5 font-mono text-[11.5px] font-medium text-slate-500">{can.ipa}</span>}
                     <button
                       type="button" title="Play pronunciation · Right-click for 0.7x slow"
-                      onClick={() => speakSpanish(lemma, 1.0)}
-                      onContextMenu={(e) => { e.preventDefault(); speakSpanish(lemma, 0.72); }}
+                      onClick={() => speakSpanishDemo(lemma, 1.0)}
+                      onContextMenu={(e) => { e.preventDefault(); speakSpanishDemo(lemma, 0.72); }}
                       className="mb-0.5 inline-flex h-[26px] w-[26px] items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-500 hover:border-slate-300 hover:bg-slate-100 hover:text-[#0F172A] cursor-pointer"
-                    >
-                      <Volume2 className="h-3.5 w-3.5" />
-                    </button>
+                    ><Volume2 className="h-3.5 w-3.5" /></button>
                   </div>
                   {token.surface.toLowerCase() !== lemma.toLowerCase() && (
                     <div className="mt-1 text-[11px] text-slate-500">In text: “{token.surface}”</div>
@@ -123,12 +112,8 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
               <MeaningTabBody defs={can?.definitions || []} showAllSenses={showAllSenses} onToggleExpand={() => setShowAllSenses((v) => !v)} />
 
               <div className="flex gap-2">
-                <button type="button" onClick={onRequireAuth} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 py-[7px] text-[11.5px] font-medium text-slate-600 cursor-pointer transition">
-                  <Eye className="h-3.5 w-3.5" /> Learn
-                </button>
-                <button type="button" onClick={onRequireAuth} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0F172A] hover:bg-slate-800 py-[7px] text-[11.5px] font-semibold text-white cursor-pointer transition">
-                  <Check className="h-3.5 w-3.5" /> Known
-                </button>
+                <button type="button" onClick={onRequireAuth} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 py-[7px] text-[11.5px] font-medium text-slate-600 cursor-pointer transition"><Eye className="h-3.5 w-3.5" /> Learn</button>
+                <button type="button" onClick={onRequireAuth} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0F172A] hover:bg-slate-800 py-[7px] text-[11.5px] font-semibold text-white cursor-pointer transition"><Check className="h-3.5 w-3.5" /> Known</button>
               </div>
             </>
           ) : (
@@ -141,7 +126,7 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
                 <X className="h-4 w-4 text-slate-400" />
               </div>
               {tab === "context" ? (
-                <ContextTabBody translated={translated} onTranslate={() => setTranslated(true)} onSpeakSentence={() => speakSpanish(HP_CH1_TOKENS.map((x) => x.surface).join(" "), 1.0)} />
+                <ContextTabBody translated={translated} onTranslate={() => setTranslated(true)} onSpeakSentence={() => speakSpanishDemo(HP_CH1_TOKENS.map((x) => x.surface).join(" "), 1.0)} />
               ) : (
                 <ImageTabBody lemma={lemma} primaryDef={can?.definitions?.[0] || ""} />
               )}
@@ -151,12 +136,7 @@ export const StepThreePreview: React.FC<{ onRequireAuth: () => void }> = ({ onRe
 
         <div className="flex border-t border-slate-200 bg-slate-50 px-2.5 py-1.5 gap-1 text-[10px]">
           {([["meaning", "Meaning", BookOpen], ["context", "Context", Languages], ["image", "Image", ImageIcon]] as const).map(([id, label, Icon]) => (
-            <button
-              key={id} type="button" onClick={() => setTab(id)}
-              className={`flex-1 flex flex-col items-center gap-0.5 rounded-lg py-1.5 cursor-pointer transition ${
-                tab === id ? "bg-[#0F172A] font-semibold text-white" : "text-slate-500 hover:bg-slate-200/60"
-              }`}
-            >
+            <button key={id} type="button" onClick={() => setTab(id)} className={`flex-1 flex flex-col items-center gap-0.5 rounded-lg py-1.5 cursor-pointer transition ${tab === id ? "bg-[#0F172A] font-semibold text-white" : "text-slate-500 hover:bg-slate-200/60"}`}>
               <Icon className="h-3.5 w-3.5" /><span>{label}</span>
             </button>
           ))}
