@@ -78,9 +78,9 @@ try {
 
   // Test Language Origin filter (Native Original vs Translated)
   await page.locator("button:has-text('Filters')").first().click();
-  await page.waitForSelector("button:has-text('Native Original')", { timeout: 5000 });
-  await page.locator("button:has-text('Native Original')").first().click();
-  await page.locator("button:has-text('Show ')").first().click();
+  await page.waitForSelector("label:has-text('Native Original')", { timeout: 5000 });
+  await page.locator("label:has-text('Native Original')").first().click();
+  await page.locator("div[role='dialog'] button:has-text('results')").click();
   await page.waitForTimeout(400);
   const nativeTitles = await getVisibleTitles();
   console.log("NATIVE ONLY top 4:", nativeTitles.slice(0, 4));
