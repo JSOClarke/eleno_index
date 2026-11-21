@@ -11,7 +11,7 @@ const STEPS = [
   {
     num: "02",
     title: "Pick Books at Your Threshold",
-    desc: "Sort the catalogue by Reading Flow (% of words you already know), inspect chapter pacing, extract i+1 sentences where only one word is new, and export clean flashcards straight to Anki (.apkg).",
+    desc: "Sort the catalogue by Reading Flow (% of words you already know), inspect chapter pacing, extract i+1 sentences where only one word is new, and export clean flashcards straight for Anki (.tsv).",
     Preview: StepTwoPreview,
   },
   {
