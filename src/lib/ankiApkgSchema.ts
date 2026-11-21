@@ -6,9 +6,34 @@ CREATE TABLE revlog (id integer primary key, cid integer not null, usn integer n
 CREATE TABLE graves (usn integer not null, oid integer not null, type integer not null);
 `;
 
-const CARD_CSS = `.card{font-family:Inter,system-ui,sans-serif;text-align:center;color:#0f172a;background:#fff;padding:24px;line-height:1.5}.lemma{font-family:Newsreader,Georgia,serif;font-size:34px;font-weight:500}.ipa{font-family:monospace;font-size:13px;color:#64748b;margin-top:4px}.sent{margin:16px auto 0;max-width:460px;font-size:16px;color:#334155}.defs{margin:14px auto 0;max-width:480px;text-align:left;font-size:15px}.meta{margin-top:14px;font-size:12px;color:#64748b}`;
-const QFMT = `<div class="lemma">{{Lemma}}</div>{{#IPA}}<div class="ipa">{{IPA}}</div>{{/IPA}}{{#Sentence}}<div class="sent">{{Sentence}}</div>{{/Sentence}}`;
-const AFMT = `{{FrontSide}}<hr><div class="defs">{{Definition}}</div><div class="meta">{{#CEFR}}<b>{{CEFR}}</b> · {{/CEFR}}{{POS}}{{#Rank}} · #{{Rank}}{{/Rank}}{{#Source}} · {{Source}}{{/Source}}</div>`;
+const BRAND_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M2 20V14.75H8.5V9.5H15.5V4H22V20H2Z" fill="currentColor"/></svg>`;
+const CARD_CSS = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&display=swap');
+.card{font-family:Inter,-apple-system,system-ui,sans-serif;background:#FAF9F6;color:#0F172A;margin:0;padding:24px 16px;text-align:left;-webkit-font-smoothing:antialiased}
+.thr-card{max-width:480px;margin:0 auto;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;overflow:hidden;box-shadow:0 12px 30px rgba(15,23,42,.08)}
+.thr-bar{height:3px;background:#0F172A}
+.thr-body{padding:20px 22px}
+.thr-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;color:#64748B;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.thr-brand{display:inline-flex;align-items:center;gap:6px;color:#0F172A}
+.thr-src{font-family:'JetBrains Mono',monospace;font-weight:500;letter-spacing:0;text-transform:none;color:#64748B;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thr-lemma{font-family:Newsreader,Georgia,serif;font-size:36px;font-weight:500;line-height:1.08;letter-spacing:-.02em;color:#0F172A}
+.thr-ipa{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#64748B;margin-top:4px}
+.thr-sent{margin-top:16px;padding:12px 14px;border-radius:12px;background:#F8FAFC;border:1px solid #E2E8F0;font-size:15px;line-height:1.55;color:#1E293B}
+.thr-div{height:1px;background:#E2E8F0;margin:16px 0}
+.thr-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.thr-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:600;border:1px solid #E2E8F0;background:#F8FAFC;color:#475569}
+.thr-pill.cefr{background:#0F172A;border-color:#0F172A;color:#FFFFFF}
+.thr-pill.rank{font-family:'JetBrains Mono',monospace;font-weight:500}
+.thr-defs{font-size:14.5px;line-height:1.55;color:#0F172A}
+.nightMode .card,.night_mode .card{background:#0A0A0C;color:#F8FAFC}
+.nightMode .thr-card,.night_mode .thr-card{background:#141418;border-color:rgba(255,255,255,.12)}
+.nightMode .thr-bar,.night_mode .thr-bar{background:#FFFFFF}
+.nightMode .thr-brand,.night_mode .thr-brand,.nightMode .thr-lemma,.night_mode .thr-lemma,.nightMode .thr-defs,.night_mode .thr-defs{color:#F8FAFC}
+.nightMode .thr-sent,.night_mode .thr-sent{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.1);color:#E2E8F0}
+.nightMode .thr-div,.night_mode .thr-div{background:rgba(255,255,255,.1)}
+.nightMode .thr-pill,.night_mode .thr-pill{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#CBD5E1}
+.nightMode .thr-pill.cefr,.night_mode .thr-pill.cefr{background:#FFFFFF;border-color:#FFFFFF;color:#0F172A}`;
+const QFMT = `<div class="thr-card"><div class="thr-bar"></div><div class="thr-body"><div class="thr-top"><span class="thr-brand">${BRAND_SVG}<span>Threshold</span></span>{{#Source}}<span class="thr-src">{{Source}}</span>{{/Source}}</div><div class="thr-lemma">{{Lemma}}</div>{{#IPA}}<div class="thr-ipa">{{IPA}}</div>{{/IPA}}{{#Sentence}}<div class="thr-sent">{{Sentence}}</div>{{/Sentence}}</div></div>`;
+const AFMT = `<div class="thr-card"><div class="thr-bar"></div><div class="thr-body"><div class="thr-top"><span class="thr-brand">${BRAND_SVG}<span>Threshold</span></span>{{#Source}}<span class="thr-src">{{Source}}</span>{{/Source}}</div><div class="thr-lemma">{{Lemma}}</div>{{#IPA}}<div class="thr-ipa">{{IPA}}</div>{{/IPA}}{{#Sentence}}<div class="thr-sent">{{Sentence}}</div>{{/Sentence}}<div class="thr-div"></div><div class="thr-pills">{{#CEFR}}<span class="thr-pill cefr">{{CEFR}}</span>{{/CEFR}}{{#POS}}<span class="thr-pill">{{POS}}</span>{{/POS}}{{#Rank}}<span class="thr-pill rank">#{{Rank}}</span>{{/Rank}}</div><div class="thr-defs">{{Definition}}</div></div></div>`;
 
 export const FIELD_NAMES = ["Lemma", "IPA", "POS", "CEFR", "Rank", "Sentence", "Definition", "Source"];
 
