@@ -63,8 +63,10 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
   useEffect(() => {
     if (prevFilterSigRef.current === filterSignature) return;
     prevFilterSigRef.current = filterSignature;
-    setSearchParams((prev) => buildPageSearchParams(prev, 1), { replace: true });
-  }, [filterSignature, setSearchParams]);
+    if (parsePageParam(searchParams.get("page")) > 1) {
+      setSearchParams((prev) => buildPageSearchParams(prev, 1), { replace: true });
+    }
+  }, [filterSignature, searchParams, setSearchParams]);
 
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize));
   const safePage = Math.min(currentPage, totalPages);

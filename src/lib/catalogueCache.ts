@@ -1,7 +1,7 @@
 import { delIdbValue, getIdbValue, setIdbValue } from "@/lib/idbCache";
 import type { MediaCatalogItem } from "@/types/media.types";
 
-const CACHE_KEY = "eleno_index_catalogue_v6";
+const CACHE_KEY = "eleno_index_catalogue_v7";
 const LEGACY_LOCAL_KEY = "eleno_index_catalogue_v3";
 let memoryCatalogue: MediaCatalogItem[] = [];
 
