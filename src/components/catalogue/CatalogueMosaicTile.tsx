@@ -49,7 +49,7 @@ export const CatalogueMosaicTile: React.FC<CatalogueMosaicTileProps> = ({
 
         <div className="relative z-10 flex items-start justify-between gap-1">
           <div className="flex items-center gap-1">
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold shadow-xs ${getCefrBadgeClass(level)}`}>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm shadow-sm ${getCefrBadgeClass(level)}`}>
               {level}
             </span>
             {item.has_audio && (
