@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Download } from "lucide-react";
-import { ankiFilename, buildAnkiTsv, downloadTextFile, type RankingSource } from "@/lib/ankiExport";
+import type { RankingSource } from "@/lib/ankiExport";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 
 interface ExportAnkiButtonProps {
@@ -11,9 +11,7 @@ interface ExportAnkiButtonProps {
   rankingSource: RankingSource;
 }
 
-const COLUMNS = "Lemma · IPA · POS · CEFR · Rank · Frequency · Definition · Chapter · Status";
-
-/** Downloads the currently filtered words as a tab-separated table (client-side only). */
+/** Downloads the currently filtered words as a styled Anki .apkg deck (lazy-loaded client-side). */
 export const ExportAnkiButton: React.FC<ExportAnkiButtonProps> = ({
   words,
   statusMap,
@@ -21,14 +19,18 @@ export const ExportAnkiButton: React.FC<ExportAnkiButtonProps> = ({
   mediaItemId,
   rankingSource,
 }) => {
-  const disabled = words.length === 0;
+  const [exporting, setExporting] = useState(false);
+  const disabled = words.length === 0 || exporting;
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (disabled) return;
-    downloadTextFile(
-      ankiFilename(mediaTitle, mediaItemId),
-      buildAnkiTsv(words, statusMap, rankingSource)
-    );
+    setExporting(true);
+    try {
+      const { downloadApkgDeck } = await import("@/lib/ankiApkgExport");
+      await downloadApkgDeck(words, statusMap, mediaTitle, mediaItemId, rankingSource);
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -36,11 +38,11 @@ export const ExportAnkiButton: React.FC<ExportAnkiButtonProps> = ({
       type="button"
       onClick={handleExport}
       disabled={disabled}
-      title={`Download the filtered words as a TSV. Columns: ${COLUMNS}`}
+      title="Download filtered words as an Anki .apkg deck (Lemma, IPA, Sentence, Definition, CEFR, Rank)"
       className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-xs hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
     >
       <Download className="h-3.5 w-3.5" />
-      Export {words.length.toLocaleString()} · Anki TSV
+      {exporting ? "Building .apkg…" : `Export ${words.length.toLocaleString()} · Anki (.apkg)`}
     </button>
   );
 };

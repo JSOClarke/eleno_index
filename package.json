@@ -12,10 +12,12 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
     "clsx": "^2.1.1",
+    "jszip": "^3.10.2",
     "lucide-react": "^1.16.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.18.5",
+    "sql.js": "^1.17.0",
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
@@ -23,6 +25,7 @@
     "@types/node": "^22.13.5",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@types/sql.js": "^1.16.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "jsdom": "^31.0.1",
