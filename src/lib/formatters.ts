@@ -65,9 +65,8 @@ export function getMediaSubtypeLabel(item: MediaCatalogItem): string {
       : mType.startsWith("tv")
       ? "TV Series"
       : "Film";
-    if (durMin && item.release_year) return `${prefix} · ${item.release_year} · ${durMin}m`;
     if (durMin) return `${prefix} · ${durMin} min`;
-    return item.release_year ? `${prefix} · ${item.release_year}` : prefix;
+    return prefix;
   }
   const typeLabel = mType === "manga" ? "Manga" : mType === "comic" ? "Comic" : mType === "podcast" ? "Podcast" : mType === "article" ? "Article" : "Book";
   if (seriesName) {
@@ -76,8 +75,7 @@ export function getMediaSubtypeLabel(item: MediaCatalogItem): string {
       : item.series_order !== null && item.series_order !== undefined
       ? ` #${item.series_order}`
       : "";
-    const yearTag = item.release_year ? ` · ${item.release_year}` : "";
-    return `${seriesName}${orderTag}${yearTag}`;
+    return `${seriesName}${orderTag}`;
   }
-  return item.release_year ? `${typeLabel} · ${item.release_year}` : typeLabel;
+  return typeLabel;
 }
