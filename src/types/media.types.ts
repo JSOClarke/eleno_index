@@ -134,6 +134,7 @@ export interface MediaCatalogItem {
   series_name?: string | null;
   series_order?: number | null;
   series_label?: string | null;
+  popularity_score?: number | null;
   metrics: MediaMetrics | null;
   comprehension: MediaComprehensionStats | null;
   has_audio?: boolean;

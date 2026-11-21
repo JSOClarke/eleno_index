@@ -6,6 +6,7 @@ export type FlowTier = "all" | "fluent" | "sweet_spot" | "challenge";
 
 export type CatalogueSortOption =
   | "flow_desc"
+  | "popularity_desc"
   | "difficulty_asc"
   | "difficulty_desc"
   | "tokens_asc"

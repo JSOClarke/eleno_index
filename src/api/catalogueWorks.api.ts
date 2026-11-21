@@ -83,6 +83,12 @@ function toWork(row: any): MediaCatalogItem | null {
     work_title: workTitle,
     work_language: String(row.original_language || "en"),
     work_synopsis: workSynopsis,
+    popularity_score:
+      row.popularity_score != null
+        ? Number(row.popularity_score)
+        : row.metadata?.popularity_score != null
+          ? Number(row.metadata.popularity_score)
+          : null,
     sampleSnippet: workSynopsis || primary.sampleSnippet,
     sampleSourceLabel: workSynopsis ? "WORK SYNOPSIS · EN" : primary.sampleSourceLabel,
     has_audio: Boolean(primary.has_audio || editions.some((ed: MediaCatalogItem) => ed.has_audio)),

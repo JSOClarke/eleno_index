@@ -12,6 +12,7 @@ const CEFR_RANK: Record<string, number> = {
 
 export const SORT_OPTIONS: { id: CatalogueSortOption; label: string }[] = [
   { id: "flow_desc", label: "Best Fit (Comprehension Flow)" },
+  { id: "popularity_desc", label: "Most Popular" },
   { id: "difficulty_asc", label: "Difficulty: Beginner (A1 → C2)" },
   { id: "difficulty_desc", label: "Difficulty: Advanced (C2 → A1)" },
   { id: "tokens_asc", label: "Length: Shortest First" },
@@ -38,6 +39,12 @@ export function sortCatalogueItems(
         const flowB = b.comprehension?.text_coverage_percentage ?? 0;
         if (flowB !== flowA) return flowB - flowA;
         return (mB?.readability_score || 0) - (mA?.readability_score || 0);
+      }
+      case "popularity_desc": {
+        const popA = a.popularity_score ?? -1;
+        const popB = b.popularity_score ?? -1;
+        if (popB !== popA) return popB - popA;
+        return (b.comprehension?.text_coverage_percentage ?? 0) - (a.comprehension?.text_coverage_percentage ?? 0);
       }
       case "difficulty_asc": {
         const rankA = CEFR_RANK[mA?.cefr_level || "B1"] || 3;

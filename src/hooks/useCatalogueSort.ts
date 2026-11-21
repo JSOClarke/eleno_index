@@ -4,6 +4,7 @@ import type { CatalogueSortOption } from "@/types/filter.types";
 
 const VALID_SORT_OPTIONS = new Set<CatalogueSortOption>([
   "flow_desc",
+  "popularity_desc",
   "difficulty_asc",
   "difficulty_desc",
   "tokens_asc",
