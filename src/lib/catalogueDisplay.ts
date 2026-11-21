@@ -1,12 +1,12 @@
 import type { MediaCatalogItem, MediaPlatformLink } from "@/types/media.types";
 
-const CEFR_BADGES: Record<string, string> = {
-  A1: "bg-slate-50/95 text-slate-600 ring-1 ring-slate-200",
-  A2: "bg-slate-100/95 text-slate-700 ring-1 ring-slate-300/80",
-  B1: "bg-amber-50/95 text-amber-800 ring-1 ring-amber-200/90",
-  B2: "bg-amber-100/95 text-amber-900 ring-1 ring-amber-300/90",
-  C1: "bg-slate-800/95 text-slate-50 ring-1 ring-slate-800",
-  C2: "bg-slate-950/95 text-amber-300 ring-1 ring-slate-900",
+export const CEFR_BADGES: Record<string, string> = {
+  A1: "bg-white/95 text-slate-500 ring-1 ring-slate-200",
+  A2: "bg-slate-50/95 text-slate-600 ring-1 ring-slate-200",
+  B1: "bg-slate-100/95 text-slate-800 ring-1 ring-slate-300/90",
+  B2: "bg-slate-200/95 text-slate-900 ring-1 ring-slate-300",
+  C1: "bg-slate-800/95 text-slate-100 ring-1 ring-slate-800",
+  C2: "bg-slate-950/95 text-white ring-1 ring-slate-950",
 };
 
 export function getCefrBadgeClass(level: string): string {

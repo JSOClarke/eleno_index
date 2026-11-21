@@ -99,11 +99,11 @@ export const CatalogueMosaicTile: React.FC<CatalogueMosaicTileProps> = ({
           {isAuthenticated ? (
             <>
               <div className="flex items-center justify-between text-[11px]">
-                <span className="font-semibold text-emerald-700 tabular-nums">{Math.round(flowPct)}% match</span>
+                <span className="font-semibold text-slate-900 tabular-nums">{Math.round(flowPct)}% match</span>
                 <span className="text-slate-400">{formatCompactWords(m?.total_tokens || 0)}</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                <div className="h-full rounded-full bg-emerald-500" style={{ width: `${Math.min(100, flowPct)}%` }} />
+                <div className="h-full rounded-full bg-slate-800" style={{ width: `${Math.min(100, flowPct)}%` }} />
               </div>
             </>
           ) : (
