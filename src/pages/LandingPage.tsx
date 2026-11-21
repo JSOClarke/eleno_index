@@ -9,9 +9,9 @@ interface LandingPageProps {
 }
 
 const QUICK_LINKS = [
-  { to: "/catalogue", title: "Catalogue", desc: "990+ works ranked by your real Reading Flow & CEFR." },
-  { to: "/dictionary", title: "Dictionary & Sentence Bank", desc: "Search lemmas or conjugated forms across 6.58M sentences." },
-  { to: "/known-words", title: "Known Words", desc: "Track your vocabulary ledger and apply frequency packs." },
+  { to: "/catalogue", title: "Catalogue", desc: "Browse books ranked by Reading Flow & CEFR, inspect chapter pacing, and export i+1 Anki decks." },
+  { to: "/dictionary", title: "Dictionary & Sentence Bank", desc: "Search lemmas or conjugated forms across millions of real corpus sentences." },
+  { to: "/known-words", title: "Known Words", desc: "Track your vocabulary and apply frequency starter packs." },
 ];
 
 export const LandingPage: React.FC<LandingPageProps> = ({ isAuthenticated, onRequireAuth }) => {
@@ -23,7 +23,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ isAuthenticated, onReq
             Know what you can actually read before you start.
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl">
-            Threshold measures real text coverage across native books using your known vocabulary, surfaces i+1 sentences, and syncs what you learn across the web.
+            Threshold measures real text coverage from your vocabulary, pulls i+1 sentences with only one unknown word, and exports ready-to-study Anki decks — synced with the web extension.
           </p>
         </div>
 

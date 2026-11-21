@@ -5,19 +5,19 @@ const STEPS = [
   {
     num: "01",
     title: "Build Your Word Bank",
-    desc: "Seed what you already know with frequency starter packs in Known Words, or look up any conjugated form in the Dictionary across 6.58M corpus sentences.",
+    desc: "Seed what you already know with frequency starter packs in Known Words, or look up any conjugated form in the Dictionary with real corpus examples.",
     Preview: StepOnePreview,
   },
   {
     num: "02",
     title: "Pick Books at Your Threshold",
-    desc: "Sort 990+ works by Reading Flow (% of words you already know), filter by CEFR or length, spot Native Spanish/French titles, and inspect chapter pacing.",
+    desc: "Sort the catalogue by Reading Flow (% of words you already know), inspect chapter pacing, extract i+1 sentences where only one word is new, and export clean flashcards straight to Anki (.apkg).",
     Preview: StepTwoPreview,
   },
   {
     num: "03",
     title: "Read Anywhere with the Extension",
-    desc: "Parse any web article or ttu-ebook-reader page, click words for definitions and candidate dots (● ○ ○), or right-press & drag the radial wheel to mark words in one motion.",
+    desc: "Parse web articles, ttu-ebook-reader pages, or YouTube subtitles with asbplayer — highlight i+1 sentences, toggle monolingual/English definitions, or mark words in one motion.",
     Preview: StepThreePreview,
   },
 ];
