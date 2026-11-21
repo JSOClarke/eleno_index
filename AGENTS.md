@@ -14,3 +14,6 @@
   - Any URL configured with `127.0.0.1` or `localhost` (Supabase URL, Storage cover art URLs, Admin API URL) must pass through `resolveLocalHostUrl` in `src/lib/supabase.ts` so devices on the local network (`192.168.x.x`) resolve against the active host automatically.
 - **Optimistic UI & Caching**:
   - Marking a word as `Known`, `Learning`, or `Unknown` must apply a `0ms` optimistic update to local state (`useUserVocabulary`, `useCatalogueData`, `useMediaInspector`) followed by a debounced (`1.2s`) RPC reconciliation.
+- **End-to-End (E2E) Browser Testing for New Features**:
+  - When adding or modifying user-facing UI flows (sorting, filtering, URL state, navigation, exports, auth-gated actions), create or update a real headless-Chromium E2E test under `scripts/e2e-*.mjs` (using Playwright + `/usr/bin/chromium`) alongside Vitest unit tests.
+  - Verify actual DOM changes, URL/reload persistence, real Supabase/API data (checking both local and production Oracle Cloud targets when relevant), and `0` browser console errors before marking the task done.
