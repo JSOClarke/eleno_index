@@ -27,7 +27,7 @@ function makeBooks(count: number): MediaCatalogItem[] {
 
 function makeFilterState() {
   return {
-    filters: { searchText: "", tags: [], levels: new Set(), types: new Set(), lengths: new Set(), profiles: new Set(), genres: new Set(), publishers: new Set(), years: new Set(), hasAudio: false, flowTier: "all" as const },
+    filters: { searchText: "", tags: [], levels: new Set(), types: new Set(), origins: new Set(), lengths: new Set(), profiles: new Set(), genres: new Set(), publishers: new Set(), years: new Set(), hasAudio: false, flowTier: "all" as const },
     searchText: "", setSearchText: vi.fn(), savedIds: new Set<string>(), historyIds: new Set<string>(),
     toggleLevel: vi.fn(), toggleType: vi.fn(), toggleLength: vi.fn(), toggleProfile: vi.fn(), toggleGenre: vi.fn(), togglePublisher: vi.fn(), toggleYear: vi.fn(),
     toggleHasAudio: vi.fn(), setFlowTier: vi.fn(), toggleSave: vi.fn(), recordHistory: vi.fn(), removeTag: vi.fn(), addTag: vi.fn(), clearAll: vi.fn(),

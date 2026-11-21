@@ -1,6 +1,10 @@
 import { getLengthBucket, getMediaCategoryLabel, toPercentNumber } from "@/lib/formatters";
-import type { CatalogueFilterState, FlowTier } from "@/types/filter.types";
+import type { CatalogueFilterState, FlowTier, OriginFilter } from "@/types/filter.types";
 import type { MediaCatalogItem } from "@/types/media.types";
+
+export function isNativeWork(item: MediaCatalogItem): boolean {
+  return Boolean(item.work_language && item.work_language.toLowerCase() === item.language.toLowerCase());
+}
 
 export function matchesFlowTier(coverage: number, tier: FlowTier): boolean {
   if (tier === "fluent") return coverage >= 95;
@@ -30,6 +34,11 @@ export function matchesCatalogueFilters(
 
   const cat = getMediaCategoryLabel(item);
   if (filters.types.size > 0 && !filters.types.has(cat)) return false;
+
+  if (filters.origins.size > 0) {
+    const origin: OriginFilter = isNativeWork(item) ? "native" : "translated";
+    if (!filters.origins.has(origin)) return false;
+  }
 
   const bucket = getLengthBucket(m?.total_tokens || 0);
   if (filters.lengths.size > 0 && !filters.lengths.has(bucket)) return false;
@@ -93,6 +102,7 @@ function cloneFilters(f: CatalogueFilterState): CatalogueFilterState {
     tags: f.tags,
     levels: new Set(f.levels),
     types: new Set(f.types),
+    origins: new Set(f.origins),
     lengths: new Set(f.lengths),
     profiles: new Set(f.profiles),
     genres: new Set(f.genres),
@@ -127,6 +137,7 @@ export function calculateFacetCounts(
 ) {
   const levels: Record<string, number> = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 };
   const types: Record<string, number> = { "Book / Reader": 0, "Film / Subtitles": 0 };
+  const origins: Record<OriginFilter, number> = { native: 0, translated: 0 };
   const lengths: Record<string, number> = { under25k: 0, "25to80k": 0, "80k+": 0 };
   const profiles: Record<string, number> = { dialogue20: 0, fh70: 0, subj2: 0 };
   const genres: Record<string, number> = {};
@@ -157,6 +168,11 @@ export function calculateFacetCounts(
   for (const item of scope((f) => { f.types = new Set(); })) {
     const cat = getMediaCategoryLabel(item);
     if (types[cat] !== undefined) types[cat] += 1;
+  }
+
+  for (const item of scope((f) => { f.origins = new Set(); })) {
+    const origin: OriginFilter = isNativeWork(item) ? "native" : "translated";
+    origins[origin] += 1;
   }
 
   for (const item of scope((f) => { f.lengths = new Set(); })) {
@@ -200,5 +216,5 @@ export function calculateFacetCounts(
     else flow.challenge += 1;
   }
 
-  return { levels, types, lengths, profiles, genres, publishers, years, audio, flow };
+  return { levels, types, origins, lengths, profiles, genres, publishers, years, audio, flow };
 }

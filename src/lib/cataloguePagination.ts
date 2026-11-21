@@ -19,5 +19,5 @@ export function buildFilterSignature(
   sortOption: string,
   f: CatalogueFilterState
 ): string {
-  return `${mode}|${sortOption}|${f.searchText}|${f.tags.map((x) => `${x.key}:${x.value}`).join(",")}|${[...f.levels].join(",")}|${[...f.types].join(",")}|${[...f.lengths].join(",")}|${[...f.profiles].join(",")}|${[...f.genres].join(",")}|${[...f.publishers].join(",")}|${[...f.years].join(",")}|${f.hasAudio}|${f.flowTier}`;
+  return `${mode}|${sortOption}|${f.searchText}|${f.tags.map((x) => `${x.key}:${x.value}`).join(",")}|${[...f.levels].join(",")}|${[...f.types].join(",")}|${[...f.origins].join(",")}|${[...f.lengths].join(",")}|${[...f.profiles].join(",")}|${[...f.genres].join(",")}|${[...f.publishers].join(",")}|${[...f.years].join(",")}|${f.hasAudio}|${f.flowTier}`;
 }

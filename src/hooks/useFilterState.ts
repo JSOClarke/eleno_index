@@ -4,8 +4,14 @@ import type {
   CommandTag,
   FlowTier,
   LengthBucket,
+  OriginFilter,
   ProfileFilterId,
 } from "@/types/filter.types";
+
+const ORIGIN_LABELS: Record<OriginFilter, string> = {
+  native: "Native Original",
+  translated: "Translated",
+};
 
 const LENGTH_LABELS: Record<LengthBucket, string> = {
   under25k: "<25k words",
@@ -31,6 +37,7 @@ export function useFilterState() {
   const [customWords, setCustomWords] = useState<string[]>([]);
   const [levels, setLevels] = useState<Set<string>>(() => new Set());
   const [types, setTypes] = useState<Set<string>>(() => new Set());
+  const [origins, setOrigins] = useState<Set<OriginFilter>>(() => new Set());
   const [lengths, setLengths] = useState<Set<LengthBucket>>(() => new Set());
   const [profiles, setProfiles] = useState<Set<ProfileFilterId>>(() => new Set());
   const [genres, setGenres] = useState<Set<string>>(() => new Set());
@@ -53,6 +60,14 @@ export function useFilterState() {
     setTypes((prev) => {
       const next = new Set(prev);
       next.has(t) ? next.delete(t) : next.add(t);
+      return next;
+    });
+  }, []);
+
+  const toggleOrigin = useCallback((o: OriginFilter) => {
+    setOrigins((prev) => {
+      const next = new Set(prev);
+      next.has(o) ? next.delete(o) : next.add(o);
       return next;
     });
   }, []);
@@ -111,6 +126,7 @@ export function useFilterState() {
     const list: CommandTag[] = [];
     if (levels.size > 0) list.push({ id: "levels", key: "level", value: Array.from(levels).join("–") });
     types.forEach((t) => list.push({ id: `type:${t}`, key: "type", value: t }));
+    origins.forEach((o) => list.push({ id: `origin:${o}`, key: "origin", value: ORIGIN_LABELS[o] }));
     lengths.forEach((l) => list.push({ id: `length:${l}`, key: "length", value: LENGTH_LABELS[l] }));
     profiles.forEach((p) => list.push({ id: `profile:${p}`, key: "profile", value: PROFILE_LABELS[p] }));
     genres.forEach((g) => list.push({ id: `genre:${g}`, key: "genre", value: g }));
@@ -120,7 +136,7 @@ export function useFilterState() {
     if (flowTier !== "all") list.push({ id: `flow:${flowTier}`, key: "flow", value: FLOW_LABELS[flowTier] });
     customWords.forEach((w) => list.push({ id: `word:${w}`, key: "search", value: w }));
     return list;
-  }, [levels, types, lengths, profiles, genres, publishers, years, hasAudio, flowTier, customWords]);
+  }, [levels, types, origins, lengths, profiles, genres, publishers, years, hasAudio, flowTier, customWords]);
 
   const removeTag = useCallback((id: string) => {
     if (id === "levels") setLevels(new Set());
@@ -129,6 +145,9 @@ export function useFilterState() {
     else if (id.startsWith("type:")) {
       const val = id.slice(5);
       setTypes((prev) => { const n = new Set(prev); n.delete(val); return n; });
+    } else if (id.startsWith("origin:")) {
+      const val = id.slice(7) as OriginFilter;
+      setOrigins((prev) => { const n = new Set(prev); n.delete(val); return n; });
     } else if (id.startsWith("length:")) {
       const val = id.slice(7) as LengthBucket;
       setLengths((prev) => { const n = new Set(prev); n.delete(val); return n; });
@@ -157,6 +176,7 @@ export function useFilterState() {
   const clearAll = useCallback(() => {
     setLevels(new Set());
     setTypes(new Set());
+    setOrigins(new Set());
     setLengths(new Set());
     setProfiles(new Set());
     setGenres(new Set());
@@ -170,12 +190,12 @@ export function useFilterState() {
 
   const filters: CatalogueFilterState = useMemo(() => ({
     searchText: [searchText, ...customWords].join(" ").trim(),
-    tags, levels, types, lengths, profiles, genres, publishers, years, hasAudio, flowTier,
-  }), [searchText, customWords, tags, levels, types, lengths, profiles, genres, publishers, years, hasAudio, flowTier]);
+    tags, levels, types, origins, lengths, profiles, genres, publishers, years, hasAudio, flowTier,
+  }), [searchText, customWords, tags, levels, types, origins, lengths, profiles, genres, publishers, years, hasAudio, flowTier]);
 
   return {
     filters, searchText, setSearchText, savedIds, historyIds,
-    toggleLevel, toggleType, toggleLength, toggleProfile, toggleGenre, togglePublisher, toggleYear,
+    toggleLevel, toggleType, toggleOrigin, toggleLength, toggleProfile, toggleGenre, togglePublisher, toggleYear,
     toggleHasAudio, setFlowTier,
     toggleSave, recordHistory, removeTag, addTag, clearAll,
   };

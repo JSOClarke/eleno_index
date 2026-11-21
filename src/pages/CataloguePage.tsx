@@ -80,7 +80,7 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
   }, [pagedItems, onEnsurePreviewWords]);
 
   const activeFilterCount = filterState.filters.levels.size + filterState.filters.types.size +
-    filterState.filters.lengths.size + filterState.filters.profiles.size +
+    filterState.filters.origins.size + filterState.filters.lengths.size + filterState.filters.profiles.size +
     (filterState.filters.hasAudio ? 1 : 0) + (filterState.filters.flowTier !== "all" ? 1 : 0);
 
   const handleChangeViewMode = (nextMode: CatalogueViewMode) => {
@@ -138,7 +138,7 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
       <CatalogueFiltersSheet
         open={filtersOpen} onClose={() => setFiltersOpen(false)}
         filters={filterState.filters} counts={facetCounts}
-        onToggleLevel={filterState.toggleLevel} onToggleType={filterState.toggleType}
+        onToggleLevel={filterState.toggleLevel} onToggleType={filterState.toggleType} onToggleOrigin={filterState.toggleOrigin}
         onToggleLength={filterState.toggleLength} onToggleProfile={filterState.toggleProfile}
         onToggleGenre={filterState.toggleGenre} onTogglePublisher={filterState.togglePublisher}
         onToggleYear={filterState.toggleYear}

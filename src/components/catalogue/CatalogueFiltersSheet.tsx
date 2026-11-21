@@ -5,12 +5,14 @@ import type {
   CatalogueFilterState,
   FlowTier,
   LengthBucket,
+  OriginFilter,
   ProfileFilterId,
 } from "@/types/filter.types";
 
 interface FacetCounts {
   levels: Record<string, number>;
   types: Record<string, number>;
+  origins: Record<OriginFilter, number>;
   lengths: Record<string, number>;
   profiles: Record<string, number>;
   genres: Record<string, number>;
@@ -27,6 +29,7 @@ interface CatalogueFiltersSheetProps {
   counts: FacetCounts;
   onToggleLevel: (level: string) => void;
   onToggleType: (type: string) => void;
+  onToggleOrigin: (origin: OriginFilter) => void;
   onToggleLength: (bucket: LengthBucket) => void;
   onToggleProfile: (profile: ProfileFilterId) => void;
   onToggleGenre: (genre: string) => void;
@@ -45,6 +48,7 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
   counts,
   onToggleLevel,
   onToggleType,
+  onToggleOrigin,
   onToggleLength,
   onToggleProfile,
   onToggleGenre,
@@ -85,6 +89,7 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
       counts={counts}
       onToggleLevel={onToggleLevel}
       onToggleType={onToggleType}
+      onToggleOrigin={onToggleOrigin}
       onToggleLength={onToggleLength}
       onToggleProfile={onToggleProfile}
       onToggleGenre={onToggleGenre}

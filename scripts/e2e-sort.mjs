@@ -76,8 +76,19 @@ try {
   await page.waitForTimeout(500);
   assert.ok(!page.url().includes("sort="), `Expected sort param removed for default Most Popular sort, got ${page.url()}`);
 
+  // Test Language Origin filter (Native Original vs Translated)
+  await page.locator("button:has-text('Filters')").first().click();
+  await page.waitForSelector("button:has-text('Native Original')", { timeout: 5000 });
+  await page.locator("button:has-text('Native Original')").first().click();
+  await page.locator("button:has-text('Show ')").first().click();
+  await page.waitForTimeout(400);
+  const nativeTitles = await getVisibleTitles();
+  console.log("NATIVE ONLY top 4:", nativeTitles.slice(0, 4));
+  assert.notDeepEqual(nativeTitles, popularTitles, "Expected Native Original filter to change visible items");
+  assert.ok(!nativeTitles.includes("Nineteen Eighty-Four"), "Expected translated book Nineteen Eighty-Four to be excluded by Native Original");
+
   assert.equal(consoleErrors.length, 0, `Unexpected console errors: ${consoleErrors.join("; ")}`);
-  console.log("E2E PASS: Most Popular is default, 20 cards/page fills 5-col & 2-col grids evenly, sort persists across reload, 0 console errors.");
+  console.log("E2E PASS: Most Popular is default, 20 cards/page fills 5-col & 2-col grids evenly, Language Origin filter works, 0 console errors.");
 } finally {
   await browser.close();
 }

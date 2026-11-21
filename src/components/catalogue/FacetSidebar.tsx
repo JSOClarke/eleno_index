@@ -3,6 +3,7 @@ import type {
   CatalogueFilterState,
   FlowTier,
   LengthBucket,
+  OriginFilter,
   ProfileFilterId,
 } from "@/types/filter.types";
 import { FacetGroup } from "./FacetGroup";
@@ -12,6 +13,7 @@ interface FacetSidebarProps {
   counts: {
     levels: Record<string, number>;
     types: Record<string, number>;
+    origins: Record<OriginFilter, number>;
     lengths: Record<string, number>;
     profiles: Record<string, number>;
     genres: Record<string, number>;
@@ -22,6 +24,7 @@ interface FacetSidebarProps {
   };
   onToggleLevel: (level: string) => void;
   onToggleType: (type: string) => void;
+  onToggleOrigin: (origin: OriginFilter) => void;
   onToggleLength: (bucket: LengthBucket) => void;
   onToggleProfile: (profile: ProfileFilterId) => void;
   onToggleGenre: (genre: string) => void;
@@ -51,6 +54,7 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
   counts,
   onToggleLevel,
   onToggleType,
+  onToggleOrigin,
   onToggleLength,
   onToggleProfile,
   onToggleGenre,
@@ -81,6 +85,11 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
     label: t,
     count: counts.types[t] || 0,
   }));
+
+  const originOptions = [
+    { id: "native", label: "Native Original", count: counts.origins.native || 0 },
+    { id: "translated", label: "Translated", count: counts.origins.translated || 0 },
+  ];
 
   const lengthOptions = [
     { id: "under25k", label: "< 25k words", count: counts.lengths.under25k || 0 },
@@ -129,6 +138,12 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
         options={typeOptions}
         selectedSet={filters.types}
         onToggle={onToggleType}
+      />
+      <FacetGroup
+        title="Language Origin"
+        options={originOptions}
+        selectedSet={filters.origins as Set<string>}
+        onToggle={(id) => onToggleOrigin(id as OriginFilter)}
       />
       <FacetGroup
         title="Length"
