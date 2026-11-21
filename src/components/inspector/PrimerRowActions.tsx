@@ -40,8 +40,8 @@ export const PrimerRowActions: React.FC<PrimerRowActionsProps> = ({
       aria-pressed={isLearning}
       className={`rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
         isLearning
-          ? "border-amber-300 bg-amber-100 text-amber-800"
-          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+          ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
+          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
       }`}
     >
       Learn
@@ -53,8 +53,8 @@ export const PrimerRowActions: React.FC<PrimerRowActionsProps> = ({
       aria-pressed={isKnown}
       className={`rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
         isKnown
-          ? "border-emerald-600 bg-emerald-600 text-white"
-          : "border-slate-200 bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200"
+          ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
+          : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
       }`}
     >
       Known

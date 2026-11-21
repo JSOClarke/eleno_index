@@ -100,8 +100,8 @@ export const SentenceTokenInspector: React.FC<SentenceTokenInspectorProps> = ({
           aria-pressed={isLearning}
           className={`rounded-lg px-2.5 py-1 border font-medium transition cursor-pointer ${
             isLearning
-              ? "border-amber-300 bg-amber-100 text-amber-800"
-              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
+              ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
+              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
           }`}
         >
           Learn
@@ -112,8 +112,8 @@ export const SentenceTokenInspector: React.FC<SentenceTokenInspectorProps> = ({
           aria-pressed={isKnown}
           className={`rounded-lg px-2.5 py-1 border font-medium transition cursor-pointer ${
             isKnown
-              ? "border-emerald-600 bg-emerald-600 text-white"
-              : "border-slate-200 bg-white text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200"
+              ? "border-slate-900 bg-slate-900 text-white hover:bg-slate-800"
+              : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900"
           }`}
         >
           Known

@@ -32,7 +32,7 @@ export const PreviewWordChips: React.FC<PreviewWordChipsProps> = ({
             compact ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-0.5 text-xs"
           } ${
             isKnown
-              ? "bg-emerald-600 text-white"
+              ? "bg-slate-900 text-white hover:bg-slate-800"
               : "border border-slate-200 bg-white text-slate-700 hover:border-slate-300"
           }`}
         >

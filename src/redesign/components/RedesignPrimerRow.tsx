@@ -51,7 +51,7 @@ export const RedesignPrimerRow: React.FC<RedesignPrimerRowProps> = ({
         type="button"
         onClick={() => onToggleStatus(word.canonical_id, "learning")}
         className={`rounded-lg px-2 py-1 text-[11px] font-medium cursor-pointer transition ${
-          isLearning ? "bg-amber-100 text-amber-800 ring-1 ring-amber-300" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+          isLearning ? "border border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
         }`}
       >
         Learn
@@ -60,7 +60,7 @@ export const RedesignPrimerRow: React.FC<RedesignPrimerRowProps> = ({
         type="button"
         onClick={() => onToggleStatus(word.canonical_id, "known")}
         className={`rounded-lg px-2 py-1 text-[11px] font-medium cursor-pointer transition ${
-          isKnown ? "bg-emerald-600 text-white" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+          isKnown ? "border border-slate-900 bg-slate-900 text-white hover:bg-slate-800" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
         }`}
       >
         Known ✓
