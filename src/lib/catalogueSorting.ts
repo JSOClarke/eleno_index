@@ -11,8 +11,8 @@ const CEFR_RANK: Record<string, number> = {
 };
 
 export const SORT_OPTIONS: { id: CatalogueSortOption; label: string }[] = [
-  { id: "flow_desc", label: "Best Fit (Comprehension Flow)" },
   { id: "popularity_desc", label: "Most Popular" },
+  { id: "flow_desc", label: "Best Fit (Comprehension Flow)" },
   { id: "difficulty_asc", label: "Difficulty: Beginner (A1 → C2)" },
   { id: "difficulty_desc", label: "Difficulty: Advanced (C2 → A1)" },
   { id: "tokens_asc", label: "Length: Shortest First" },

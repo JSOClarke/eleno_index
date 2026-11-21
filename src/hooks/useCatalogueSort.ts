@@ -20,7 +20,7 @@ export function useCatalogueSort() {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlSort = searchParams.get("sort") as CatalogueSortOption | null;
   const initialSort: CatalogueSortOption =
-    urlSort && VALID_SORT_OPTIONS.has(urlSort) ? urlSort : "flow_desc";
+    urlSort && VALID_SORT_OPTIONS.has(urlSort) ? urlSort : "popularity_desc";
 
   const [sortOption, setSortOptionState] = useState<CatalogueSortOption>(initialSort);
 
@@ -29,7 +29,7 @@ export function useCatalogueSort() {
       setSortOptionState(newSort);
       setSearchParams((prev) => {
         const next = new URLSearchParams(prev);
-        if (newSort === "flow_desc") {
+        if (newSort === "popularity_desc") {
           next.delete("sort");
         } else {
           next.set("sort", newSort);

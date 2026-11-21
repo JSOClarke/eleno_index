@@ -10,7 +10,7 @@ export function useFacetCounts(
   savedIds: Set<string>,
   historyIds: Set<string>,
   activeNav: string,
-  sortOption: CatalogueSortOption = "flow_desc"
+  sortOption: CatalogueSortOption = "popularity_desc"
 ) {
   const facetCounts = useMemo(
     () => calculateFacetCounts(items, filters, savedIds, historyIds, activeNav),

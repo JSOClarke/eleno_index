@@ -34,10 +34,8 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const rawView = searchParams.get("view");
   const viewMode: CatalogueViewMode =
-    rawView === "table" || rawView === "mosaic" || rawView === "cards"
-      ? rawView
-      : readStoredCatalogueView();
-  const pageSize = 24;
+    rawView === "table" || rawView === "mosaic" || rawView === "cards" ? rawView : readStoredCatalogueView();
+  const pageSize = 20;
   const currentPage = parsePageParam(searchParams.get("page"));
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
