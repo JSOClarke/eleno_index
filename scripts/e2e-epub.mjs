@@ -47,6 +47,7 @@ try {
   await page.waitForSelector("span[role='button']:has-text('gato')", { timeout: 25000 });
   await page.locator("span[role='button']:has-text('gato')").first().click();
   await page.waitForSelector("button:has-text('Definitions')", { timeout: 10000 });
+  await page.waitForSelector("button:has-text('Noun')", { timeout: 5000 });
   await page.locator("button:has-text('Sentence')").click();
   await page.waitForSelector("button:has-text('Anki (.apkg)')", { timeout: 5000 });
   await page.mouse.click(10, 10);

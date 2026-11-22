@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BookOpen, FileText, GraduationCap, Image as ImageIcon, Layers, Volume2, X } from "lucide-react";
 import { downloadApkgDeck } from "@/lib/ankiApkgExport";
+import { getPosMeta, parseMorphChips } from "@/lib/epub/epubGrammarUtils";
 import { getFrequencyBand } from "@/lib/epub/epubHighlightUtils";
 import { fetchWordImages, speakSpanish, translateSentence, type WordImagePair } from "@/lib/epub/epubParseClient";
 import { EpubPopoverTabs } from "./EpubPopoverTabs";
@@ -24,6 +25,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const [translation, setTranslation] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
   const [images, setImages] = useState<WordImagePair | null>(null);
+  const [posOpen, setPosOpen] = useState(false);
 
   const c = ctx?.token.canonical;
   const lemma = c?.lemma || ctx?.token.surface || "";
@@ -31,7 +33,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const enDefs = c?.definitions || [];
   const esDefs = c?.definitions_es || c?.es_definitions || [];
 
-  useEffect(() => { setTab("defs"); setTranslation(null); setImages(null); }, [ctx]);
+  useEffect(() => { setTab("defs"); setTranslation(null); setImages(null); setPosOpen(false); }, [ctx]);
   useEffect(() => {
     if (!ctx || tab !== "img" || images) return;
     fetchWordImages(lemma, enDefs[0] || "", language).then(setImages);
@@ -40,8 +42,9 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   if (!ctx) return null;
 
   const status = (canonicalId ? statusMap[canonicalId] : undefined) || ctx.token.user_status || null;
-  const morphEntries = Object.entries(ctx.token.morph || {}).slice(0, 4);
+  const morphChips = parseMorphChips(ctx.token.morph, language);
   const pos = c?.pos || ctx.token.pos || "";
+  const posMeta = getPosMeta(pos);
   const bandInfo = getFrequencyBand(c?.rank);
   const showSurface = ctx.token.surface && ctx.token.surface.toLowerCase() !== lemma.toLowerCase();
 
@@ -99,9 +102,19 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
           <div className="flex flex-wrap items-center gap-1 text-[10px] font-medium">
             {c?.cefr && <span className="inline-flex items-center gap-1 rounded-full border border-[#0F172A] bg-[#0F172A] px-2 py-0.5 text-white"><GraduationCap className="h-2.5 w-2.5" />{c.cefr}</span>}
             <span className="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F1F5F9] px-2 py-0.5 text-[#0F172A]"><Layers className="h-2.5 w-2.5" />{bandInfo.label}</span>
-            {pos && <span className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569]">{pos}</span>}
-            {morphEntries.map(([k, v]) => <span key={k} className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569]">{v}</span>)}
+            {(posMeta || pos) && (
+              <button type="button" onClick={() => posMeta && setPosOpen((v) => !v)} className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569] hover:border-[#CBD5E1] hover:text-[#0F172A] cursor-pointer">
+                {posMeta ? posMeta.label : pos}
+              </button>
+            )}
+            {morphChips.map((chip) => <span key={chip} className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569]">{chip}</span>)}
           </div>
+          {posOpen && posMeta && (
+            <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2.5 text-xs leading-[1.45]">
+              <div className="font-semibold text-[#0F172A]">{posMeta.label} · {posMeta.esLabel}</div>
+              <div className="mt-0.5 text-[#64748B]">{posMeta.desc}</div>
+            </div>
+          )}
 
           <EpubPopoverTabs
             tab={tab} defLang={defLang} onChangeDefLang={setDefLang} enDefs={enDefs} esDefs={esDefs}

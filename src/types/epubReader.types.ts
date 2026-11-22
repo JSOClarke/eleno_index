@@ -59,7 +59,7 @@ export interface ParsedToken {
   is_word?: boolean;
   is_stop?: boolean;
   pos?: string | null;
-  morph?: Record<string, string>;
+  morph?: string | Record<string, string>;
   canonical?: ParsedCanonical | null;
   user_status?: "known" | "learning" | null;
 }

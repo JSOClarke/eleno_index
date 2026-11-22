@@ -7,12 +7,12 @@ export interface FrequencyBandInfo {
 }
 
 export function getFrequencyBand(rank?: number | null): FrequencyBandInfo {
-  if (!rank || rank <= 0) return { band: "rare", label: "Rare" };
+  if (!rank || rank <= 0) return { band: "rare", label: "10k+" };
   if (rank <= 1000) return { band: "top1k", label: "Top 1k" };
   if (rank <= 3000) return { band: "top3k", label: "Top 3k" };
   if (rank <= 5000) return { band: "top5k", label: "Top 5k" };
   if (rank <= 10000) return { band: "top10k", label: "Top 10k" };
-  return { band: "rare", label: "Rare" };
+  return { band: "rare", label: "10k+" };
 }
 
 export function computeIPlusOneMap(
