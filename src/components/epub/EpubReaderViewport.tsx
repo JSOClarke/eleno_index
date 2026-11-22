@@ -96,8 +96,8 @@ export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
       <div className={`fixed inset-x-0 top-[98px] bottom-0 z-10 flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)] ${themeCls}`}>
         <div
           ref={pagedRef}
-          className="mx-auto w-full max-w-4xl flex-1 min-h-0 overflow-hidden px-5 py-5 sm:px-8 font-serif"
-          style={{ fontSize: `${settings.fontSize}px`, columnWidth: "min(42rem, calc(100vw - 2.5rem))", columnGap: "3rem", columnFill: "auto" }}
+          className="mx-auto w-full max-w-2xl flex-1 min-h-0 overflow-hidden px-5 py-5 font-serif"
+          style={{ fontSize: `${settings.fontSize}px`, columnWidth: "min(39.5rem, calc(100vw - 2.5rem))", columnGap: "2.5rem", columnFill: "auto" }}
         >
           <h2 className="mb-4 text-xl font-semibold tracking-tight">{chapter.title}</h2>
           {renderBlocks()}

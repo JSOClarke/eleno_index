@@ -56,8 +56,21 @@ try {
   await page.mouse.click(10, 10);
   await page.locator("button[aria-label='Toggle reading mode']").click();
   await page.waitForSelector("text=Page 1 /", { timeout: 5000 });
-  const nextBox = await page.locator("button:has-text('Next')").boundingBox();
-  assert.ok(nextBox && nextBox.y + nextBox.height <= 844, `Expected Next button inside 844px mobile viewport, got ${JSON.stringify(nextBox)}`);
+  const layoutCheck = await page.evaluate(() => {
+    const hdrs = Array.from(document.querySelectorAll("header")).map((h) => h.getBoundingClientRect());
+    const p1 = document.querySelector("[data-block-idx='0'] p")?.getBoundingClientRect();
+    const nextBtn = Array.from(document.querySelectorAll("button")).find((b) => b.textContent?.includes("Next"));
+    return {
+      topNavBottom: hdrs[0]?.bottom ?? 0,
+      readerHeaderTop: hdrs[1]?.top ?? 0,
+      readerHeaderLeft: hdrs[1]?.left ?? 0,
+      p1Left: p1?.left ?? 0,
+      nextBox: nextBtn?.getBoundingClientRect() ?? null,
+    };
+  });
+  assert.ok(Math.abs(layoutCheck.readerHeaderTop - layoutCheck.topNavBottom) <= 2, `Expected zero gap between headers, got ${JSON.stringify(layoutCheck)}`);
+  assert.equal(layoutCheck.readerHeaderLeft, 0, `Expected full-width reader header, got left=${layoutCheck.readerHeaderLeft}`);
+  assert.ok(layoutCheck.nextBox && layoutCheck.nextBox.y + layoutCheck.nextBox.height <= 844, `Expected Next button inside 844px mobile viewport, got ${JSON.stringify(layoutCheck.nextBox)}`);
   await page.reload({ waitUntil: "networkidle", timeout: 45000 });
   await page.waitForSelector("text=Cuento de Prueba", { timeout: 15000 });
   const swReady = await page.evaluate(async () => {

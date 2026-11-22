@@ -50,7 +50,7 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
   const chapter = state.activeBook.chapters[state.chapterIndex] || state.activeBook.chapters[0];
 
   return (
-    <div className="flex flex-col">
+    <div className="-mx-4 sm:-mx-6 lg:-mx-8 -mt-6 -mb-10 flex flex-col">
       <EpubReaderHeader
         title={state.activeBook.title}
         chapterTitle={chapter.title}
