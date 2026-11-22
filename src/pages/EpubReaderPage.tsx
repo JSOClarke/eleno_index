@@ -50,16 +50,18 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
   const chapter = state.activeBook.chapters[state.chapterIndex] || state.activeBook.chapters[0];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col">
       <EpubReaderHeader
         title={state.activeBook.title}
         chapterTitle={chapter.title}
         chapterIndex={chapter.index}
         chapterCount={state.activeBook.chapters.length}
         parsing={state.parsing}
+        autoParse={state.settings.autoParse !== false}
         theme={state.settings.theme}
         scrollMode={state.settings.scrollMode}
         onBack={() => { state.setActiveBook(null); void state.refreshShelf(); }}
+        onParseNow={state.parseCurrentTarget}
         onToggleToc={() => setTocOpen(true)}
         onToggleScrollMode={() =>
           state.updateSettings({
@@ -79,6 +81,7 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
         selectedWordStart={state.selected?.ctx.token.start ?? null}
         onSelectWord={(blockIdx, ctx) => state.setSelected({ blockIdx, ctx })}
         onChangeChapter={(idx) => { state.setChapterIndex(idx); window.scrollTo({ top: 0 }); }}
+        onVisibleBlocksChange={state.setVisibleIndices}
       />
       <EpubWordPopover
         ctx={state.selected?.ctx ?? null}

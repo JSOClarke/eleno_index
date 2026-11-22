@@ -56,6 +56,8 @@ try {
   await page.mouse.click(10, 10);
   await page.locator("button[aria-label='Toggle reading mode']").click();
   await page.waitForSelector("text=Page 1 /", { timeout: 5000 });
+  const nextBox = await page.locator("button:has-text('Next')").boundingBox();
+  assert.ok(nextBox && nextBox.y + nextBox.height <= 844, `Expected Next button inside 844px mobile viewport, got ${JSON.stringify(nextBox)}`);
   await page.reload({ waitUntil: "networkidle", timeout: 45000 });
   await page.waitForSelector("text=Cuento de Prueba", { timeout: 15000 });
   const swReady = await page.evaluate(async () => {

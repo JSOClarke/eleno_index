@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { EpubParagraphBlock } from "./EpubParagraphBlock";
 import type { EpubChapter, EpubSettings, ParsedBlockResult, SelectedWordContext } from "@/types/epubReader.types";
@@ -14,15 +14,31 @@ interface EpubReaderViewportProps {
   selectedWordStart: number | null;
   onSelectWord: (blockIndex: number, ctx: SelectedWordContext) => void;
   onChangeChapter: (nextIndex: number) => void;
+  onVisibleBlocksChange?: (indices: number[]) => void;
 }
 
 export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
   chapter, chapterCount, parsedBlocks, settings, statusMap,
-  selectedBlockIdx, selectedWordStart, onSelectWord, onChangeChapter,
+  selectedBlockIdx, selectedWordStart, onSelectWord, onChangeChapter, onVisibleBlocksChange,
 }) => {
   const pagedRef = useRef<HTMLDivElement>(null);
   const [pageIdx, setPageIdx] = useState(0);
   const [pageCount, setPageCount] = useState(1);
+
+  const reportVisibleBlocks = useCallback(() => {
+    const el = pagedRef.current;
+    if (!el || !onVisibleBlocksChange || settings.scrollMode !== "paged") return;
+    const rect = el.getBoundingClientRect();
+    const visible: number[] = [];
+    el.querySelectorAll<HTMLElement>("[data-block-idx]").forEach((node) => {
+      const r = node.getBoundingClientRect();
+      if (r.right > rect.left + 4 && r.left < rect.right - 4) {
+        const idx = Number(node.dataset.blockIdx);
+        if (Number.isFinite(idx)) visible.push(idx);
+      }
+    });
+    if (visible.length > 0) onVisibleBlocksChange(visible);
+  }, [onVisibleBlocksChange, settings.scrollMode]);
 
   useEffect(() => {
     setPageIdx(0);
@@ -32,13 +48,16 @@ export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
   useEffect(() => {
     if (settings.scrollMode !== "paged" || !pagedRef.current) return;
     const el = pagedRef.current;
-    const measure = () => setPageCount(Math.max(1, Math.round(el.scrollWidth / (el.clientWidth || 1))));
-    measure();
+    const measure = () => {
+      setPageCount(Math.max(1, Math.round(el.scrollWidth / (el.clientWidth || 1))));
+      reportVisibleBlocks();
+    };
+    const id = requestAnimationFrame(measure);
     window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [settings.scrollMode, settings.fontSize, chapter.index, parsedBlocks]);
+    return () => { cancelAnimationFrame(id); window.removeEventListener("resize", measure); };
+  }, [settings.scrollMode, settings.fontSize, chapter.index, parsedBlocks, reportVisibleBlocks]);
 
-  const goPage = (delta: number) => {
+  const goPage = useCallback((delta: number) => {
     const el = pagedRef.current;
     if (!el) return;
     const next = pageIdx + delta;
@@ -46,31 +65,44 @@ export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
     if (next >= pageCount && chapter.index < chapterCount - 1) return onChangeChapter(chapter.index + 1);
     const clamped = Math.max(0, Math.min(pageCount - 1, next));
     setPageIdx(clamped);
-    el.scrollTo({ left: clamped * el.clientWidth, behavior: "smooth" });
-  };
+    el.scrollTo({ left: clamped * el.clientWidth, behavior: "instant" as ScrollBehavior });
+    requestAnimationFrame(reportVisibleBlocks);
+  }, [pageIdx, pageCount, chapter.index, chapterCount, onChangeChapter, reportVisibleBlocks]);
+
+  useEffect(() => {
+    if (settings.scrollMode !== "paged") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goPage(1);
+      else if (e.key === "ArrowLeft") goPage(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [settings.scrollMode, goPage]);
 
   const themeCls = settings.theme === "dark" ? "bg-slate-950 text-slate-200" : settings.theme === "sepia" ? "bg-[#FAF4E8] text-stone-800" : "bg-white text-slate-800";
   const renderBlocks = () => chapter.paragraphs.map((raw, idx) => (
-    <EpubParagraphBlock
-      key={idx} rawText={raw} parsed={parsedBlocks[idx]} statusMap={statusMap}
-      highlightMode={settings.highlightMode || (settings.highlightUnknown ? "status" : "off")}
-      selectedWordStart={selectedBlockIdx === idx ? selectedWordStart : null}
-      onSelectWord={(ctx) => onSelectWord(idx, ctx)}
-    />
+    <div key={idx} data-block-idx={idx}>
+      <EpubParagraphBlock
+        rawText={raw} parsed={parsedBlocks[idx]} statusMap={statusMap}
+        highlightMode={settings.highlightMode || (settings.highlightUnknown ? "status" : "off")}
+        selectedWordStart={selectedBlockIdx === idx ? selectedWordStart : null}
+        onSelectWord={(ctx) => onSelectWord(idx, ctx)}
+      />
+    </div>
   ));
 
   if (settings.scrollMode === "paged") {
     return (
-      <div className={`flex flex-1 flex-col justify-between min-h-[calc(100vh-3rem)] ${themeCls}`}>
+      <div className={`flex h-[calc(100dvh-6rem)] flex-col overflow-hidden ${themeCls}`}>
         <div
           ref={pagedRef}
-          className="mx-auto w-full max-w-4xl flex-1 overflow-x-hidden px-5 py-6 sm:px-8 font-serif"
-          style={{ fontSize: `${settings.fontSize}px`, height: "calc(100vh - 7.5rem)", columnWidth: "min(42rem, calc(100vw - 2.5rem))", columnGap: "3rem" }}
+          className="mx-auto w-full max-w-4xl flex-1 min-h-0 overflow-hidden px-5 py-5 sm:px-8 font-serif"
+          style={{ fontSize: `${settings.fontSize}px`, columnWidth: "min(42rem, calc(100vw - 2.5rem))", columnGap: "3rem", columnFill: "auto" }}
         >
-          <h2 className="mb-5 text-xl font-semibold tracking-tight">{chapter.title}</h2>
+          <h2 className="mb-4 text-xl font-semibold tracking-tight">{chapter.title}</h2>
           {renderBlocks()}
         </div>
-        <div className="mx-auto flex w-full max-w-4xl items-center justify-between border-t border-slate-200/30 px-4 py-2.5 text-xs">
+        <div className="mx-auto flex h-11 shrink-0 w-full max-w-4xl items-center justify-between border-t border-slate-200/30 px-4 text-xs">
           <button type="button" onClick={() => goPage(-1)} disabled={chapter.index === 0 && pageIdx === 0}
             className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 font-medium opacity-80 hover:opacity-100 disabled:opacity-30 cursor-pointer">
             <ChevronLeft className="h-4 w-4" /> Prev
@@ -86,7 +118,7 @@ export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
   }
 
   return (
-    <div className={`min-h-[calc(100vh-3rem)] ${themeCls}`}>
+    <div className={`min-h-[calc(100dvh-6rem)] ${themeCls}`}>
       <article className="mx-auto max-w-2xl px-5 py-8 sm:px-8 font-serif" style={{ fontSize: `${settings.fontSize}px` }}>
         <h2 className="mb-6 text-2xl font-semibold tracking-tight">{chapter.title}</h2>
         {renderBlocks()}

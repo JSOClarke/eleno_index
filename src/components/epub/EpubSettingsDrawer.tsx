@@ -124,6 +124,19 @@ export const EpubSettingsDrawer: React.FC<EpubSettingsDrawerProps> = ({
             ))}
           </div>
         </div>
+
+        <label className="flex items-center justify-between rounded-xl border border-slate-200 p-3 cursor-pointer">
+          <div>
+            <div className="text-xs font-semibold text-slate-900">Automatic Parsing</div>
+            <div className="text-[11px] text-slate-500">Parse pages automatically as you read</div>
+          </div>
+          <input
+            type="checkbox"
+            checked={settings.autoParse !== false}
+            onChange={(e) => onChange({ ...settings, autoParse: e.target.checked })}
+            className="h-4 w-4 accent-slate-900 cursor-pointer"
+          />
+        </label>
       </div>
     </div>
   );

@@ -37,6 +37,7 @@ export interface EpubSettings {
   scrollMode: EpubScrollMode;
   highlightUnknown: boolean;
   highlightMode?: EpubHighlightMode;
+  autoParse?: boolean;
 }
 
 export interface ParsedCanonical {

@@ -19,6 +19,7 @@ export const DEFAULT_EPUB_SETTINGS: EpubSettings = {
   scrollMode: "scroll",
   highlightUnknown: true,
   highlightMode: "status",
+  autoParse: true,
 };
 
 export async function listEpubShelf(): Promise<EpubBookMeta[]> {
