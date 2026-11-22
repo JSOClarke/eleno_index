@@ -65,10 +65,12 @@ export interface ParsedToken {
 }
 
 export interface ParsedPhrase {
-  phrase: string;
-  lemma?: string;
-  start: number;
-  end: number;
+  phrase?: string;
+  canonical_phrase?: string;
+  gloss?: string | null;
+  type?: string | null;
+  char_start: number;
+  char_end: number;
   definitions?: string[];
   cefr?: string | null;
 }

@@ -27,15 +27,23 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
   if (tab === "defs") {
     return (
       <div className="space-y-2.5">
-        {phrases.map((p, i) => (
-          <div key={i} className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-[11px] leading-[1.38] text-[#0F172A]">
-            <span className="font-semibold">Idiom · {p.phrase}</span>
-            {p.definitions?.[0] ? <span className="text-[#64748B]"> — {p.definitions[0]}</span> : null}
-          </div>
-        ))}
-        {iPlusOne?.isTarget && (
+        {phrases.map((p, i) => {
+          const kindLabel = p.type === "periphrasis" ? "Periphrasis" : "Idiom";
+          const title = p.canonical_phrase || p.phrase || "";
+          const gloss = p.gloss || p.definitions?.[0] || p.phrase || "";
+          return (
+            <div key={i} className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-[11px] leading-[1.38] text-[#0F172A]">
+              <strong>{kindLabel} · {title}</strong>{gloss ? ` — ${gloss}` : ""}
+            </div>
+          );
+        })}
+        {iPlusOne && (
           <div className="rounded-xl border border-[#0F172A] bg-[#0F172A] px-3 py-2 text-[11px] leading-[1.38] text-white">
-            <strong>i+1 Target</strong> — “{iPlusOne.targetSurface}” is the only unfamiliar word in this sentence.
+            {iPlusOne.isTarget ? (
+              <><strong>i+1 Target</strong> · Only unknown word in this sentence — ideal to learn</>
+            ) : (
+              <><strong>i+1 Sentence</strong> · Only missing word: <strong>{iPlusOne.targetSurface}</strong></>
+            )}
           </div>
         )}
         <div className="border-t border-[#E2E8F0] pt-2.5 space-y-2">

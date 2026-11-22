@@ -45,7 +45,7 @@ export const EpubParagraphBlock: React.FC<EpubParagraphBlockProps> = ({
     const cid = tok.canonical?.canonical_id || tok.canonical?.id;
     const status = (cid ? statusMap[cid] : undefined) || tok.user_status || null;
     const isInteractive = Boolean(tok.is_word !== false && (tok.canonical || /[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(surface)));
-    const inPhrase = (parsed.phrases || []).some((p) => tok.start >= p.start && tok.end <= p.end);
+    const inPhrase = (parsed.phrases || []).some((p) => p.char_start <= tok.start && tok.end <= p.char_end);
     const i1 = i1Map.get(idx) || null;
 
     if (!isInteractive) {
@@ -62,7 +62,7 @@ export const EpubParagraphBlock: React.FC<EpubParagraphBlockProps> = ({
             e.stopPropagation();
             const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
             const sentence = extractSentence(parsed.text, tok.start, tok.end);
-            const phrases = (parsed.phrases || []).filter((p) => tok.start >= p.start - 2 && tok.end <= p.end + 2);
+            const phrases = (parsed.phrases || []).filter((p) => p.char_start <= tok.start && tok.end <= p.char_end);
             onSelectWord({
               token: tok, sentence, phrases, iPlusOne: i1,
               anchorRect: { top: r.top, left: r.left, bottom: r.bottom, width: r.width },

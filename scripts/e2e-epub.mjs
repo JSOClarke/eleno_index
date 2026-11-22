@@ -24,7 +24,7 @@ async function createTempEpub(filePath) {
   zip.file("mimetype", "application/epub+zip");
   zip.file("META-INF/container.xml", `<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`);
   zip.file("OEBPS/content.opf", `<?xml version="1.0" encoding="utf-8"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Cuento de Prueba</dc:title><dc:creator>Autor Test</dc:creator><dc:language>es</dc:language></metadata><manifest><item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/></manifest><spine><itemref idref="ch1"/></spine></package>`);
-  zip.file("OEBPS/ch1.xhtml", `<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Capítulo Uno</h1><p>El gato duerme tranquilamente sobre la mesa antigua.</p></body></html>`);
+  zip.file("OEBPS/ch1.xhtml", `<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Capítulo Uno</h1><p>El gato duerme tranquilamente sobre la mesa antigua.</p><p>Sin embargo, tengo que leer.</p></body></html>`);
   const buf = await zip.generateAsync({ type: "nodebuffer" });
   writeFileSync(filePath, buf);
 }
@@ -50,6 +50,9 @@ try {
   await page.waitForSelector("button:has-text('Noun')", { timeout: 5000 });
   await page.locator("button:has-text('Sentence')").click();
   await page.waitForSelector("button:has-text('Anki (.apkg)')", { timeout: 5000 });
+  await page.mouse.click(10, 10);
+  await page.locator("span[role='button']:has-text('embargo')").first().click();
+  await page.waitForSelector("text=/Idiom|Periphrasis/", { timeout: 5000 });
   await page.mouse.click(10, 10);
   await page.locator("button[aria-label='Toggle reading mode']").click();
   await page.waitForSelector("text=Page 1 /", { timeout: 5000 });
