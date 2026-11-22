@@ -6,6 +6,7 @@ export function useSwipeDismiss(
   scrollRef: React.RefObject<HTMLDivElement | null>
 ) {
   const [dragY, setDragY] = useState(0);
+  const dragYRef = useRef(0);
   const startRef = useRef<{ y: number; t: number } | null>(null);
 
   const onTouchStart = (e: React.TouchEvent) => {
@@ -14,21 +15,24 @@ export function useSwipeDismiss(
       startRef.current = null;
       return;
     }
+    dragYRef.current = 0;
     startRef.current = { y: e.touches[0].clientY, t: Date.now() };
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
     if (!startRef.current || e.touches.length !== 1) return;
-    const dy = e.touches[0].clientY - startRef.current.y;
-    if (dy > 0) setDragY(dy);
-    else setDragY(0);
+    const dy = Math.max(0, e.touches[0].clientY - startRef.current.y);
+    dragYRef.current = dy;
+    setDragY(dy);
   };
 
   const onTouchEnd = () => {
     if (!startRef.current) return;
+    const dy = dragYRef.current;
     const elapsed = Date.now() - startRef.current.t;
-    const shouldClose = dragY > 80 || (dragY > 36 && elapsed < 220);
+    const shouldClose = dy > 80 || (dy > 36 && elapsed < 220);
     startRef.current = null;
+    dragYRef.current = 0;
     setDragY(0);
     if (shouldClose) onClose();
   };
