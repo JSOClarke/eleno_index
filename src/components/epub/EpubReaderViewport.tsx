@@ -80,7 +80,7 @@ export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
     return () => window.removeEventListener("keydown", onKey);
   }, [settings.scrollMode, goPage]);
 
-  const themeCls = settings.theme === "dark" ? "bg-slate-950 text-slate-200" : settings.theme === "sepia" ? "bg-[#FAF4E8] text-stone-800" : "bg-white text-slate-800";
+  const themeCls = settings.theme === "dark" ? "bg-[#0A0A0C] text-zinc-100" : settings.theme === "sepia" ? "bg-[#FAF4E8] text-stone-800" : "bg-white text-slate-800";
   const renderBlocks = () => chapter.paragraphs.map((raw, idx) => (
     <div key={idx} data-block-idx={idx}>
       <EpubParagraphBlock

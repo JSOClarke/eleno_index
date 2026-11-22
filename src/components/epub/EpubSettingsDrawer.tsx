@@ -20,7 +20,7 @@ interface EpubSettingsDrawerProps {
 const THEMES: { id: EpubTheme; label: string; preview: string }[] = [
   { id: "light", label: "Light", preview: "bg-white text-slate-900 border-slate-200" },
   { id: "sepia", label: "Sepia", preview: "bg-[#FAF4E8] text-stone-900 border-amber-200" },
-  { id: "dark", label: "Dark", preview: "bg-slate-950 text-slate-100 border-slate-800" },
+  { id: "dark", label: "Dark", preview: "bg-[#0A0A0C] text-zinc-100 border-zinc-800" },
 ];
 
 export const EpubSettingsDrawer: React.FC<EpubSettingsDrawerProps> = ({

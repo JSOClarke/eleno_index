@@ -24,11 +24,11 @@ export const EpubReaderHeader: React.FC<EpubReaderHeaderProps> = ({
 }) => {
   const isDark = theme === "dark";
   const barCls = isDark
-    ? "border-slate-800 bg-slate-950/95 text-slate-100"
+    ? "border-white/10 bg-[#0A0A0C]/95 text-slate-100"
     : theme === "sepia"
       ? "border-amber-200/70 bg-[#FAF4E8]/95 text-stone-900"
       : "border-slate-200/80 bg-white/95 text-slate-900";
-  const btnCls = isDark ? "hover:bg-slate-800 text-slate-300" : "hover:bg-slate-100 text-slate-600";
+  const btnCls = isDark ? "hover:bg-white/10 text-white/75" : "hover:bg-slate-100 text-slate-600";
 
   return (
     <header className={`sticky top-12 z-20 border-b backdrop-blur-md ${barCls}`}>
