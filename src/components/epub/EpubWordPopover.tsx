@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BookOpen, FileText, GraduationCap, Image as ImageIcon, Layers, Volume2, X } from "lucide-react";
+import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { downloadApkgDeck } from "@/lib/ankiApkgExport";
 import { getPosMeta, parseMorphChips } from "@/lib/epub/epubGrammarUtils";
 import { getFrequencyBand } from "@/lib/epub/epubHighlightUtils";
@@ -26,6 +27,8 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const [translating, setTranslating] = useState(false);
   const [images, setImages] = useState<WordImagePair | null>(null);
   const [posOpen, setPosOpen] = useState(false);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const swipe = useSwipeDismiss(onClose, bodyRef);
 
   const c = ctx?.token.canonical;
   const lemma = c?.lemma || ctx?.token.surface || "";
@@ -55,20 +58,13 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
     finally { setTranslating(false); }
   };
 
-  const handleExportAnki = () => {
-    void downloadApkgDeck(
-      [{
-        canonical_id: canonicalId || lemma, lemma, pos: pos || "WORD",
-        cefr: c?.cefr || "B1", ipa: c?.ipa || null, frequency: 1,
-        first_occurrence_index: 0, first_timestamp_ms: null,
-        first_context_snippet: ctx.sentence, global_rank: c?.rank ?? null,
-        definitions: enDefs.length ? enDefs : esDefs,
-        rankings: c?.rank ? [{ source: "tubelex_v2025", rank: c.rank, count: 0, cefr: c.cefr ?? null }] : [],
-      }],
-      statusMap,
-      bookTitle
-    );
-  };
+  const handleExportAnki = () => void downloadApkgDeck([{
+    canonical_id: canonicalId || lemma, lemma, pos: pos || "WORD", cefr: c?.cefr || "B1",
+    ipa: c?.ipa || null, frequency: 1, first_occurrence_index: 0, first_timestamp_ms: null,
+    first_context_snippet: ctx.sentence, global_rank: c?.rank ?? null,
+    definitions: enDefs.length ? enDefs : esDefs,
+    rankings: c?.rank ? [{ source: "tubelex_v2025", rank: c.rank, count: 0, cefr: c.cefr ?? null }] : [],
+  }], statusMap, bookTitle);
 
   const topPos = Math.min(window.innerHeight - 380, ctx.anchorRect.bottom + 8);
   const leftPos = Math.max(12, Math.min(window.innerWidth - 388, ctx.anchorRect.left));
@@ -76,12 +72,15 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-[#0F172A]/15 md:bg-transparent" onClick={onClose}>
       <div
+        data-epub-popover
         onClick={(e) => e.stopPropagation()}
-        style={{ "--desk-top": `${Math.max(12, topPos)}px`, "--desk-left": `${leftPos}px` } as React.CSSProperties}
-        className="fixed bottom-0 left-0 right-0 md:bottom-auto md:right-auto md:top-[var(--desk-top)] md:left-[var(--desk-left)] md:w-[376px] rounded-t-2xl md:rounded-2xl bg-white text-[#0F172A] shadow-[0_20px_45px_rgba(15,23,42,0.16),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden max-h-[82vh] flex flex-col"
+        onTouchStart={swipe.onTouchStart} onTouchMove={swipe.onTouchMove} onTouchEnd={swipe.onTouchEnd} onTouchCancel={swipe.onTouchCancel}
+        style={{ "--desk-top": `${Math.max(12, topPos)}px`, "--desk-left": `${leftPos}px`, transform: swipe.dragY > 0 ? `translateY(${swipe.dragY}px)` : undefined } as React.CSSProperties}
+        className={`fixed bottom-0 left-0 right-0 md:bottom-auto md:right-auto md:top-[var(--desk-top)] md:left-[var(--desk-left)] md:w-[376px] rounded-t-2xl md:rounded-2xl bg-white text-[#0F172A] shadow-[0_20px_45px_rgba(15,23,42,0.16),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden max-h-[82vh] flex flex-col ${swipe.dragY === 0 ? "transition-transform duration-200 ease-out" : ""}`}
       >
         <div className="h-[3px] w-full shrink-0 bg-[#0F172A]" />
-        <div className="px-[18px] py-4 space-y-3 overflow-y-auto flex-1">
+        <div className="md:hidden flex justify-center pt-2 pb-0.5 shrink-0"><div className="h-1 w-9 rounded-full bg-slate-300" /></div>
+        <div ref={bodyRef} className="px-[18px] py-3.5 space-y-3 overflow-y-auto flex-1">
           <div className="flex items-start justify-between gap-2">
             <div>
               <div className="flex flex-wrap items-end gap-2">
@@ -134,11 +133,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
         </div>
 
         <div className="flex gap-1 border-t border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-1.5">
-          {([
-            { id: "defs", label: "Definitions", Icon: BookOpen },
-            { id: "ctx", label: "Sentence", Icon: FileText },
-            { id: "img", label: "Visual", Icon: ImageIcon },
-          ] as const).map(({ id, label, Icon }) => (
+          {([{ id: "defs", label: "Definitions", Icon: BookOpen }, { id: "ctx", label: "Sentence", Icon: FileText }, { id: "img", label: "Visual", Icon: ImageIcon }] as const).map(({ id, label, Icon }) => (
             <button key={id} type="button" onClick={() => setTab(id)}
               className={`flex-1 flex flex-col items-center justify-center gap-0.5 rounded-lg py-1.5 text-[10px] cursor-pointer transition ${tab === id ? "bg-[#0F172A] font-semibold text-white shadow-xs" : "font-medium text-[#64748B] hover:bg-white hover:text-[#0F172A]"}`}>
               <Icon className="h-3.5 w-3.5" /><span>{label}</span>

@@ -60,7 +60,14 @@ try {
   await page.waitForSelector("button:has-text('Learn')", { timeout: 5000 });
   await page.locator("button:has-text('Inspect')").click();
   await page.waitForSelector("button:has-text('Definitions')", { timeout: 5000 });
-  await page.mouse.click(10, 10);
+  await page.evaluate(() => {
+    const sheet = document.querySelector("[data-epub-popover]");
+    const mkTouch = (y) => new Touch({ identifier: 1, target: sheet, clientX: 180, clientY: y });
+    sheet.dispatchEvent(new TouchEvent("touchstart", { touches: [mkTouch(400)], bubbles: true }));
+    sheet.dispatchEvent(new TouchEvent("touchmove", { touches: [mkTouch(520)], bubbles: true }));
+    sheet.dispatchEvent(new TouchEvent("touchend", { changedTouches: [mkTouch(520)], bubbles: true }));
+  });
+  await page.waitForSelector("[data-epub-popover]", { state: "detached", timeout: 5000 });
   await page.locator("button[aria-label='Toggle reading mode']").click();
   await page.waitForSelector("text=Page 1 /", { timeout: 5000 });
   const layoutCheck = await page.evaluate(() => {
