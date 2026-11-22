@@ -15,13 +15,19 @@ export function getFrequencyBand(rank?: number | null): FrequencyBandInfo {
   return { band: "rare", label: "10k+" };
 }
 
+export interface IPlusOneData {
+  tokenMap: Map<number, { isTarget: boolean; targetSurface: string }>;
+  sentenceRanges: Array<{ start: number; end: number }>;
+}
+
 export function computeIPlusOneMap(
   parsed: ParsedBlockResult,
   statusMap: Record<string, UserVocabStatus>
-): Map<number, { isTarget: boolean; targetSurface: string }> {
-  const result = new Map<number, { isTarget: boolean; targetSurface: string }>();
+): IPlusOneData {
+  const tokenMap = new Map<number, { isTarget: boolean; targetSurface: string }>();
+  const sentenceRanges: Array<{ start: number; end: number }> = [];
   const tokens = parsed.tokens || [];
-  if (!tokens.length) return result;
+  if (!tokens.length) return { tokenMap, sentenceRanges };
 
   const groups: number[][] = [];
   let curr: number[] = [];
@@ -54,11 +60,15 @@ export function computeIPlusOneMap(
       const targetSurface = tokens[targetIndices[0]].surface;
       const targetSet = new Set(targetIndices);
       for (const idx of indices) {
-        result.set(idx, { isTarget: targetSet.has(idx), targetSurface });
+        tokenMap.set(idx, { isTarget: targetSet.has(idx), targetSurface });
       }
+      sentenceRanges.push({
+        start: tokens[indices[0]].start,
+        end: tokens[indices[indices.length - 1]].end,
+      });
     }
   }
-  return result;
+  return { tokenMap, sentenceRanges };
 }
 
 const CEFR_BG: Record<string, string> = {

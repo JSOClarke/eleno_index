@@ -25,8 +25,8 @@ function extractSentence(text: string, start: number, end: number): string {
 export const EpubParagraphBlock: React.FC<EpubParagraphBlockProps> = ({
   rawText, parsed, statusMap, highlightMode, selectedWordStart, onSelectWord,
 }) => {
-  const i1Map = useMemo(
-    () => (parsed ? computeIPlusOneMap(parsed, statusMap) : new Map()),
+  const i1Data = useMemo(
+    () => (parsed ? computeIPlusOneMap(parsed, statusMap) : { tokenMap: new Map(), sentenceRanges: [] }),
     [parsed, statusMap]
   );
 
@@ -34,22 +34,30 @@ export const EpubParagraphBlock: React.FC<EpubParagraphBlockProps> = ({
     return <p className="mb-4 leading-relaxed">{rawText}</p>;
   }
 
+  const inI1Range = (s: number, e: number) =>
+    highlightMode !== "off" && i1Data.sentenceRanges.some((r) => s >= r.start && e <= r.end);
+
   const parts: React.ReactNode[] = [];
   let cursor = 0;
 
   parsed.tokens.forEach((tok, idx) => {
     if (tok.start > cursor) {
-      parts.push(<span key={`g-${idx}`}>{parsed.text.slice(cursor, tok.start)}</span>);
+      const gapInI1 = inI1Range(cursor, tok.start);
+      parts.push(
+        <span key={`g-${idx}`} className={gapInI1 ? "bg-[rgba(14,116,144,0.075)]" : undefined}>
+          {parsed.text.slice(cursor, tok.start)}
+        </span>
+      );
     }
     const surface = parsed.text.slice(tok.start, tok.end) || tok.surface;
     const cid = tok.canonical?.canonical_id || tok.canonical?.id;
     const status = (cid ? statusMap[cid] : undefined) || tok.user_status || null;
     const isInteractive = Boolean(tok.is_word !== false && (tok.canonical || /[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(surface)));
     const inPhrase = (parsed.phrases || []).some((p) => p.char_start <= tok.start && tok.end <= p.char_end);
-    const i1 = i1Map.get(idx) || null;
+    const i1 = i1Data.tokenMap.get(idx) || null;
 
     if (!isInteractive) {
-      parts.push(<span key={`t-${idx}`} className={i1 ? "bg-[rgba(14,116,144,0.075)]" : undefined}>{surface}</span>);
+      parts.push(<span key={`t-${idx}`} className={i1 && highlightMode !== "off" ? "bg-[rgba(14,116,144,0.075)]" : undefined}>{surface}</span>);
     } else {
       const isSelected = selectedWordStart === tok.start;
       const cls = getTokenHighlightClass(tok, status, highlightMode, isSelected, inPhrase, i1);
