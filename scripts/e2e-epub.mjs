@@ -58,6 +58,13 @@ try {
   await page.waitForSelector("text=Page 1 /", { timeout: 5000 });
   await page.reload({ waitUntil: "networkidle", timeout: 45000 });
   await page.waitForSelector("text=Cuento de Prueba", { timeout: 15000 });
+  const swReady = await page.evaluate(async () => {
+    const res = await fetch("/manifest.webmanifest");
+    const m = await res.json();
+    const reg = await navigator.serviceWorker.ready;
+    return { manifestOk: res.ok && m.icons?.length >= 2, swActive: Boolean(reg.active) };
+  });
+  assert.ok(swReady.manifestOk && swReady.swActive, `Expected valid PWA manifest and active SW, got ${JSON.stringify(swReady)}`);
   assert.equal(consoleErrors.length, 0, `Unexpected console errors: ${consoleErrors.join("; ")}`);
   console.log("E2E EPUB PASS (mobile 390x844): uploaded .epub, parsed Spanish chapter via API, opened word popover, toggled Paged mode, persisted in IndexedDB, 0 console errors.");
 } finally {
