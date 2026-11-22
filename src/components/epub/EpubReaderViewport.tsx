@@ -15,23 +15,24 @@ interface EpubReaderViewportProps {
   selectedWordStart: number | null;
   initialPageIndex?: number;
   initialScrollTop?: number;
+  initialBlockIndex?: number;
   onSelectWord: (blockIndex: number, ctx: SelectedWordContext) => void;
   onOpenWheel?: (ctx: SelectedWordContext, point: { x: number; y: number }) => void;
   onChangeChapter: (nextIndex: number) => void;
-  onProgressChange?: (pos: { pageIndex: number; scrollTop: number }) => void;
+  onProgressChange?: (pos: { pageIndex: number; scrollTop: number; blockIndex?: number }) => void;
   onVisibleBlocksChange?: (indices: number[]) => void;
 }
 
 export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
   chapter, chapterCount, parsedBlocks, settings, statusMap,
-  selectedBlockIdx, selectedWordStart, initialPageIndex = 0, initialScrollTop = 0,
+  selectedBlockIdx, selectedWordStart, initialPageIndex = 0, initialScrollTop = 0, initialBlockIndex = 0,
   onSelectWord, onOpenWheel, onChangeChapter, onProgressChange, onVisibleBlocksChange,
 }) => {
   const pagedRef = useRef<HTMLDivElement>(null);
   const { pageIdx, pageCount, goPage } = useEpubViewportPosition({
     pagedRef, chapterIndex: chapter.index, chapterCount, scrollMode: settings.scrollMode,
     fontSize: settings.fontSize, parsedKey: Object.keys(parsedBlocks).length,
-    initialPageIndex, initialScrollTop, onChangeChapter, onProgressChange, onVisibleBlocksChange,
+    initialPageIndex, initialScrollTop, initialBlockIndex, onChangeChapter, onProgressChange, onVisibleBlocksChange,
   });
 
   useEffect(() => {

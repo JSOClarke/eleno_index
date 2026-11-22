@@ -83,6 +83,7 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
         selectedWordStart={state.selected?.ctx.token.start ?? null}
         initialPageIndex={state.initialPosition.pageIndex}
         initialScrollTop={state.initialPosition.scrollTop}
+        initialBlockIndex={state.initialPosition.blockIndex}
         onSelectWord={(blockIdx, ctx) => { setWheel(null); state.setSelected({ blockIdx, ctx }); }}
         onOpenWheel={(ctx, pt) => { state.setSelected(null); setWheel({ ctx, x: pt.x, y: pt.y }); }}
         onChangeChapter={(idx) => { state.selectChapter(idx); window.scrollTo({ top: 0 }); }}

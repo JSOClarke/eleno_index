@@ -14,7 +14,7 @@ export interface RemoteShelfEntry {
 export async function fetchRemoteShelf(userId: string): Promise<RemoteShelfEntry[]> {
   const { data, error } = await supabase
     .from("user_epub_books")
-    .select("id,title,author,language,cover_url,chapter_count,chapter_index,page_index,scroll_top,added_at,updated_at")
+    .select("id,title,author,language,cover_url,chapter_count,chapter_index,page_index,scroll_top,block_index,added_at,updated_at")
     .eq("user_id", userId)
     .order("updated_at", { ascending: false });
 
@@ -37,6 +37,7 @@ export async function fetchRemoteShelf(userId: string): Promise<RemoteShelfEntry
       chapterIndex: Number(row.chapter_index || 0),
       pageIndex: Number(row.page_index || 0),
       scrollTop: Number(row.scroll_top || 0),
+      blockIndex: Number(row.block_index || 0),
       updatedAt: row.updated_at ? Date.parse(row.updated_at) : Date.now(),
     },
   }));
@@ -94,6 +95,7 @@ export async function upsertRemoteProgress(userId: string, bookId: string, p: Ep
       chapter_index: p.chapterIndex,
       page_index: p.pageIndex,
       scroll_top: p.scrollTop,
+      block_index: p.blockIndex ?? 0,
       updated_at: new Date().toISOString(),
     })
     .eq("user_id", userId)

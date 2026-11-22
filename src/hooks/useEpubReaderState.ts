@@ -13,7 +13,7 @@ export function useEpubReaderState(userId?: string | null) {
   const [progressMap, setProgressMap] = useState<Record<string, EpubProgress>>({});
   const [activeBook, setActiveBook] = useState<EpubBook | null>(null);
   const [chapterIndex, setChapterIndex] = useState(0);
-  const [initialPosition, setInitialPosition] = useState({ pageIndex: 0, scrollTop: 0 });
+  const [initialPosition, setInitialPosition] = useState({ pageIndex: 0, scrollTop: 0, blockIndex: 0 });
   const [parsedBlocks, setParsedBlocks] = useState<Record<number, ParsedBlockResult>>({});
   const [parsing, setParsing] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -103,7 +103,7 @@ export function useEpubReaderState(userId?: string | null) {
     try {
       const book = await importEpubEverywhere(file, userId);
       await refreshShelf();
-      setInitialPosition({ pageIndex: 0, scrollTop: 0 });
+      setInitialPosition({ pageIndex: 0, scrollTop: 0, blockIndex: 0 });
       setChapterIndex(0); setActiveBook(book);
     } catch (err: any) { setError(err?.message || "Failed to read EPUB file."); }
     finally { setImporting(false); }
@@ -113,23 +113,23 @@ export function useEpubReaderState(userId?: string | null) {
     const book = await loadOrFetchEpubBook(bookId, userId);
     if (!book) return;
     const prog = progressMap[bookId] || (await loadEpubProgress(bookId));
-    setInitialPosition({ pageIndex: prog.pageIndex || 0, scrollTop: prog.scrollTop || 0 });
+    setInitialPosition({ pageIndex: prog.pageIndex || 0, scrollTop: prog.scrollTop || 0, blockIndex: prog.blockIndex || 0 });
     setChapterIndex(Math.min(prog.chapterIndex, book.chapters.length - 1));
     setActiveBook(book);
   };
 
   const selectChapter = useCallback((nextIdx: number) => {
-    setInitialPosition({ pageIndex: 0, scrollTop: 0 });
+    setInitialPosition({ pageIndex: 0, scrollTop: 0, blockIndex: 0 });
     setChapterIndex(nextIdx);
     if (!activeBook) return;
-    const prog: EpubProgress = { chapterIndex: nextIdx, pageIndex: 0, scrollTop: 0, updatedAt: Date.now() };
+    const prog: EpubProgress = { chapterIndex: nextIdx, pageIndex: 0, scrollTop: 0, blockIndex: 0, updatedAt: Date.now() };
     setProgressMap((p) => ({ ...p, [activeBook.id]: prog }));
     persistBookPosition(activeBook.id, prog, userId);
   }, [activeBook, userId]);
 
-  const updateReadingPosition = useCallback((pos: { pageIndex: number; scrollTop: number }) => {
+  const updateReadingPosition = useCallback((pos: { pageIndex: number; scrollTop: number; blockIndex?: number }) => {
     if (!activeBook) return;
-    const prog: EpubProgress = { chapterIndex, pageIndex: pos.pageIndex, scrollTop: pos.scrollTop, updatedAt: Date.now() };
+    const prog: EpubProgress = { chapterIndex, pageIndex: pos.pageIndex, scrollTop: pos.scrollTop, blockIndex: pos.blockIndex ?? 0, updatedAt: Date.now() };
     setProgressMap((p) => ({ ...p, [activeBook.id]: prog }));
     persistBookPosition(activeBook.id, prog, userId);
   }, [activeBook, chapterIndex, userId]);

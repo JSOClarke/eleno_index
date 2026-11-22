@@ -28,6 +28,7 @@ export interface EpubProgress {
   chapterIndex: number;
   pageIndex: number;
   scrollTop: number;
+  blockIndex?: number;
   updatedAt: number;
 }
 
