@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  deleteRemoteBook, fetchRemoteBook, fetchRemoteParsedChapter, fetchRemoteShelf,
+  deleteRemoteBook, fetchRemoteBook, fetchRemoteParsedChapter,
   upsertRemoteBook, upsertRemoteParsedChapter, upsertRemoteProgress,
 } from "@/api/epubLibrary.api";
 import {
-  deleteEpubBook, listEpubShelf, loadEpubBook, loadEpubProgress,
+  deleteEpubBook, loadEpubBook, loadEpubProgress,
   loadEpubSettings, loadParsedChapter, saveEpubBook, saveEpubProgress,
   saveEpubSettings, saveParsedChapter,
 } from "@/lib/epub/epubLibraryStore";
+import { loadMergedEpubShelf } from "@/lib/epub/epubSyncHelper";
 import { parseEpubFile } from "@/lib/epub/epubParser";
 import { parseParagraphSlice } from "@/lib/epub/epubParseClient";
 import type {
@@ -30,27 +31,8 @@ export function useEpubReaderState(userId?: string | null) {
   const abortRef = useRef<AbortController | null>(null);
 
   const refreshShelf = useCallback(async () => {
-    const localBooks = await listEpubShelf();
-    const localProgEntries = await Promise.all(localBooks.map(async (b) => [b.id, await loadEpubProgress(b.id)] as const));
-    const mergedMap = new Map<string, EpubBookMeta>(localBooks.map((b) => [b.id, b]));
-    const nextProg: Record<string, EpubProgress> = Object.fromEntries(localProgEntries);
-
-    if (userId) {
-      const remote = await fetchRemoteShelf(userId);
-      const remoteIds = new Set(remote.map((r) => r.meta.id));
-      for (const { meta, progress } of remote) {
-        if (!mergedMap.has(meta.id)) mergedMap.set(meta.id, meta);
-        const lp = nextProg[meta.id];
-        if (!lp || progress.updatedAt > lp.updatedAt) nextProg[meta.id] = progress;
-      }
-      for (const lb of localBooks) {
-        if (!remoteIds.has(lb.id)) {
-          const full = await loadEpubBook(lb.id);
-          if (full) void upsertRemoteBook(userId, full);
-        }
-      }
-    }
-    setShelf(Array.from(mergedMap.values()).sort((a, b) => b.addedAt - a.addedAt));
+    const { shelf: nextShelf, progressMap: nextProg } = await loadMergedEpubShelf(userId);
+    setShelf(nextShelf);
     setProgressMap(nextProg);
   }, [userId]);
 
