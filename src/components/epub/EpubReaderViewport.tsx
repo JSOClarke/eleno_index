@@ -72,12 +72,20 @@ export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
 
   useEffect(() => {
     if (settings.scrollMode !== "paged") return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") goPage(1);
-      else if (e.key === "ArrowLeft") goPage(-1);
-    };
+    const prevHtmlOv = document.documentElement.style.overflow;
+    const prevBodyOv = document.body.style.overflow;
+    const prevOs = document.body.style.overscrollBehavior;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+    const onKey = (e: KeyboardEvent) => { if (e.key === "ArrowRight") goPage(1); else if (e.key === "ArrowLeft") goPage(-1); };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      document.documentElement.style.overflow = prevHtmlOv;
+      document.body.style.overflow = prevBodyOv;
+      document.body.style.overscrollBehavior = prevOs;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [settings.scrollMode, goPage]);
 
   const themeCls = settings.theme === "dark" ? "bg-[#0A0A0C] text-zinc-100" : settings.theme === "sepia" ? "bg-[#FAF4E8] text-stone-800" : "bg-white text-slate-800";
