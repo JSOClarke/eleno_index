@@ -64,14 +64,21 @@ export async function saveEpubProgress(bookId: string, progress: EpubProgress): 
   await setIdbValue(`${PROGRESS_PREFIX}${bookId}`, progress);
 }
 
-export async function loadParsedChapter(bookId: string, chapterIndex: number): Promise<ParsedBlockResult[] | null> {
-  return getIdbValue<ParsedBlockResult[]>(`${PARSED_PREFIX}${bookId}:${chapterIndex}`);
+export async function loadParsedChapter(
+  bookId: string,
+  chapterIndex: number
+): Promise<Record<number, ParsedBlockResult> | null> {
+  const stored = await getIdbValue<Record<number, ParsedBlockResult> | ParsedBlockResult[]>(
+    `${PARSED_PREFIX}${bookId}:${chapterIndex}`
+  );
+  if (!stored) return null;
+  return Array.isArray(stored) ? Object.fromEntries(stored.map((b, i) => [i, b])) : stored;
 }
 
 export async function saveParsedChapter(
   bookId: string,
   chapterIndex: number,
-  blocks: ParsedBlockResult[]
+  blocks: Record<number, ParsedBlockResult>
 ): Promise<void> {
   await setIdbValue(`${PARSED_PREFIX}${bookId}:${chapterIndex}`, blocks);
 }

@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  deleteRemoteBook, fetchRemoteBook, fetchRemoteParsedChapter, fetchRemoteShelf,
+  upsertRemoteBook, upsertRemoteParsedChapter, upsertRemoteProgress,
+} from "@/api/epubLibrary.api";
+import {
   deleteEpubBook, listEpubShelf, loadEpubBook, loadEpubProgress,
   loadEpubSettings, loadParsedChapter, saveEpubBook, saveEpubProgress,
   saveEpubSettings, saveParsedChapter,
@@ -26,11 +30,29 @@ export function useEpubReaderState(userId?: string | null) {
   const abortRef = useRef<AbortController | null>(null);
 
   const refreshShelf = useCallback(async () => {
-    const books = await listEpubShelf();
-    setShelf(books);
-    const entries = await Promise.all(books.map(async (b) => [b.id, await loadEpubProgress(b.id)] as const));
-    setProgressMap(Object.fromEntries(entries));
-  }, []);
+    const localBooks = await listEpubShelf();
+    const localProgEntries = await Promise.all(localBooks.map(async (b) => [b.id, await loadEpubProgress(b.id)] as const));
+    const mergedMap = new Map<string, EpubBookMeta>(localBooks.map((b) => [b.id, b]));
+    const nextProg: Record<string, EpubProgress> = Object.fromEntries(localProgEntries);
+
+    if (userId) {
+      const remote = await fetchRemoteShelf(userId);
+      const remoteIds = new Set(remote.map((r) => r.meta.id));
+      for (const { meta, progress } of remote) {
+        if (!mergedMap.has(meta.id)) mergedMap.set(meta.id, meta);
+        const lp = nextProg[meta.id];
+        if (!lp || progress.updatedAt > lp.updatedAt) nextProg[meta.id] = progress;
+      }
+      for (const lb of localBooks) {
+        if (!remoteIds.has(lb.id)) {
+          const full = await loadEpubBook(lb.id);
+          if (full) void upsertRemoteBook(userId, full);
+        }
+      }
+    }
+    setShelf(Array.from(mergedMap.values()).sort((a, b) => b.addedAt - a.addedAt));
+    setProgressMap(nextProg);
+  }, [userId]);
 
   useEffect(() => { void refreshShelf(); }, [refreshShelf]);
 
@@ -49,13 +71,12 @@ export function useEpubReaderState(userId?: string | null) {
       for (let s = 0; s < missing.length; s += 30) {
         if (ctrl.signal.aborted) return;
         const batchIdx = missing.slice(s, s + 30);
-        const texts = batchIdx.map((i) => ch.paragraphs[i]);
-        const res = await parseParagraphSlice(texts, activeBook.language || "es", userId, ctrl.signal);
+        const res = await parseParagraphSlice(batchIdx.map((i) => ch.paragraphs[i]), activeBook.language || "es", userId, ctrl.signal);
         batchIdx.forEach((bIdx, offset) => { if (res[offset]) parsedRef.current[bIdx] = res[offset]; });
         setParsedBlocks({ ...parsedRef.current });
       }
-      const ordered = ch.paragraphs.map((_, i) => parsedRef.current[i]).filter(Boolean);
-      if (ordered.length === ch.paragraphs.length) await saveParsedChapter(activeBook.id, chapterIndex, ordered);
+      await saveParsedChapter(activeBook.id, chapterIndex, parsedRef.current);
+      if (userId) void upsertRemoteParsedChapter(userId, activeBook.id, chapterIndex, parsedRef.current);
     } catch (err: any) {
       if (!ctrl.signal.aborted) console.warn("[epub] Parse error:", err?.message || err);
     } finally {
@@ -71,24 +92,29 @@ export function useEpubReaderState(userId?: string | null) {
     setSelected(null);
     parsedRef.current = {};
     setParsedBlocks({});
-    void saveEpubProgress(activeBook.id, { chapterIndex, pageIndex: 0, scrollTop: 0, updatedAt: Date.now() });
+    const prog: EpubProgress = { chapterIndex, pageIndex: 0, scrollTop: 0, updatedAt: Date.now() };
+    void saveEpubProgress(activeBook.id, prog);
+    if (userId) void upsertRemoteProgress(userId, activeBook.id, prog);
 
     let cancelled = false;
     (async () => {
-      const cached = await loadParsedChapter(activeBook.id, chapterIndex);
+      let cached = await loadParsedChapter(activeBook.id, chapterIndex);
+      if ((!cached || Object.keys(cached).length === 0) && userId) {
+        cached = await fetchRemoteParsedChapter(userId, activeBook.id, chapterIndex);
+        if (cached && Object.keys(cached).length > 0) await saveParsedChapter(activeBook.id, chapterIndex, cached);
+      }
       if (cancelled) return;
-      if (cached && cached.length === ch.paragraphs.length) {
-        const map = Object.fromEntries(cached.map((b, i) => [i, b]));
-        parsedRef.current = map;
-        setParsedBlocks(map);
-        return;
+      if (cached && Object.keys(cached).length > 0) {
+        parsedRef.current = cached;
+        setParsedBlocks(cached);
+        if (Object.keys(cached).length >= ch.paragraphs.length) return;
       }
       if (settings.autoParse !== false && settings.scrollMode === "scroll") {
         await parseIndices(ch.paragraphs.map((_, i) => i));
       }
     })();
     return () => { cancelled = true; abortRef.current?.abort(); };
-  }, [activeBook, chapterIndex, settings.scrollMode, settings.autoParse, parseIndices]);
+  }, [activeBook, chapterIndex, settings.scrollMode, settings.autoParse, userId, parseIndices]);
 
   useEffect(() => {
     if (!activeBook || settings.autoParse === false || settings.scrollMode !== "paged") return;
@@ -99,9 +125,7 @@ export function useEpubReaderState(userId?: string | null) {
     if (!activeBook) return;
     const ch = activeBook.chapters[chapterIndex];
     if (!ch) return;
-    const target = settings.scrollMode === "paged" && visibleIndices.length > 0
-      ? visibleIndices
-      : ch.paragraphs.map((_, i) => i);
+    const target = settings.scrollMode === "paged" && visibleIndices.length > 0 ? visibleIndices : ch.paragraphs.map((_, i) => i);
     void parseIndices(target);
   }, [activeBook, chapterIndex, settings.scrollMode, visibleIndices, parseIndices]);
 
@@ -109,21 +133,31 @@ export function useEpubReaderState(userId?: string | null) {
     setError(null); setImporting(true);
     try {
       const book = await parseEpubFile(file, file.name);
-      await saveEpubBook(book); await refreshShelf();
+      await saveEpubBook(book);
+      if (userId) await upsertRemoteBook(userId, book);
+      await refreshShelf();
       setChapterIndex(0); setActiveBook(book);
     } catch (err: any) { setError(err?.message || "Failed to read EPUB file."); }
     finally { setImporting(false); }
   };
 
   const openBook = async (bookId: string) => {
-    const book = await loadEpubBook(bookId);
+    let book = await loadEpubBook(bookId);
+    if (!book && userId) {
+      book = await fetchRemoteBook(userId, bookId);
+      if (book) await saveEpubBook(book);
+    }
     if (!book) return;
-    const prog = await loadEpubProgress(bookId);
+    const prog = progressMap[bookId] || (await loadEpubProgress(bookId));
     setChapterIndex(Math.min(prog.chapterIndex, book.chapters.length - 1));
     setActiveBook(book);
   };
 
-  const removeBook = async (bookId: string) => { await deleteEpubBook(bookId); await refreshShelf(); };
+  const removeBook = async (bookId: string) => {
+    await deleteEpubBook(bookId);
+    if (userId) await deleteRemoteBook(userId, bookId);
+    await refreshShelf();
+  };
   const updateSettings = (next: EpubSettings) => { setSettings(next); saveEpubSettings(next); };
 
   return {
