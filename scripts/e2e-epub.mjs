@@ -24,7 +24,8 @@ async function createTempEpub(filePath) {
   zip.file("mimetype", "application/epub+zip");
   zip.file("META-INF/container.xml", `<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>`);
   zip.file("OEBPS/content.opf", `<?xml version="1.0" encoding="utf-8"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:title>Cuento de Prueba</dc:title><dc:creator>Autor Test</dc:creator><dc:language>es</dc:language></metadata><manifest><item id="ch1" href="ch1.xhtml" media-type="application/xhtml+xml"/></manifest><spine><itemref idref="ch1"/></spine></package>`);
-  zip.file("OEBPS/ch1.xhtml", `<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Capítulo Uno</h1><p>El gato duerme tranquilamente sobre la mesa antigua.</p><p>Sin embargo, tengo que leer.</p></body></html>`);
+  const filler = Array.from({ length: 14 }, (_, i) => `<p>Párrafo número ${i + 1}: el lector recuerda la página exacta al volver a abrir el libro.</p>`).join("");
+  zip.file("OEBPS/ch1.xhtml", `<?xml version="1.0" encoding="utf-8"?><html xmlns="http://www.w3.org/1999/xhtml"><body><h1>Capítulo Uno</h1><p>El gato duerme tranquilamente sobre la mesa antigua.</p><p>Sin embargo, tengo que leer.</p>${filler}</body></html>`);
   const buf = await zip.generateAsync({ type: "nodebuffer" });
   writeFileSync(filePath, buf);
 }
@@ -85,8 +86,12 @@ try {
   assert.ok(Math.abs(layoutCheck.readerHeaderTop - layoutCheck.topNavBottom) <= 2, `Expected zero gap between headers, got ${JSON.stringify(layoutCheck)}`);
   assert.equal(layoutCheck.readerHeaderLeft, 0, `Expected full-width reader header, got left=${layoutCheck.readerHeaderLeft}`);
   assert.ok(layoutCheck.nextBox && layoutCheck.nextBox.y + layoutCheck.nextBox.height <= 844, `Expected Next button inside 844px mobile viewport, got ${JSON.stringify(layoutCheck.nextBox)}`);
+  await page.locator("button:has-text('Next')").click();
+  await page.waitForSelector("text=Page 2 /", { timeout: 5000 });
   await page.reload({ waitUntil: "networkidle", timeout: 45000 });
   await page.waitForSelector("text=Cuento de Prueba", { timeout: 15000 });
+  await page.locator("text=Cuento de Prueba").first().click();
+  await page.waitForSelector("text=Page 2 /", { timeout: 10000 });
   const swReady = await page.evaluate(async () => {
     const res = await fetch("/manifest.webmanifest");
     const m = await res.json();

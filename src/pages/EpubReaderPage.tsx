@@ -81,9 +81,12 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
         statusMap={statusMap}
         selectedBlockIdx={state.selected?.blockIdx ?? null}
         selectedWordStart={state.selected?.ctx.token.start ?? null}
+        initialPageIndex={state.initialPosition.pageIndex}
+        initialScrollTop={state.initialPosition.scrollTop}
         onSelectWord={(blockIdx, ctx) => { setWheel(null); state.setSelected({ blockIdx, ctx }); }}
         onOpenWheel={(ctx, pt) => { state.setSelected(null); setWheel({ ctx, x: pt.x, y: pt.y }); }}
-        onChangeChapter={(idx) => { state.setChapterIndex(idx); window.scrollTo({ top: 0 }); }}
+        onChangeChapter={(idx) => { state.selectChapter(idx); window.scrollTo({ top: 0 }); }}
+        onProgressChange={state.updateReadingPosition}
         onVisibleBlocksChange={state.setVisibleIndices}
       />
       <EpubActionWheel
@@ -106,7 +109,7 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
         open={tocOpen}
         chapters={state.activeBook.chapters}
         activeIndex={state.chapterIndex}
-        onSelectChapter={state.setChapterIndex}
+        onSelectChapter={state.selectChapter}
         onClose={() => setTocOpen(false)}
       />
       <EpubSettingsDrawer

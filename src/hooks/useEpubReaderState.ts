@@ -1,25 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { upsertRemoteParsedChapter } from "@/api/epubLibrary.api";
+import { loadEpubProgress, loadEpubSettings, saveEpubSettings, saveParsedChapter } from "@/lib/epub/epubLibraryStore";
 import {
-  deleteRemoteBook, fetchRemoteBook, fetchRemoteParsedChapter,
-  upsertRemoteBook, upsertRemoteParsedChapter, upsertRemoteProgress,
-} from "@/api/epubLibrary.api";
-import {
-  deleteEpubBook, loadEpubBook, loadEpubProgress,
-  loadEpubSettings, loadParsedChapter, saveEpubBook, saveEpubProgress,
-  saveEpubSettings, saveParsedChapter,
-} from "@/lib/epub/epubLibraryStore";
-import { loadMergedEpubShelf } from "@/lib/epub/epubSyncHelper";
-import { parseEpubFile } from "@/lib/epub/epubParser";
+  importEpubEverywhere, loadCachedOrRemoteChapter, loadMergedEpubShelf,
+  loadOrFetchEpubBook, persistBookPosition, removeEpubEverywhere,
+} from "@/lib/epub/epubSyncHelper";
 import { parseParagraphSlice } from "@/lib/epub/epubParseClient";
-import type {
-  EpubBook, EpubBookMeta, EpubProgress, EpubSettings, ParsedBlockResult, SelectedWordContext,
-} from "@/types/epubReader.types";
+import type { EpubBook, EpubBookMeta, EpubProgress, EpubSettings, ParsedBlockResult, SelectedWordContext } from "@/types/epubReader.types";
 
 export function useEpubReaderState(userId?: string | null) {
   const [shelf, setShelf] = useState<EpubBookMeta[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, EpubProgress>>({});
   const [activeBook, setActiveBook] = useState<EpubBook | null>(null);
   const [chapterIndex, setChapterIndex] = useState(0);
+  const [initialPosition, setInitialPosition] = useState({ pageIndex: 0, scrollTop: 0 });
   const [parsedBlocks, setParsedBlocks] = useState<Record<number, ParsedBlockResult>>({});
   const [parsing, setParsing] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -74,17 +68,10 @@ export function useEpubReaderState(userId?: string | null) {
     setSelected(null);
     parsedRef.current = {};
     setParsedBlocks({});
-    const prog: EpubProgress = { chapterIndex, pageIndex: 0, scrollTop: 0, updatedAt: Date.now() };
-    void saveEpubProgress(activeBook.id, prog);
-    if (userId) void upsertRemoteProgress(userId, activeBook.id, prog);
 
     let cancelled = false;
     (async () => {
-      let cached = await loadParsedChapter(activeBook.id, chapterIndex);
-      if ((!cached || Object.keys(cached).length === 0) && userId) {
-        cached = await fetchRemoteParsedChapter(userId, activeBook.id, chapterIndex);
-        if (cached && Object.keys(cached).length > 0) await saveParsedChapter(activeBook.id, chapterIndex, cached);
-      }
+      const cached = await loadCachedOrRemoteChapter(activeBook.id, chapterIndex, userId);
       if (cancelled) return;
       if (cached && Object.keys(cached).length > 0) {
         parsedRef.current = cached;
@@ -114,37 +101,48 @@ export function useEpubReaderState(userId?: string | null) {
   const importFile = async (file: File) => {
     setError(null); setImporting(true);
     try {
-      const book = await parseEpubFile(file, file.name);
-      await saveEpubBook(book);
-      if (userId) await upsertRemoteBook(userId, book);
+      const book = await importEpubEverywhere(file, userId);
       await refreshShelf();
+      setInitialPosition({ pageIndex: 0, scrollTop: 0 });
       setChapterIndex(0); setActiveBook(book);
     } catch (err: any) { setError(err?.message || "Failed to read EPUB file."); }
     finally { setImporting(false); }
   };
 
   const openBook = async (bookId: string) => {
-    let book = await loadEpubBook(bookId);
-    if (!book && userId) {
-      book = await fetchRemoteBook(userId, bookId);
-      if (book) await saveEpubBook(book);
-    }
+    const book = await loadOrFetchEpubBook(bookId, userId);
     if (!book) return;
     const prog = progressMap[bookId] || (await loadEpubProgress(bookId));
+    setInitialPosition({ pageIndex: prog.pageIndex || 0, scrollTop: prog.scrollTop || 0 });
     setChapterIndex(Math.min(prog.chapterIndex, book.chapters.length - 1));
     setActiveBook(book);
   };
 
+  const selectChapter = useCallback((nextIdx: number) => {
+    setInitialPosition({ pageIndex: 0, scrollTop: 0 });
+    setChapterIndex(nextIdx);
+    if (!activeBook) return;
+    const prog: EpubProgress = { chapterIndex: nextIdx, pageIndex: 0, scrollTop: 0, updatedAt: Date.now() };
+    setProgressMap((p) => ({ ...p, [activeBook.id]: prog }));
+    persistBookPosition(activeBook.id, prog, userId);
+  }, [activeBook, userId]);
+
+  const updateReadingPosition = useCallback((pos: { pageIndex: number; scrollTop: number }) => {
+    if (!activeBook) return;
+    const prog: EpubProgress = { chapterIndex, pageIndex: pos.pageIndex, scrollTop: pos.scrollTop, updatedAt: Date.now() };
+    setProgressMap((p) => ({ ...p, [activeBook.id]: prog }));
+    persistBookPosition(activeBook.id, prog, userId);
+  }, [activeBook, chapterIndex, userId]);
+
   const removeBook = async (bookId: string) => {
-    await deleteEpubBook(bookId);
-    if (userId) await deleteRemoteBook(userId, bookId);
+    await removeEpubEverywhere(bookId, userId);
     await refreshShelf();
   };
   const updateSettings = (next: EpubSettings) => { setSettings(next); saveEpubSettings(next); };
 
   return {
-    shelf, progressMap, activeBook, setActiveBook, chapterIndex, setChapterIndex,
-    parsedBlocks, parsing, importing, error, settings, updateSettings,
+    shelf, progressMap, activeBook, setActiveBook, chapterIndex, initialPosition, selectChapter,
+    updateReadingPosition, parsedBlocks, parsing, importing, error, settings, updateSettings,
     selected, setSelected, refreshShelf, importFile, openBook, removeBook,
     setVisibleIndices, parseCurrentTarget,
   };

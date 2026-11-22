@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { EpubParagraphBlock } from "./EpubParagraphBlock";
+import { useEpubViewportPosition } from "@/hooks/useEpubViewportPosition";
 import type { EpubChapter, EpubSettings, ParsedBlockResult, SelectedWordContext } from "@/types/epubReader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
@@ -12,63 +13,26 @@ interface EpubReaderViewportProps {
   statusMap: Record<string, UserVocabStatus>;
   selectedBlockIdx: number | null;
   selectedWordStart: number | null;
+  initialPageIndex?: number;
+  initialScrollTop?: number;
   onSelectWord: (blockIndex: number, ctx: SelectedWordContext) => void;
   onOpenWheel?: (ctx: SelectedWordContext, point: { x: number; y: number }) => void;
   onChangeChapter: (nextIndex: number) => void;
+  onProgressChange?: (pos: { pageIndex: number; scrollTop: number }) => void;
   onVisibleBlocksChange?: (indices: number[]) => void;
 }
 
 export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
   chapter, chapterCount, parsedBlocks, settings, statusMap,
-  selectedBlockIdx, selectedWordStart, onSelectWord, onOpenWheel, onChangeChapter, onVisibleBlocksChange,
+  selectedBlockIdx, selectedWordStart, initialPageIndex = 0, initialScrollTop = 0,
+  onSelectWord, onOpenWheel, onChangeChapter, onProgressChange, onVisibleBlocksChange,
 }) => {
   const pagedRef = useRef<HTMLDivElement>(null);
-  const [pageIdx, setPageIdx] = useState(0);
-  const [pageCount, setPageCount] = useState(1);
-
-  const reportVisibleBlocks = useCallback(() => {
-    const el = pagedRef.current;
-    if (!el || !onVisibleBlocksChange || settings.scrollMode !== "paged") return;
-    const rect = el.getBoundingClientRect();
-    const visible: number[] = [];
-    el.querySelectorAll<HTMLElement>("[data-block-idx]").forEach((node) => {
-      const r = node.getBoundingClientRect();
-      if (r.right > rect.left + 4 && r.left < rect.right - 4) {
-        const idx = Number(node.dataset.blockIdx);
-        if (Number.isFinite(idx)) visible.push(idx);
-      }
-    });
-    if (visible.length > 0) onVisibleBlocksChange(visible);
-  }, [onVisibleBlocksChange, settings.scrollMode]);
-
-  useEffect(() => {
-    setPageIdx(0);
-    if (pagedRef.current) pagedRef.current.scrollTo({ left: 0 });
-  }, [chapter.index, settings.scrollMode]);
-
-  useEffect(() => {
-    if (settings.scrollMode !== "paged" || !pagedRef.current) return;
-    const el = pagedRef.current;
-    const measure = () => {
-      setPageCount(Math.max(1, Math.round(el.scrollWidth / (el.clientWidth || 1))));
-      reportVisibleBlocks();
-    };
-    const id = requestAnimationFrame(measure);
-    window.addEventListener("resize", measure);
-    return () => { cancelAnimationFrame(id); window.removeEventListener("resize", measure); };
-  }, [settings.scrollMode, settings.fontSize, chapter.index, parsedBlocks, reportVisibleBlocks]);
-
-  const goPage = useCallback((delta: number) => {
-    const el = pagedRef.current;
-    if (!el) return;
-    const next = pageIdx + delta;
-    if (next < 0 && chapter.index > 0) return onChangeChapter(chapter.index - 1);
-    if (next >= pageCount && chapter.index < chapterCount - 1) return onChangeChapter(chapter.index + 1);
-    const clamped = Math.max(0, Math.min(pageCount - 1, next));
-    setPageIdx(clamped);
-    el.scrollTo({ left: clamped * el.clientWidth, behavior: "instant" as ScrollBehavior });
-    requestAnimationFrame(reportVisibleBlocks);
-  }, [pageIdx, pageCount, chapter.index, chapterCount, onChangeChapter, reportVisibleBlocks]);
+  const { pageIdx, pageCount, goPage } = useEpubViewportPosition({
+    pagedRef, chapterIndex: chapter.index, chapterCount, scrollMode: settings.scrollMode,
+    fontSize: settings.fontSize, parsedKey: Object.keys(parsedBlocks).length,
+    initialPageIndex, initialScrollTop, onChangeChapter, onProgressChange, onVisibleBlocksChange,
+  });
 
   useEffect(() => {
     if (settings.scrollMode !== "paged") return;
