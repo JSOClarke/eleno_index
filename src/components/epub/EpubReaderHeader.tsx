@@ -40,7 +40,7 @@ export const EpubReaderHeader: React.FC<EpubReaderHeaderProps> = ({
     : "hover:bg-slate-100 text-slate-600";
 
   return (
-    <header className={`sticky top-0 z-30 border-b backdrop-blur-md ${barCls}`}>
+    <header className={`sticky top-12 z-20 border-b backdrop-blur-md ${barCls}`}>
       <div className="mx-auto flex h-12 max-w-5xl items-center justify-between gap-2 px-3 sm:px-5">
         <div className="flex min-w-0 items-center gap-2">
           <button
