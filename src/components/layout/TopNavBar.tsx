@@ -27,12 +27,14 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
 
   const navItems = [
     { to: "/catalogue", label: "Catalogue", match: (p: string) => p === "/catalogue" || p.startsWith("/media/") || p.startsWith("/work/") },
+    { to: "/epub", label: "EPUB Reader", match: (p: string) => p === "/epub" },
     { to: "/dictionary", label: "Dictionary", match: (p: string) => p === "/dictionary" },
     { to: "/saved", label: `Saved (${savedCount})`, match: (p: string) => p === "/saved" },
     { to: "/known-words", label: "Known Words", match: (p: string) => p === "/known-words" },
   ];
   const drawerItems = [
     { to: "/catalogue", label: "Catalogue" },
+    { to: "/epub", label: "EPUB Reader" },
     { to: "/dictionary", label: "Dictionary" },
     { to: "/saved", label: "Saved", count: savedCount },
     { to: "/known-words", label: "Known Words" },
