@@ -13,13 +13,14 @@ interface EpubReaderViewportProps {
   selectedBlockIdx: number | null;
   selectedWordStart: number | null;
   onSelectWord: (blockIndex: number, ctx: SelectedWordContext) => void;
+  onOpenWheel?: (ctx: SelectedWordContext, point: { x: number; y: number }) => void;
   onChangeChapter: (nextIndex: number) => void;
   onVisibleBlocksChange?: (indices: number[]) => void;
 }
 
 export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
   chapter, chapterCount, parsedBlocks, settings, statusMap,
-  selectedBlockIdx, selectedWordStart, onSelectWord, onChangeChapter, onVisibleBlocksChange,
+  selectedBlockIdx, selectedWordStart, onSelectWord, onOpenWheel, onChangeChapter, onVisibleBlocksChange,
 }) => {
   const pagedRef = useRef<HTMLDivElement>(null);
   const [pageIdx, setPageIdx] = useState(0);
@@ -87,6 +88,7 @@ export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
         highlightMode={settings.highlightMode || (settings.highlightUnknown ? "status" : "off")}
         selectedWordStart={selectedBlockIdx === idx ? selectedWordStart : null}
         onSelectWord={(ctx) => onSelectWord(idx, ctx)}
+        onOpenWheel={onOpenWheel}
       />
     </div>
   ));

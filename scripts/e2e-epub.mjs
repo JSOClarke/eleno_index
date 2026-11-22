@@ -54,6 +54,13 @@ try {
   await page.locator("span[role='button']:has-text('embargo')").first().click();
   await page.waitForSelector("text=/Idiom|Periphrasis/", { timeout: 5000 });
   await page.mouse.click(10, 10);
+  await page.locator("span[role='button']:has-text('gato')").first().dispatchEvent("contextmenu", { clientX: 180, clientY: 260, bubbles: true });
+  await page.waitForSelector("button:has-text('Know')", { timeout: 5000 });
+  await page.waitForSelector("button:has-text('Audio')", { timeout: 5000 });
+  await page.waitForSelector("button:has-text('Learn')", { timeout: 5000 });
+  await page.locator("button:has-text('Inspect')").click();
+  await page.waitForSelector("button:has-text('Definitions')", { timeout: 5000 });
+  await page.mouse.click(10, 10);
   await page.locator("button[aria-label='Toggle reading mode']").click();
   await page.waitForSelector("text=Page 1 /", { timeout: 5000 });
   const layoutCheck = await page.evaluate(() => {

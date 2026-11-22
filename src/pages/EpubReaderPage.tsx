@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { EpubActionWheel } from "@/components/epub/EpubActionWheel";
 import { EpubBookshelf } from "@/components/epub/EpubBookshelf";
 import { EpubReaderHeader } from "@/components/epub/EpubReaderHeader";
 import { EpubReaderViewport } from "@/components/epub/EpubReaderViewport";
@@ -24,6 +25,7 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
   const state = useEpubReaderState(userId);
   const [tocOpen, setTocOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [wheel, setWheel] = useState<{ ctx: import("@/types/epubReader.types").SelectedWordContext; x: number; y: number } | null>(null);
 
   const handleWordStatus = (canonicalId: string, status: UserVocabStatus | null) => {
     if (!userId) {
@@ -79,9 +81,18 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
         statusMap={statusMap}
         selectedBlockIdx={state.selected?.blockIdx ?? null}
         selectedWordStart={state.selected?.ctx.token.start ?? null}
-        onSelectWord={(blockIdx, ctx) => state.setSelected({ blockIdx, ctx })}
+        onSelectWord={(blockIdx, ctx) => { setWheel(null); state.setSelected({ blockIdx, ctx }); }}
+        onOpenWheel={(ctx, pt) => { state.setSelected(null); setWheel({ ctx, x: pt.x, y: pt.y }); }}
         onChangeChapter={(idx) => { state.setChapterIndex(idx); window.scrollTo({ top: 0 }); }}
         onVisibleBlocksChange={state.setVisibleIndices}
+      />
+      <EpubActionWheel
+        wheel={wheel}
+        language={state.activeBook.language}
+        statusMap={statusMap}
+        onSetWordStatus={handleWordStatus}
+        onInspect={(ctx) => state.setSelected({ blockIdx: 0, ctx })}
+        onClose={() => setWheel(null)}
       />
       <EpubWordPopover
         ctx={state.selected?.ctx ?? null}
