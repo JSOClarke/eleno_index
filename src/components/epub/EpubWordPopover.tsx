@@ -27,8 +27,9 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const [translating, setTranslating] = useState(false);
   const [images, setImages] = useState<WordImagePair | null>(null);
   const [posOpen, setPosOpen] = useState(false);
+  const sheetRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const swipe = useSwipeDismiss(onClose, bodyRef);
+  const swipe = useSwipeDismiss(Boolean(ctx), onClose, sheetRef, bodyRef);
 
   const c = ctx?.token.canonical;
   const lemma = c?.lemma || ctx?.token.surface || "";
@@ -70,13 +71,13 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const leftPos = Math.max(12, Math.min(window.innerWidth - 388, ctx.anchorRect.left));
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0F172A]/15 md:bg-transparent" onClick={onClose}>
+    <div className="fixed inset-0 z-50 overscroll-none bg-[#0F172A]/15 md:bg-transparent" onClick={onClose}>
       <div
+        ref={sheetRef}
         data-epub-popover
         onClick={(e) => e.stopPropagation()}
-        onTouchStart={swipe.onTouchStart} onTouchMove={swipe.onTouchMove} onTouchEnd={swipe.onTouchEnd} onTouchCancel={swipe.onTouchCancel}
         style={{ "--desk-top": `${Math.max(12, topPos)}px`, "--desk-left": `${leftPos}px`, transform: swipe.dragY > 0 ? `translateY(${swipe.dragY}px)` : undefined } as React.CSSProperties}
-        className={`fixed bottom-0 left-0 right-0 md:bottom-auto md:right-auto md:top-[var(--desk-top)] md:left-[var(--desk-left)] md:w-[376px] rounded-t-2xl md:rounded-2xl bg-white text-[#0F172A] shadow-[0_20px_45px_rgba(15,23,42,0.16),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden max-h-[82vh] flex flex-col ${swipe.dragY === 0 ? "transition-transform duration-200 ease-out" : ""}`}
+        className={`fixed bottom-0 left-0 right-0 overscroll-none md:bottom-auto md:right-auto md:top-[var(--desk-top)] md:left-[var(--desk-left)] md:w-[376px] rounded-t-2xl md:rounded-2xl bg-white text-[#0F172A] shadow-[0_20px_45px_rgba(15,23,42,0.16),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden max-h-[82vh] flex flex-col ${swipe.dragY === 0 ? "transition-transform duration-200 ease-out" : ""}`}
       >
         <div className="h-[3px] w-full shrink-0 bg-[#0F172A]" />
         <div className="md:hidden flex justify-center pt-2 pb-0.5 shrink-0"><div className="h-1 w-9 rounded-full bg-slate-300" /></div>
