@@ -93,7 +93,7 @@ export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
 
   if (settings.scrollMode === "paged") {
     return (
-      <div className={`flex h-[calc(100dvh-6rem)] flex-col overflow-hidden ${themeCls}`}>
+      <div className={`fixed inset-x-0 top-[98px] bottom-0 z-10 flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)] ${themeCls}`}>
         <div
           ref={pagedRef}
           className="mx-auto w-full max-w-4xl flex-1 min-h-0 overflow-hidden px-5 py-5 sm:px-8 font-serif"
