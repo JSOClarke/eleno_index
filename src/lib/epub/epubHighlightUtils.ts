@@ -101,16 +101,32 @@ export function getTokenHighlightClass(
   if (inPhrase) classes.push("underline decoration-dotted decoration-[rgba(14,116,144,0.85)]");
   if (mode === "off") return classes.join(" ");
 
-  if (i1?.isTarget) classes.push("bg-[rgba(6,182,212,0.28)] rounded-[2px]");
-  else if (i1) classes.push("bg-[rgba(14,116,144,0.075)]");
+  if (i1 && !i1.isTarget) classes.push("bg-[rgba(14,116,144,0.075)]");
 
-  if (mode === "status" && !i1?.isTarget && !tok.is_stop) {
-    if (status === "learning") classes.push("bg-[rgba(245,158,11,0.24)] rounded-[2px]");
-    else if (status !== "known" && tok.canonical) classes.push("bg-[rgba(14,165,233,0.16)] rounded-[2px]");
-  } else if (mode === "cefr" && tok.canonical?.cefr) {
-    classes.push(CEFR_BG[tok.canonical.cefr.toUpperCase()] || "");
-  } else if (mode === "rank" && tok.canonical) {
-    classes.push(RANK_BG[getFrequencyBand(tok.canonical.rank).band]);
+  const can = tok.canonical;
+  const cid = can?.canonical_id || can?.id;
+  const isPropn = tok.is_proper_noun || tok.pos === "PROPN" || can?.pos === "PROPN";
+  if (tok.is_punct || !cid || isPropn || status === "known") {
+    return classes.join(" ");
+  }
+
+  if (i1?.isTarget) {
+    classes.push("bg-[rgba(6,182,212,0.28)] rounded-[2px]");
+    return classes.join(" ");
+  }
+  if (mode === "i1") return classes.join(" ");
+
+  if (status === "learning") {
+    classes.push("bg-[rgba(245,158,11,0.24)] rounded-[2px]");
+  } else if (mode === "status") {
+    classes.push("bg-[rgba(14,165,233,0.16)] rounded-[2px]");
+  } else if (mode === "cefr") {
+    const lvl = (can?.cefr || "").toUpperCase();
+    classes.push(CEFR_BG[lvl] || "bg-[rgba(14,165,233,0.16)]");
+  } else if (mode === "rank") {
+    const rank = can?.tubelex_rank || can?.elelex_rank || can?.rank || null;
+    const { band } = getFrequencyBand(rank);
+    if (band !== "top1k") classes.push(RANK_BG[band]);
   }
   return classes.filter(Boolean).join(" ");
 }

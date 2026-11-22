@@ -48,6 +48,8 @@ export interface ParsedCanonical {
   cefr?: string | null;
   ipa?: string | null;
   rank?: number | null;
+  tubelex_rank?: number | null;
+  elelex_rank?: number | null;
   definitions?: string[];
   definitions_es?: string[];
   es_definitions?: string[];
@@ -58,6 +60,8 @@ export interface ParsedToken {
   start: number;
   end: number;
   is_word?: boolean;
+  is_punct?: boolean;
+  is_proper_noun?: boolean;
   is_stop?: boolean;
   pos?: string | null;
   morph?: string | Record<string, string>;
