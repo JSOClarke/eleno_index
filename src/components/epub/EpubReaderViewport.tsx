@@ -53,7 +53,7 @@ export const EpubReaderViewport: React.FC<EpubReaderViewportProps> = ({
   const renderBlocks = () => chapter.paragraphs.map((raw, idx) => (
     <EpubParagraphBlock
       key={idx} rawText={raw} parsed={parsedBlocks[idx]} statusMap={statusMap}
-      highlightUnknown={settings.highlightUnknown}
+      highlightMode={settings.highlightMode || (settings.highlightUnknown ? "status" : "off")}
       selectedWordStart={selectedBlockIdx === idx ? selectedWordStart : null}
       onSelectWord={(ctx) => onSelectWord(idx, ctx)}
     />

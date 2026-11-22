@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Volume2, X } from "lucide-react";
-import { getCefrBadgeClass } from "@/lib/catalogueDisplay";
+import { BookOpen, FileText, GraduationCap, Image as ImageIcon, Layers, Volume2, X } from "lucide-react";
 import { downloadApkgDeck } from "@/lib/ankiApkgExport";
+import { getFrequencyBand } from "@/lib/epub/epubHighlightUtils";
 import { fetchWordImages, speakSpanish, translateSentence, type WordImagePair } from "@/lib/epub/epubParseClient";
 import { EpubPopoverTabs } from "./EpubPopoverTabs";
 import type { SelectedWordContext } from "@/types/epubReader.types";
@@ -32,7 +32,6 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const esDefs = c?.definitions_es || c?.es_definitions || [];
 
   useEffect(() => { setTab("defs"); setTranslation(null); setImages(null); }, [ctx]);
-
   useEffect(() => {
     if (!ctx || tab !== "img" || images) return;
     fetchWordImages(lemma, enDefs[0] || "", language).then(setImages);
@@ -43,6 +42,8 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const status = (canonicalId ? statusMap[canonicalId] : undefined) || ctx.token.user_status || null;
   const morphEntries = Object.entries(ctx.token.morph || {}).slice(0, 4);
   const pos = c?.pos || ctx.token.pos || "";
+  const bandInfo = getFrequencyBand(c?.rank);
+  const showSurface = ctx.token.surface && ctx.token.surface.toLowerCase() !== lemma.toLowerCase();
 
   const handleTranslate = async () => {
     setTranslating(true);
@@ -66,57 +67,70 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
     );
   };
 
-  const topPos = Math.min(window.innerHeight - 360, ctx.anchorRect.bottom + 8);
-  const leftPos = Math.max(12, Math.min(window.innerWidth - 360, ctx.anchorRect.left));
+  const topPos = Math.min(window.innerHeight - 380, ctx.anchorRect.bottom + 8);
+  const leftPos = Math.max(12, Math.min(window.innerWidth - 388, ctx.anchorRect.left));
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/15 md:bg-transparent" onClick={onClose}>
+    <div className="fixed inset-0 z-50 bg-[#0F172A]/15 md:bg-transparent" onClick={onClose}>
       <div
         onClick={(e) => e.stopPropagation()}
         style={{ "--desk-top": `${Math.max(12, topPos)}px`, "--desk-left": `${leftPos}px` } as React.CSSProperties}
-        className="fixed bottom-0 left-0 right-0 md:bottom-auto md:right-auto md:top-[var(--desk-top)] md:left-[var(--desk-left)] md:w-[352px] rounded-t-2xl md:rounded-2xl border border-slate-200 bg-white text-slate-900 shadow-2xl overflow-hidden max-h-[80vh] flex flex-col"
+        className="fixed bottom-0 left-0 right-0 md:bottom-auto md:right-auto md:top-[var(--desk-top)] md:left-[var(--desk-left)] md:w-[376px] rounded-t-2xl md:rounded-2xl bg-white text-[#0F172A] shadow-[0_20px_45px_rgba(15,23,42,0.16),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden max-h-[82vh] flex flex-col"
       >
-        <div className="h-[3px] w-full bg-slate-900" />
-        <div className="p-4 space-y-3 overflow-y-auto">
+        <div className="h-[3px] w-full shrink-0 bg-[#0F172A]" />
+        <div className="px-[18px] py-4 space-y-3 overflow-y-auto flex-1">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-serif text-xl font-semibold tracking-tight">{lemma}</span>
-                {c?.ipa && <span className="font-mono text-xs text-slate-400">/{c.ipa}/</span>}
-                <button type="button" onClick={() => speakSpanish(lemma, language)} aria-label="Pronounce word" className="rounded-md p-1 text-slate-500 hover:bg-slate-100 cursor-pointer">
+              <div className="flex flex-wrap items-end gap-2">
+                <span className="font-serif text-[30px] font-medium leading-[1.02] tracking-[-0.02em] text-[#0F172A]">{lemma}</span>
+                {c?.ipa && <span className="pb-0.5 font-mono text-[11.5px] font-medium text-[#64748B]">{c.ipa}</span>}
+                <button type="button" onClick={(e) => speakSpanish(lemma, language, e.shiftKey ? 0.72 : 1.0)} onContextMenu={(e) => { e.preventDefault(); speakSpanish(lemma, language, 0.72); }} title="Play pronunciation · Right-click for 0.7x slow" className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F1F5F9] hover:text-[#0F172A] cursor-pointer">
                   <Volume2 className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px]">
-                {c?.cefr && <span className={`rounded-full px-2 py-0.5 font-semibold ${getCefrBadgeClass(c.cefr)}`}>{c.cefr}</span>}
-                {pos && <span className="rounded-full bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">{pos}</span>}
-                {c?.rank && <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-slate-600">#{c.rank}</span>}
-                {morphEntries.map(([k, v]) => <span key={k} className="rounded-full border border-slate-200 px-2 py-0.5 text-slate-500">{v}</span>)}
-              </div>
+              {showSurface && <div className="mt-1 text-[11px] text-[#64748B]">In text: “{ctx.token.surface}”</div>}
             </div>
-            <button type="button" onClick={onClose} className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 cursor-pointer"><X className="h-4 w-4" /></button>
-          </div>
-          {canonicalId && (
-            <div className="flex items-center gap-2">
-              <button type="button" onClick={() => onSetWordStatus(canonicalId, status === "learning" ? null : "learning")}
-                className={`flex-1 rounded-lg border py-1.5 text-xs font-medium cursor-pointer transition ${status === "learning" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>Learn</button>
-              <button type="button" onClick={() => onSetWordStatus(canonicalId, status === "known" ? null : "known")}
-                className={`flex-1 rounded-lg border py-1.5 text-xs font-medium cursor-pointer transition ${status === "known" ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>Known</button>
+            <div className="flex items-center gap-1 shrink-0">
+              <span title="Threshold" className="p-1 text-[#0F172A]"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M2 20V14.75H8.5V9.5H15.5V4H22V20H2Z" fill="currentColor" /></svg></span>
+              <button type="button" onClick={onClose} title="Close (Esc)" className="rounded-lg p-1.5 text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] cursor-pointer"><X className="h-4 w-4" /></button>
             </div>
-          )}
-          <div className="flex gap-1 border-b border-slate-100 pb-2 text-xs">
-            {(["defs", "ctx", "img"] as const).map((t) => (
-              <button key={t} type="button" onClick={() => setTab(t)}
-                className={`rounded-lg px-2.5 py-1 font-medium cursor-pointer ${tab === t ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"}`}>
-                {t === "defs" ? "Definitions" : t === "ctx" ? "Sentence" : "Visual"}
-              </button>
-            ))}
           </div>
+
+          <div className="flex flex-wrap items-center gap-1 text-[10px] font-medium">
+            {c?.cefr && <span className="inline-flex items-center gap-1 rounded-full border border-[#0F172A] bg-[#0F172A] px-2 py-0.5 text-white"><GraduationCap className="h-2.5 w-2.5" />{c.cefr}</span>}
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F1F5F9] px-2 py-0.5 text-[#0F172A]"><Layers className="h-2.5 w-2.5" />{bandInfo.label}</span>
+            {pos && <span className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569]">{pos}</span>}
+            {morphEntries.map(([k, v]) => <span key={k} className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569]">{v}</span>)}
+          </div>
+
           <EpubPopoverTabs
             tab={tab} defLang={defLang} onChangeDefLang={setDefLang} enDefs={enDefs} esDefs={esDefs}
-            phrases={ctx.phrases} sentence={ctx.sentence} language={language} translation={translation}
-            translating={translating} images={images} onTranslate={handleTranslate} onExportAnki={handleExportAnki}
+            phrases={ctx.phrases} iPlusOne={ctx.iPlusOne} sentence={ctx.sentence} language={language}
+            translation={translation} translating={translating} images={images}
+            onTranslate={handleTranslate} onExportAnki={handleExportAnki}
           />
+
+          {canonicalId && (
+            <div className="flex items-center gap-2 pt-1">
+              <button type="button" onClick={() => onSetWordStatus(canonicalId, status === "learning" ? null : "learning")}
+                className={`flex-1 rounded-lg py-[7px] text-[11.5px] cursor-pointer transition ${status === "learning" ? "bg-[#0F172A] font-semibold text-white hover:bg-[#1E293B]" : "bg-[#F1F5F9] font-medium text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A]"}`}>Learn</button>
+              <button type="button" onClick={() => onSetWordStatus(canonicalId, status === "known" ? null : "known")}
+                className={`flex-1 rounded-lg py-[7px] text-[11.5px] cursor-pointer transition ${status === "known" ? "bg-[#0F172A] font-semibold text-white hover:bg-[#1E293B]" : "bg-[#F1F5F9] font-medium text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A]"}`}>Known</button>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-1 border-t border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-1.5">
+          {([
+            { id: "defs", label: "Definitions", Icon: BookOpen },
+            { id: "ctx", label: "Sentence", Icon: FileText },
+            { id: "img", label: "Visual", Icon: ImageIcon },
+          ] as const).map(({ id, label, Icon }) => (
+            <button key={id} type="button" onClick={() => setTab(id)}
+              className={`flex-1 flex flex-col items-center justify-center gap-0.5 rounded-lg py-1.5 text-[10px] cursor-pointer transition ${tab === id ? "bg-[#0F172A] font-semibold text-white shadow-xs" : "font-medium text-[#64748B] hover:bg-white hover:text-[#0F172A]"}`}>
+              <Icon className="h-3.5 w-3.5" /><span>{label}</span>
+            </button>
+          ))}
         </div>
       </div>
     </div>

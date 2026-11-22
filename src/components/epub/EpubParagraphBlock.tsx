@@ -1,12 +1,13 @@
-import React from "react";
-import type { ParsedBlockResult, ParsedToken, SelectedWordContext } from "@/types/epubReader.types";
+import React, { useMemo } from "react";
+import { computeIPlusOneMap, getTokenHighlightClass } from "@/lib/epub/epubHighlightUtils";
+import type { EpubHighlightMode, ParsedBlockResult, SelectedWordContext } from "@/types/epubReader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface EpubParagraphBlockProps {
   rawText: string;
   parsed?: ParsedBlockResult;
   statusMap: Record<string, UserVocabStatus>;
-  highlightUnknown: boolean;
+  highlightMode: EpubHighlightMode;
   selectedWordStart?: number | null;
   onSelectWord: (ctx: SelectedWordContext) => void;
 }
@@ -22,13 +23,13 @@ function extractSentence(text: string, start: number, end: number): string {
 }
 
 export const EpubParagraphBlock: React.FC<EpubParagraphBlockProps> = ({
-  rawText,
-  parsed,
-  statusMap,
-  highlightUnknown,
-  selectedWordStart,
-  onSelectWord,
+  rawText, parsed, statusMap, highlightMode, selectedWordStart, onSelectWord,
 }) => {
+  const i1Map = useMemo(
+    () => (parsed ? computeIPlusOneMap(parsed, statusMap) : new Map()),
+    [parsed, statusMap]
+  );
+
   if (!parsed || !parsed.tokens?.length) {
     return <p className="mb-4 leading-relaxed">{rawText}</p>;
   }
@@ -44,20 +45,14 @@ export const EpubParagraphBlock: React.FC<EpubParagraphBlockProps> = ({
     const cid = tok.canonical?.canonical_id || tok.canonical?.id;
     const status = (cid ? statusMap[cid] : undefined) || tok.user_status || null;
     const isInteractive = Boolean(tok.is_word !== false && (tok.canonical || /[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(surface)));
+    const inPhrase = (parsed.phrases || []).some((p) => tok.start >= p.start && tok.end <= p.end);
+    const i1 = i1Map.get(idx) || null;
 
     if (!isInteractive) {
-      parts.push(<span key={`t-${idx}`}>{surface}</span>);
+      parts.push(<span key={`t-${idx}`} className={i1 ? "bg-[rgba(14,116,144,0.075)]" : undefined}>{surface}</span>);
     } else {
       const isSelected = selectedWordStart === tok.start;
-      const showUnderline = highlightUnknown && status !== "known" && !tok.is_stop;
-      const cls = isSelected
-        ? "rounded bg-slate-900 px-0.5 text-white"
-        : status === "learning"
-          ? "border-b-2 border-amber-400/90 hover:bg-amber-400/15"
-          : showUnderline
-            ? "border-b border-dotted border-slate-400/70 hover:bg-slate-400/15"
-            : "hover:bg-slate-400/15 rounded";
-
+      const cls = getTokenHighlightClass(tok, status, highlightMode, isSelected, inPhrase, i1);
       parts.push(
         <span
           key={`t-${idx}`}
@@ -67,13 +62,9 @@ export const EpubParagraphBlock: React.FC<EpubParagraphBlockProps> = ({
             e.stopPropagation();
             const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
             const sentence = extractSentence(parsed.text, tok.start, tok.end);
-            const phrases = (parsed.phrases || []).filter(
-              (p) => tok.start >= p.start - 2 && tok.end <= p.end + 2
-            );
+            const phrases = (parsed.phrases || []).filter((p) => tok.start >= p.start - 2 && tok.end <= p.end + 2);
             onSelectWord({
-              token: tok,
-              sentence,
-              phrases,
+              token: tok, sentence, phrases, iPlusOne: i1,
               anchorRect: { top: r.top, left: r.left, bottom: r.bottom, width: r.width },
             });
           }}

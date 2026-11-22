@@ -1,5 +1,6 @@
 export type EpubTheme = "light" | "sepia" | "dark";
 export type EpubScrollMode = "scroll" | "paged";
+export type EpubHighlightMode = "status" | "i1" | "cefr" | "rank" | "off";
 
 export interface EpubChapter {
   index: number;
@@ -35,6 +36,7 @@ export interface EpubSettings {
   fontSize: number;
   scrollMode: EpubScrollMode;
   highlightUnknown: boolean;
+  highlightMode?: EpubHighlightMode;
 }
 
 export interface ParsedCanonical {
@@ -82,5 +84,6 @@ export interface SelectedWordContext {
   token: ParsedToken;
   sentence: string;
   phrases: ParsedPhrase[];
+  iPlusOne?: { isTarget: boolean; targetSurface: string } | null;
   anchorRect: { top: number; left: number; bottom: number; width: number };
 }

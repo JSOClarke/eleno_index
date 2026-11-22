@@ -18,6 +18,7 @@ export const DEFAULT_EPUB_SETTINGS: EpubSettings = {
   fontSize: 18,
   scrollMode: "scroll",
   highlightUnknown: true,
+  highlightMode: "status",
 };
 
 export async function listEpubShelf(): Promise<EpubBookMeta[]> {

@@ -1,6 +1,14 @@
 import React from "react";
 import { X } from "lucide-react";
-import type { EpubScrollMode, EpubSettings, EpubTheme } from "@/types/epubReader.types";
+import type { EpubHighlightMode, EpubScrollMode, EpubSettings, EpubTheme } from "@/types/epubReader.types";
+
+const HIGHLIGHT_MODES: { id: EpubHighlightMode; label: string }[] = [
+  { id: "status", label: "Status" },
+  { id: "i1", label: "i+1" },
+  { id: "cefr", label: "CEFR" },
+  { id: "rank", label: "Rank" },
+  { id: "off", label: "Off" },
+];
 
 interface EpubSettingsDrawerProps {
   open: boolean;
@@ -97,18 +105,25 @@ export const EpubSettingsDrawer: React.FC<EpubSettingsDrawerProps> = ({
           </div>
         </div>
 
-        <label className="flex items-center justify-between rounded-xl border border-slate-200 p-3 cursor-pointer">
-          <div>
-            <div className="text-xs font-semibold text-slate-900">Underline Unfamiliar Words</div>
-            <div className="text-[11px] text-slate-500">Subtle cue for words not yet marked Known</div>
+        <div className="space-y-2">
+          <div className="text-xs font-medium text-slate-500">Highlight Mode</div>
+          <div className="grid grid-cols-5 gap-1.5">
+            {HIGHLIGHT_MODES.map((hm) => (
+              <button
+                key={hm.id}
+                type="button"
+                onClick={() => onChange({ ...settings, highlightMode: hm.id, highlightUnknown: hm.id !== "off" })}
+                className={`rounded-lg border py-1.5 text-[11px] font-medium cursor-pointer transition ${
+                  (settings.highlightMode || "status") === hm.id
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              >
+                {hm.label}
+              </button>
+            ))}
           </div>
-          <input
-            type="checkbox"
-            checked={settings.highlightUnknown}
-            onChange={(e) => onChange({ ...settings, highlightUnknown: e.target.checked })}
-            className="h-4 w-4 accent-slate-900 cursor-pointer"
-          />
-        </label>
+        </div>
       </div>
     </div>
   );
