@@ -9,7 +9,7 @@ export type PrimerSortField = "lemma" | "pos" | "cefr" | "frequency" | "rank" | 
 export type KnownSortField = "lemma" | "pos" | "cefr" | "rank" | "added";
 export type SortDirection = "asc" | "desc";
 export type VocabStatusFilter = "ALL" | "UNKNOWN" | "LEARNING" | "KNOWN";
-export type RankingSourceKey = "tubelex_v2025" | "elelex_v2020" | "flelex_v2020" | "lexique383" | "subtlex_ch" | "opensubtitles_ru";
+export type RankingSourceKey = "tubelex_v2025" | "elelex_v2020" | "flelex_v2020" | "lexique383" | "subtlex_ch" | "opensubtitles_ru" | "trki_smartool";
 
 const CEFR_ORDER: Record<string, number> = {
   A1: 1, "HSK 1": 1, N5: 1,
@@ -36,7 +36,7 @@ export function getRankOptionsForLanguage(language?: string | null): ReadonlyArr
     return [{ value: "lexique383", label: "Lexique" }, { value: "flelex_v2020", label: "FLELex" }];
   }
   if (l.startsWith("ru")) {
-    return [{ value: "opensubtitles_ru", label: "OpenSubtitles" }];
+    return [{ value: "opensubtitles_ru", label: "OpenSubtitles" }, { value: "trki_smartool", label: "TRKI" }];
   }
   return [{ value: "tubelex_v2025", label: "TubeLex" }, { value: "elelex_v2020", label: "ELELex" }];
 }
@@ -44,6 +44,7 @@ export function getRankOptionsForLanguage(language?: string | null): ReadonlyArr
 export function getRankSourceLabel(source: RankingSourceKey): string {
   if (source === "subtlex_ch") return "SUBTLEX-CH";
   if (source === "opensubtitles_ru") return "OpenSubtitles";
+  if (source === "trki_smartool") return "TRKI";
   if (source === "lexique383") return "Lexique";
   if (source === "flelex_v2020") return "FLELex";
   if (source === "elelex_v2020") return "ELELex";
