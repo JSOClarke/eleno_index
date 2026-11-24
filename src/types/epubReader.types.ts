@@ -50,6 +50,7 @@ export interface ParsedCanonical {
   ipa?: string | null;
   rank?: number | null;
   tubelex_rank?: number | null;
+  subtlex_rank?: number | null;
   elelex_rank?: number | null;
   definitions?: string[];
   definitions_es?: string[];

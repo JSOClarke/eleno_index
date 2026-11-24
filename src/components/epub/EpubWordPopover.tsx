@@ -49,7 +49,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const morphChips = parseMorphChips(ctx.token.morph, language);
   const pos = c?.pos || ctx.token.pos || "";
   const posMeta = getPosMeta(pos);
-  const bandInfo = getFrequencyBand(c?.rank);
+  const bandInfo = getFrequencyBand(c?.tubelex_rank ?? c?.rank);
   const showSurface = ctx.token.surface && ctx.token.surface.toLowerCase() !== lemma.toLowerCase();
 
   const handleTranslate = async () => {
@@ -101,7 +101,8 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
 
           <div className="flex flex-wrap items-center gap-1 text-[10px] font-medium">
             {c?.cefr && <span className="inline-flex items-center gap-1 rounded-full border border-[#0F172A] bg-[#0F172A] px-2 py-0.5 text-white"><GraduationCap className="h-2.5 w-2.5" />{c.cefr}</span>}
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F1F5F9] px-2 py-0.5 text-[#0F172A]"><Layers className="h-2.5 w-2.5" />{bandInfo.label}</span>
+            {(c?.tubelex_rank ?? c?.rank) && <span className="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F1F5F9] px-2 py-0.5 text-[#0F172A]"><Layers className="h-2.5 w-2.5" />TubeLex #{c?.tubelex_rank ?? c?.rank} ({bandInfo.label})</span>}
+            {c?.subtlex_rank && <span className="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569]">SUBTLEX #{c.subtlex_rank}</span>}
             {(posMeta || pos) && (
               <button type="button" onClick={() => posMeta && setPosOpen((v) => !v)} className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569] hover:border-[#CBD5E1] hover:text-[#0F172A] cursor-pointer">
                 {posMeta ? posMeta.label : pos}
