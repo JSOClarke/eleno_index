@@ -137,7 +137,7 @@ export const CataloguePage: React.FC<CataloguePageProps> = ({
 
       <CatalogueFiltersSheet
         open={filtersOpen} onClose={() => setFiltersOpen(false)}
-        filters={filterState.filters} counts={facetCounts}
+        filters={filterState.filters} counts={facetCounts} language={items[0]?.language}
         onToggleLevel={filterState.toggleLevel} onToggleType={filterState.toggleType} onToggleOrigin={filterState.toggleOrigin}
         onToggleLength={filterState.toggleLength} onToggleProfile={filterState.toggleProfile}
         onToggleGenre={filterState.toggleGenre} onTogglePublisher={filterState.togglePublisher}

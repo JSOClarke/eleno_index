@@ -9,8 +9,14 @@ export const CEFR_BADGES: Record<string, string> = {
   C2: "bg-slate-950/95 text-white ring-1 ring-slate-950",
 };
 
+const LEVEL_ALIAS: Record<string, string> = {
+  "HSK 1": "A1", "HSK 2": "A2", "HSK 3": "B1", "HSK 4": "B2", "HSK 5": "C1", "HSK 6": "C2",
+  N5: "A1", N4: "A2", N3: "B1", N2: "B2", N1: "C1", "N1+": "C2",
+};
+
 export function getCefrBadgeClass(level: string): string {
-  return CEFR_BADGES[level.toUpperCase()] || CEFR_BADGES.B1;
+  const key = level.toUpperCase();
+  return CEFR_BADGES[LEVEL_ALIAS[key] || key] || CEFR_BADGES.B1;
 }
 
 const isSafeHttpUrl = (url: unknown): url is string =>

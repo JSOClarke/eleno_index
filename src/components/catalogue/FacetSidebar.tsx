@@ -6,10 +6,12 @@ import type {
   OriginFilter,
   ProfileFilterId,
 } from "@/types/filter.types";
+import { formatProficiencyLevel, getProficiencySystemLabel } from "@/lib/proficiencyScale";
 import { FacetGroup } from "./FacetGroup";
 
 interface FacetSidebarProps {
   filters: CatalogueFilterState;
+  language?: string;
   counts: {
     levels: Record<string, number>;
     types: Record<string, number>;
@@ -62,11 +64,12 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
   onToggleYear,
   onToggleHasAudio,
   onSetFlowTier,
+  language,
   variant = "sidebar",
 }) => {
   const levelOptions = ["A1", "A2", "B1", "B2", "C1", "C2"].map((lvl) => ({
     id: lvl,
-    label: lvl,
+    label: formatProficiencyLevel(lvl, language),
     count: counts.levels[lvl] || 0,
   }));
 
@@ -128,7 +131,7 @@ export const FacetSidebar: React.FC<FacetSidebarProps> = ({
         onToggle={(id) => onSetFlowTier(filters.flowTier === id ? "all" : (id as FlowTier))}
       />
       <FacetGroup
-        title="CEFR Level"
+        title={`${getProficiencySystemLabel(language)} Level`}
         options={levelOptions}
         selectedSet={filters.levels}
         onToggle={onToggleLevel}

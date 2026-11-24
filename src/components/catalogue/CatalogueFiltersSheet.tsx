@@ -26,6 +26,7 @@ interface CatalogueFiltersSheetProps {
   open: boolean;
   onClose: () => void;
   filters: CatalogueFilterState;
+  language?: string;
   counts: FacetCounts;
   onToggleLevel: (level: string) => void;
   onToggleType: (type: string) => void;
@@ -45,6 +46,7 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
   open,
   onClose,
   filters,
+  language,
   counts,
   onToggleLevel,
   onToggleType,
@@ -86,6 +88,7 @@ export const CatalogueFiltersSheet: React.FC<CatalogueFiltersSheetProps> = ({
     <FacetSidebar
       variant="sheet"
       filters={filters}
+      language={language}
       counts={counts}
       onToggleLevel={onToggleLevel}
       onToggleType={onToggleType}

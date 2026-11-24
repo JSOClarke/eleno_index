@@ -83,7 +83,7 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
         onRequireAuth={onRequireAuth}
       />
 
-      <LinguisticProfileRow metrics={item.metrics} />
+      <LinguisticProfileRow metrics={item.metrics} language={item.language} />
 
       <ChapterPacingStrip
         chapters={inspector.chapterMetrics}
@@ -92,6 +92,7 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
         onSelectChapter={setSelectedChapter}
         bookMetrics={item.metrics}
         bookComprehension={inspector.bookComp}
+        language={item.language}
       />
 
       <div className="space-y-4 pt-2">

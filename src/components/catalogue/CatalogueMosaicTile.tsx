@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Bookmark, Headphones } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCefrBadgeClass } from "@/lib/catalogueDisplay";
+import { formatProficiencyLevel } from "@/lib/proficiencyScale";
 import { resolveCoverArt } from "@/lib/coverArt";
 import { formatCompactWords } from "@/lib/formatters";
 import type { MediaCatalogItem } from "@/types/media.types";
@@ -50,7 +51,7 @@ export const CatalogueMosaicTile: React.FC<CatalogueMosaicTileProps> = ({
         <div className="relative z-10 flex items-start justify-between gap-1">
           <div className="flex items-center gap-1">
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm shadow-sm ${getCefrBadgeClass(level)}`}>
-              {level}
+              {formatProficiencyLevel(level, item.language)}
             </span>
             {item.has_audio && (
               <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/90 text-indigo-700 shadow-xs" title="Audio available">

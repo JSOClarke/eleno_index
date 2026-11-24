@@ -1,6 +1,7 @@
 import React from "react";
 import { ScrollFadeX } from "@/components/ui/ScrollFadeX";
 import { getCefrBadgeClass } from "@/lib/catalogueDisplay";
+import { formatProficiencyLevel } from "@/lib/proficiencyScale";
 import { formatCompactWords, formatLearningDelta, formatNumber } from "@/lib/formatters";
 import type { MediaChapterMetrics, MediaComprehensionStats, MediaMetrics } from "@/types/media.types";
 import { ChapterPacingSummary } from "./ChapterPacingSummary";
@@ -12,6 +13,7 @@ interface ChapterPacingStripProps {
   onSelectChapter: (ch: number | "all") => void;
   bookMetrics?: MediaMetrics | null;
   bookComprehension?: MediaComprehensionStats | null;
+  language?: string;
 }
 
 export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
@@ -21,6 +23,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
   onSelectChapter,
   bookMetrics,
   bookComprehension,
+  language,
 }) => {
   if (loading && chapters.length === 0) {
     return (
@@ -109,7 +112,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
                 <div className="flex items-center justify-between text-[10px]">
                   <span className="font-semibold text-slate-800">{unitShort}.{ch.chapter_index}</span>
                   <span className={`rounded-full px-1.5 py-0.2 font-semibold ${getCefrBadgeClass(ch.cefr_level || "B1")}`}>
-                    {ch.cefr_level || "B1"}
+                    {formatProficiencyLevel(ch.cefr_level || "B1", language)}
                   </span>
                 </div>
 

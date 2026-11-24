@@ -1,13 +1,16 @@
 import React from "react";
 import { formatNumber, formatPercent } from "@/lib/formatters";
+import { formatProficiencyLevel, getProficiencySystemLabel } from "@/lib/proficiencyScale";
 import type { MediaMetrics } from "@/types/media.types";
 
 interface LinguisticProfileRowProps {
   metrics: MediaMetrics | null;
+  language?: string;
 }
 
 export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({
   metrics,
+  language,
 }) => {
   if (!metrics) return null;
 
@@ -24,8 +27,8 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({
 
   const cards = [
     {
-      label: "CEFR & Readability",
-      value: `${cefr} · ${isKm ? "K-M" : "F-H"} ${fh}`,
+      label: `${getProficiencySystemLabel(language)} & Readability`,
+      value: `${formatProficiencyLevel(cefr, language)} · ${isKm ? "K-M" : "F-H"} ${fh}`,
       sub: isKm ? "Kandel-Moles scale" : "Fernández Huerta scale",
     },
     {

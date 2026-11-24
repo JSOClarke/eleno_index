@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { CoverageGate } from "@/components/ui/CoverageGate";
 import { getCefrBadgeClass } from "@/lib/catalogueDisplay";
+import { formatProficiencyLevel } from "@/lib/proficiencyScale";
 import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
@@ -88,7 +89,7 @@ export const CatalogueTableRow: React.FC<CatalogueTableRowProps> = ({
 
         <div className="col-span-1 flex items-center gap-1.5">
           <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${getCefrBadgeClass(level)}`}>
-            {level}
+            {formatProficiencyLevel(level, item.language)}
           </span>
           {item.has_audio && <span title="Audio narration available" className="text-xs">🎧</span>}
         </div>

@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { formatCompactWords } from "@/lib/formatters";
+import { formatProficiencyLevel } from "@/lib/proficiencyScale";
 import { READABLE_LANGUAGES } from "@/lib/catalogueLanguages";
 import type { MediaCatalogItem } from "@/types/media.types";
 
@@ -87,7 +88,7 @@ export const WorkPage: React.FC<WorkPageProps> = ({
                 <div className="truncate text-sm font-semibold text-[#111111]">{edition.title}</div>
                 <div className="truncate font-mono text-[11px] text-[#666666]">
                   {formatCompactWords(edition.metrics?.total_tokens || 0)} ·{" "}
-                  {level} · F-H {(edition.metrics?.readability_score || 70).toFixed(1)}
+                  {formatProficiencyLevel(level, edition.language)} · F-H {(edition.metrics?.readability_score || 70).toFixed(1)}
                 </div>
               </div>
               {canRead ? (

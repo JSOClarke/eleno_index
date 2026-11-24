@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { CoverageGate } from "@/components/ui/CoverageGate";
 import { getCefrBadgeClass } from "@/lib/catalogueDisplay";
+import { formatProficiencyLevel } from "@/lib/proficiencyScale";
 import { formatCompactWords, getMediaSubtypeLabel } from "@/lib/formatters";
 import type { MediaCatalogItem } from "@/types/media.types";
 import { CatalogueFlowBar } from "./CatalogueFlowBar";
@@ -47,7 +48,7 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
-            <span className={`rounded-full px-2 py-0.5 font-semibold ${getCefrBadgeClass(level)}`}>{level}</span>
+            <span className={`rounded-full px-2 py-0.5 font-semibold ${getCefrBadgeClass(level)}`}>{formatProficiencyLevel(level, item.language)}</span>
             <span>{formatCompactWords(m?.total_tokens || 0)}</span>
             <span>F-H {fh}</span>
             {isAuthenticated && <span className="font-semibold text-emerald-700">{Math.round(flowPct)}% known</span>}

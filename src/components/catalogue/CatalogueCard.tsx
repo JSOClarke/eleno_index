@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { BookCoverPlate } from "@/components/layout/BookCoverPlate";
 import { PlatformLinkPills } from "@/components/ui/PlatformLinkPills";
 import { getCefrBadgeClass, getPlatformLinks } from "@/lib/catalogueDisplay";
+import { formatProficiencyLevel } from "@/lib/proficiencyScale";
 import { formatCompactWords, formatPercent, getMediaSubtypeLabel } from "@/lib/formatters";
 import type { MediaCatalogItem, PreviewWordItem } from "@/types/media.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
@@ -80,7 +81,7 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
                 {item.language}
               </span>
               <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCefrBadgeClass(level)}`}>
-                {level}
+                {formatProficiencyLevel(level, item.language)}
               </span>
             </div>
           </div>
