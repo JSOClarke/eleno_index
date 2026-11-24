@@ -44,9 +44,10 @@ export function useEpubReaderState(userId?: string | null) {
     abortRef.current = ctrl;
     setParsing(true);
     try {
-      for (let s = 0; s < missing.length; s += 30) {
+      const step = activeBook.language === "zh" ? 5 : 30;
+      for (let s = 0; s < missing.length; s += step) {
         if (ctrl.signal.aborted) return;
-        const batchIdx = missing.slice(s, s + 30);
+        const batchIdx = missing.slice(s, s + step);
         const res = await parseParagraphSlice(batchIdx.map((i) => ch.paragraphs[i]), activeBook.language || "es", userId, ctrl.signal);
         batchIdx.forEach((bIdx, offset) => { if (res[offset]) parsedRef.current[bIdx] = res[offset]; });
         setParsedBlocks({ ...parsedRef.current });
