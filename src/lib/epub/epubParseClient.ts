@@ -1,7 +1,7 @@
+import { translateText } from "@/lib/translationProvider";
 import type { ParsedBlockResult } from "@/types/epubReader.types";
 
 const PARSER_API_BASE = "https://api.152.67.157.124.sslip.io";
-const translationCache = new Map<string, string>();
 const imageCache = new Map<string, WordImagePair>();
 
 export interface WikiImageHit {
@@ -47,38 +47,19 @@ export async function parseParagraphSlice(
 export async function translateSentence(sentence: string, lang = "es"): Promise<string> {
   const clean = sentence.trim();
   if (!clean) return "";
-  const key = `${lang}::${clean}`;
-  if (translationCache.has(key)) return translationCache.get(key)!;
-
-  const sl = lang === "zh" ? "zh-CN" : lang;
   try {
-    const r = await fetch(
-      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=en&dt=t&q=${encodeURIComponent(clean)}`
-    );
-    if (r.ok) {
-      const data = await r.json();
-      const txt = Array.isArray(data?.[0]) ? data[0].map((s: any) => s?.[0] || "").join("").trim() : "";
-      if (txt) {
-        translationCache.set(key, txt);
-        return txt;
-      }
-    }
+    return await translateText(clean, lang, "en");
   } catch {
-    // Fallback below
-  }
-
-  const mmRes = await fetch(
-    `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean.slice(0, 480))}&langpair=${lang}|en`
-  );
-  if (mmRes.ok) {
-    const mm = await mmRes.json();
-    const txt = (mm?.responseData?.translatedText || "").trim();
-    if (txt) {
-      translationCache.set(key, txt);
-      return txt;
+    const mmRes = await fetch(
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean.slice(0, 480))}&langpair=${lang}|en`
+    );
+    if (mmRes.ok) {
+      const mm = await mmRes.json();
+      const txt = (mm?.responseData?.translatedText || "").trim();
+      if (txt) return txt;
     }
+    throw new Error("Could not translate sentence.");
   }
-  throw new Error("Could not translate sentence.");
 }
 
 async function fetchWikiSide(query: string, lang: string): Promise<WikiImageHit | null> {
