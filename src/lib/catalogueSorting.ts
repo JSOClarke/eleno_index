@@ -2,12 +2,12 @@ import type { CatalogueSortOption } from "@/types/filter.types";
 import type { MediaCatalogItem } from "@/types/media.types";
 
 const CEFR_RANK: Record<string, number> = {
-  A1: 1, "HSK 1": 1, N5: 1,
-  A2: 2, "HSK 2": 2, N4: 2,
-  B1: 3, "HSK 3": 3, N3: 3,
-  B2: 4, "HSK 4": 4, N2: 4,
-  C1: 5, "HSK 5": 5, N1: 5,
-  C2: 6, "HSK 6": 6, "N1+": 6,
+  A1: 1, "HSK 1": 1, N5: 1, TEU: 1,
+  A2: 2, "HSK 2": 2, N4: 2, TBU: 2,
+  B1: 3, "HSK 3": 3, N3: 3, "TRKI 1": 3,
+  B2: 4, "HSK 4": 4, N2: 4, "TRKI 2": 4,
+  C1: 5, "HSK 5": 5, N1: 5, "TRKI 3": 5,
+  C2: 6, "HSK 6": 6, "N1+": 6, "TRKI 4": 6,
 };
 
 export const SORT_OPTIONS: { id: CatalogueSortOption; label: string }[] = [

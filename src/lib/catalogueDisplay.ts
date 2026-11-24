@@ -12,6 +12,7 @@ export const CEFR_BADGES: Record<string, string> = {
 const LEVEL_ALIAS: Record<string, string> = {
   "HSK 1": "A1", "HSK 2": "A2", "HSK 3": "B1", "HSK 4": "B2", "HSK 5": "C1", "HSK 6": "C2",
   N5: "A1", N4: "A2", N3: "B1", N2: "B2", N1: "C1", "N1+": "C2",
+  TEU: "A1", TBU: "A2", "TRKI 1": "B1", "TRKI 2": "B2", "TRKI 3": "C1", "TRKI 4": "C2",
 };
 
 export function getCefrBadgeClass(level: string): string {
