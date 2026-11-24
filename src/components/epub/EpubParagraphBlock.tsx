@@ -65,7 +65,7 @@ export const EpubParagraphBlock: React.FC<EpubParagraphBlockProps> = ({
     const surface = parsed.text.slice(tok.start, tok.end) || tok.surface;
     const cid = tok.canonical?.canonical_id || tok.canonical?.id;
     const status = (cid ? statusMap[cid] : undefined) || tok.user_status || null;
-    const isInteractive = Boolean(tok.is_word !== false && (tok.canonical || /[a-zA-ZáéíóúüñÁÉÍÓÚÜÑ]/.test(surface)));
+    const isInteractive = Boolean(tok.is_word !== false && !tok.is_punct && (tok.canonical || /\p{L}/u.test(surface)));
     const inPhrase = (parsed.phrases || []).some((p) => p.char_start <= tok.start && tok.end <= p.char_end);
     const i1 = i1Data.tokenMap.get(idx) || null;
 
