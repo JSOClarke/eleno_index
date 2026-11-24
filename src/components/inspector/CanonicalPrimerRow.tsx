@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { WordContextDrawer } from "@/components/layout/WordContextDrawer";
 import { getCefrBadgeClass } from "@/lib/catalogueDisplay";
 import { formatNumber } from "@/lib/formatters";
+import { getRankingEntry, getRankSourceLabel, type RankingSourceKey } from "@/lib/vocabSorting";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 import { PrimerRowActions } from "./PrimerRowActions";
 
 interface CanonicalPrimerRowProps {
   mediaItemId: string;
   word: VocabularyWord;
-  rankingSource: "tubelex_v2025" | "elelex_v2020";
+  rankingSource: RankingSourceKey;
   status: UserVocabStatus | undefined;
   statusMap: Record<string, UserVocabStatus>;
   userId?: string | null;
@@ -35,23 +36,12 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
       : `Ch. ${word.first_occurrence_index} · ${word.first_context_snippet}`
     : `Chapter ${word.first_occurrence_index}`;
 
-  const rankingEntry = word.rankings?.find((r) =>
-    rankingSource === "tubelex_v2025"
-      ? r.source === "tubelex_v2025" || r.source === "lexique383"
-      : r.source === "elelex_v2020" || r.source === "flelex_v2020" || r.source === "flelex_v1"
-  );
+  const rankingEntry = getRankingEntry(word.rankings, rankingSource);
   const activeRank = rankingEntry?.rank ?? null;
   const rankTooltip = rankingEntry?.count
     ? `Corpus count: ${formatNumber(rankingEntry.count)}`
     : undefined;
-  const rankLabel =
-    rankingEntry?.source === "lexique383"
-      ? "Lexique"
-      : rankingEntry?.source?.startsWith("flelex")
-      ? "FLELex"
-      : rankingSource === "tubelex_v2025"
-      ? "TubeLex"
-      : "ELELex";
+  const rankLabel = getRankSourceLabel(rankingSource);
 
   const isLearning = status === "learning";
   const isKnown = status === "known";

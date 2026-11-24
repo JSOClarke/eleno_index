@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { fetchKnownWordsDetails } from "@/api/vocabulary.api";
 import { VocabTableSkeleton } from "@/components/layout/VocabTableSkeleton";
 import { buildKnownSignature, readKnownDetailsCache, writeKnownDetailsCache } from "@/lib/knownWordsCache";
-import { sortKnownWords, type KnownSortField, type RankingSourceKey, type SortDirection } from "@/lib/vocabSorting";
+import { getProficiencySystemLabel } from "@/lib/proficiencyScale";
+import { getDefaultRankSource, getRankSourceLabel, sortKnownWords, type KnownSortField, type RankingSourceKey, type SortDirection } from "@/lib/vocabSorting";
 import type { KnownWordEntry, UserVocabStatus } from "@/types/vocabulary.types";
 import { KnownWordRow } from "./KnownWordRow";
 import { KnownWordsFilterBar } from "./KnownWordsFilterBar";
@@ -29,10 +30,11 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
   const [query, setQuery] = useState("");
   const [posFilter, setPosFilter] = useState("ALL");
   const [stateFilter, setStateFilter] = useState<"ALL" | "KNOWN" | "LEARNING">("ALL");
-  const [rankingSource, setRankingSource] = useState<RankingSourceKey>("tubelex_v2025");
+  const [rankingSource, setRankingSource] = useState<RankingSourceKey>(() => getDefaultRankSource(activeLanguage));
   const [sortField, setSortField] = useState<KnownSortField>("added");
   const [sortDir, setSortDir] = useState<SortDirection>("desc");
   const [page, setPage] = useState(1);
+  useEffect(() => { setRankingSource(getDefaultRankSource(activeLanguage)); }, [activeLanguage]);
   const signature = useMemo(() => buildKnownSignature(statusMap), [statusMap]);
   useEffect(() => {
     if (!userId) { setWords([]); setLoading(false); return; }
@@ -96,7 +98,7 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
         onRankingSource={setRankingSource}
         posFilter={posFilter}
         onPosFilter={(val) => { setPosFilter(val); setPage(1); }}
-        isFr={isFr}
+        language={activeLanguage}
       />
 
       <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
@@ -104,8 +106,8 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
           <button type="button" onClick={() => toggleSort("lemma", "asc")} className="col-span-3 px-2 text-center hover:text-slate-900 cursor-pointer">Lemma{arrow("lemma")}</button>
           <div className="col-span-2 px-2 text-center">IPA</div>
           <button type="button" onClick={() => toggleSort("pos", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">POS{arrow("pos")}</button>
-          <button type="button" onClick={() => toggleSort("cefr", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">CEFR{arrow("cefr")}</button>
-          <button type="button" onClick={() => toggleSort("rank", "asc")} className="col-span-2 px-2 text-center hover:text-slate-900 cursor-pointer">{rankingSource === "tubelex_v2025" ? (isFr ? "Lexique" : "TubeLex") : (isFr ? "FLELex" : "ELELex")}{arrow("rank")}</button>
+          <button type="button" onClick={() => toggleSort("cefr", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">{getProficiencySystemLabel(activeLanguage)}{arrow("cefr")}</button>
+          <button type="button" onClick={() => toggleSort("rank", "asc")} className="col-span-2 px-2 text-center hover:text-slate-900 cursor-pointer">{getRankSourceLabel(rankingSource)}{arrow("rank")}</button>
           <button type="button" onClick={() => toggleSort("added", "desc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">Added{arrow("added")}</button>
           <div className="col-span-2 px-2 text-center">Actions</div>
         </div>

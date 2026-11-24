@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { VocabTableSkeleton } from "@/components/layout/VocabTableSkeleton";
-import { matchesStatusFilter, sortPrimerWords, type PrimerSortField, type RankingSourceKey, type SortDirection, type VocabStatusFilter } from "@/lib/vocabSorting";
+import { getProficiencySystemLabel } from "@/lib/proficiencyScale";
+import { getDefaultRankSource, getRankSourceLabel, matchesStatusFilter, sortPrimerWords, type PrimerSortField, type RankingSourceKey, type SortDirection, type VocabStatusFilter } from "@/lib/vocabSorting";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 import { CanonicalPrimerRow } from "./CanonicalPrimerRow";
 import { PrimerFilterBar } from "./PrimerFilterBar";
@@ -17,6 +18,7 @@ interface CanonicalPrimerTableProps {
   onChangeWordStatus: (word: VocabularyWord, targetStatus: UserVocabStatus) => void;
   onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
   mediaTitle?: string;
+  language?: string;
 }
 
 const PAGE_SIZE = 20;
@@ -24,6 +26,7 @@ const PAGE_SIZE = 20;
 export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
   mediaItemId,
   mediaTitle,
+  language,
   words,
   loading,
   selectedChapter,
@@ -37,12 +40,13 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
   const [query, setQuery] = useState("");
   const [posFilter, setPosFilter] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState<VocabStatusFilter>("ALL");
-  const [rankingSource, setRankingSource] = useState<RankingSourceKey>("tubelex_v2025");
+  const [rankingSource, setRankingSource] = useState<RankingSourceKey>(() => getDefaultRankSource(language));
   const [sortField, setSortField] = useState<PrimerSortField>("frequency");
   const [sortDir, setSortDir] = useState<SortDirection>("desc");
   const [page, setPage] = useState(1);
 
   useEffect(() => { setPage(1); }, [selectedChapter]);
+  useEffect(() => { setRankingSource(getDefaultRankSource(language)); }, [language]);
 
   const chapterScoped = useMemo(
     () => (selectedChapter === "all" ? words : words.filter((w) => w.first_occurrence_index === selectedChapter)),
@@ -78,9 +82,7 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
 
   const changeSort = (value: string) => {
     const [field, dir] = value.split(":") as [PrimerSortField, SortDirection];
-    setSortField(field);
-    setSortDir(dir);
-    setPage(1);
+    setSortField(field); setSortDir(dir); setPage(1);
   };
 
   const totalPages = Math.max(1, Math.ceil(sortedAndFiltered.length / PAGE_SIZE));
@@ -92,24 +94,15 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
   return (
     <div className="space-y-3">
       <PrimerFilterBar
-        query={query}
-        onQueryChange={(value) => { setQuery(value); setPage(1); }}
-        statusFilter={statusFilter}
-        onStatusFilter={(value) => { setStatusFilter(value); setPage(1); }}
-        statusCounts={statusCounts}
-        posFilter={posFilter}
-        onPosFilter={(value) => { setPosFilter(value); setPage(1); }}
-        rankingSource={rankingSource}
-        onRankingSource={setRankingSource}
-        selectedChapter={selectedChapter}
-        onClearChapter={onClearChapter}
-        isEpisodeMode={isEpisodeMode}
-        sortValue={`${sortField}:${sortDir}`}
-        onSortChange={changeSort}
+        query={query} onQueryChange={(value) => { setQuery(value); setPage(1); }}
+        statusFilter={statusFilter} onStatusFilter={(value) => { setStatusFilter(value); setPage(1); }}
+        statusCounts={statusCounts} posFilter={posFilter} onPosFilter={(value) => { setPosFilter(value); setPage(1); }}
+        rankingSource={rankingSource} onRankingSource={setRankingSource} language={language}
+        selectedChapter={selectedChapter} onClearChapter={onClearChapter} isEpisodeMode={isEpisodeMode}
+        sortValue={`${sortField}:${sortDir}`} onSortChange={changeSort}
         resultCount={sortedAndFiltered.length} exportWords={sortedAndFiltered}
         statusMap={statusMap} mediaTitle={mediaTitle} mediaItemId={mediaItemId}
-        userId={userId}
-        onRequireAuth={onRequireAuth}
+        userId={userId} onRequireAuth={onRequireAuth}
       />
 
       <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
@@ -117,9 +110,9 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
           <button type="button" onClick={() => toggleSort("lemma", "asc")} className="col-span-2 px-2 text-center hover:text-slate-900 cursor-pointer">Lemma{arrow("lemma")}</button>
           <div className="col-span-2 px-2 text-center">IPA</div>
           <button type="button" onClick={() => toggleSort("pos", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">POS{arrow("pos")}</button>
-          <button type="button" onClick={() => toggleSort("cefr", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">CEFR{arrow("cefr")}</button>
+          <button type="button" onClick={() => toggleSort("cefr", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">{getProficiencySystemLabel(language)}{arrow("cefr")}</button>
           <button type="button" onClick={() => toggleSort("frequency", "desc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">Freq{arrow("frequency")}</button>
-          <button type="button" onClick={() => toggleSort("rank", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">{rankingSource === "tubelex_v2025" ? "TubeLex" : "ELELex"}{arrow("rank")}</button>
+          <button type="button" onClick={() => toggleSort("rank", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">{getRankSourceLabel(rankingSource)}{arrow("rank")}</button>
           <button type="button" onClick={() => toggleSort("debut", "asc")} className="col-span-2 px-2 text-center hover:text-slate-900 cursor-pointer">{isEpisodeMode ? "Debut Episode" : "Debut Chapter"}{arrow("debut")}</button>
           <div className="col-span-2 px-2 text-center">Actions</div>
         </div>

@@ -108,6 +108,7 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
           <CanonicalPrimerTable
             mediaItemId={item.id}
             mediaTitle={item.title}
+            language={item.language}
             words={inspector.vocabulary}
             loading={inspector.loading}
             selectedChapter={selectedChapter}

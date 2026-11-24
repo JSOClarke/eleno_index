@@ -1,6 +1,7 @@
+import { getWordRankForSource, type RankingSourceKey } from "@/lib/vocabSorting";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 
-export type RankingSource = "tubelex_v2025" | "elelex_v2020";
+export type RankingSource = RankingSourceKey;
 
 /**
  * Plain-text field: tabs/newlines would break the TSV, so collapse them.
@@ -12,12 +13,7 @@ function clean(value: string | null | undefined): string {
 }
 
 function rankFor(word: VocabularyWord, source: RankingSource): number | null {
-  const entry = (word.rankings || []).find((ranking) =>
-    source === "elelex_v2020"
-      ? ["elelex_v2020", "flelex_v2020", "flelex_v1"].includes(ranking.source)
-      : ["tubelex_v2025", "lexique383"].includes(ranking.source)
-  );
-  return entry?.rank ?? null;
+  return getWordRankForSource(word.rankings, source);
 }
 
 /**

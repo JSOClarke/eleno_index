@@ -2,7 +2,8 @@ import React from "react";
 import { Search, X } from "lucide-react";
 import { CoverageGate } from "@/components/ui/CoverageGate";
 import { FilterSelectDropdown } from "@/components/ui/FilterSelectDropdown";
-import type { RankingSourceKey, VocabStatusFilter } from "@/lib/vocabSorting";
+import { getProficiencySystemLabel } from "@/lib/proficiencyScale";
+import { getRankOptionsForLanguage, type RankingSourceKey, type VocabStatusFilter } from "@/lib/vocabSorting";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 import { ExportAnkiButton } from "./ExportAnkiButton";
 
@@ -18,20 +19,6 @@ const POS_OPTS = [
   { value: "ADV", label: "Adv" },
 ] as const;
 
-const RANK_OPTS: ReadonlyArray<{ value: RankingSourceKey; label: string }> = [
-  { value: "tubelex_v2025", label: "TubeLex" },
-  { value: "elelex_v2020", label: "ELELex" },
-];
-
-const MOBILE_SORT_OPTS = [
-  { value: "frequency:desc", label: "Frequency ↓" },
-  { value: "rank:asc", label: "Rank ↑" },
-  { value: "lemma:asc", label: "Lemma A–Z" },
-  { value: "cefr:asc", label: "CEFR" },
-  { value: "debut:asc", label: "Debut" },
-  { value: "pos:asc", label: "POS" },
-] as const;
-
 interface PrimerFilterBarProps {
   query: string;
   onQueryChange: (value: string) => void;
@@ -42,6 +29,7 @@ interface PrimerFilterBarProps {
   onPosFilter: (value: string) => void;
   rankingSource: RankingSourceKey;
   onRankingSource: (value: RankingSourceKey) => void;
+  language?: string;
   selectedChapter: number | "all";
   onClearChapter: () => void;
   isEpisodeMode: boolean;
@@ -58,9 +46,20 @@ interface PrimerFilterBarProps {
 
 export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
   query, onQueryChange, statusFilter, onStatusFilter, statusCounts, posFilter, onPosFilter,
-  rankingSource, onRankingSource, selectedChapter, onClearChapter, isEpisodeMode,
+  rankingSource, onRankingSource, language, selectedChapter, onClearChapter, isEpisodeMode,
   sortValue, onSortChange, resultCount, exportWords, statusMap, mediaTitle, mediaItemId, userId, onRequireAuth,
-}) => (
+}) => {
+  const rankOpts = getRankOptionsForLanguage(language);
+  const mobileSortOpts = [
+    { value: "frequency:desc", label: "Frequency ↓" },
+    { value: "rank:asc", label: "Rank ↑" },
+    { value: "lemma:asc", label: "Lemma A–Z" },
+    { value: "cefr:asc", label: getProficiencySystemLabel(language) },
+    { value: "debut:asc", label: "Debut" },
+    { value: "pos:asc", label: "POS" },
+  ] as const;
+
+  return (
   <>
     <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-xs">
       <div className="flex flex-wrap items-center gap-2">
@@ -115,7 +114,7 @@ export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
         <FilterSelectDropdown
           prefix="Rank"
           value={rankingSource}
-          options={RANK_OPTS}
+          options={rankOpts}
           onChange={onRankingSource}
           ariaLabel="Frequency ranking source"
         />
@@ -134,7 +133,7 @@ export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
       <FilterSelectDropdown
         prefix="Sort"
         value={sortValue}
-        options={MOBILE_SORT_OPTS}
+        options={mobileSortOpts}
         onChange={onSortChange}
         ariaLabel="Sort vocabulary table"
         align="left"
@@ -142,4 +141,5 @@ export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
       <span className="text-slate-500">{resultCount} lemmas</span>
     </div>
   </>
-);
+  );
+};

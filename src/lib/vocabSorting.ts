@@ -9,27 +9,51 @@ export type PrimerSortField = "lemma" | "pos" | "cefr" | "frequency" | "rank" | 
 export type KnownSortField = "lemma" | "pos" | "cefr" | "rank" | "added";
 export type SortDirection = "asc" | "desc";
 export type VocabStatusFilter = "ALL" | "UNKNOWN" | "LEARNING" | "KNOWN";
-export type RankingSourceKey = "tubelex_v2025" | "elelex_v2020";
+export type RankingSourceKey = "tubelex_v2025" | "elelex_v2020" | "flelex_v2020" | "lexique383" | "subtlex_ch";
 
 const CEFR_ORDER: Record<string, number> = {
-  A1: 1,
-  A2: 2,
-  B1: 3,
-  B2: 4,
-  C1: 5,
-  C2: 6,
+  A1: 1, "HSK 1": 1, N5: 1,
+  A2: 2, "HSK 2": 2, N4: 2,
+  B1: 3, "HSK 3": 3, N3: 3,
+  B2: 4, "HSK 4": 4, N2: 4,
+  C1: 5, "HSK 5": 5, N1: 5,
+  C2: 6, "HSK 6": 6, "N1+": 6,
 };
+
+export function getDefaultRankSource(language?: string | null): RankingSourceKey {
+  return (language || "").toLowerCase().startsWith("fr") ? "lexique383" : "tubelex_v2025";
+}
+
+export function getRankOptionsForLanguage(language?: string | null): ReadonlyArray<{ value: RankingSourceKey; label: string }> {
+  const l = (language || "es").toLowerCase();
+  if (l.startsWith("zh")) {
+    return [{ value: "tubelex_v2025", label: "TubeLex" }, { value: "subtlex_ch", label: "SUBTLEX-CH" }];
+  }
+  if (l.startsWith("fr")) {
+    return [{ value: "lexique383", label: "Lexique" }, { value: "flelex_v2020", label: "FLELex" }];
+  }
+  return [{ value: "tubelex_v2025", label: "TubeLex" }, { value: "elelex_v2020", label: "ELELex" }];
+}
+
+export function getRankSourceLabel(source: RankingSourceKey): string {
+  if (source === "subtlex_ch") return "SUBTLEX-CH";
+  if (source === "lexique383") return "Lexique";
+  if (source === "flelex_v2020") return "FLELex";
+  if (source === "elelex_v2020") return "ELELex";
+  return "TubeLex";
+}
+
+export function getRankingEntry(rankings: LexicalRanking[] | undefined, source: RankingSourceKey): LexicalRanking | undefined {
+  return rankings?.find((r) =>
+    source === "flelex_v2020" ? r.source === "flelex_v2020" || r.source === "flelex_v1" : r.source === source
+  );
+}
 
 export function getWordRankForSource(
   rankings: LexicalRanking[] | undefined,
   source: RankingSourceKey
 ): number | null {
-  const entry = rankings?.find((r) =>
-    source === "tubelex_v2025"
-      ? r.source === "tubelex_v2025" || r.source === "lexique383"
-      : r.source === "elelex_v2020" || r.source === "flelex_v2020" || r.source === "flelex_v1"
-  );
-  const val = entry?.rank ?? null;
+  const val = getRankingEntry(rankings, source)?.rank ?? null;
   return val && val > 0 ? val : null;
 }
 

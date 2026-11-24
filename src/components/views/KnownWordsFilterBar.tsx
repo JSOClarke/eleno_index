@@ -1,7 +1,7 @@
 import React from "react";
 import { Search } from "lucide-react";
 import { FilterSelectDropdown } from "@/components/ui/FilterSelectDropdown";
-import type { RankingSourceKey } from "@/lib/vocabSorting";
+import { getRankOptionsForLanguage, type RankingSourceKey } from "@/lib/vocabSorting";
 
 const STATE_OPTS: ReadonlyArray<readonly ["ALL" | "LEARNING" | "KNOWN", string]> = [
   ["ALL", "All"], ["LEARNING", "Learning"], ["KNOWN", "Known"],
@@ -24,17 +24,14 @@ interface KnownWordsFilterBarProps {
   onRankingSource: (val: RankingSourceKey) => void;
   posFilter: string;
   onPosFilter: (val: string) => void;
-  isFr: boolean;
+  language?: string;
 }
 
 export const KnownWordsFilterBar: React.FC<KnownWordsFilterBarProps> = ({
   query, onQueryChange, stateFilter, onStateFilter, counts,
-  rankingSource, onRankingSource, posFilter, onPosFilter, isFr,
+  rankingSource, onRankingSource, posFilter, onPosFilter, language,
 }) => {
-  const rankOptions: ReadonlyArray<{ value: RankingSourceKey; label: string }> = [
-    { value: "tubelex_v2025", label: isFr ? "Lexique" : "TubeLex" },
-    { value: "elelex_v2020", label: isFr ? "FLELex" : "ELELex" },
-  ];
+  const rankOptions = getRankOptionsForLanguage(language);
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-2xl border border-slate-200/90 bg-white p-3 shadow-xs">

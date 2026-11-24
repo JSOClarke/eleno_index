@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { formatNumber } from "@/lib/formatters";
+import type { RankingSourceKey } from "@/lib/vocabSorting";
 import { getCefrBadgeClass } from "@/redesign/lib/displayHelpers";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 
 interface RedesignPrimerRowProps {
   word: VocabularyWord;
-  rankingSource: "tubelex_v2025" | "elelex_v2020";
+  rankingSource: RankingSourceKey;
   status: UserVocabStatus | undefined;
   onToggleStatus: (canonicalId: string, target: UserVocabStatus) => void;
 }
