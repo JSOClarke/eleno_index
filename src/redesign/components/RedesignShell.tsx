@@ -2,8 +2,8 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
 interface RedesignShellProps {
-  activeLang: "es" | "fr" | "zh";
-  onChangeLang: (lang: "es" | "fr" | "zh") => void;
+  activeLang: "es" | "fr" | "zh" | "ru";
+  onChangeLang: (lang: "es" | "fr" | "zh" | "ru") => void;
   savedCount: number;
   children: React.ReactNode;
 }
@@ -52,7 +52,7 @@ export const RedesignShell: React.FC<RedesignShellProps> = ({
 
           <div className="flex items-center gap-3">
             <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-0.5 text-xs font-semibold">
-              {(["es", "fr", "zh"] as const).map((lang) => (
+              {(["es", "fr", "zh", "ru"] as const).map((lang) => (
                 <button
                   key={lang}
                   type="button"

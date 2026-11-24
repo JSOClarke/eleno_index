@@ -1,19 +1,19 @@
 import type { MediaCatalogItem } from "@/types/media.types";
 
-export type SupportedLanguage = "es" | "fr" | "zh";
+export type SupportedLanguage = "es" | "fr" | "zh" | "ru";
 
 /** Ordered edition languages used when choosing a work's default catalogue edition. */
-export const PRIMARY_EDITION_PRIORITY: SupportedLanguage[] = ["es", "fr", "zh"];
+export const PRIMARY_EDITION_PRIORITY: SupportedLanguage[] = ["es", "fr", "zh", "ru"];
 
 /** Languages the reader pipeline currently supports. */
-export const READABLE_LANGUAGES = new Set<string>(["es", "fr", "zh"]);
+export const READABLE_LANGUAGES = new Set<string>(["es", "fr", "zh", "ru"]);
 
 const ACTIVE_LANG_STORAGE_KEY = "eleno_active_language";
 
 export function readActiveLanguage(): SupportedLanguage {
   if (typeof window === "undefined") return "es";
   const raw = window.localStorage.getItem(ACTIVE_LANG_STORAGE_KEY);
-  return raw === "fr" || raw === "zh" ? raw : "es";
+  return raw === "fr" || raw === "zh" || raw === "ru" ? raw : "es";
 }
 
 export function writeActiveLanguage(lang: SupportedLanguage): void {
@@ -26,6 +26,7 @@ export function getLanguageLabel(lang?: string | null): string {
   const l = (lang || "es").toLowerCase();
   if (l.startsWith("fr")) return "French";
   if (l.startsWith("zh")) return "Chinese";
+  if (l.startsWith("ru")) return "Russian";
   return "Spanish";
 }
 
@@ -33,6 +34,7 @@ export function getTtsLocale(lang?: string | null): string {
   const l = (lang || readActiveLanguage()).toLowerCase();
   if (l.startsWith("fr")) return "fr-FR";
   if (l.startsWith("zh")) return "zh-CN";
+  if (l.startsWith("ru")) return "ru-RU";
   return "es-ES";
 }
 

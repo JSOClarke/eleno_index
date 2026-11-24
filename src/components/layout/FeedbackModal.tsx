@@ -92,6 +92,7 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   <option value="es">Spanish</option>
                   <option value="fr">French</option>
                   <option value="zh">Chinese</option>
+                  <option value="ru">Russian</option>
                   <option value="other">Other</option>
                 </select>
               </div>

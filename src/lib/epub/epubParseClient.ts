@@ -112,7 +112,7 @@ export function speakSpanish(text: string, lang = "es", rate = 1.0): void {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = lang === "fr" ? "fr-FR" : lang === "zh" ? "zh-CN" : "es-ES";
+  utter.lang = lang === "fr" ? "fr-FR" : lang === "zh" ? "zh-CN" : lang === "ru" ? "ru-RU" : "es-ES";
   utter.rate = rate;
   window.speechSynthesis.speak(utter);
 }

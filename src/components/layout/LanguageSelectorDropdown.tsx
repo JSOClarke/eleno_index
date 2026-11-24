@@ -22,12 +22,12 @@ export const LanguageSelectorDropdown: React.FC<LanguageSelectorDropdownProps> =
   inverted = false,
 }) => {
   const [open, setOpen] = useState(false);
-  const [counts, setCounts] = useState<Record<SupportedLanguage, number>>({ es: 0, fr: 0, zh: 0 });
+  const [counts, setCounts] = useState<Record<SupportedLanguage, number>>({ es: 0, fr: 0, zh: 0, ru: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!userId) {
-      setCounts({ es: 0, fr: 0, zh: 0 });
+      setCounts({ es: 0, fr: 0, zh: 0, ru: 0 });
       return;
     }
     let cancelled = false;

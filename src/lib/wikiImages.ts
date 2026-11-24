@@ -63,7 +63,7 @@ export async function fetchWordImagesPair(word: string, primaryDef = "", lang = 
   const key = `${lang}::${cleanWord.toLowerCase()}::${enQuery.toLowerCase()}`;
   if (imageCache.has(key)) return imageCache.get(key)!;
   const [es, en] = await Promise.all([
-    fetchWikipediaSide(cleanWord, lang === "zh" ? "zh" : "es"),
+    fetchWikipediaSide(cleanWord, lang.startsWith("zh") ? "zh" : lang.startsWith("ru") ? "ru" : lang.startsWith("fr") ? "fr" : "es"),
     enQuery ? fetchWikipediaSide(enQuery, "en") : Promise.resolve(null),
   ]);
   const payload = { word: cleanWord, en_query: enQuery, es, en };
