@@ -12,25 +12,7 @@ interface LanguageSelectorDropdownProps {
   inverted?: boolean;
 }
 
-const LANGUAGES: Array<{ code: SupportedLanguage; label: string }> = [
-  { code: "es", label: "Spanish" },
-  { code: "fr", label: "French" },
-];
-
-const FlagIcon: React.FC<{ code: SupportedLanguage }> = ({ code }) =>
-  code === "es" ? (
-    <svg viewBox="0 0 24 18" className="h-3.5 w-5 shrink-0 rounded-[3px] ring-1 ring-black/10" aria-hidden="true">
-      <rect width="24" height="4.5" fill="#C60B1E" />
-      <rect y="4.5" width="24" height="9" fill="#FFC400" />
-      <rect y="13.5" width="24" height="4.5" fill="#C60B1E" />
-    </svg>
-  ) : (
-    <svg viewBox="0 0 24 18" className="h-3.5 w-5 shrink-0 rounded-[3px] ring-1 ring-black/10" aria-hidden="true">
-      <rect width="8" height="18" fill="#002395" />
-      <rect x="8" width="8" height="18" fill="#FFFFFF" />
-      <rect x="16" width="8" height="18" fill="#ED2939" />
-    </svg>
-  );
+import { FlagIcon, LANGUAGES } from "./ProfileLanguageSection";
 
 export const LanguageSelectorDropdown: React.FC<LanguageSelectorDropdownProps> = ({
   activeLanguage,
@@ -40,12 +22,12 @@ export const LanguageSelectorDropdown: React.FC<LanguageSelectorDropdownProps> =
   inverted = false,
 }) => {
   const [open, setOpen] = useState(false);
-  const [counts, setCounts] = useState<Record<SupportedLanguage, number>>({ es: 0, fr: 0 });
+  const [counts, setCounts] = useState<Record<SupportedLanguage, number>>({ es: 0, fr: 0, zh: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!userId) {
-      setCounts({ es: 0, fr: 0 });
+      setCounts({ es: 0, fr: 0, zh: 0 });
       return;
     }
     let cancelled = false;

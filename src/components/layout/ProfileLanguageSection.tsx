@@ -7,6 +7,7 @@ import { formatNumber } from "@/lib/formatters";
 export const LANGUAGES: Array<{ code: SupportedLanguage; label: string }> = [
   { code: "es", label: "Spanish" },
   { code: "fr", label: "French" },
+  { code: "zh", label: "Chinese" },
 ];
 
 export const FlagIcon: React.FC<{ code: SupportedLanguage }> = ({ code }) =>
@@ -15,6 +16,11 @@ export const FlagIcon: React.FC<{ code: SupportedLanguage }> = ({ code }) =>
       <rect width="24" height="4.5" fill="#C60B1E" />
       <rect y="4.5" width="24" height="9" fill="#FFC400" />
       <rect y="13.5" width="24" height="4.5" fill="#C60B1E" />
+    </svg>
+  ) : code === "zh" ? (
+    <svg viewBox="0 0 24 18" className="h-3.5 w-5 shrink-0 rounded-[3px] ring-1 ring-black/10" aria-hidden="true">
+      <rect width="24" height="18" fill="#DE2910" />
+      <polygon points="5,2.5 5.9,5.1 8.6,5.1 6.4,6.7 7.2,9.3 5,7.7 2.8,9.3 3.6,6.7 1.4,5.1 4.1,5.1" fill="#FFDE00" />
     </svg>
   ) : (
     <svg viewBox="0 0 24 18" className="h-3.5 w-5 shrink-0 rounded-[3px] ring-1 ring-black/10" aria-hidden="true">
@@ -40,11 +46,11 @@ export const ProfileLanguageSection: React.FC<ProfileLanguageSectionProps> = ({
   userId,
   onSelect,
 }) => {
-  const [counts, setCounts] = useState<Record<SupportedLanguage, number>>({ es: 0, fr: 0 });
+  const [counts, setCounts] = useState<Record<SupportedLanguage, number>>({ es: 0, fr: 0, zh: 0 });
 
   useEffect(() => {
     if (!userId) {
-      setCounts({ es: 0, fr: 0 });
+      setCounts({ es: 0, fr: 0, zh: 0 });
       return;
     }
     let cancelled = false;
