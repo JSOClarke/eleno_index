@@ -1,4 +1,5 @@
 import { getLengthBucket, getMediaCategoryLabel, toPercentNumber } from "@/lib/formatters";
+import { normalizeLevelBucket } from "@/lib/proficiencyScale";
 import type { CatalogueFilterState, FlowTier, OriginFilter } from "@/types/filter.types";
 import type { MediaCatalogItem } from "@/types/media.types";
 
@@ -29,7 +30,7 @@ export function matchesCatalogueFilters(
   if (activeNav === "history" && !historyIds.has(item.id)) return false;
 
   const m = item.metrics;
-  const cefr = m?.cefr_level || "B1";
+  const cefr = normalizeLevelBucket(m?.cefr_level);
   if (filters.levels.size > 0 && !filters.levels.has(cefr)) return false;
 
   const cat = getMediaCategoryLabel(item);
@@ -161,7 +162,7 @@ export function calculateFacetCounts(
     scopedItems(items, filters, savedIds, historyIds, activeNav, clearSelf);
 
   for (const item of scope((f) => { f.levels = new Set(); })) {
-    const cefr = item.metrics?.cefr_level || "B1";
+    const cefr = normalizeLevelBucket(item.metrics?.cefr_level);
     if (levels[cefr] !== undefined) levels[cefr] += 1;
   }
 

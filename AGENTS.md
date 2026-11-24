@@ -17,5 +17,6 @@
 - **End-to-End (E2E) Browser Testing for New Features**:
   - When adding or modifying user-facing UI flows (sorting, filtering, URL state, navigation, exports, auth-gated actions), create or update a real headless-Chromium E2E test under `scripts/e2e-*.mjs` (using Playwright + `/usr/bin/chromium`) alongside Vitest unit tests.
   - Verify actual DOM changes, URL/reload persistence, real Supabase/API data (checking both local and production Oracle Cloud targets when relevant), and `0` browser console errors before marking the task done.
-- **No Mixing Ranking Sources or Language Pipelines**:
-  - Never merge, alias, or silently fall back between distinct frequency/proficiency sources (`tubelex_v2025`, `subtlex_ch`, `elelex_v2020`, `hsk_v3`, `cefr`). Display each ranking source in its own labeled field/badge, and use each language's native proficiency scale (`HSK` for `zh`, `JLPT` for `ja`, `CEFR` for `es`/`fr`).
+- **No Mixing Ranking Sources or Language Pipelines (True Data-Layer Separation)**:
+  - Never merge, alias, or silently fall back between distinct frequency/proficiency sources (`tubelex_v2025`, `subtlex_ch`, `elelex_v2020`, `hsk_v3`, `cefr`). Display each ranking source in its own labeled field/badge.
+  - Never store or map a language onto another language's proficiency scale: `A1–C2` is strictly for CEFR languages (`es`, `fr`), `HSK 1–6` for Chinese (`zh`), and `N5–N1` for Japanese (`ja`), at both the database and UI layers.

@@ -27,6 +27,17 @@ export function getProficiencySystemLabel(language?: string | null): string {
   return "CEFR";
 }
 
+const BUCKET_MAP: Record<string, string> = {
+  "HSK 1": "A1", "HSK 2": "A2", "HSK 3": "B1", "HSK 4": "B2", "HSK 5": "C1", "HSK 6": "C2",
+  N5: "A1", N4: "A2", N3: "B1", N2: "B2", N1: "C1", "N1+": "C2",
+};
+
+/** Maps any proficiency label (CEFR, HSK, JLPT) to its 6-tier filter bucket key (A1-C2). */
+export function normalizeLevelBucket(level?: string | null): string {
+  const key = (level || "B1").trim().toUpperCase();
+  return BUCKET_MAP[key] || key;
+}
+
 /**
  * Maps internal A1-C2 difficulty bands to the language's native proficiency label.
  */
