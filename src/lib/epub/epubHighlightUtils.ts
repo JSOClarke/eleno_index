@@ -33,7 +33,7 @@ export function computeIPlusOneMap(
   let curr: number[] = [];
   for (let i = 0; i < tokens.length; i++) {
     curr.push(i);
-    if (/[.!?…]/.test(tokens[i].surface || "") || i === tokens.length - 1) {
+    if (/[.!?…。！？]/.test(tokens[i].surface || "") || i === tokens.length - 1) {
       groups.push(curr);
       curr = [];
     }

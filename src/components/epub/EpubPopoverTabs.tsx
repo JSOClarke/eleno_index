@@ -49,17 +49,19 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
         <div className="border-t border-[#E2E8F0] pt-2.5 space-y-2">
           <div className="flex items-center justify-between gap-2">
             <span className="text-[10px] font-semibold uppercase tracking-[0.04em] text-[#94A3B8]">Definitions</span>
-            <div className="inline-flex gap-0.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-0.5">
-              {(["en", "es", "both"] as const).map((dl) => (
-                <button key={dl} type="button" onClick={() => onChangeDefLang(dl)}
-                  className={`rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase cursor-pointer ${defLang === dl ? "bg-[#0F172A] text-white" : "text-[#64748B]"}`}>
-                  {dl}
-                </button>
-              ))}
-            </div>
+            {esDefs.length > 0 && (
+              <div className="inline-flex gap-0.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-0.5">
+                {(["en", "es", "both"] as const).map((dl) => (
+                  <button key={dl} type="button" onClick={() => onChangeDefLang(dl)}
+                    className={`rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase cursor-pointer ${defLang === dl ? "bg-[#0F172A] text-white" : "text-[#64748B]"}`}>
+                    {dl}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <ul className="max-h-[155px] space-y-1.5 overflow-y-auto text-[13px] leading-[1.38]">
-            {(defLang === "en" || defLang === "both") && enDefs.slice(0, 5).map((d, i) => (
+            {(defLang === "en" || defLang === "both" || esDefs.length === 0) && enDefs.slice(0, 5).map((d, i) => (
               <li key={`en-${i}`} className="flex items-start gap-2 text-[#0F172A]"><span className="text-[#94A3B8]">–</span><span>{d}</span></li>
             ))}
             {(defLang === "es" || defLang === "both") && esDefs.slice(0, 5).map((d, i) => (

@@ -16,8 +16,12 @@ interface EpubParagraphBlockProps {
 function extractSentence(text: string, start: number, end: number): string {
   const before = text.slice(0, start);
   const after = text.slice(end);
-  const leftIdx = Math.max(before.lastIndexOf("."), before.lastIndexOf("!"), before.lastIndexOf("?"), before.lastIndexOf("¿"), before.lastIndexOf("¡"));
-  const rightMatch = after.search(/[.!?]/);
+  const leftIdx = Math.max(
+    before.lastIndexOf("."), before.lastIndexOf("!"), before.lastIndexOf("?"),
+    before.lastIndexOf("¿"), before.lastIndexOf("¡"),
+    before.lastIndexOf("。"), before.lastIndexOf("！"), before.lastIndexOf("？")
+  );
+  const rightMatch = after.search(/[.!?。！？]/);
   const sStart = leftIdx >= 0 ? (/[¿¡]/.test(before[leftIdx]) ? leftIdx : leftIdx + 1) : 0;
   const sEnd = rightMatch >= 0 ? end + rightMatch + 1 : text.length;
   return text.slice(sStart, sEnd).trim() || text;
