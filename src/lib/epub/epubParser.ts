@@ -16,20 +16,30 @@ function getZipEntry(zip: JSZip, path: string): JSZip.JSZipObject | null {
   return zip.file(path) || zip.file(decodeURIComponent(path)) || null;
 }
 
+function parseChapterDocument(xhtml: string): Document {
+  const xmlDoc = new DOMParser().parseFromString(xhtml, "application/xhtml+xml");
+  if (!xmlDoc.querySelector("parsererror") && xmlDoc.querySelector("body")) {
+    return xmlDoc;
+  }
+  const safeHtml = xhtml.replace(/<(title|script|style)(\b[^>]*)?\/>/gi, "<$1$2></$1>");
+  return new DOMParser().parseFromString(safeHtml, "text/html");
+}
+
 function extractParagraphs(xhtml: string): { title: string | null; paragraphs: string[] } {
-  const doc = new DOMParser().parseFromString(xhtml, "text/html");
+  const doc = parseChapterDocument(xhtml);
+  const body = doc.querySelector("body");
   const titleEl = doc.querySelector("h1, h2, h3, title");
   const title = titleEl?.textContent?.replace(/\s+/g, " ").trim() || null;
   const blocks: string[] = [];
-  const candidates = doc.body?.querySelectorAll("p, h1, h2, h3, h4, li, blockquote") || [];
+  const candidates = body?.querySelectorAll("p, h1, h2, h3, h4, li, blockquote") || [];
   candidates.forEach((el) => {
     if (el.closest("nav, header, footer")) return;
     if (el.querySelector("p, blockquote")) return;
     const text = (el.textContent || "").replace(/\s+/g, " ").trim();
     if (text.length > 0) blocks.push(text);
   });
-  if (blocks.length === 0 && doc.body) {
-    const fallback = (doc.body.textContent || "").split(/\n+/).map((s) => s.trim()).filter(Boolean);
+  if (blocks.length === 0 && body) {
+    const fallback = (body.textContent || "").split(/\n+/).map((s) => s.trim()).filter(Boolean);
     blocks.push(...fallback);
   }
   return { title, paragraphs: blocks };
