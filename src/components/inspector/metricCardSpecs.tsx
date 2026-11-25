@@ -27,8 +27,7 @@ function getEnglishReadabilityLabel(score: number): string {
   if (score >= 70) return "Fairly Easy · Accessible";
   if (score >= 60) return "Standard · General";
   if (score >= 50) return "Moderate · Literary";
-  if (score >= 30) return "Challenging · Dense";
-  return "Complex · Academic";
+  return score >= 30 ? "Challenging · Dense" : "Complex · Academic";
 }
 
 export function buildMetricCards(metrics: MediaMetrics, language?: string): MetricCardSpec[] {
@@ -108,24 +107,18 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
       tooltip: wpm
         ? "Average spoken words per minute and percentage of runtime containing speech."
         : "Percentage of lines that are dialogue rather than narration (higher dialogue usually means more everyday phrasing).",
-      chart: !wpm && metrics.dialogue_ratio != null ? (
-        <MiniDonutChart segments={[
-          { value: metrics.dialogue_ratio, color: "#0EA5E9" },
-          { value: Math.max(0, 100 - metrics.dialogue_ratio), color: "#E2E8F0" },
-        ]} />
-      ) : undefined,
+      chart: !wpm && metrics.dialogue_ratio != null
+        ? <MiniDonutChart segments={[{ value: metrics.dialogue_ratio, color: "#0EA5E9" }, { value: Math.max(0, 100 - metrics.dialogue_ratio), color: "#E2E8F0" }]} />
+        : undefined,
     },
     {
       label: "Lexical Variety",
       value: metrics.hapax_percentage != null ? `${formatPercent(metrics.hapax_percentage, 1)} hapax` : (lexDensity || "—"),
       sub: lexDensity ? `Lexical density ${lexDensity}` : "one-time lemmas",
       tooltip: "Hapax % is the share of lemmas appearing only once (higher = richer/rarer vocabulary); lexical density is the ratio of content words.",
-      chart: metrics.hapax_percentage != null ? (
-        <MiniDonutChart segments={[
-          { value: metrics.hapax_percentage, color: "#6366F1" },
-          { value: Math.max(0, 100 - metrics.hapax_percentage), color: "#E2E8F0" },
-        ]} />
-      ) : undefined,
+      chart: metrics.hapax_percentage != null
+        ? <MiniDonutChart segments={[{ value: metrics.hapax_percentage, color: "#6366F1" }, { value: Math.max(0, 100 - metrics.hapax_percentage), color: "#E2E8F0" }]} />
+        : undefined,
     },
     useGrammarVerbCard
       ? {
@@ -135,26 +128,18 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
             ? `Imp ${metrics.verb_profile.imperfect_share.toFixed(0)}% · Pret ${(metrics.verb_profile.preterite_share ?? 0).toFixed(0)}%`
             : "of finite verb forms",
           tooltip: "Percentage of finite verbs in the subjunctive mood, plus imperfect vs. preterite tense split.",
-          chart: subj != null ? (
-            <MiniDonutChart segments={[
-              { value: subj, color: "#0EA5E9" },
-              { value: Math.max(0, 100 - subj), color: "#CBD5E1" },
-            ]} />
-          ) : undefined,
+          chart: subj != null
+            ? <MiniDonutChart segments={[{ value: subj, color: "#0EA5E9" }, { value: Math.max(0, 100 - subj), color: "#CBD5E1" }]} />
+            : undefined,
         }
       : {
           label: "POS Balance",
           value: hasPos ? `N ${(pos.NOUN ?? 0).toFixed(0)}% · V ${(pos.VERB ?? 0).toFixed(0)}%` : "—",
           sub: hasPos ? `Adj ${(pos.ADJ ?? 0).toFixed(0)}% · Adv ${(pos.ADV ?? 0).toFixed(0)}%` : "—",
           tooltip: "Part-of-speech breakdown across Nouns, Verbs, Adjectives, and Adverbs.",
-          chart: hasPos ? (
-            <MiniDonutChart segments={[
-              { value: pos.NOUN ?? 0, color: "#10B981" },
-              { value: pos.VERB ?? 0, color: "#0EA5E9" },
-              { value: pos.ADJ ?? 0, color: "#6366F1" },
-              { value: pos.ADV ?? 0, color: "#94A3B8" },
-            ]} />
-          ) : undefined,
+          chart: hasPos
+            ? <MiniDonutChart segments={[{ value: pos.NOUN ?? 0, color: "#10B981" }, { value: pos.VERB ?? 0, color: "#0EA5E9" }, { value: pos.ADJ ?? 0, color: "#6366F1" }, { value: pos.ADV ?? 0, color: "#94A3B8" }]} />
+            : undefined,
         },
   ];
 }
