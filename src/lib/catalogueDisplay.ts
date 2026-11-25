@@ -33,11 +33,10 @@ function buildSearchTerm(item: MediaCatalogItem): string {
 function searchUrlForProvider(provider: string, item: MediaCatalogItem): string {
   const q = buildSearchTerm(item);
   const titleQ = encodeURIComponent((item.title || item.work_title || "").trim());
-  const isbn = item.external_ids?.isbn ? encodeURIComponent(String(item.external_ids.isbn)) : null;
   const key = provider.toLowerCase();
 
   if (key.includes("kindle") || key.includes("amazon")) {
-    return `https://www.amazon.com/s?k=${isbn || q}&i=digital-text`;
+    return `https://www.amazon.com/s?k=${q}&i=digital-text`;
   }
   if (key.includes("apple books")) return `https://books.apple.com/us/search?term=${q}`;
   if (key.includes("audible")) return `https://www.audible.com/search?keywords=${q}`;
@@ -113,12 +112,22 @@ export function getPlatformLinks(item: MediaCatalogItem): {
   }
 
   const links: MediaPlatformLink[] = [
-    { provider: "kindle", label: "Kindle", url: searchUrlForProvider("kindle", item), kind: "buy" },
+    {
+      provider: "kindle",
+      label: "Kindle",
+      url: ext.asin ? `https://www.amazon.com/dp/${encodeURIComponent(String(ext.asin))}` : searchUrlForProvider("kindle", item),
+      kind: "buy",
+    },
   ];
   if (item.has_audio) {
     links.push({ provider: "audible", label: "Audible", url: searchUrlForProvider("audible", item), kind: "listen" });
   } else {
-    links.push({ provider: "apple_books", label: "Apple Books", url: searchUrlForProvider("apple books", item), kind: "buy" });
+    links.push({
+      provider: "apple_books",
+      label: "Apple Books",
+      url: ext.apple_books_id ? `https://books.apple.com/book/id${encodeURIComponent(String(ext.apple_books_id))}` : searchUrlForProvider("apple books", item),
+      kind: "buy",
+    });
   }
   if (ext.isbn) {
     links.push({ provider: "openlibrary", label: "Open Library", url: `https://openlibrary.org/isbn/${encodeURIComponent(String(ext.isbn))}`, kind: "info" });
