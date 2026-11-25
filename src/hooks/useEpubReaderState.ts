@@ -21,6 +21,7 @@ export function useEpubReaderState(userId?: string | null) {
   const [settings, setSettings] = useState<EpubSettings>(() => loadEpubSettings());
   const [selected, setSelected] = useState<{ blockIdx: number; ctx: SelectedWordContext } | null>(null);
   const [visibleIndices, setVisibleIndices] = useState<number[]>([]);
+  const [cacheReadyKey, setCacheReadyKey] = useState("");
   const parsedRef = useRef<Record<number, ParsedBlockResult>>({});
   const abortRef = useRef<AbortController | null>(null);
 
@@ -66,19 +67,17 @@ export function useEpubReaderState(userId?: string | null) {
     const ch = activeBook.chapters[chapterIndex];
     if (!ch) return;
     abortRef.current?.abort();
-    setSelected(null);
-    parsedRef.current = {};
-    setParsedBlocks({});
-
+    const chapterKey = `${activeBook.id}:${chapterIndex}`;
+    setSelected(null); setCacheReadyKey(""); parsedRef.current = {}; setParsedBlocks({});
     let cancelled = false;
     (async () => {
       const cached = await loadCachedOrRemoteChapter(activeBook.id, chapterIndex, userId);
       if (cancelled) return;
       if (cached && Object.keys(cached).length > 0) {
-        parsedRef.current = cached;
-        setParsedBlocks(cached);
-        if (Object.keys(cached).length >= ch.paragraphs.length) return;
+        parsedRef.current = cached; setParsedBlocks(cached);
       }
+      setCacheReadyKey(chapterKey);
+      if (cached && Object.keys(cached).length >= ch.paragraphs.length) return;
       if (settings.autoParse !== false && settings.scrollMode === "scroll") {
         await parseIndices(ch.paragraphs.map((_, i) => i));
       }
@@ -88,8 +87,9 @@ export function useEpubReaderState(userId?: string | null) {
 
   useEffect(() => {
     if (!activeBook || settings.autoParse === false || settings.scrollMode !== "paged") return;
+    if (cacheReadyKey !== `${activeBook.id}:${chapterIndex}`) return;
     if (visibleIndices.length > 0) void parseIndices(visibleIndices);
-  }, [activeBook, settings.autoParse, settings.scrollMode, visibleIndices, parseIndices]);
+  }, [activeBook, chapterIndex, cacheReadyKey, settings.autoParse, settings.scrollMode, visibleIndices, parseIndices]);
 
   const parseCurrentTarget = useCallback(() => {
     if (!activeBook) return;
