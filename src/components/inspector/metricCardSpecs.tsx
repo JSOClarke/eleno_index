@@ -2,14 +2,14 @@ import React from "react";
 import { formatNumber, formatPercent } from "@/lib/formatters";
 import { formatProficiencyLevel, getProficiencySystemLabel } from "@/lib/proficiencyScale";
 import type { MediaMetrics } from "@/types/media.types";
-import { MiniBarsChart, MiniDonutChart } from "./MetricMiniCharts";
+import type { ChartSegment } from "./MetricMiniCharts";
 
 export interface MetricCardSpec {
   label: string;
   value: string;
   sub: string;
   tooltip: string;
-  chart?: React.ReactNode;
+  segments?: ChartSegment[];
 }
 
 function getFormulaShort(formula?: string | null, language?: string): string {
@@ -64,27 +64,24 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
       value: cov95 != null ? `${formatNumber(cov95)} lemmas` : "—",
       sub: cov90 != null || cov98 != null ? `90%: ${cov90 != null ? formatNumber(cov90) : "—"} · 98%: ${cov98 != null ? formatNumber(cov98) : "—"}` : "—",
       tooltip: "How many unique dictionary headwords (lemmas) you need to know to understand 90%, 95%, and 98% of all running words.",
-      chart: cov90 && cov95 && cov98 && uniqueLemmas ? (
-        <MiniBarsChart bars={[
-          { label: "90%", value: cov90, max: uniqueLemmas, color: "#10B981" },
-          { label: "95%", value: cov95, max: uniqueLemmas, color: "#0EA5E9" },
-          { label: "98%", value: cov98, max: uniqueLemmas, color: "#6366F1" },
-        ]} />
-      ) : undefined,
+      segments: cov90 && cov95 && cov98 && uniqueLemmas ? [
+        { label: "90%", value: cov90, color: "#10B981" },
+        { label: "95%", value: Math.max(0, cov95 - cov90), color: "#0EA5E9" },
+        { label: "98%", value: Math.max(0, cov98 - cov95), color: "#6366F1" },
+        { label: "Rest", value: Math.max(0, uniqueLemmas - cov98), color: "#CBD5E1" },
+      ] : undefined,
     },
     {
       label: "Core Vocab (Top 1k)",
       value: pct?.top_1k_pct != null ? formatPercent(pct.top_1k_pct, 1) : "—",
       sub: pct?.k1_to_5k_pct != null ? `1k–5k: ${formatPercent(pct.k1_to_5k_pct, 1)}` : "of running tokens",
-      tooltip: "Share of running words from the top 1,000 most common words in the language (donut shows Top 1k, 1k–5k, 5k–10k, and Rare).",
-      chart: pct?.top_1k_pct != null ? (
-        <MiniDonutChart segments={[
-          { value: pct.top_1k_pct ?? 0, color: "#10B981" },
-          { value: pct.k1_to_5k_pct ?? 0, color: "#0EA5E9" },
-          { value: pct.k5_to_10k_pct ?? 0, color: "#6366F1" },
-          { value: (pct.rare_pct ?? 0) + (pct.unranked_pct ?? 0), color: "#CBD5E1" },
-        ]} />
-      ) : undefined,
+      tooltip: "Share of running words from the top 1,000 most common words in the language.",
+      segments: pct?.top_1k_pct != null ? [
+        { label: "1k", value: pct.top_1k_pct ?? 0, color: "#10B981" },
+        { label: "1–5k", value: pct.k1_to_5k_pct ?? 0, color: "#0EA5E9" },
+        { label: "5–10k", value: pct.k5_to_10k_pct ?? 0, color: "#6366F1" },
+        { label: "Rare", value: (pct.rare_pct ?? 0) + (pct.unranked_pct ?? 0), color: "#CBD5E1" },
+      ] : undefined,
     },
     {
       label: "Unique Vocabulary",
@@ -107,18 +104,20 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
       tooltip: wpm
         ? "Average spoken words per minute and percentage of runtime containing speech."
         : "Percentage of lines that are dialogue rather than narration (higher dialogue usually means more everyday phrasing).",
-      chart: !wpm && metrics.dialogue_ratio != null
-        ? <MiniDonutChart segments={[{ value: metrics.dialogue_ratio, color: "#0EA5E9" }, { value: Math.max(0, 100 - metrics.dialogue_ratio), color: "#E2E8F0" }]} />
-        : undefined,
+      segments: !wpm && metrics.dialogue_ratio != null ? [
+        { label: "Dial", value: metrics.dialogue_ratio, color: "#0EA5E9" },
+        { label: "Narr", value: Math.max(0, 100 - metrics.dialogue_ratio), color: "#E2E8F0" },
+      ] : undefined,
     },
     {
       label: "Lexical Variety",
       value: metrics.hapax_percentage != null ? `${formatPercent(metrics.hapax_percentage, 1)} hapax` : (lexDensity || "—"),
       sub: lexDensity ? `Lexical density ${lexDensity}` : "one-time lemmas",
       tooltip: "Hapax % is the share of lemmas appearing only once (higher = richer/rarer vocabulary); lexical density is the ratio of content words.",
-      chart: metrics.hapax_percentage != null
-        ? <MiniDonutChart segments={[{ value: metrics.hapax_percentage, color: "#6366F1" }, { value: Math.max(0, 100 - metrics.hapax_percentage), color: "#E2E8F0" }]} />
-        : undefined,
+      segments: metrics.hapax_percentage != null ? [
+        { label: "Hapax", value: metrics.hapax_percentage, color: "#6366F1" },
+        { label: "Repeat", value: Math.max(0, 100 - metrics.hapax_percentage), color: "#E2E8F0" },
+      ] : undefined,
     },
     useGrammarVerbCard
       ? {
@@ -128,18 +127,22 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
             ? `Imp ${metrics.verb_profile.imperfect_share.toFixed(0)}% · Pret ${(metrics.verb_profile.preterite_share ?? 0).toFixed(0)}%`
             : "of finite verb forms",
           tooltip: "Percentage of finite verbs in the subjunctive mood, plus imperfect vs. preterite tense split.",
-          chart: subj != null
-            ? <MiniDonutChart segments={[{ value: subj, color: "#0EA5E9" }, { value: Math.max(0, 100 - subj), color: "#CBD5E1" }]} />
-            : undefined,
+          segments: subj != null ? [
+            { label: "Subj", value: subj, color: "#0EA5E9" },
+            { label: "Other", value: Math.max(0, 100 - subj), color: "#CBD5E1" },
+          ] : undefined,
         }
       : {
           label: "POS Balance",
           value: hasPos ? `N ${(pos.NOUN ?? 0).toFixed(0)}% · V ${(pos.VERB ?? 0).toFixed(0)}%` : "—",
           sub: hasPos ? `Adj ${(pos.ADJ ?? 0).toFixed(0)}% · Adv ${(pos.ADV ?? 0).toFixed(0)}%` : "—",
           tooltip: "Part-of-speech breakdown across Nouns, Verbs, Adjectives, and Adverbs.",
-          chart: hasPos
-            ? <MiniDonutChart segments={[{ value: pos.NOUN ?? 0, color: "#10B981" }, { value: pos.VERB ?? 0, color: "#0EA5E9" }, { value: pos.ADJ ?? 0, color: "#6366F1" }, { value: pos.ADV ?? 0, color: "#94A3B8" }]} />
-            : undefined,
+          segments: hasPos ? [
+            { label: "N", value: pos.NOUN ?? 0, color: "#10B981" },
+            { label: "V", value: pos.VERB ?? 0, color: "#0EA5E9" },
+            { label: "Adj", value: pos.ADJ ?? 0, color: "#6366F1" },
+            { label: "Adv", value: pos.ADV ?? 0, color: "#94A3B8" },
+          ] : undefined,
         },
   ];
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import type { MediaMetrics } from "@/types/media.types";
 import { MetricInfoTooltip } from "./MetricInfoTooltip";
+import { ChartColorKeys, MiniPieChart } from "./MetricMiniCharts";
 import { buildMetricCards } from "./metricCardSpecs";
 
 interface LinguisticProfileRowProps {
@@ -28,8 +29,9 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({ metr
             </div>
             <div className="mt-0.5 truncate text-sm font-bold text-slate-900 tabular-nums">{c.value}</div>
             <div className="truncate text-[11px] text-slate-500">{c.sub}</div>
+            {c.segments && <ChartColorKeys segments={c.segments} />}
           </div>
-          {c.chart}
+          {c.segments && <MiniPieChart segments={c.segments} />}
         </div>
       ))}
     </div>
