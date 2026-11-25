@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { ChevronDown, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { fetchKnownCountsByLanguage } from "@/api/vocabulary.api";
 import type { SupportedLanguage } from "@/lib/catalogueLanguages";
 import type { UserProfile } from "@/types/vocabulary.types";
@@ -59,14 +59,13 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
         aria-haspopup="menu"
         aria-label="Account menu"
         title={user.email || "Account"}
-        className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1.5 transition cursor-pointer focus:outline-none focus:ring-2 ${
-          inverted
-            ? "border-white/20 bg-white/10 text-white hover:bg-white/20 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#0A0A0C]"
-            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-xs focus:ring-slate-900 focus:ring-offset-2"
+        className={`rounded-full transition-transform hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 ${
+          inverted ? "focus:ring-white focus:ring-offset-2 focus:ring-offset-[#0A0A0C]" : "focus:ring-slate-900 focus:ring-offset-2"
         }`}
       >
-        <FlagIcon code={activeLanguage} />
-        <ChevronDown className={`h-3 w-3 opacity-60 transition-transform ${open ? "rotate-180" : ""}`} />
+        <span className={`inline-flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full ${inverted ? "ring-1 ring-white/25" : "ring-1 ring-black/10"}`}>
+          <FlagIcon code={activeLanguage} className="h-full w-full" />
+        </span>
       </button>
 
       {open && (
@@ -75,7 +74,9 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
           className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg z-40 space-y-2.5"
         >
           <div className="flex items-center gap-2.5 px-1 pb-1">
-            <FlagIcon code={activeLanguage} />
+            <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full ring-1 ring-black/10">
+              <FlagIcon code={activeLanguage} className="h-full w-full" />
+            </span>
             <div className="min-w-0">
               <div className="text-[11px] font-medium text-slate-400">Signed in as</div>
               <div className="truncate text-xs font-medium text-slate-800">{user.email}</div>

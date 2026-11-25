@@ -11,26 +11,29 @@ export const LANGUAGES: Array<{ code: SupportedLanguage; label: string }> = [
   { code: "ru", label: "Russian" },
 ];
 
-export const FlagIcon: React.FC<{ code: SupportedLanguage }> = ({ code }) =>
+export const FlagIcon: React.FC<{ code: SupportedLanguage; className?: string }> = ({
+  code,
+  className = "h-3.5 w-5 shrink-0 rounded-[3px] ring-1 ring-black/10",
+}) =>
   code === "es" ? (
-    <svg viewBox="0 0 24 18" className="h-3.5 w-5 shrink-0 rounded-[3px] ring-1 ring-black/10" aria-hidden="true">
+    <svg viewBox="0 0 24 18" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
       <rect width="24" height="4.5" fill="#C60B1E" />
       <rect y="4.5" width="24" height="9" fill="#FFC400" />
       <rect y="13.5" width="24" height="4.5" fill="#C60B1E" />
     </svg>
   ) : code === "zh" ? (
-    <svg viewBox="0 0 24 18" className="h-3.5 w-5 shrink-0 rounded-[3px] ring-1 ring-black/10" aria-hidden="true">
+    <svg viewBox="0 0 24 18" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
       <rect width="24" height="18" fill="#DE2910" />
       <polygon points="5,2.5 5.9,5.1 8.6,5.1 6.4,6.7 7.2,9.3 5,7.7 2.8,9.3 3.6,6.7 1.4,5.1 4.1,5.1" fill="#FFDE00" />
     </svg>
   ) : code === "ru" ? (
-    <svg viewBox="0 0 24 18" className="h-3.5 w-5 shrink-0 rounded-[3px] ring-1 ring-black/10" aria-hidden="true">
+    <svg viewBox="0 0 24 18" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
       <rect width="24" height="6" fill="#FFFFFF" />
       <rect y="6" width="24" height="6" fill="#0039A6" />
       <rect y="12" width="24" height="6" fill="#D52B1E" />
     </svg>
   ) : (
-    <svg viewBox="0 0 24 18" className="h-3.5 w-5 shrink-0 rounded-[3px] ring-1 ring-black/10" aria-hidden="true">
+    <svg viewBox="0 0 24 18" preserveAspectRatio="xMidYMid slice" className={className} aria-hidden="true">
       <rect width="8" height="18" fill="#002395" />
       <rect x="8" width="8" height="18" fill="#FFFFFF" />
       <rect x="16" width="8" height="18" fill="#ED2939" />
