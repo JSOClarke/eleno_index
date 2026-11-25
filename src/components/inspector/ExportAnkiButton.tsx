@@ -39,7 +39,7 @@ export const ExportAnkiButton: React.FC<ExportAnkiButtonProps> = ({
       onClick={handleExport}
       disabled={disabled}
       title="Download filtered words as an Anki .apkg deck (Lemma, IPA, Sentence, Definition, CEFR, Rank)"
-      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-xs hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+      className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-xs hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
     >
       <Download className="h-3.5 w-3.5" />
       {exporting ? "Building .apkg…" : `Export ${words.length.toLocaleString()} · Anki (.apkg)`}
