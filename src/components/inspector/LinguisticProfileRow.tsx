@@ -1,117 +1,35 @@
 import React from "react";
-import { formatNumber, formatPercent } from "@/lib/formatters";
-import { formatProficiencyLevel, getProficiencySystemLabel } from "@/lib/proficiencyScale";
 import type { MediaMetrics } from "@/types/media.types";
+import { MetricInfoTooltip } from "./MetricInfoTooltip";
+import { buildMetricCards } from "./metricCardSpecs";
 
 interface LinguisticProfileRowProps {
   metrics: MediaMetrics | null;
   language?: string;
 }
 
-function getFormulaShort(formula?: string | null, language?: string): string {
-  const f = (formula || "").toLowerCase();
-  const l = (language || "").toLowerCase();
-  if (f.includes("kandel") || l.startsWith("fr")) return "K-M";
-  if (f.includes("oborneva") || l.startsWith("ru")) return "Oborneva";
-  if (f.includes("chinese") || l.startsWith("zh")) return "ZH";
-  return "F-H";
-}
-
-function getEnglishReadabilityLabel(score: number): string {
-  if (score >= 90) return "Very Easy · Elementary";
-  if (score >= 80) return "Easy · Popular fiction";
-  if (score >= 70) return "Fairly Easy · Accessible";
-  if (score >= 60) return "Standard · General";
-  if (score >= 50) return "Moderate · Literary";
-  if (score >= 30) return "Challenging · Dense";
-  return "Complex · Academic";
-}
-
 export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({ metrics, language }) => {
   if (!metrics) return null;
-
-  const lang = (language || "").toLowerCase();
-  const cefr = metrics.cefr_level || "";
-  const scoreNum = metrics.readability_score ?? null;
-  const formulaShort = getFormulaShort(metrics.readability_details?.formula, language);
-
-  const uniqueLemmas = metrics.unique_lemmas || metrics.unique_words_count;
-  const cov90 = metrics.coverage_90_lemmas ?? null;
-  const cov95 = metrics.coverage_95_lemmas ?? null;
-  const cov98 = metrics.coverage_98_lemmas ?? null;
-
-  const pct = metrics.frequency_tiers?.percentages;
-  const wpm = metrics.words_per_minute ? Math.round(metrics.words_per_minute) : null;
-  const wordforms = metrics.unique_wordforms;
-  const formRatio = wordforms && uniqueLemmas ? (wordforms / uniqueLemmas).toFixed(1) : null;
-  const lexDensity = metrics.lexical_density != null ? `${(metrics.lexical_density * 100).toFixed(0)}%` : null;
-
-  const pos = metrics.pos_distribution || {};
-  const subj = metrics.verb_profile?.subjunctive_load;
-  const useGrammarVerbCard = (lang.startsWith("es") || lang.startsWith("fr")) && subj != null;
-
-  const cards = [
-    {
-      label: `${getProficiencySystemLabel(language)} & Readability`,
-      value: [formatProficiencyLevel(cefr, language), scoreNum != null ? `${formulaShort} ${scoreNum.toFixed(1)}` : ""].filter(Boolean).join(" · ") || "—",
-      sub: scoreNum != null ? getEnglishReadabilityLabel(scoreNum) : "—",
-    },
-    {
-      label: "95% Target",
-      value: cov95 != null ? `${formatNumber(cov95)} lemmas` : "—",
-      sub: cov90 != null || cov98 != null ? `90%: ${cov90 != null ? formatNumber(cov90) : "—"} · 98%: ${cov98 != null ? formatNumber(cov98) : "—"}` : "—",
-    },
-    {
-      label: "Core Vocab (Top 1k)",
-      value: pct?.top_1k_pct != null ? formatPercent(pct.top_1k_pct, 1) : "—",
-      sub: pct?.k1_to_5k_pct != null ? `1k–5k: ${formatPercent(pct.k1_to_5k_pct, 1)}` : "of running tokens",
-    },
-    {
-      label: "Unique Vocabulary",
-      value: `${formatNumber(uniqueLemmas)} lemmas`,
-      sub: wordforms ? `${formatNumber(wordforms)} forms (${formRatio}×)` : `${formatNumber(metrics.total_tokens)} tokens`,
-    },
-    {
-      label: "Sentence Length",
-      value: metrics.mean_sentence_length != null ? `${metrics.mean_sentence_length.toFixed(1)} words` : "—",
-      sub: metrics.median_sentence_length != null
-        ? `Median ${metrics.median_sentence_length}${metrics.total_sentences ? ` · ${formatNumber(metrics.total_sentences)} sents` : ""}`
-        : metrics.total_sentences ? `${formatNumber(metrics.total_sentences)} sentences` : "average span",
-    },
-    {
-      label: wpm ? "Speaking Rate" : "Dialogue Share",
-      value: wpm ? `${wpm} WPM` : formatPercent(metrics.dialogue_ratio, 1),
-      sub: wpm
-        ? (metrics.speech_density ? `${metrics.speech_density.toFixed(1)}% speech density` : "active speech cadence")
-        : "conversational lines",
-    },
-    {
-      label: "Lexical Variety",
-      value: metrics.hapax_percentage != null ? `${formatPercent(metrics.hapax_percentage, 1)} hapax` : (lexDensity || "—"),
-      sub: lexDensity ? `Lexical density ${lexDensity}` : "one-time lemmas",
-    },
-    useGrammarVerbCard
-      ? {
-          label: "Subjunctive Load",
-          value: formatPercent(subj, 1),
-          sub: metrics.verb_profile?.imperfect_share != null
-            ? `Imp ${metrics.verb_profile.imperfect_share.toFixed(0)}% · Pret ${(metrics.verb_profile.preterite_share ?? 0).toFixed(0)}%`
-            : "of finite verb forms",
-        }
-      : {
-          label: "POS Balance",
-          value: `N ${(pos.NOUN ?? 0).toFixed(0)}% · V ${(pos.VERB ?? 0).toFixed(0)}%`,
-          sub: `Adj ${(pos.ADJ ?? 0).toFixed(0)}% · Adv ${(pos.ADV ?? 0).toFixed(0)}%`,
-        },
-  ];
+  const cards = buildMetricCards(metrics, language);
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
       {cards.map((c) => (
-        <div key={c.label} className="rounded-xl border border-slate-200/80 bg-white px-3 py-2 shadow-xs">
-          <div className="truncate text-[10px] font-semibold uppercase tracking-wider text-slate-400">{c.label}</div>
-          <div className="mt-0.5 truncate text-sm font-bold text-slate-900 tabular-nums">{c.value}</div>
-          <div className="truncate text-[11px] text-slate-500">{c.sub}</div>
+        <div
+          key={c.label}
+          className="flex items-center justify-between gap-2 rounded-xl border border-slate-200/80 bg-white px-3 py-2 shadow-xs"
+        >
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1">
+              <span className="truncate text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                {c.label}
+              </span>
+              <MetricInfoTooltip label={c.label} text={c.tooltip} />
+            </div>
+            <div className="mt-0.5 truncate text-sm font-bold text-slate-900 tabular-nums">{c.value}</div>
+            <div className="truncate text-[11px] text-slate-500">{c.sub}</div>
+          </div>
+          {c.chart}
         </div>
       ))}
     </div>
