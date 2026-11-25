@@ -61,7 +61,7 @@ export async function fetchRemainingVocabPages(
   expectedTotal: number,
   onBatch?: (batch: VocabularyWord[]) => void
 ): Promise<VocabularyWord[]> {
-  const pageSize = rpcAvailable ? 2500 : 1000;
+  const pageSize = 1000;
   const maxItems = Math.max(expectedTotal || 2000, 300);
   const offsets: number[] = [];
   for (let offset = 120; offset < maxItems; offset += pageSize) {
