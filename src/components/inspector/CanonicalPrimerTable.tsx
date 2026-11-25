@@ -105,28 +105,30 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
         userId={userId} onRequireAuth={onRequireAuth}
       />
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
-        <div className="hidden grid-cols-12 divide-x divide-slate-200/80 border-b border-slate-200/80 bg-slate-50/80 px-4 py-3 text-xs font-semibold text-slate-500 md:grid">
-          <button type="button" onClick={() => toggleSort("lemma", "asc")} className="col-span-2 px-2 text-center hover:text-slate-900 cursor-pointer">Lemma{arrow("lemma")}</button>
-          <div className="col-span-2 px-2 text-center">IPA</div>
-          <button type="button" onClick={() => toggleSort("pos", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">POS{arrow("pos")}</button>
-          <button type="button" onClick={() => toggleSort("cefr", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">{getProficiencySystemLabel(language)}{arrow("cefr")}</button>
-          <button type="button" onClick={() => toggleSort("frequency", "desc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">Freq{arrow("frequency")}</button>
-          <button type="button" onClick={() => toggleSort("rank", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">{getRankSourceLabel(rankingSource)}{arrow("rank")}</button>
-          <button type="button" onClick={() => toggleSort("debut", "asc")} className="col-span-2 px-2 text-center hover:text-slate-900 cursor-pointer">{isEpisodeMode ? "Debut Episode" : "Debut Chapter"}{arrow("debut")}</button>
-          <div className="col-span-2 px-2 text-center">Actions</div>
-        </div>
+      <div className="overflow-x-auto rounded-2xl border border-slate-200/90 bg-white shadow-xs">
+        <div className="md:min-w-[780px] lg:min-w-0">
+          <div className="hidden md:grid md:grid-cols-[minmax(0,1.5fr)_minmax(0,1.3fr)_minmax(0,0.7fr)_minmax(0,0.85fr)_minmax(0,0.7fr)_minmax(0,1.4fr)_minmax(0,1.9fr)_minmax(0,1.65fr)] items-center divide-x divide-slate-200/80 border-b border-slate-200/80 bg-slate-50/80 px-4 py-3 text-xs font-semibold text-slate-500">
+            <button type="button" onClick={() => toggleSort("lemma", "asc")} className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2 hover:text-slate-900 cursor-pointer">Lemma{arrow("lemma")}</button>
+            <div className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2">IPA</div>
+            <button type="button" onClick={() => toggleSort("pos", "asc")} className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2 hover:text-slate-900 cursor-pointer">POS{arrow("pos")}</button>
+            <button type="button" onClick={() => toggleSort("cefr", "asc")} className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2 hover:text-slate-900 cursor-pointer">{getProficiencySystemLabel(language)}{arrow("cefr")}</button>
+            <button type="button" onClick={() => toggleSort("frequency", "desc")} className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2 hover:text-slate-900 cursor-pointer">Freq{arrow("frequency")}</button>
+            <button type="button" onClick={() => toggleSort("rank", "asc")} className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2 hover:text-slate-900 cursor-pointer">{getRankSourceLabel(rankingSource)}{arrow("rank")}</button>
+            <button type="button" onClick={() => toggleSort("debut", "asc")} className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2 hover:text-slate-900 cursor-pointer">{isEpisodeMode ? "Debut Episode" : "Debut Chapter"}{arrow("debut")}</button>
+            <div className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2">Actions</div>
+          </div>
 
-        <div className="divide-y divide-slate-100">
-          {loading ? (
-            <VocabTableSkeleton rows={10} variant="primer" />
-          ) : slice.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-500">No matching canonical lemmas.</div>
-          ) : (
-            slice.map((w) => (
-              <CanonicalPrimerRow key={w.canonical_id} mediaItemId={mediaItemId} word={w} rankingSource={rankingSource} status={statusMap[w.canonical_id]} statusMap={statusMap} userId={userId} onChangeWordStatus={onChangeWordStatus} onSetWordStatus={onSetWordStatus} />
-            ))
-          )}
+          <div className="divide-y divide-slate-100">
+            {loading ? (
+              <VocabTableSkeleton rows={10} variant="primer" />
+            ) : slice.length === 0 ? (
+              <div className="p-8 text-center text-xs text-slate-500">No matching canonical lemmas.</div>
+            ) : (
+              slice.map((w) => (
+                <CanonicalPrimerRow key={w.canonical_id} mediaItemId={mediaItemId} word={w} rankingSource={rankingSource} status={statusMap[w.canonical_id]} statusMap={statusMap} userId={userId} onChangeWordStatus={onChangeWordStatus} onSetWordStatus={onSetWordStatus} />
+              ))
+            )}
+          </div>
         </div>
       </div>
 

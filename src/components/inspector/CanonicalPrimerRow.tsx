@@ -89,21 +89,21 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
         {actions}
       </div>
 
-      <div className="hidden grid-cols-12 items-center px-4 py-3 text-xs md:grid">
-        <div className="col-span-2 px-2 truncate text-center font-semibold text-slate-900">{word.lemma}</div>
-        <div className="col-span-2 px-2 truncate text-center font-mono text-[11px] text-slate-400">{word.ipa || "—"}</div>
-        <div className="col-span-1 px-2 text-center text-[11px] font-medium text-slate-500">{word.pos}</div>
-        <div className="col-span-1 px-2 text-center">
-          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(word.cefr)}`}>{word.cefr}</span>
+      <div className="hidden md:grid md:grid-cols-[minmax(0,1.5fr)_minmax(0,1.3fr)_minmax(0,0.7fr)_minmax(0,0.85fr)_minmax(0,0.7fr)_minmax(0,1.4fr)_minmax(0,1.9fr)_minmax(0,1.65fr)] items-center px-4 py-3 text-xs">
+        <div className="min-w-0 px-2 truncate text-center font-semibold text-slate-900">{word.lemma}</div>
+        <div className="min-w-0 px-2 truncate text-center font-mono text-[11px] text-slate-400">{word.ipa || "—"}</div>
+        <div className="min-w-0 px-2 text-center text-[11px] font-medium text-slate-500">{word.pos}</div>
+        <div className="min-w-0 px-2 text-center">
+          <span className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(word.cefr)}`}>{word.cefr}</span>
         </div>
-        <div className="col-span-1 px-2 text-center tabular-nums text-slate-700">{word.frequency}×</div>
-        <div className="col-span-1 px-2 text-center tabular-nums text-slate-500" title={rankTooltip}>
+        <div className="min-w-0 px-2 text-center tabular-nums text-slate-700">{word.frequency}×</div>
+        <div className="min-w-0 px-2 text-center tabular-nums text-slate-500" title={rankTooltip}>
           {activeRank ? `#${formatNumber(activeRank)}` : "—"}
         </div>
-        <div className="col-span-2 px-2 truncate text-center text-xs text-slate-500" title={debutLabel}>
+        <div className="min-w-0 px-2 truncate text-center text-xs text-slate-500" title={debutLabel}>
           {debutLabel}
         </div>
-        <div className="col-span-2 px-2">{actions}</div>
+        <div className="min-w-0 px-2">{actions}</div>
       </div>
 
       {open && (
