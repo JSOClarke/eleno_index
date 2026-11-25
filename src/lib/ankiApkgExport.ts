@@ -1,6 +1,10 @@
+import { fetchSentenceMapForMedia } from "@/api/sentence.api";
 import type { RankingSource } from "@/lib/ankiExport";
 import { ANKI_COL_SCHEMA_SQL, buildColMetadata } from "@/lib/ankiApkgSchema";
+import { getWordRankForSource } from "@/lib/vocabSorting";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
+
+const BARE_CHAPTER_RE = /^(?:cap[ií]tulo|chapter|глава|chapitre|ep\.?|episode)\s*\d+\s*$/i;
 
 function hashInt(str: string): number {
   let h = 2166136261;
@@ -13,16 +17,20 @@ function escHtml(s: string | null | undefined): string {
 }
 
 function rankFor(word: VocabularyWord, source: RankingSource): string {
-  const entry = (word.rankings || []).find((r) =>
-    source === "elelex_v2020"
-      ? ["elelex_v2020", "flelex_v2020", "flelex_v1"].includes(r.source)
-      : ["tubelex_v2025", "lexique383"].includes(r.source)
-  );
-  return entry?.rank != null ? String(entry.rank) : "";
+  const rank = getWordRankForSource(word.rankings, source);
+  return rank != null ? String(rank) : "";
+}
+
+function pickSentence(word: VocabularyWord, sentenceMap?: Record<string, string>): string {
+  const mapped = sentenceMap?.[word.canonical_id];
+  if (mapped) return mapped;
+  const fallback = (word.first_context_snippet || "").trim();
+  if (!fallback || BARE_CHAPTER_RE.test(fallback)) return "";
+  return fallback;
 }
 
 export function apkgFilename(mediaTitle?: string, mediaItemId?: string): string {
-  const base = (mediaTitle || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "vocabulary";
+  const base = (mediaTitle || "").normalize("NFC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "vocabulary";
   const shortId = (mediaItemId || "").replace(/[^a-z0-9]/gi, "").slice(0, 8);
   return `${[base, shortId].filter(Boolean).join("-")}-anki.apkg`;
 }
@@ -32,7 +40,8 @@ export async function buildApkgBytes(
   statusMap: Record<string, UserVocabStatus>,
   mediaTitle?: string,
   rankingSource: RankingSource = "tubelex_v2025",
-  locateWasm?: (file: string) => string
+  locateWasm?: (file: string) => string,
+  sentenceMap?: Record<string, string>
 ): Promise<Uint8Array> {
   const [{ default: initSqlJs }, { default: JSZip }, { default: wasmUrl }] = await Promise.all([
     import("sql.js"),
@@ -64,10 +73,11 @@ export async function buildApkgBytes(
     const src = mediaTitle ? `${escHtml(mediaTitle)} · #${word.first_occurrence_index}` : `#${word.first_occurrence_index}`;
     const flds = [
       escHtml(word.lemma), escHtml(word.ipa), escHtml(word.pos), escHtml(word.cefr),
-      rankFor(word, rankingSource), escHtml(word.first_context_snippet), defs, src,
+      rankFor(word, rankingSource), escHtml(pickSentence(word, sentenceMap)), defs, src,
     ].join("\x1f");
     const status = statusMap[word.canonical_id] || "unknown";
-    const tags = ` threshold cefr::${word.cefr || "none"} pos::${word.pos || "other"} status::${status} `;
+    const levelTag = (word.cefr || "none").replace(/\s+/g, "_");
+    const tags = ` threshold level::${levelTag} pos::${word.pos || "other"} status::${status} `;
     noteStmt.run([nid, guid, modelId, nowSec, tags, flds, escHtml(word.lemma), hashInt(word.lemma)]);
     cardStmt.run([nid + 1000000, nid, deckId, nowSec, idx + 1]);
   });
@@ -90,7 +100,8 @@ export async function downloadApkgDeck(
   mediaItemId?: string,
   rankingSource: RankingSource = "tubelex_v2025"
 ): Promise<void> {
-  const bytes = await buildApkgBytes(words, statusMap, mediaTitle, rankingSource);
+  const sentenceMap = mediaItemId ? await fetchSentenceMapForMedia(mediaItemId).catch(() => ({})) : undefined;
+  const bytes = await buildApkgBytes(words, statusMap, mediaTitle, rankingSource, undefined, sentenceMap);
   const blob = new Blob([bytes as BlobPart], { type: "application/octet-stream" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

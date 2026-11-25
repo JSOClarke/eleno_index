@@ -29,5 +29,47 @@ describe("ankiApkgExport", () => {
     expect(Object.keys(zip.files).sort()).toEqual(["collection.anki2", "media"]);
     expect(await zip.file("media")?.async("string")).toBe("{}");
     expect(apkgFilename("Harry Potter", "abcdef1234")).toBe("harry-potter-abcdef12-anki.apkg");
+    expect(apkgFilename("Гарри Поттер", "19f7a410")).toBe("гарри-поттер-19f7a410-anki.apkg");
+    expect(apkgFilename("肖申克的救赎", "4bf8022b")).toBe("肖申克的救赎-4bf8022b-anki.apkg");
+  });
+
+  it("supports Russian/Chinese rankings and replaces bare chapter snippets with sentenceMap", async () => {
+    const ruWord: VocabularyWord = {
+      canonical_id: "22222222-2222-3333-4444-555555555555",
+      lemma: "книга",
+      pos: "NOUN",
+      definitions: ["book"],
+      frequency: 12,
+      first_occurrence_index: 1,
+      first_timestamp_ms: null,
+      first_context_snippet: "Capítulo 1",
+      cefr: "TBU",
+      global_rank: 420,
+      rankings: [{ source: "opensubtitles_ru", rank: 420, count: 1000, cefr: null }],
+      ipa: "[ˈknʲiɡə]",
+    };
+    const wasmDir = path.resolve(process.cwd(), "node_modules/sql.js/dist");
+    const initSqlJs = (await import("sql.js")).default;
+    const SQL = await initSqlJs({ locateFile: (f: string) => path.join(wasmDir, f), useOldExtensionFunctions: false });
+
+    const bytes = await buildApkgBytes(
+      [ruWord],
+      {},
+      "Гарри Поттер",
+      "opensubtitles_ru",
+      (f) => path.join(wasmDir, f),
+      { [ruWord.canonical_id]: "Анна читала старую книгу." }
+    );
+    const zip = await JSZip.loadAsync(bytes);
+    const dbBytes = await zip.file("collection.anki2")!.async("uint8array");
+    const db = new SQL.Database(dbBytes);
+    const row = db.exec("SELECT flds, tags FROM notes")[0].values[0];
+    const flds = String(row[0]).split("\x1f");
+    db.close();
+
+    expect(flds[0]).toBe("книга");
+    expect(flds[4]).toBe("420");
+    expect(flds[5]).toBe("Анна читала старую книгу.");
+    expect(String(row[1])).toContain("level::TBU");
   });
 });

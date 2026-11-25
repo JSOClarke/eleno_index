@@ -55,10 +55,9 @@ export function buildAnkiTsv(
 /** Lowercase, accent-folded (niño -> nino), hyphenated, length-capped. */
 function slugify(value?: string): string {
   return (value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .normalize("NFC")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
 }

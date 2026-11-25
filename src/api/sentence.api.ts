@@ -108,3 +108,28 @@ export async function fetchCanonicalGlosses(
   }
   return result;
 }
+
+/** Fetch one clean example sentence per canonical_id for Anki deck export. */
+export async function fetchSentenceMapForMedia(
+  mediaItemId: string
+): Promise<Record<string, string>> {
+  const { data, error } = await supabase
+    .from("sentence_examples")
+    .select("sentence_text, token_canonical_ids, token_count")
+    .eq("media_item_id", mediaItemId)
+    .gte("token_count", 4)
+    .lte("token_count", 28)
+    .order("token_count", { ascending: true })
+    .limit(3000);
+  if (error || !data) return {};
+  const map: Record<string, string> = {};
+  for (const row of data) {
+    const text = String(row.sentence_text || "").trim();
+    if (!text) continue;
+    for (const cid of row.token_canonical_ids || []) {
+      const id = String(cid || "");
+      if (id && !map[id]) map[id] = text;
+    }
+  }
+  return map;
+}

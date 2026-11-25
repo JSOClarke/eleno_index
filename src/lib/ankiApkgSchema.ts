@@ -8,7 +8,7 @@ CREATE TABLE graves (usn integer not null, oid integer not null, type integer no
 
 const BRAND_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M2 20V14.75H8.5V9.5H15.5V4H22V20H2Z" fill="currentColor"/></svg>`;
 const CARD_CSS = `@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500&display=swap');
-.card{font-family:Inter,-apple-system,system-ui,sans-serif;background:#FAF9F6;color:#0F172A;margin:0;padding:24px 16px;text-align:left;-webkit-font-smoothing:antialiased}
+.card{font-family:Inter,'Noto Sans SC','Noto Sans',-apple-system,system-ui,sans-serif;background:#FAF9F6;color:#0F172A;margin:0;padding:24px 16px;text-align:left;-webkit-font-smoothing:antialiased}
 .thr-card{max-width:480px;margin:0 auto;background:#FFFFFF;border:1px solid #E2E8F0;border-radius:16px;overflow:hidden;box-shadow:0 12px 30px rgba(15,23,42,.08)}
 .thr-bar{height:3px;background:#0F172A}
 .thr-body{padding:20px 22px}
