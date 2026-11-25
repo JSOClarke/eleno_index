@@ -24,6 +24,8 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   const level = m?.cefr_level || "B1";
   const fh = (m?.readability_score || 70).toFixed(1);
   const wpm = m?.words_per_minute ? Math.round(m.words_per_minute) : null;
+  const lang = (item.language || "").toLowerCase();
+  const formulaShort = lang.startsWith("fr") ? "K-M" : lang.startsWith("ru") ? "Oborneva" : lang.startsWith("zh") ? "ZH" : "F-H";
   const dialOrWpm = wpm ? `${wpm} WPM` : `Dial ${formatPercent(m?.dialogue_ratio, 1)}`;
 
   const flowPct = comprehension?.text_coverage_percentage ?? comprehension?.comprehension_percentage ?? 0;
@@ -39,8 +41,8 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
 
   return (
     <div className="space-y-4">
-      <section className="grid grid-cols-12 gap-6 rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm items-start">
-        <div className="col-span-12 lg:col-span-7 flex items-start gap-5">
+      <section className="grid grid-cols-12 gap-5 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm items-start">
+        <div className="col-span-12 md:col-span-7 flex items-start gap-4 sm:gap-5">
           <BookCoverPlate title={targetTitle || englishTitle} explicitUrl={item.cover_image_url} level={level} size="hero" />
           <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
@@ -76,9 +78,9 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
           </div>
         </div>
 
-        <div className="col-span-12 lg:col-span-5 grid grid-cols-2 gap-4 sm:gap-6 border-t pt-5 lg:border-t-0 lg:border-l border-slate-100 lg:pt-0 lg:pl-6">
+        <div className="col-span-12 md:col-span-5 grid grid-cols-2 gap-4 sm:gap-5 border-t pt-4 md:border-t-0 md:border-l border-slate-100 md:pt-0 md:pl-5 md:self-center">
           <InspectorFlowPanel index="01" title="Reading Flow" pct={flowPct} learnPct={learnFlowPct} footnote={<>{formatCompactWords(m?.total_tokens || 0)} total</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-slate-900" />
-          <InspectorFlowPanel index="02" title="Vocab Mastery" pct={vocabPct} learnPct={learnVocabPct} footnote={<>F-H {fh} · {dialOrWpm}</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-slate-700" />
+          <InspectorFlowPanel index="02" title="Vocab Mastery" pct={vocabPct} learnPct={learnVocabPct} footnote={<>{formulaShort} {fh} · {dialOrWpm}</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-slate-700" />
         </div>
 
         {synopsis && (
