@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
-import { LogOut } from "lucide-react";
+import { ChevronDown, LogOut } from "lucide-react";
+import { fetchKnownCountsByLanguage } from "@/api/vocabulary.api";
 import type { SupportedLanguage } from "@/lib/catalogueLanguages";
 import type { UserProfile } from "@/types/vocabulary.types";
-import { AVATAR_OPTIONS, AVATAR_STORAGE_PREFIX, AvatarBadge, readStoredAvatar, type AvatarId } from "./AvatarBadge";
-import { ProfileLanguageSection } from "./ProfileLanguageSection";
+import { FlagIcon, ProfileLanguageSection } from "./ProfileLanguageSection";
 
 interface UserAvatarMenuProps {
   user: UserProfile;
@@ -23,12 +23,16 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
   activeKnownCount = 0,
 }) => {
   const [open, setOpen] = useState(false);
-  const [avatarId, setAvatarId] = useState<AvatarId>(() => readStoredAvatar(user.id));
+  const [knownCounts, setKnownCounts] = useState<Record<SupportedLanguage, number>>({ es: 0, fr: 0, zh: 0, ru: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setAvatarId(readStoredAvatar(user.id));
-  }, [user.id]);
+    let cancelled = false;
+    fetchKnownCountsByLanguage(user.id)
+      .then((res) => { if (!cancelled) setKnownCounts(res); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [user.id, activeKnownCount]);
 
   useEffect(() => {
     if (!open) return;
@@ -46,13 +50,6 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
     };
   }, [open]);
 
-  const selectAvatar = (id: AvatarId) => {
-    setAvatarId(id);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(`${AVATAR_STORAGE_PREFIX}${user.id}`, id);
-    }
-  };
-
   return (
     <div ref={menuRef} className="relative hidden sm:block">
       <button
@@ -62,11 +59,14 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
         aria-haspopup="menu"
         aria-label="Account menu"
         title={user.email || "Account"}
-        className={`rounded-full transition-transform hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 ${
-          inverted ? "focus:ring-white focus:ring-offset-2 focus:ring-offset-[#0A0A0C]" : "focus:ring-slate-900 focus:ring-offset-2"
+        className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1.5 transition cursor-pointer focus:outline-none focus:ring-2 ${
+          inverted
+            ? "border-white/20 bg-white/10 text-white hover:bg-white/20 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#0A0A0C]"
+            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-xs focus:ring-slate-900 focus:ring-offset-2"
         }`}
       >
-        <AvatarBadge avatarId={avatarId} inverted={inverted} />
+        <FlagIcon code={activeLanguage} />
+        <ChevronDown className={`h-3 w-3 opacity-60 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open && (
@@ -74,35 +74,11 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
           role="menu"
           className="absolute right-0 mt-2 w-60 rounded-2xl border border-slate-200 bg-white p-2.5 shadow-lg z-40 space-y-2.5"
         >
-          <div className="flex items-center gap-2.5 border-b border-slate-100 px-1 pb-2.5">
-            <AvatarBadge avatarId={avatarId} size="sm" />
+          <div className="flex items-center gap-2.5 px-1 pb-1">
+            <FlagIcon code={activeLanguage} />
             <div className="min-w-0">
               <div className="text-[11px] font-medium text-slate-400">Signed in as</div>
               <div className="truncate text-xs font-medium text-slate-800">{user.email}</div>
-            </div>
-          </div>
-
-          <div className="px-1 space-y-1.5">
-            <div className="text-[11px] font-medium text-slate-400">Profile icon</div>
-            <div className="flex items-center justify-between gap-1">
-              {AVATAR_OPTIONS.map(({ id, label, Icon, bg }) => {
-                const selected = avatarId === id;
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    title={label}
-                    aria-label={`${label} profile icon`}
-                    aria-pressed={selected}
-                    onClick={() => selectAvatar(id)}
-                    className={`inline-flex h-7 w-7 items-center justify-center rounded-full transition cursor-pointer ${bg} ${
-                      selected ? "ring-2 ring-slate-900 ring-offset-2" : "opacity-75 hover:opacity-100"
-                    }`}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </button>
-                );
-              })}
             </div>
           </div>
 
@@ -111,6 +87,7 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
               activeLanguage={activeLanguage}
               onChangeLanguage={onChangeLanguage}
               activeKnownCount={activeKnownCount}
+              knownCounts={knownCounts}
               userId={user.id}
               onSelect={() => setOpen(false)}
             />

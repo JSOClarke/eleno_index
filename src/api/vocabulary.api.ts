@@ -37,17 +37,16 @@ export async function fetchAllUserVocabulary(
 export async function fetchKnownCountsByLanguage(
   userId: string
 ): Promise<Record<"es" | "fr" | "zh" | "ru", number>> {
-  const countFor = async (lang: "es" | "fr" | "zh" | "ru") => {
-    const { count, error } = await supabase
-      .from("user_vocabulary")
-      .select("canonical_id, canonical_lexical_entity!inner(language)", { count: "exact", head: true })
-      .eq("user_id", userId)
-      .eq("status", "known")
-      .eq("canonical_lexical_entity.language", lang);
-    return error ? 0 : count ?? 0;
-  };
-  const [es, fr, zh, ru] = await Promise.all([countFor("es"), countFor("fr"), countFor("zh"), countFor("ru")]);
-  return { es, fr, zh, ru };
+  const counts: Record<"es" | "fr" | "zh" | "ru", number> = { es: 0, fr: 0, zh: 0, ru: 0 };
+  const { data, error } = await supabase.rpc("get_user_known_counts", { p_user_id: userId });
+  if (error || !Array.isArray(data)) return counts;
+  for (const row of data as Array<{ language?: string; known_count?: number | string }>) {
+    const lang = (row.language || "").toLowerCase();
+    if (lang === "es" || lang === "fr" || lang === "zh" || lang === "ru") {
+      counts[lang] = Number(row.known_count ?? 0);
+    }
+  }
+  return counts;
 }
 
 export async function fetchKnownWordsDetails(

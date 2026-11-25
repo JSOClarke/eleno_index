@@ -41,6 +41,7 @@ interface ProfileLanguageSectionProps {
   activeLanguage: SupportedLanguage;
   onChangeLanguage?: (lang: SupportedLanguage) => void;
   activeKnownCount?: number;
+  knownCounts?: Record<SupportedLanguage, number>;
   userId?: string | null;
   onSelect?: () => void;
 }
@@ -50,25 +51,28 @@ export const ProfileLanguageSection: React.FC<ProfileLanguageSectionProps> = ({
   activeLanguage,
   onChangeLanguage,
   activeKnownCount = 0,
+  knownCounts,
   userId,
   onSelect,
 }) => {
-  const [counts, setCounts] = useState<Record<SupportedLanguage, number>>({ es: 0, fr: 0, zh: 0, ru: 0 });
+  const [fetchedCounts, setFetchedCounts] = useState<Record<SupportedLanguage, number>>({ es: 0, fr: 0, zh: 0, ru: 0 });
 
   useEffect(() => {
+    if (knownCounts) return;
     if (!userId) {
-      setCounts({ es: 0, fr: 0, zh: 0, ru: 0 });
+      setFetchedCounts({ es: 0, fr: 0, zh: 0, ru: 0 });
       return;
     }
     let cancelled = false;
     fetchKnownCountsByLanguage(userId)
-      .then((res) => { if (!cancelled) setCounts(res); })
+      .then((res) => { if (!cancelled) setFetchedCounts(res); })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [userId]);
+  }, [userId, knownCounts]);
 
+  const counts = knownCounts || fetchedCounts;
   const countFor = (lang: SupportedLanguage) =>
-    lang === activeLanguage ? activeKnownCount : counts[lang];
+    lang === activeLanguage ? Math.max(activeKnownCount, counts[lang]) : counts[lang];
 
   return (
     <div className="border-t border-slate-100 pt-2 px-1 space-y-1">
