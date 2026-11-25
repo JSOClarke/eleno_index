@@ -59,7 +59,7 @@ export const UserAvatarMenu: React.FC<UserAvatarMenuProps> = ({
         aria-haspopup="menu"
         aria-label="Account menu"
         title={user.email || "Account"}
-        className={`rounded-full transition-transform hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 ${
+        className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-transform hover:scale-105 cursor-pointer focus:outline-none focus:ring-2 ${
           inverted ? "focus:ring-white focus:ring-offset-2 focus:ring-offset-[#0A0A0C]" : "focus:ring-slate-900 focus:ring-offset-2"
         }`}
       >
