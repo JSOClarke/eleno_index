@@ -31,3 +31,10 @@ export function extractPronunciation(pronunciations: unknown): ExtractedPronunci
   if (ipa) return { ipa, reading: `IPA: ${ipa}` };
   return { ipa: null, reading: null };
 }
+
+/** Returns the bare reading text (without script prefix) for compact table cells. */
+export function formatReadingValue(word: { ipa?: string | null; reading?: string | null }): string {
+  const raw = (word.reading || "").trim();
+  if (raw) return raw.replace(/^(?:Pinyin|Hiragana|Katakana|Kana|Romaji|IPA):\s*/i, "");
+  return (word.ipa || "").trim();
+}

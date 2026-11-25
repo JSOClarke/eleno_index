@@ -109,7 +109,7 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
         <div className="md:min-w-[780px] lg:min-w-0">
           <div className="hidden md:grid md:grid-cols-[minmax(0,1.5fr)_minmax(0,1.3fr)_minmax(0,0.7fr)_minmax(0,0.85fr)_minmax(0,0.7fr)_minmax(0,1.4fr)_minmax(0,1.9fr)_minmax(0,1.65fr)] items-center divide-x divide-slate-200/80 border-b border-slate-200/80 bg-slate-50/80 px-4 py-3 text-xs font-semibold text-slate-500">
             <button type="button" onClick={() => toggleSort("lemma", "asc")} className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2 hover:text-slate-900 cursor-pointer">Lemma{arrow("lemma")}</button>
-            <div className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2">IPA</div>
+            <div className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2">Reading</div>
             <button type="button" onClick={() => toggleSort("pos", "asc")} className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2 hover:text-slate-900 cursor-pointer">POS{arrow("pos")}</button>
             <button type="button" onClick={() => toggleSort("cefr", "asc")} className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2 hover:text-slate-900 cursor-pointer">{getProficiencySystemLabel(language)}{arrow("cefr")}</button>
             <button type="button" onClick={() => toggleSort("frequency", "desc")} className="flex min-w-0 items-center justify-center truncate whitespace-nowrap px-2 hover:text-slate-900 cursor-pointer">Freq{arrow("frequency")}</button>

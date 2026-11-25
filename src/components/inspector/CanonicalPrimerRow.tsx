@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { WordContextDrawer } from "@/components/layout/WordContextDrawer";
 import { getCefrBadgeClass } from "@/lib/catalogueDisplay";
+import { formatReadingValue } from "@/lib/pronunciation";
 import { formatNumber } from "@/lib/formatters";
 import { getRankingEntry, getRankSourceLabel, type RankingSourceKey } from "@/lib/vocabSorting";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
@@ -63,7 +64,7 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="truncate text-sm font-semibold text-slate-900">{word.lemma}</div>
-            <div className="truncate font-mono text-[11px] text-slate-400">{word.ipa || "—"}</div>
+            <div className="truncate font-mono text-[11px] text-slate-400" title={word.reading || word.ipa || undefined}>{formatReadingValue(word) || "—"}</div>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
@@ -93,7 +94,7 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
 
       <div className="hidden md:grid md:grid-cols-[minmax(0,1.5fr)_minmax(0,1.3fr)_minmax(0,0.7fr)_minmax(0,0.85fr)_minmax(0,0.7fr)_minmax(0,1.4fr)_minmax(0,1.9fr)_minmax(0,1.65fr)] items-center px-4 py-3 text-xs">
         <div className="min-w-0 px-2 truncate text-center font-semibold text-slate-900">{word.lemma}</div>
-        <div className="min-w-0 px-2 truncate text-center font-mono text-[11px] text-slate-400">{word.ipa || "—"}</div>
+        <div className="min-w-0 px-2 truncate text-center font-mono text-[11px] text-slate-400" title={word.reading || word.ipa || undefined}>{formatReadingValue(word) || "—"}</div>
         <div className="min-w-0 px-2 text-center text-[11px] font-medium text-slate-500">{word.pos}</div>
         <div className="min-w-0 px-2 text-center">
           {word.cefr ? (

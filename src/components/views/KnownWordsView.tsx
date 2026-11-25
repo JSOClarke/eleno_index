@@ -104,7 +104,7 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
       <div className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-xs">
         <div className="hidden grid-cols-12 divide-x divide-slate-200/80 px-4 py-2.5 bg-slate-50/80 border-b border-slate-200/80 text-xs font-semibold text-slate-500 md:grid">
           <button type="button" onClick={() => toggleSort("lemma", "asc")} className="col-span-3 px-2 text-center hover:text-slate-900 cursor-pointer">Lemma{arrow("lemma")}</button>
-          <div className="col-span-2 px-2 text-center">IPA</div>
+          <div className="col-span-2 px-2 text-center">Reading</div>
           <button type="button" onClick={() => toggleSort("pos", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">POS{arrow("pos")}</button>
           <button type="button" onClick={() => toggleSort("cefr", "asc")} className="col-span-1 px-2 text-center hover:text-slate-900 cursor-pointer">{getProficiencySystemLabel(activeLanguage)}{arrow("cefr")}</button>
           <button type="button" onClick={() => toggleSort("rank", "asc")} className="col-span-2 px-2 text-center hover:text-slate-900 cursor-pointer">{getRankSourceLabel(rankingSource)}{arrow("rank")}</button>

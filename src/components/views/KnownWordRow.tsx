@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { WordContextDrawer } from "@/components/layout/WordContextDrawer";
 import { getCefrBadgeClass } from "@/lib/catalogueDisplay";
+import { formatReadingValue } from "@/lib/pronunciation";
 import { formatNumber } from "@/lib/formatters";
 import { getRankingEntry, getRankSourceLabel, type RankingSourceKey } from "@/lib/vocabSorting";
 import { PrimerRowActions } from "@/components/inspector/PrimerRowActions";
@@ -60,7 +61,7 @@ export const KnownWordRow: React.FC<KnownWordRowProps> = ({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="truncate text-sm font-semibold text-slate-900">{word.lemma}</div>
-            <div className="truncate font-mono text-[11px] text-slate-400">{word.ipa || "—"}</div>
+            <div className="truncate font-mono text-[11px] text-slate-400" title={word.reading || word.ipa || undefined}>{formatReadingValue(word) || "—"}</div>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
@@ -86,7 +87,7 @@ export const KnownWordRow: React.FC<KnownWordRowProps> = ({
 
       <div className="hidden grid-cols-12 items-center px-4 py-3 text-xs md:grid">
         <div className="col-span-3 px-2 truncate text-center font-semibold text-slate-900">{word.lemma}</div>
-        <div className="col-span-2 px-2 truncate text-center font-mono text-[11px] text-slate-400">{word.ipa || "—"}</div>
+        <div className="col-span-2 px-2 truncate text-center font-mono text-[11px] text-slate-400" title={word.reading || word.ipa || undefined}>{formatReadingValue(word) || "—"}</div>
         <div className="col-span-1 px-2 text-center text-[11px] font-medium text-slate-500">{word.pos}</div>
         <div className="col-span-1 px-2 text-center">
           {word.cefr ? (
