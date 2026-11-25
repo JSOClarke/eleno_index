@@ -65,10 +65,10 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
       sub: cov90 != null || cov98 != null ? `90%: ${cov90 != null ? formatNumber(cov90) : "—"} · 98%: ${cov98 != null ? formatNumber(cov98) : "—"}` : "—",
       tooltip: "How many unique dictionary headwords (lemmas) you need to know to understand 90%, 95%, and 98% of all running words.",
       segments: cov90 && cov95 && cov98 && uniqueLemmas ? [
-        { label: "90%", value: cov90, color: "#10B981" },
-        { label: "95%", value: Math.max(0, cov95 - cov90), color: "#0EA5E9" },
-        { label: "98%", value: Math.max(0, cov98 - cov95), color: "#6366F1" },
-        { label: "Rest", value: Math.max(0, uniqueLemmas - cov98), color: "#CBD5E1" },
+        { label: "90%", value: cov90, color: "#10B981", displayValue: `${formatNumber(cov90)} lemmas` },
+        { label: "95%", value: Math.max(0, cov95 - cov90), color: "#0EA5E9", displayValue: `${formatNumber(cov95)} lemmas` },
+        { label: "98%", value: Math.max(0, cov98 - cov95), color: "#6366F1", displayValue: `${formatNumber(cov98)} lemmas` },
+        { label: "Rest", value: Math.max(0, uniqueLemmas - cov98), color: "#CBD5E1", displayValue: `${formatNumber(Math.max(0, uniqueLemmas - cov98))} lemmas` },
       ] : undefined,
     },
     {
@@ -77,10 +77,10 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
       sub: pct?.k1_to_5k_pct != null ? `1k–5k: ${formatPercent(pct.k1_to_5k_pct, 1)}` : "of running tokens",
       tooltip: "Share of running words from the top 1,000 most common words in the language.",
       segments: pct?.top_1k_pct != null ? [
-        { label: "1k", value: pct.top_1k_pct ?? 0, color: "#10B981" },
-        { label: "1–5k", value: pct.k1_to_5k_pct ?? 0, color: "#0EA5E9" },
-        { label: "5–10k", value: pct.k5_to_10k_pct ?? 0, color: "#6366F1" },
-        { label: "Rare", value: (pct.rare_pct ?? 0) + (pct.unranked_pct ?? 0), color: "#CBD5E1" },
+        { label: "1k", value: pct.top_1k_pct ?? 0, color: "#10B981", displayValue: formatPercent(pct.top_1k_pct, 1) },
+        { label: "1–5k", value: pct.k1_to_5k_pct ?? 0, color: "#0EA5E9", displayValue: formatPercent(pct.k1_to_5k_pct, 1) },
+        { label: "5–10k", value: pct.k5_to_10k_pct ?? 0, color: "#6366F1", displayValue: formatPercent(pct.k5_to_10k_pct, 1) },
+        { label: "Rare", value: (pct.rare_pct ?? 0) + (pct.unranked_pct ?? 0), color: "#CBD5E1", displayValue: formatPercent((pct.rare_pct ?? 0) + (pct.unranked_pct ?? 0), 1) },
       ] : undefined,
     },
     {
@@ -105,8 +105,8 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
         ? "Average spoken words per minute and percentage of runtime containing speech."
         : "Percentage of lines that are dialogue rather than narration (higher dialogue usually means more everyday phrasing).",
       segments: !wpm && metrics.dialogue_ratio != null ? [
-        { label: "Dial", value: metrics.dialogue_ratio, color: "#0EA5E9" },
-        { label: "Narr", value: Math.max(0, 100 - metrics.dialogue_ratio), color: "#E2E8F0" },
+        { label: "Dial", value: metrics.dialogue_ratio, color: "#0EA5E9", displayValue: formatPercent(metrics.dialogue_ratio, 1) },
+        { label: "Narr", value: Math.max(0, 100 - metrics.dialogue_ratio), color: "#E2E8F0", displayValue: formatPercent(Math.max(0, 100 - metrics.dialogue_ratio), 1) },
       ] : undefined,
     },
     {
@@ -115,8 +115,8 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
       sub: lexDensity ? `Lexical density ${lexDensity}` : "one-time lemmas",
       tooltip: "Hapax % is the share of lemmas appearing only once (higher = richer/rarer vocabulary); lexical density is the ratio of content words.",
       segments: metrics.hapax_percentage != null ? [
-        { label: "Hapax", value: metrics.hapax_percentage, color: "#6366F1" },
-        { label: "Repeat", value: Math.max(0, 100 - metrics.hapax_percentage), color: "#E2E8F0" },
+        { label: "Hapax", value: metrics.hapax_percentage, color: "#6366F1", displayValue: formatPercent(metrics.hapax_percentage, 1) },
+        { label: "Repeat", value: Math.max(0, 100 - metrics.hapax_percentage), color: "#E2E8F0", displayValue: formatPercent(Math.max(0, 100 - metrics.hapax_percentage), 1) },
       ] : undefined,
     },
     useGrammarVerbCard
@@ -128,8 +128,8 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
             : "of finite verb forms",
           tooltip: "Percentage of finite verbs in the subjunctive mood, plus imperfect vs. preterite tense split.",
           segments: subj != null ? [
-            { label: "Subj", value: subj, color: "#0EA5E9" },
-            { label: "Other", value: Math.max(0, 100 - subj), color: "#CBD5E1" },
+            { label: "Subj", value: subj, color: "#0EA5E9", displayValue: formatPercent(subj, 1) },
+            { label: "Other", value: Math.max(0, 100 - subj), color: "#CBD5E1", displayValue: formatPercent(Math.max(0, 100 - subj), 1) },
           ] : undefined,
         }
       : {
@@ -138,10 +138,10 @@ export function buildMetricCards(metrics: MediaMetrics, language?: string): Metr
           sub: hasPos ? `Adj ${(pos.ADJ ?? 0).toFixed(0)}% · Adv ${(pos.ADV ?? 0).toFixed(0)}%` : "—",
           tooltip: "Part-of-speech breakdown across Nouns, Verbs, Adjectives, and Adverbs.",
           segments: hasPos ? [
-            { label: "N", value: pos.NOUN ?? 0, color: "#10B981" },
-            { label: "V", value: pos.VERB ?? 0, color: "#0EA5E9" },
-            { label: "Adj", value: pos.ADJ ?? 0, color: "#6366F1" },
-            { label: "Adv", value: pos.ADV ?? 0, color: "#94A3B8" },
+            { label: "N", value: pos.NOUN ?? 0, color: "#10B981", displayValue: formatPercent(pos.NOUN ?? 0, 1) },
+            { label: "V", value: pos.VERB ?? 0, color: "#0EA5E9", displayValue: formatPercent(pos.VERB ?? 0, 1) },
+            { label: "Adj", value: pos.ADJ ?? 0, color: "#6366F1", displayValue: formatPercent(pos.ADJ ?? 0, 1) },
+            { label: "Adv", value: pos.ADV ?? 0, color: "#94A3B8", displayValue: formatPercent(pos.ADV ?? 0, 1) },
           ] : undefined,
         },
   ];
