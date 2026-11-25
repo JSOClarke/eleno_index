@@ -38,6 +38,8 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
   const signature = useMemo(() => buildKnownSignature(statusMap), [statusMap]);
   useEffect(() => {
     if (!userId) { setWords([]); setLoading(false); return; }
+    const hasAny = Object.values(statusMap).some((s) => s === "known" || s === "learning");
+    if (!hasAny) { setWords([]); setLoading(false); return; }
     const currentCache = readKnownDetailsCache(userId, statusMap, activeLanguage);
     if (currentCache) {
       setWords(currentCache.entries);
@@ -114,7 +116,9 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
 
         <div className="divide-y divide-slate-100">
           {loading ? <VocabTableSkeleton rows={10} variant="known" /> : slice.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-500">No matching canonical lemmas.</div>
+            <div className="p-8 text-center text-xs text-slate-500">
+              {counts.ALL === 0 ? "No known or learning words saved yet." : "No matching canonical lemmas."}
+            </div>
           ) : slice.map((w) => (
             <KnownWordRow key={w.canonical_id} word={w} status={statusMap[w.canonical_id]} statusMap={statusMap} userId={userId} rankingSource={rankingSource} onSetWordStatus={onSetWordStatus} />
           ))}
