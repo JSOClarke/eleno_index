@@ -49,38 +49,22 @@ export async function fetchRemainingVocabPages(
   }
   if (offsets.length === 0) return [];
 
-  const allWords: VocabularyWord[] = [];
-  const batchSize = 3;
-  for (let i = 0; i < offsets.length; i += batchSize) {
-    const chunkOffsets = offsets.slice(i, i + batchSize);
-    const results = await Promise.all(
-      chunkOffsets.map((from) =>
-        supabase
-          .from("media_vocabulary")
-          .select(VOCAB_SELECT)
-          .eq("media_item_id", mediaItemId)
-          .neq("canonical_lexical_entity.pos", "PROPN")
-          .order("frequency", { ascending: false })
-          .range(from, from + pageSize - 1)
-      )
-    );
-
-    const batchWords: VocabularyWord[] = [];
-    let reachedEnd = false;
-    for (const res of results) {
-      const rows = res.data || [];
-      if (rows.length < pageSize) reachedEnd = true;
-      if (rows.length > 0) {
-        batchWords.push(...rows.map(normalizeVocabularyRow).filter((w) => w.pos !== "PROPN"));
-      }
-    }
-    if (batchWords.length > 0) {
-      allWords.push(...batchWords);
-      onBatch?.(batchWords);
-    }
-    if (reachedEnd) break;
-  }
-  return allWords;
+  const slots: VocabularyWord[][] = offsets.map(() => []);
+  await Promise.all(
+    offsets.map(async (from, idx) => {
+      const { data } = await supabase
+        .from("media_vocabulary")
+        .select(VOCAB_SELECT)
+        .eq("media_item_id", mediaItemId)
+        .neq("canonical_lexical_entity.pos", "PROPN")
+        .order("frequency", { ascending: false })
+        .range(from, from + pageSize - 1);
+      const rows = (data || []).map(normalizeVocabularyRow).filter((w) => w.pos !== "PROPN");
+      slots[idx] = rows;
+      if (rows.length > 0) onBatch?.(rows);
+    })
+  );
+  return slots.flat();
 }
 
 export async function fetchChapterMetricsWithComprehension(
