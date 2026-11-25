@@ -17,13 +17,7 @@ interface ChapterPacingStripProps {
 }
 
 export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
-  chapters,
-  loading = false,
-  selectedChapter,
-  onSelectChapter,
-  bookMetrics,
-  bookComprehension,
-  language,
+  chapters, loading = false, selectedChapter, onSelectChapter, bookMetrics, bookComprehension, language,
 }) => {
   if (loading && chapters.length === 0) {
     return (
@@ -111,13 +105,9 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
               >
                 <div className="flex items-center justify-between text-[10px]">
                   <span className="font-semibold text-slate-800">{unitShort}.{ch.chapter_index}</span>
-                  {ch.cefr_level ? (
-                    <span className={`rounded-full px-1.5 py-0.2 font-semibold ${getCefrBadgeClass(ch.cefr_level)}`}>
-                      {formatProficiencyLevel(ch.cefr_level, language)}
-                    </span>
-                  ) : (
-                    <span className="text-slate-300">—</span>
-                  )}
+                  {ch.cefr_level
+                    ? <span className={`rounded-full px-1.5 py-0.2 font-semibold ${getCefrBadgeClass(ch.cefr_level)}`}>{formatProficiencyLevel(ch.cefr_level, language)}</span>
+                    : <span className="text-slate-300">—</span>}
                 </div>
 
                 <div className="mt-2.5 space-y-2">
