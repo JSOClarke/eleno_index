@@ -1,5 +1,5 @@
 import React from "react";
-import { Search, X } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 import { CoverageGate } from "@/components/ui/CoverageGate";
 import { FilterSelectDropdown } from "@/components/ui/FilterSelectDropdown";
 import { getProficiencySystemLabel } from "@/lib/proficiencyScale";
@@ -42,12 +42,14 @@ interface PrimerFilterBarProps {
   mediaItemId?: string;
   userId?: string | null;
   onRequireAuth: () => void;
+  loadingMore?: boolean;
+  totalExpected?: number;
 }
 
 export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
   query, onQueryChange, statusFilter, onStatusFilter, statusCounts, posFilter, onPosFilter,
   rankingSource, onRankingSource, language, selectedChapter, onClearChapter, isEpisodeMode,
-  sortValue, onSortChange, resultCount, exportWords, statusMap, mediaTitle, mediaItemId, userId, onRequireAuth,
+  sortValue, onSortChange, resultCount, exportWords, statusMap, mediaTitle, mediaItemId, userId, onRequireAuth, loadingMore = false, totalExpected,
 }) => {
   const rankOpts = getRankOptionsForLanguage(language);
   const mobileSortOpts = [
@@ -90,42 +92,37 @@ export const PrimerFilterBar: React.FC<PrimerFilterBarProps> = ({
                 key={id}
                 type="button"
                 onClick={() => onStatusFilter(id)}
-                className={`flex-1 sm:flex-initial whitespace-nowrap text-center rounded-full px-2.5 sm:px-3 py-1 cursor-pointer transition ${
+                title={id === "ALL" && loadingMore ? `Loading ${statusCounts.ALL.toLocaleString()}${totalExpected ? ` of ~${totalExpected.toLocaleString()}` : ""} words…` : undefined}
+                className={`inline-flex items-center justify-center gap-1 flex-1 sm:flex-initial whitespace-nowrap text-center rounded-full px-2.5 sm:px-3 py-1 cursor-pointer transition ${
                   statusFilter === id
                     ? "bg-slate-900 text-white font-semibold shadow-xs"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                {label} ({statusCounts[id]})
+                {id === "ALL" && loadingMore && <Loader2 className="h-3 w-3 animate-spin" />}
+                <span>{label} ({statusCounts[id].toLocaleString()}{id === "ALL" && loadingMore ? "…" : ""})</span>
               </button>
             ))}
           </div>
         ) : (
-          <div className="w-full sm:w-64 shrink-0">
-            <CoverageGate
-              onSignIn={onRequireAuth}
-              label="Sign in to filter by status"
-            />
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <div className="w-full sm:w-64 shrink-0">
+              <CoverageGate onSignIn={onRequireAuth} label="Sign in to filter by status" />
+            </div>
+            {loadingMore && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Loading {statusCounts.ALL.toLocaleString()}{totalExpected ? ` / ~${totalExpected.toLocaleString()}` : ""}…
+              </span>
+            )}
           </div>
         )}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs xl:shrink-0 xl:justify-end">
         <div className="flex items-center gap-2">
-          <FilterSelectDropdown
-            prefix="Rank"
-            value={rankingSource}
-            options={rankOpts}
-            onChange={onRankingSource}
-            ariaLabel="Frequency ranking source"
-          />
-          <FilterSelectDropdown
-            prefix="POS"
-            value={posFilter}
-            options={POS_OPTS}
-            onChange={onPosFilter}
-            ariaLabel="Part of speech filter"
-          />
+          <FilterSelectDropdown prefix="Rank" value={rankingSource} options={rankOpts} onChange={onRankingSource} ariaLabel="Frequency ranking source" />
+          <FilterSelectDropdown prefix="POS" value={posFilter} options={POS_OPTS} onChange={onPosFilter} ariaLabel="Part of speech filter" />
         </div>
         <ExportAnkiButton words={exportWords} statusMap={statusMap} mediaTitle={mediaTitle} mediaItemId={mediaItemId} rankingSource={rankingSource} />
       </div>

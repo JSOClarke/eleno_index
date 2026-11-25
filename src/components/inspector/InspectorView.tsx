@@ -111,6 +111,8 @@ export const InspectorView: React.FC<InspectorViewProps> = ({
             language={item.language}
             words={inspector.vocabulary}
             loading={inspector.loading}
+            loadingMore={inspector.loadingMore}
+            totalExpected={item.metrics?.unique_words_count}
             selectedChapter={selectedChapter}
             onClearChapter={() => setSelectedChapter("all")}
             statusMap={statusMap}

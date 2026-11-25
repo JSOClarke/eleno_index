@@ -38,40 +38,49 @@ export async function fetchFirstVocabPage(mediaItemId: string): Promise<Vocabula
 
 export async function fetchRemainingVocabPages(
   mediaItemId: string,
-  expectedTotal: number
+  expectedTotal: number,
+  onBatch?: (batch: VocabularyWord[]) => void
 ): Promise<VocabularyWord[]> {
   const pageSize = 1000;
-  // Cap to actual expected unique words count instead of blindly firing 10 queries up to 10,000
-  const maxItems = Math.min(Math.max(expectedTotal || 2000, 300), 12000);
+  const maxItems = Math.max(expectedTotal || 2000, 300);
   const offsets: number[] = [];
   for (let offset = 120; offset < maxItems; offset += pageSize) {
     offsets.push(offset);
   }
   if (offsets.length === 0) return [];
 
-  const results = await Promise.all(
-    offsets.map((from) =>
-      supabase
-        .from("media_vocabulary")
-        .select(VOCAB_SELECT)
-        .eq("media_item_id", mediaItemId)
-        .neq("canonical_lexical_entity.pos", "PROPN")
-        .order("frequency", { ascending: false })
-        .range(from, from + pageSize - 1)
-    )
-  );
+  const allWords: VocabularyWord[] = [];
+  const batchSize = 3;
+  for (let i = 0; i < offsets.length; i += batchSize) {
+    const chunkOffsets = offsets.slice(i, i + batchSize);
+    const results = await Promise.all(
+      chunkOffsets.map((from) =>
+        supabase
+          .from("media_vocabulary")
+          .select(VOCAB_SELECT)
+          .eq("media_item_id", mediaItemId)
+          .neq("canonical_lexical_entity.pos", "PROPN")
+          .order("frequency", { ascending: false })
+          .range(from, from + pageSize - 1)
+      )
+    );
 
-  const words: VocabularyWord[] = [];
-  for (const res of results) {
-    if (res.data && res.data.length > 0) {
-      words.push(
-        ...res.data
-          .map(normalizeVocabularyRow)
-          .filter((w) => w.pos !== "PROPN")
-      );
+    const batchWords: VocabularyWord[] = [];
+    let reachedEnd = false;
+    for (const res of results) {
+      const rows = res.data || [];
+      if (rows.length < pageSize) reachedEnd = true;
+      if (rows.length > 0) {
+        batchWords.push(...rows.map(normalizeVocabularyRow).filter((w) => w.pos !== "PROPN"));
+      }
     }
+    if (batchWords.length > 0) {
+      allWords.push(...batchWords);
+      onBatch?.(batchWords);
+    }
+    if (reachedEnd) break;
   }
-  return words;
+  return allWords;
 }
 
 export async function fetchChapterMetricsWithComprehension(

@@ -33,6 +33,7 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
   const [quarantineLoaded, setQuarantineLoaded] = useState(!!cached?.quarantineLoaded);
   const [bookComp, setBookComp] = useState<MediaComprehensionStats | null>(item.comprehension);
   const [loading, setLoading] = useState(!cached?.vocabulary.length);
+  const [loadingMore, setLoadingMore] = useState(false);
   const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -74,22 +75,28 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
         setLoading(false);
         setChaptersLoading(false);
 
-        const restVocab = await fetchRemainingVocabPages(item.id, item.metrics?.unique_words_count || 2000);
-        if (cancelled) return;
-        const fullVocab = restVocab.length > 0 ? [...firstPage, ...restVocab] : firstPage;
-        setVocabulary(fullVocab);
+        const expected = item.metrics?.unique_words_count || 2000;
+        let fullVocab = firstPage;
+        if (firstPage.length >= 120) {
+          setLoadingMore(true);
+          const restVocab = await fetchRemainingVocabPages(item.id, expected, (batch) => {
+            if (!cancelled) setVocabulary((prev) => [...prev, ...batch]);
+          });
+          if (cancelled) return;
+          if (restVocab.length > 0) fullVocab = [...firstPage, ...restVocab];
+          setVocabulary(fullVocab);
+          setLoadingMore(false);
+        }
         const cur = inspectorCache.get(item.id);
         inspectorCache.set(item.id, {
-          vocabulary: fullVocab,
-          chapterMetrics: chapters,
-          quarantineItems: cur?.quarantineItems || [],
-          quarantineLoaded: cur?.quarantineLoaded || false,
-          isComplete: true,
+          vocabulary: fullVocab, chapterMetrics: chapters,
+          quarantineItems: cur?.quarantineItems || [], quarantineLoaded: cur?.quarantineLoaded || false, isComplete: true,
         });
       } catch (err) {
         console.error("[useMediaInspector] Error loading inspector data:", err);
         if (!cancelled) {
           setLoading(false);
+          setLoadingMore(false);
           setChaptersLoading(false);
         }
       }
@@ -137,14 +144,7 @@ export function useMediaInspector(item: MediaCatalogItem, userId?: string | null
   );
 
   return {
-    vocabulary,
-    chapterMetrics,
-    chaptersLoading,
-    quarantineItems,
-    quarantineLoading,
-    bookComp,
-    loading,
-    loadQuarantine,
-    handleOptimisticWordChange,
+    vocabulary, chapterMetrics, chaptersLoading, quarantineItems, quarantineLoading,
+    bookComp, loading, loadingMore, loadQuarantine, handleOptimisticWordChange,
   };
 }

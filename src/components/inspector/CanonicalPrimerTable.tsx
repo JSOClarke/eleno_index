@@ -10,6 +10,8 @@ interface CanonicalPrimerTableProps {
   mediaItemId: string;
   words: VocabularyWord[];
   loading: boolean;
+  loadingMore?: boolean;
+  totalExpected?: number;
   selectedChapter: number | "all";
   onClearChapter: () => void;
   statusMap: Record<string, UserVocabStatus>;
@@ -29,6 +31,8 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
   language,
   words,
   loading,
+  loadingMore = false,
+  totalExpected,
   selectedChapter,
   onClearChapter,
   statusMap,
@@ -102,7 +106,7 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
         sortValue={`${sortField}:${sortDir}`} onSortChange={changeSort}
         resultCount={sortedAndFiltered.length} exportWords={sortedAndFiltered}
         statusMap={statusMap} mediaTitle={mediaTitle} mediaItemId={mediaItemId}
-        userId={userId} onRequireAuth={onRequireAuth}
+        userId={userId} onRequireAuth={onRequireAuth} loadingMore={loadingMore} totalExpected={totalExpected}
       />
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200/90 bg-white shadow-xs">
@@ -133,7 +137,7 @@ export const CanonicalPrimerTable: React.FC<CanonicalPrimerTableProps> = ({
       </div>
 
       <div className="flex flex-col gap-2 pt-1 text-xs sm:flex-row sm:items-center sm:justify-between text-slate-500">
-        <span>Showing {sortedAndFiltered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sortedAndFiltered.length)} of {sortedAndFiltered.length} lemmas (20 / page)</span>
+        <span>Showing {sortedAndFiltered.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sortedAndFiltered.length)} of {sortedAndFiltered.length.toLocaleString()} lemmas (20 / page){loadingMore ? " · loading full list…" : ""}</span>
         <div className="flex items-center justify-between gap-2 sm:justify-end">
           <button type="button" disabled={safePage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 disabled:opacity-40 cursor-pointer hover:bg-slate-50">← Prev</button>
           <span>Page {safePage} / {totalPages}</span>
