@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { fetchKnownWordsDetails } from "@/api/vocabulary.api";
 import { VocabTableSkeleton } from "@/components/layout/VocabTableSkeleton";
-import { buildKnownSignature, readKnownDetailsCache, writeKnownDetailsCache } from "@/lib/knownWordsCache";
+import { buildKnownSignature, readKnownDetailsCache, readKnownDetailsCacheAsync, writeKnownDetailsCache } from "@/lib/knownWordsCache";
 import { getProficiencySystemLabel } from "@/lib/proficiencyScale";
 import { getDefaultRankSource, getRankSourceLabel, sortKnownWords, type KnownSortField, type RankingSourceKey, type SortDirection } from "@/lib/vocabSorting";
 import type { KnownWordEntry, UserVocabStatus } from "@/types/vocabulary.types";
@@ -38,8 +38,6 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
   const signature = useMemo(() => buildKnownSignature(statusMap), [statusMap]);
   useEffect(() => {
     if (!userId) { setWords([]); setLoading(false); return; }
-    const hasAny = Object.values(statusMap).some((s) => s === "known" || s === "learning");
-    if (!hasAny) { setWords([]); setLoading(false); return; }
     const currentCache = readKnownDetailsCache(userId, statusMap, activeLanguage);
     if (currentCache) {
       setWords(currentCache.entries);
@@ -48,6 +46,11 @@ export const KnownWordsView: React.FC<KnownWordsViewProps> = ({
       if (!hasMissing) { writeKnownDetailsCache(userId, statusMap, currentCache.entries, activeLanguage); setLoading(false); return; }
     } else setLoading(true);
     let cancelled = false;
+    if (!currentCache) {
+      readKnownDetailsCacheAsync(userId, statusMap, activeLanguage).then((idb) => {
+        if (!cancelled && idb && idb.entries.length > 0) setWords((prev) => (prev.length > 0 ? prev : idb.entries));
+      });
+    }
     fetchKnownWordsDetails(userId, activeLanguage)
       .then((rows) => { if (!cancelled) { setWords(rows); writeKnownDetailsCache(userId, statusMap, rows, activeLanguage); } })
       .finally(() => { if (!cancelled) setLoading(false); });
