@@ -68,9 +68,11 @@ export function normalizeChapterComprehension(raw: any): ChapterComprehensionSta
 }
 
 export function normalizeVocabularyRow(row: any): VocabularyWord {
-  const entity = row.canonical_lexical_entity || {};
-  const rankings: LexicalRanking[] = entity.lexical_ranking || [];
-  const pronunciations = entity.lexical_pronunciation || [];
+  const entity = row.canonical_lexical_entity || row;
+  const rankings: LexicalRanking[] = entity.lexical_ranking || row.rankings || [];
+  const pronunciations = row.primary_transcription
+    ? [{ transcriptions: [row.primary_transcription] }]
+    : entity.lexical_pronunciation || [];
 
   const cefrRanking =
     rankings.find((r) => (r.source === "elelex_v2020" || r.source === "flelex_v2020" || r.source === "flelex_v1") && r.cefr) ||

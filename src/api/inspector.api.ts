@@ -21,19 +21,39 @@ const VOCAB_SELECT = `
   )
 `;
 
-export async function fetchFirstVocabPage(mediaItemId: string): Promise<VocabularyWord[]> {
+async function fetchVocabSlice(
+  mediaItemId: string,
+  from: number,
+  limit: number,
+  useRpc: boolean
+): Promise<{ rows: VocabularyWord[]; rpcSupported: boolean }> {
+  if (useRpc) {
+    const { data, error } = await supabase.rpc("get_media_vocabulary_page", {
+      p_media_item_id: mediaItemId,
+      p_limit: limit,
+      p_offset: from,
+    });
+    if (!error && Array.isArray(data)) {
+      return { rows: data.map(normalizeVocabularyRow).filter((w) => w.pos !== "PROPN"), rpcSupported: true };
+    }
+  }
   const { data, error } = await supabase
     .from("media_vocabulary")
     .select(VOCAB_SELECT)
     .eq("media_item_id", mediaItemId)
     .neq("canonical_lexical_entity.pos", "PROPN")
     .order("frequency", { ascending: false })
-    .range(0, 119);
-
+    .range(from, from + limit - 1);
   if (error) throw error;
-  return (data || [])
-    .map(normalizeVocabularyRow)
-    .filter((w) => w.pos !== "PROPN");
+  return { rows: (data || []).map(normalizeVocabularyRow).filter((w) => w.pos !== "PROPN"), rpcSupported: false };
+}
+
+let rpcAvailable = true;
+
+export async function fetchFirstVocabPage(mediaItemId: string): Promise<VocabularyWord[]> {
+  const { rows, rpcSupported } = await fetchVocabSlice(mediaItemId, 0, 120, rpcAvailable);
+  rpcAvailable = rpcSupported;
+  return rows;
 }
 
 export async function fetchRemainingVocabPages(
@@ -41,7 +61,7 @@ export async function fetchRemainingVocabPages(
   expectedTotal: number,
   onBatch?: (batch: VocabularyWord[]) => void
 ): Promise<VocabularyWord[]> {
-  const pageSize = 1000;
+  const pageSize = rpcAvailable ? 2500 : 1000;
   const maxItems = Math.max(expectedTotal || 2000, 300);
   const offsets: number[] = [];
   for (let offset = 120; offset < maxItems; offset += pageSize) {
@@ -52,14 +72,7 @@ export async function fetchRemainingVocabPages(
   const slots: VocabularyWord[][] = offsets.map(() => []);
   await Promise.all(
     offsets.map(async (from, idx) => {
-      const { data } = await supabase
-        .from("media_vocabulary")
-        .select(VOCAB_SELECT)
-        .eq("media_item_id", mediaItemId)
-        .neq("canonical_lexical_entity.pos", "PROPN")
-        .order("frequency", { ascending: false })
-        .range(from, from + pageSize - 1);
-      const rows = (data || []).map(normalizeVocabularyRow).filter((w) => w.pos !== "PROPN");
+      const { rows } = await fetchVocabSlice(mediaItemId, from, pageSize, rpcAvailable);
       slots[idx] = rows;
       if (rows.length > 0) onBatch?.(rows);
     })
