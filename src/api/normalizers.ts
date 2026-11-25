@@ -1,3 +1,4 @@
+import { extractPronunciation } from "@/lib/pronunciation";
 import type {
   ChapterComprehensionStats,
   MediaComprehensionStats,
@@ -79,10 +80,7 @@ export function normalizeVocabularyRow(row: any): VocabularyWord {
   const freqRanking = rankings.find((r) => r.source === "tubelex_v2025" || r.source === "lexique383");
   const rank = freqRanking?.rank ? Number(freqRanking.rank) : null;
 
-  let ipa: string | null = null;
-  if (pronunciations.length > 0 && pronunciations[0]?.transcriptions?.length > 0) {
-    ipa = pronunciations[0].transcriptions[0].ipa || null;
-  }
+  const { ipa, reading } = extractPronunciation(pronunciations);
 
   return {
     canonical_id: String(row.canonical_id || ""),
@@ -97,6 +95,7 @@ export function normalizeVocabularyRow(row: any): VocabularyWord {
     global_rank: rank,
     rankings,
     ipa,
+    reading,
   };
 }
 

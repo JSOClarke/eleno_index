@@ -1,4 +1,10 @@
-import { getWordRankForSource, type RankingSourceKey } from "@/lib/vocabSorting";
+import {
+  formatGlobalFrequency,
+  formatLevelLabel,
+  formatRankLabel,
+  formatReadingLabel,
+} from "@/lib/ankiFormat";
+import type { RankingSourceKey } from "@/lib/vocabSorting";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 
 export type RankingSource = RankingSourceKey;
@@ -12,14 +18,10 @@ function clean(value: string | null | undefined): string {
   return (value ?? "").replace(/[\r\n\t]+/g, " ").trim();
 }
 
-function rankFor(word: VocabularyWord, source: RankingSource): number | null {
-  return getWordRankForSource(word.rankings, source);
-}
-
 /**
  * Build a tab-separated table with one column per field, in this order:
  *
- *   Lemma · IPA · POS · CEFR · Rank · Frequency · Definition · Chapter · Status
+ *   Lemma · Reading · POS · Level · Rank · GlobalFrequency · BookFrequency · Definition · Chapter · Status
  *
  * Definitions are joined with " | ". No header row and no HTML, so every column
  * can be mapped freely in Anki's import dialog.
@@ -33,14 +35,14 @@ export function buildAnkiTsv(
 
   for (const word of words) {
     const definitions = (word.definitions || []).map(clean).filter(Boolean).join(" | ");
-    const rank = rankFor(word, rankingSource);
     lines.push(
       [
         clean(word.lemma),
-        clean(word.ipa),
+        clean(formatReadingLabel(word)),
         clean(word.pos),
-        clean(word.cefr),
-        rank == null ? "" : String(rank),
+        clean(formatLevelLabel(word.cefr)),
+        clean(formatRankLabel(word.rankings, rankingSource)),
+        clean(formatGlobalFrequency(word.rankings, rankingSource, false)),
         String(word.frequency),
         definitions,
         String(word.first_occurrence_index),

@@ -68,8 +68,43 @@ describe("ankiApkgExport", () => {
     db.close();
 
     expect(flds[0]).toBe("книга");
-    expect(flds[4]).toBe("420");
-    expect(flds[5]).toBe("Анна читала старую книгу.");
+    expect(flds[1]).toBe("IPA: [ˈknʲiɡə]");
+    expect(flds[3]).toBe("TRKI TBU");
+    expect(flds[4]).toBe("OpenSubtitles #420");
+    expect(flds[5]).toBe("1,000");
+    expect(flds[6]).toBe("Анна читала старую книгу.");
     expect(String(row[1])).toContain("level::TBU");
+  });
+
+  it("formats Chinese Pinyin reading, HSK level, TubeLex rank, and global frequency", async () => {
+    const zhWord: VocabularyWord = {
+      canonical_id: "33333333-2222-3333-4444-555555555555",
+      lemma: "到了",
+      pos: "VERB",
+      definitions: ["to arrive"],
+      frequency: 5,
+      first_occurrence_index: 2,
+      first_timestamp_ms: null,
+      first_context_snippet: null,
+      cefr: "HSK 6",
+      global_rank: 2400,
+      rankings: [{ source: "tubelex_v2025", rank: 2400, count: 48210, cefr: "HSK 6" }],
+      ipa: null,
+      reading: "Pinyin: dàoliǎo",
+    };
+    const wasmDir = path.resolve(process.cwd(), "node_modules/sql.js/dist");
+    const initSqlJs = (await import("sql.js")).default;
+    const SQL = await initSqlJs({ locateFile: (f: string) => path.join(wasmDir, f), useOldExtensionFunctions: false });
+
+    const bytes = await buildApkgBytes([zhWord], {}, "活着", "tubelex_v2025", (f) => path.join(wasmDir, f));
+    const zip = await JSZip.loadAsync(bytes);
+    const db = new SQL.Database(await zip.file("collection.anki2")!.async("uint8array"));
+    const flds = String(db.exec("SELECT flds FROM notes")[0].values[0][0]).split("\x1f");
+    db.close();
+
+    expect(flds[1]).toBe("Pinyin: dàoliǎo");
+    expect(flds[3]).toBe("HSK 6");
+    expect(flds[4]).toBe("TubeLex #2400");
+    expect(flds[5]).toBe("48,210");
   });
 });

@@ -1,7 +1,12 @@
 import { fetchSentenceMapForMedia } from "@/api/sentence.api";
 import type { RankingSource } from "@/lib/ankiExport";
 import { ANKI_COL_SCHEMA_SQL, buildColMetadata } from "@/lib/ankiApkgSchema";
-import { getWordRankForSource } from "@/lib/vocabSorting";
+import {
+  formatGlobalFrequency,
+  formatLevelLabel,
+  formatRankLabel,
+  formatReadingLabel,
+} from "@/lib/ankiFormat";
 import type { UserVocabStatus, VocabularyWord } from "@/types/vocabulary.types";
 
 const BARE_CHAPTER_RE = /^(?:cap[ií]tulo|chapter|глава|chapitre|ep\.?|episode)\s*\d+\s*$/i;
@@ -14,11 +19,6 @@ function hashInt(str: string): number {
 
 function escHtml(s: string | null | undefined): string {
   return (s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\r?\n/g, " ").trim();
-}
-
-function rankFor(word: VocabularyWord, source: RankingSource): string {
-  const rank = getWordRankForSource(word.rankings, source);
-  return rank != null ? String(rank) : "";
 }
 
 function pickSentence(word: VocabularyWord, sentenceMap?: Record<string, string>): string {
@@ -72,8 +72,15 @@ export async function buildApkgBytes(
     const defs = (word.definitions || []).map(escHtml).filter(Boolean).join("<br>");
     const src = mediaTitle ? `${escHtml(mediaTitle)} · #${word.first_occurrence_index}` : `#${word.first_occurrence_index}`;
     const flds = [
-      escHtml(word.lemma), escHtml(word.ipa), escHtml(word.pos), escHtml(word.cefr),
-      rankFor(word, rankingSource), escHtml(pickSentence(word, sentenceMap)), defs, src,
+      escHtml(word.lemma),
+      escHtml(formatReadingLabel(word)),
+      escHtml(word.pos),
+      escHtml(formatLevelLabel(word.cefr)),
+      escHtml(formatRankLabel(word.rankings, rankingSource)),
+      escHtml(formatGlobalFrequency(word.rankings, rankingSource)),
+      escHtml(pickSentence(word, sentenceMap)),
+      defs,
+      src,
     ].join("\x1f");
     const status = statusMap[word.canonical_id] || "unknown";
     const levelTag = (word.cefr || "none").replace(/\s+/g, "_");

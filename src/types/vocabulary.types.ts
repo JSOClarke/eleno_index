@@ -26,6 +26,7 @@ export interface VocabularyWord {
   global_rank: number | null;
   rankings?: LexicalRanking[];
   ipa: string | null;
+  reading?: string | null;
 }
 
 export interface KnownWordEntry {

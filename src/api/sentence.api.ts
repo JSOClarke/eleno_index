@@ -115,7 +115,7 @@ export async function fetchSentenceMapForMedia(
 ): Promise<Record<string, string>> {
   const { data, error } = await supabase
     .from("sentence_examples")
-    .select("sentence_text, token_canonical_ids, token_count")
+    .select("sentence, canonical_ids, token_count")
     .eq("media_item_id", mediaItemId)
     .gte("token_count", 4)
     .lte("token_count", 28)
@@ -124,9 +124,9 @@ export async function fetchSentenceMapForMedia(
   if (error || !data) return {};
   const map: Record<string, string> = {};
   for (const row of data) {
-    const text = String(row.sentence_text || "").trim();
+    const text = String(row.sentence || "").trim();
     if (!text) continue;
-    for (const cid of row.token_canonical_ids || []) {
+    for (const cid of row.canonical_ids || []) {
       const id = String(cid || "");
       if (id && !map[id]) map[id] = text;
     }
