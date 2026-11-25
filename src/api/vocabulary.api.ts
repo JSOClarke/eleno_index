@@ -10,6 +10,18 @@ export async function fetchAllUserVocabulary(
   userId: string,
   language = "es"
 ): Promise<Record<string, UserVocabStatus>> {
+  const { data: rpcData, error: rpcErr } = await supabase.rpc("get_user_vocabulary_map", {
+    p_user_id: userId,
+    p_language: language,
+  });
+  if (!rpcErr && Array.isArray(rpcData)) {
+    const map: Record<string, UserVocabStatus> = {};
+    for (const row of rpcData as Array<{ canonical_id?: string; status?: string }>) {
+      if (row.canonical_id && row.status) map[row.canonical_id] = row.status as UserVocabStatus;
+    }
+    return map;
+  }
+
   const map: Record<string, UserVocabStatus> = {};
   let from = 0;
   const pageSize = 1000;
@@ -59,38 +71,20 @@ export async function fetchKnownWordsDetails(
   const rows: any[] = [];
 
   for (let from = 0; from < maxRows; from += pageSize) {
-    const { data, error } = await supabase
-      .from("user_vocabulary")
-      .select(
-        `
-        canonical_id,
-        status,
-        updated_at,
-        canonical_lexical_entity!inner (
-          language,
-          lemma,
-          pos,
-          lexical_ranking (source, cefr, rank, count),
-          lexical_pronunciation (transcriptions)
-        )
-      `
-      )
-      .eq("user_id", userId)
-      .eq("canonical_lexical_entity.language", language)
-      .in("status", ["known", "learning"])
-      .order("updated_at", { ascending: false })
-      .order("id", { ascending: true })
-      .range(from, from + pageSize - 1);
-
-    if (error || !data || data.length === 0) break;
+    const { data, error } = await supabase.rpc("get_user_known_words_details", {
+      p_user_id: userId,
+      p_language: language,
+      p_limit: pageSize,
+      p_offset: from,
+    });
+    if (error || !Array.isArray(data) || data.length === 0) break;
     rows.push(...data);
     if (data.length < pageSize) break;
   }
 
   return rows.map((row: any) => {
-    const entity = row.canonical_lexical_entity || {};
-    const rankings: LexicalRanking[] = entity.lexical_ranking || [];
-    const pronunciations = entity.lexical_pronunciation || [];
+    const rankings: LexicalRanking[] = row.rankings || [];
+    const pronunciations = row.primary_transcription ? [{ transcriptions: [row.primary_transcription] }] : [];
 
     const cefrRanking =
       rankings.find((r) => (r.source === "elelex_v2020" || r.source === "flelex_v2020" || r.source === "flelex_v1") && r.cefr) ||
@@ -104,12 +98,12 @@ export async function fetchKnownWordsDetails(
 
     return {
       canonical_id: String(row.canonical_id || ""),
-      language: String(entity.language || language),
+      language,
       status: (row.status || "known") as UserVocabStatus,
       updated_at: row.updated_at || null,
-      lemma: String(entity.lemma || row.canonical_id || ""),
-      pos: String(entity.pos || ""),
-      definitions: Array.isArray(entity.definitions) ? entity.definitions : [],
+      lemma: String(row.lemma || row.canonical_id || ""),
+      pos: String(row.pos || ""),
+      definitions: Array.isArray(row.definitions) ? row.definitions : [],
       cefr,
       global_rank: rank,
       rankings,
