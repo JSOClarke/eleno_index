@@ -8,13 +8,23 @@ interface LinguisticProfileRowProps {
   language?: string;
 }
 
-function getFormulaMeta(formula?: string | null, language?: string) {
+function getFormulaShort(formula?: string | null, language?: string): string {
   const f = (formula || "").toLowerCase();
   const l = (language || "").toLowerCase();
-  if (f.includes("kandel") || l.startsWith("fr")) return { short: "K-M", sub: "Kandel-Moles scale" };
-  if (f.includes("oborneva") || l.startsWith("ru")) return { short: "Oborneva", sub: "Oborneva RU scale" };
-  if (f.includes("chinese") || l.startsWith("zh")) return { short: "ZH", sub: "Chinese readability" };
-  return { short: "F-H", sub: "Fernández-Huerta scale" };
+  if (f.includes("kandel") || l.startsWith("fr")) return "K-M";
+  if (f.includes("oborneva") || l.startsWith("ru")) return "Oborneva";
+  if (f.includes("chinese") || l.startsWith("zh")) return "ZH";
+  return "F-H";
+}
+
+function getEnglishReadabilityLabel(score: number): string {
+  if (score >= 90) return "Very Easy · Elementary";
+  if (score >= 80) return "Easy · Popular fiction";
+  if (score >= 70) return "Fairly Easy · Accessible";
+  if (score >= 60) return "Standard · General";
+  if (score >= 50) return "Moderate · Literary";
+  if (score >= 30) return "Challenging · Dense";
+  return "Complex · Academic";
 }
 
 export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({ metrics, language }) => {
@@ -22,8 +32,8 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({ metr
 
   const lang = (language || "").toLowerCase();
   const cefr = metrics.cefr_level || "B1";
-  const score = (metrics.readability_score ?? 70).toFixed(1);
-  const fMeta = getFormulaMeta(metrics.readability_details?.formula, language);
+  const scoreNum = metrics.readability_score ?? 70;
+  const formulaShort = getFormulaShort(metrics.readability_details?.formula, language);
 
   const uniqueLemmas = metrics.unique_lemmas || metrics.unique_words_count;
   const cov90 = metrics.coverage_90_lemmas ?? Math.round(uniqueLemmas * 0.25);
@@ -43,8 +53,8 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({ metr
   const cards = [
     {
       label: `${getProficiencySystemLabel(language)} & Readability`,
-      value: `${formatProficiencyLevel(cefr, language)} · ${fMeta.short} ${score}`,
-      sub: metrics.readability_details?.label || fMeta.sub,
+      value: `${formatProficiencyLevel(cefr, language)} · ${formulaShort} ${scoreNum.toFixed(1)}`,
+      sub: getEnglishReadabilityLabel(scoreNum),
     },
     {
       label: "95% Target",
@@ -96,12 +106,12 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({ metr
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
       {cards.map((c) => (
-        <div key={c.label} className="rounded-2xl border border-slate-200/80 bg-white px-3.5 py-3 shadow-xs">
-          <div className="truncate text-[11px] font-medium text-slate-500">{c.label}</div>
-          <div className="mt-1 truncate text-base font-bold text-slate-900 tabular-nums">{c.value}</div>
-          <div className="mt-0.5 truncate text-[11px] text-slate-500">{c.sub}</div>
+        <div key={c.label} className="rounded-xl border border-slate-200/80 bg-white px-3 py-2 shadow-xs">
+          <div className="truncate text-[10px] font-semibold uppercase tracking-wider text-slate-400">{c.label}</div>
+          <div className="mt-0.5 truncate text-sm font-bold text-slate-900 tabular-nums">{c.value}</div>
+          <div className="truncate text-[11px] text-slate-500">{c.sub}</div>
         </div>
       ))}
     </div>
