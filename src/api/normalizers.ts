@@ -75,7 +75,7 @@ export function normalizeVocabularyRow(row: any): VocabularyWord {
   const cefrRanking =
     rankings.find((r) => (r.source === "elelex_v2020" || r.source === "flelex_v2020" || r.source === "flelex_v1") && r.cefr) ||
     rankings.find((r) => r.cefr);
-  const cefr = cefrRanking?.cefr || "B2";
+  const cefr = cefrRanking?.cefr || "";
 
   const freqRanking = rankings.find((r) => r.source === "tubelex_v2025" || r.source === "lexique383");
   const rank = freqRanking?.rank ? Number(freqRanking.rank) : null;

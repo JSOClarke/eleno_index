@@ -66,9 +66,11 @@ export const KnownWordRow: React.FC<KnownWordRowProps> = ({
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
               {word.pos}
             </span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(word.cefr)}`}>
-              {word.cefr}
-            </span>
+            {word.cefr && (
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(word.cefr)}`}>
+                {word.cefr}
+              </span>
+            )}
           </div>
         </div>
 
@@ -87,9 +89,13 @@ export const KnownWordRow: React.FC<KnownWordRowProps> = ({
         <div className="col-span-2 px-2 truncate text-center font-mono text-[11px] text-slate-400">{word.ipa || "—"}</div>
         <div className="col-span-1 px-2 text-center text-[11px] font-medium text-slate-500">{word.pos}</div>
         <div className="col-span-1 px-2 text-center">
-          <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(word.cefr)}`}>
-            {word.cefr}
-          </span>
+          {word.cefr ? (
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(word.cefr)}`}>
+              {word.cefr}
+            </span>
+          ) : (
+            <span className="text-[11px] text-slate-300">—</span>
+          )}
         </div>
         <div className="col-span-2 px-2 text-center tabular-nums text-slate-500" title={rankTooltip}>
           {activeRank ? `#${formatNumber(activeRank)}` : "—"}

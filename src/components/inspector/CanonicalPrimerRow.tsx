@@ -69,9 +69,11 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600">
               {word.pos}
             </span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(word.cefr)}`}>
-              {word.cefr}
-            </span>
+            {word.cefr && (
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(word.cefr)}`}>
+                {word.cefr}
+              </span>
+            )}
           </div>
         </div>
 
@@ -94,7 +96,11 @@ export const CanonicalPrimerRow: React.FC<CanonicalPrimerRowProps> = ({
         <div className="min-w-0 px-2 truncate text-center font-mono text-[11px] text-slate-400">{word.ipa || "—"}</div>
         <div className="min-w-0 px-2 text-center text-[11px] font-medium text-slate-500">{word.pos}</div>
         <div className="min-w-0 px-2 text-center">
-          <span className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(word.cefr)}`}>{word.cefr}</span>
+          {word.cefr ? (
+            <span className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(word.cefr)}`}>{word.cefr}</span>
+          ) : (
+            <span className="text-[11px] text-slate-300">—</span>
+          )}
         </div>
         <div className="min-w-0 px-2 text-center tabular-nums text-slate-700">{word.frequency}×</div>
         <div className="min-w-0 px-2 text-center tabular-nums text-slate-500" title={rankTooltip}>
