@@ -8,6 +8,7 @@ interface SentenceTokenLineProps {
   tokens: SentenceToken[];
   targetCanonicalId: string;
   statusMap: Record<string, UserVocabStatus>;
+  selectedToken?: SentenceToken | null;
   onSelectToken?: (token: SentenceToken) => void;
 }
 
@@ -16,6 +17,7 @@ export const SentenceTokenLine: React.FC<SentenceTokenLineProps> = ({
   tokens,
   targetCanonicalId,
   statusMap,
+  selectedToken,
   onSelectToken,
 }) => {
   if (tokens.length === 0) return <>{sentence}</>;
@@ -39,6 +41,11 @@ export const SentenceTokenLine: React.FC<SentenceTokenLineProps> = ({
         token={token}
         status={token.canonical_id ? statusMap[token.canonical_id] : undefined}
         isTarget={Boolean(token.canonical_id && token.canonical_id === targetCanonicalId)}
+        isSelected={Boolean(
+          selectedToken &&
+            selectedToken.start_char === token.start_char &&
+            selectedToken.end_char === token.end_char
+        )}
         onSelect={onSelectToken}
       />
     );

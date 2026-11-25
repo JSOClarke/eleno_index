@@ -118,6 +118,7 @@ export const SentenceBankDrawer: React.FC<SentenceBankDrawerProps> = ({
               targetCanonicalId={canonicalId}
               statusMap={statusMap}
               fallbackContextLabel={fallbackContextLabel}
+              selectedToken={selection?.sentence === entry.sentence ? selection.token : null}
               onSelectToken={(tok, ent) =>
                 setSelection({ token: tok, sentence: ent.sentence, sourceContext: ent.source_context })
               }

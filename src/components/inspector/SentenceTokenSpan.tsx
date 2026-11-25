@@ -6,6 +6,7 @@ interface SentenceTokenSpanProps {
   token: SentenceToken;
   status?: UserVocabStatus;
   isTarget: boolean;
+  isSelected?: boolean;
   onSelect?: (token: SentenceToken) => void;
 }
 
@@ -13,23 +14,28 @@ export const SentenceTokenSpan: React.FC<SentenceTokenSpanProps> = ({
   token,
   status,
   isTarget,
+  isSelected = false,
   onSelect,
 }) => {
   const clickable = Boolean(token.canonical_id && onSelect);
-  let tone = "text-slate-700";
+  let tone = "text-slate-600";
 
-  if (isTarget) {
-    tone = "rounded bg-indigo-50 text-indigo-700 font-semibold px-1 py-0.5 ring-1 ring-indigo-200/80";
+  if (isSelected) {
+    tone = "rounded bg-slate-900 text-white font-semibold px-1 py-0.5 shadow-xs";
+  } else if (isTarget) {
+    tone = "rounded bg-slate-900/8 text-slate-950 font-semibold px-1 py-0.5 ring-1 ring-slate-300";
   } else if (token.canonical_id && status === "learning") {
-    tone = "text-slate-900 border-b-2 border-amber-400";
+    tone = "text-slate-900 underline decoration-amber-400 decoration-2 underline-offset-4";
   } else if (token.canonical_id && (!status || status === "ignored")) {
-    tone = "text-slate-700 border-b border-dotted border-slate-300";
+    tone = "text-slate-800 underline decoration-dotted decoration-slate-300 underline-offset-4";
   }
 
   const hoverTone = clickable
-    ? isTarget
-      ? "cursor-pointer hover:bg-indigo-100 transition-colors"
-      : "cursor-pointer hover:bg-slate-100 rounded-sm transition-colors"
+    ? isSelected
+      ? "cursor-pointer"
+      : isTarget
+        ? "cursor-pointer hover:bg-slate-900/12 transition-colors"
+        : "cursor-pointer hover:bg-slate-100 rounded-sm transition-colors"
     : "";
 
   return (
