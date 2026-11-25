@@ -51,20 +51,17 @@ export async function fetchDueFlashcards(userId: string, limit = 20, language = 
     const rawDefs = Array.isArray(cle.definitions) && cle.definitions.length > 0
       ? cle.definitions.map(String).filter((d: string) => d.trim().length > 0)
       : [];
-    const def = rawDefs[0] || lemma;
-    const placeholder = language === "fr"
-      ? `Ce mot est dans votre liste d'apprentissage : ${lemma}.`
-      : `Esta palabra está en tu lista de aprendizaje: ${lemma}.`;
+    const def = rawDefs[0] || "";
 
     return normalizeDynamicCard({
       card_id: r.id,
       canonical_id: r.canonical_id,
-      sentence: placeholder,
+      sentence: "",
       target_surface: lemma,
       target_lemma: lemma,
       target_pos: cle.pos,
       english_definition: def,
-      definitions: rawDefs.length > 0 ? rawDefs : [def],
+      definitions: rawDefs,
       language: cle.language || language,
       level: Number(r.srs_level || 1),
       interval_days: Number(r.srs_interval_days || 1),

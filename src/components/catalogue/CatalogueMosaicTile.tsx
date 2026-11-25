@@ -22,7 +22,7 @@ export const CatalogueMosaicTile: React.FC<CatalogueMosaicTileProps> = ({
 }) => {
   const [imgErr, setImgErr] = useState(false);
   const m = item.metrics;
-  const level = m?.cefr_level || "B1";
+  const level = m?.cefr_level || "";
   const englishTitle = item.work_title || item.title;
   const targetTitle = item.work_title && item.title !== item.work_title ? item.title : null;
   const flowPct = item.comprehension?.text_coverage_percentage ?? item.comprehension?.comprehension_percentage ?? 0;
@@ -50,9 +50,11 @@ export const CatalogueMosaicTile: React.FC<CatalogueMosaicTileProps> = ({
 
         <div className="relative z-10 flex items-start justify-between gap-1">
           <div className="flex items-center gap-1">
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm shadow-sm ${getCefrBadgeClass(level)}`}>
-              {formatProficiencyLevel(level, item.language)}
-            </span>
+            {level && (
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm shadow-sm ${getCefrBadgeClass(level)}`}>
+                {formatProficiencyLevel(level, item.language)}
+              </span>
+            )}
             {item.has_audio && (
               <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/90 text-indigo-700 shadow-xs" title="Audio available">
                 <Headphones className="h-3 w-3" />

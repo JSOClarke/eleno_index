@@ -60,7 +60,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   };
 
   const handleExportAnki = () => void downloadApkgDeck([{
-    canonical_id: canonicalId || lemma, lemma, pos: pos || "WORD", cefr: c?.cefr || "B1",
+    canonical_id: canonicalId || lemma, lemma, pos: pos || "", cefr: c?.cefr || "",
     ipa: c?.ipa || null, frequency: 1, first_occurrence_index: 0, first_timestamp_ms: null,
     first_context_snippet: ctx.sentence, global_rank: c?.rank ?? null,
     definitions: enDefs.length ? enDefs : esDefs,

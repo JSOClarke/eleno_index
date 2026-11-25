@@ -31,14 +31,14 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({ metr
   if (!metrics) return null;
 
   const lang = (language || "").toLowerCase();
-  const cefr = metrics.cefr_level || "B1";
-  const scoreNum = metrics.readability_score ?? 70;
+  const cefr = metrics.cefr_level || "";
+  const scoreNum = metrics.readability_score ?? null;
   const formulaShort = getFormulaShort(metrics.readability_details?.formula, language);
 
   const uniqueLemmas = metrics.unique_lemmas || metrics.unique_words_count;
-  const cov90 = metrics.coverage_90_lemmas ?? Math.round(uniqueLemmas * 0.25);
-  const cov95 = metrics.coverage_95_lemmas ?? Math.round(uniqueLemmas * 0.42);
-  const cov98 = metrics.coverage_98_lemmas ?? Math.round(uniqueLemmas * 0.68);
+  const cov90 = metrics.coverage_90_lemmas ?? null;
+  const cov95 = metrics.coverage_95_lemmas ?? null;
+  const cov98 = metrics.coverage_98_lemmas ?? null;
 
   const pct = metrics.frequency_tiers?.percentages;
   const wpm = metrics.words_per_minute ? Math.round(metrics.words_per_minute) : null;
@@ -53,13 +53,13 @@ export const LinguisticProfileRow: React.FC<LinguisticProfileRowProps> = ({ metr
   const cards = [
     {
       label: `${getProficiencySystemLabel(language)} & Readability`,
-      value: `${formatProficiencyLevel(cefr, language)} · ${formulaShort} ${scoreNum.toFixed(1)}`,
-      sub: getEnglishReadabilityLabel(scoreNum),
+      value: [formatProficiencyLevel(cefr, language), scoreNum != null ? `${formulaShort} ${scoreNum.toFixed(1)}` : ""].filter(Boolean).join(" · ") || "—",
+      sub: scoreNum != null ? getEnglishReadabilityLabel(scoreNum) : "—",
     },
     {
       label: "95% Target",
-      value: `${formatNumber(cov95)} lemmas`,
-      sub: `90%: ${formatNumber(cov90)} · 98%: ${formatNumber(cov98)}`,
+      value: cov95 != null ? `${formatNumber(cov95)} lemmas` : "—",
+      sub: cov90 != null || cov98 != null ? `90%: ${cov90 != null ? formatNumber(cov90) : "—"} · 98%: ${cov98 != null ? formatNumber(cov98) : "—"}` : "—",
     },
     {
       label: "Core Vocab (Top 1k)",

@@ -20,7 +20,7 @@ export const InlinePreviewDrawer: React.FC<InlinePreviewDrawerProps> = ({
   onToggleSave,
   onToggleWord,
 }) => {
-  const level = item.metrics?.cefr_level || "B1";
+  const level = item.metrics?.cefr_level || "";
   const synopsis = item.work_synopsis || item.sampleSnippet;
 
   return (

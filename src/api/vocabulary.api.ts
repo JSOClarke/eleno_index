@@ -110,7 +110,7 @@ export async function fetchKnownWordsDetails(
       status: (row.status || "known") as UserVocabStatus,
       updated_at: row.updated_at || null,
       lemma: String(entity.lemma || row.canonical_id || ""),
-      pos: String(entity.pos || "NOUN"),
+      pos: String(entity.pos || ""),
       definitions: Array.isArray(entity.definitions) ? entity.definitions : [],
       cefr,
       global_rank: rank,

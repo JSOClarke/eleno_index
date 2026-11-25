@@ -30,7 +30,7 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
   onRequireAuth, onSelectCard, onToggleSave, onToggleWord,
 }) => {
   const m = item.metrics;
-  const level = m?.cefr_level || "B1";
+  const level = m?.cefr_level || "";
   const wpm = m?.words_per_minute ? Math.round(m.words_per_minute) : null;
   const dialOrSpeedLabel = wpm ? `${wpm} WPM` : `${formatPercent(m?.dialogue_ratio, 0)} dialogue`;
   const englishTitle = item.work_title || item.title;
@@ -80,9 +80,11 @@ export const CatalogueCard: React.FC<CatalogueCardProps> = ({
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-600">
                 {item.language}
               </span>
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCefrBadgeClass(level)}`}>
-                {formatProficiencyLevel(level, item.language)}
-              </span>
+              {level && (
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCefrBadgeClass(level)}`}>
+                  {formatProficiencyLevel(level, item.language)}
+                </span>
+              )}
             </div>
           </div>
 

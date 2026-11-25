@@ -53,7 +53,7 @@ export const WorkPage: React.FC<WorkPageProps> = ({
         <BookCoverPlate
           title={work.work_title || work.title}
           explicitUrl={work.cover_image_url}
-          level={work.metrics?.cefr_level || "B1"}
+          level={work.metrics?.cefr_level || ""}
           size="card"
         />
         <div className="min-w-0 space-y-2">
@@ -74,7 +74,7 @@ export const WorkPage: React.FC<WorkPageProps> = ({
           Editions ({editions.length})
         </div>
         {editions.map((edition) => {
-          const level = edition.metrics?.cefr_level || "B1";
+          const level = edition.metrics?.cefr_level || "";
           const canRead = READABLE_LANGUAGES.has(edition.language);
           return (
             <div

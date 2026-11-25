@@ -24,8 +24,8 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
   onToggleSave,
 }) => {
   const m = item.metrics;
-  const level = m?.cefr_level || "B1";
-  const fh = Math.round(m?.readability_score || 70);
+  const level = m?.cefr_level || "";
+  const fh = m?.readability_score != null ? Math.round(m.readability_score) : null;
   const flowPct = item.comprehension?.text_coverage_percentage ?? item.comprehension?.comprehension_percentage ?? 0;
   const learnFlowPct = item.comprehension?.learning_text_coverage_percentage ?? 0;
   const englishTitle = item.work_title || item.title;
@@ -48,9 +48,9 @@ export const CatalogueTableCard: React.FC<CatalogueTableCardProps> = ({
           </div>
 
           <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-600">
-            <span className={`rounded-full px-2 py-0.5 font-semibold ${getCefrBadgeClass(level)}`}>{formatProficiencyLevel(level, item.language)}</span>
+            {level && <span className={`rounded-full px-2 py-0.5 font-semibold ${getCefrBadgeClass(level)}`}>{formatProficiencyLevel(level, item.language)}</span>}
             <span>{formatCompactWords(m?.total_tokens || 0)}</span>
-            <span>F-H {fh}</span>
+            {fh != null && <span>F-H {fh}</span>}
             {isAuthenticated && <span className="font-semibold text-emerald-700">{Math.round(flowPct)}% known</span>}
           </div>
 

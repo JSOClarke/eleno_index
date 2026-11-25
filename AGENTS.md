@@ -10,6 +10,9 @@
   - All Postgres `BIGINT` and `NUMERIC` fields returned by Supabase RPCs must be coerced via `Number()` in `src/api/normalizers.ts`.
 - **Zero Hardcoded Mock Data**:
   - All media items, series labels, cover art, dictionary definitions, and linguistic metrics come strictly from Supabase (`/home/drjopari/Documents/eleno_backend`).
+- **Zero Fabricated Fallbacks**:
+  - Never invent or fall back to fake linguistic, media, or sentence values (such as `"B1"`, `"B2"`, `"NOUN"`, synthetic example sentences, or hardcoded counts) when data is missing or `null` in Supabase.
+  - Propagate missing values as `""` or `null` and render `"—"` or omit the badge in the UI.
 - **LAN Host Resolution (`resolveLocalHostUrl`)**:
   - Any URL configured with `127.0.0.1` or `localhost` (Supabase URL, Storage cover art URLs, Admin API URL) must pass through `resolveLocalHostUrl` in `src/lib/supabase.ts` so devices on the local network (`192.168.x.x`) resolve against the active host automatically.
 - **Optimistic UI & Caching**:

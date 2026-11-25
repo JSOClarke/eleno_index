@@ -21,8 +21,8 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
   onRequireAuth,
 }) => {
   const m = item.metrics;
-  const level = m?.cefr_level || "B1";
-  const fh = (m?.readability_score || 70).toFixed(1);
+  const level = m?.cefr_level || "";
+  const fh = m?.readability_score != null ? m.readability_score.toFixed(1) : "—";
   const wpm = m?.words_per_minute ? Math.round(m.words_per_minute) : null;
   const lang = (item.language || "").toLowerCase();
   const formulaShort = lang.startsWith("fr") ? "K-M" : lang.startsWith("ru") ? "Oborneva" : lang.startsWith("zh") ? "ZH" : "F-H";
@@ -46,7 +46,9 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
           <BookCoverPlate title={targetTitle || englishTitle} explicitUrl={item.cover_image_url} level={level} size="hero" />
           <div className="min-w-0 space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCefrBadgeClass(level)}`}>{formatProficiencyLevel(level, item.language)}</span>
+              {level && (
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCefrBadgeClass(level)}`}>{formatProficiencyLevel(level, item.language)}</span>
+              )}
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold uppercase text-slate-600">{item.language}</span>
               {isNative && (
                 <span title="Originally written in this language" className="rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">

@@ -47,14 +47,14 @@ export function sortCatalogueItems(
         return (b.comprehension?.text_coverage_percentage ?? 0) - (a.comprehension?.text_coverage_percentage ?? 0);
       }
       case "difficulty_asc": {
-        const rankA = CEFR_RANK[mA?.cefr_level || "B1"] || 3;
-        const rankB = CEFR_RANK[mB?.cefr_level || "B1"] || 3;
+        const rankA = CEFR_RANK[mA?.cefr_level || ""] ?? 99;
+        const rankB = CEFR_RANK[mB?.cefr_level || ""] ?? 99;
         if (rankA !== rankB) return rankA - rankB;
         return (mB?.readability_score || 0) - (mA?.readability_score || 0);
       }
       case "difficulty_desc": {
-        const rankA = CEFR_RANK[mA?.cefr_level || "B1"] || 3;
-        const rankB = CEFR_RANK[mB?.cefr_level || "B1"] || 3;
+        const rankA = CEFR_RANK[mA?.cefr_level || ""] ?? -1;
+        const rankB = CEFR_RANK[mB?.cefr_level || ""] ?? -1;
         if (rankB !== rankA) return rankB - rankA;
         return (mA?.readability_score || 0) - (mB?.readability_score || 0);
       }

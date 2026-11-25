@@ -45,7 +45,8 @@ const BUCKET_MAP: Record<string, string> = {
 
 /** Maps any proficiency label (CEFR, HSK, JLPT, TRKI) to its 6-tier filter bucket key (A1-C2). */
 export function normalizeLevelBucket(level?: string | null): string {
-  const key = (level || "B1").trim().toUpperCase();
+  const key = (level || "").trim().toUpperCase();
+  if (!key) return "";
   return BUCKET_MAP[key] || key;
 }
 
@@ -53,7 +54,8 @@ export function normalizeLevelBucket(level?: string | null): string {
  * Maps internal A1-C2 difficulty bands to the language's native proficiency label.
  */
 export function formatProficiencyLevel(level?: string | null, language?: string | null): string {
-  const raw = (level || "B1").trim();
+  const raw = (level || "").trim();
+  if (!raw) return "";
   const upper = raw.toUpperCase();
   const l = (language || "").toLowerCase();
   if (l.startsWith("zh")) return ZH_LEVEL_MAP[upper] || raw;

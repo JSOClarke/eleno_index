@@ -29,9 +29,9 @@ export async function fetchPreviewWordsBatch(
       lookup[mId].push({
         canonical_id: String(row.canonical_id),
         lemma: String(row.lemma),
-        pos: String(row.pos || "NOUN"),
+        pos: String(row.pos || ""),
         frequency: Number(row.frequency || 1),
-        cefr: "B1",
+        cefr: String(row.cefr || ""),
         rank: null,
         sentence: row.first_context_snippet || null,
       });

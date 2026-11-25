@@ -16,8 +16,9 @@ const LEVEL_ALIAS: Record<string, string> = {
 };
 
 export function getCefrBadgeClass(level: string): string {
-  const key = level.toUpperCase();
-  return CEFR_BADGES[LEVEL_ALIAS[key] || key] || CEFR_BADGES.B1;
+  const key = level.trim().toUpperCase();
+  if (!key) return "bg-slate-100 text-slate-400 ring-1 ring-slate-200";
+  return CEFR_BADGES[LEVEL_ALIAS[key] || key] || "bg-slate-100 text-slate-500 ring-1 ring-slate-200";
 }
 
 const isSafeHttpUrl = (url: unknown): url is string =>
