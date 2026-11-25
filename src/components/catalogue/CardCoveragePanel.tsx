@@ -29,7 +29,7 @@ export const CardCoveragePanel: React.FC<CardCoveragePanelProps> = ({
         {isAuthenticated ? (
           <span className="font-semibold tabular-nums text-slate-900">
             {Math.round(flowPct)}% known
-            {learnFlowPct > 0 ? <span className="text-amber-700"> ({formatLearningDelta(learnFlowPct)})</span> : ""}
+            {learnFlowPct > 0 ? <span className="text-sky-700"> ({formatLearningDelta(learnFlowPct)})</span> : ""}
             <span className="ml-1 font-normal text-slate-400">· {vocabPct}% voc</span>
           </span>
         ) : (
@@ -40,12 +40,12 @@ export const CardCoveragePanel: React.FC<CardCoveragePanelProps> = ({
       {isAuthenticated ? (
         <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className={`h-full bg-slate-900 transition-all duration-300 ${learnFlowPct > 0 ? "" : "rounded-r-full"}`}
+            className={`h-full bg-emerald-500 transition-all duration-300 ${learnFlowPct > 0 ? "" : "rounded-r-full"}`}
             style={{ width: `${Math.min(100, flowPct)}%` }}
           />
           {learnFlowPct > 0 && (
             <div
-              className="h-full rounded-r-full bg-amber-400 transition-all duration-300"
+              className="h-full rounded-r-full bg-sky-400 transition-all duration-300"
               style={{ width: `${Math.min(100 - flowPct, Math.max(learnFlowPct, 2))}%` }}
             />
           )}

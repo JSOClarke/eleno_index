@@ -35,7 +35,7 @@ export const InspectorFlowPanel: React.FC<InspectorFlowPanelProps> = ({
             {Math.round(pct)}%
           </span>
           {learnPct > 0 && (
-            <span className="whitespace-nowrap shrink-0 rounded-full border border-amber-200/80 bg-amber-50 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-amber-800">
+            <span className="whitespace-nowrap shrink-0 rounded-full border border-sky-200/80 bg-sky-50 px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold text-sky-700">
               {formatLearningDelta(learnPct)} learn
             </span>
           )}
@@ -47,7 +47,7 @@ export const InspectorFlowPanel: React.FC<InspectorFlowPanelProps> = ({
           />
           {learnPct > 0 && (
             <div
-              className="h-full rounded-r-full bg-amber-400 transition-all duration-300"
+              className="h-full rounded-r-full bg-sky-400 transition-all duration-300"
               style={{ width: `${Math.min(100 - pct, Math.max(learnPct, 2))}%` }}
             />
           )}

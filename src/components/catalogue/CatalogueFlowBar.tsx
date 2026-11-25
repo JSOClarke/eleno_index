@@ -12,12 +12,12 @@ export const CatalogueFlowBar: React.FC<CatalogueFlowBarProps> = ({
 }) => (
   <div className="flex h-2 w-full overflow-hidden rounded-full bg-slate-100">
     <div
-      className={`h-full bg-slate-900 transition-all duration-300 ${learnFlowPct > 0 ? "" : "rounded-r-full"}`}
+      className={`h-full bg-emerald-500 transition-all duration-300 ${learnFlowPct > 0 ? "" : "rounded-r-full"}`}
       style={{ width: `${Math.min(100, flowPct)}%` }}
     />
     {learnFlowPct > 0 && (
       <div
-        className="h-full rounded-r-full bg-amber-400 transition-all duration-300"
+        className="h-full rounded-r-full bg-sky-400 transition-all duration-300"
         style={{ width: `${Math.min(100 - flowPct, Math.max(learnFlowPct, 3))}%` }}
       />
     )}

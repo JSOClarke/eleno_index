@@ -60,7 +60,7 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Known %
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-amber-300" /> Learning %
+                <span className="h-2.5 w-2.5 rounded-full bg-sky-400" /> Learning %
               </span>
             </>
           )}
@@ -115,11 +115,11 @@ export const ChapterPacingStrip: React.FC<ChapterPacingStripProps> = ({
                     <div className="space-y-1">
                       <div className="flex items-baseline justify-between text-[11px] tabular-nums">
                         <span className="font-semibold text-slate-900">{Math.round(chFlow)}%</span>
-                        {chLearn > 0 && <span className="text-[10px] font-medium text-[#111111]">{formatLearningDelta(chLearn)}</span>}
+                        {chLearn > 0 && <span className="text-[10px] font-medium text-sky-700">{formatLearningDelta(chLearn)}</span>}
                       </div>
                       <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
                         <div className={`h-full transition-all ${learnFillPct > 0 ? "" : "rounded-r-full"} bg-emerald-500`} style={{ width: `${knownFillPct}%` }} />
-                        {learnFillPct > 0 && <div className="h-full rounded-r-full bg-amber-300 transition-all" style={{ width: `${Math.max(learnFillPct, 3)}%` }} />}
+                        {learnFillPct > 0 && <div className="h-full rounded-r-full bg-sky-400 transition-all" style={{ width: `${Math.max(learnFillPct, 3)}%` }} />}
                       </div>
                     </div>
                   )}

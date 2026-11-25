@@ -81,8 +81,8 @@ export const InspectorSpecHeader: React.FC<InspectorSpecHeaderProps> = ({
         </div>
 
         <div className="col-span-12 md:col-span-5 grid grid-cols-2 gap-4 sm:gap-5 border-t pt-4 md:border-t-0 md:border-l border-slate-100 md:pt-0 md:pl-5 md:self-center">
-          <InspectorFlowPanel index="01" title="Reading Flow" pct={flowPct} learnPct={learnFlowPct} footnote={<>{formatCompactWords(m?.total_tokens || 0)} total</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-slate-900" />
-          <InspectorFlowPanel index="02" title="Vocab Mastery" pct={vocabPct} learnPct={learnVocabPct} footnote={<>{formulaShort} {fh} · {dialOrWpm}</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-slate-700" />
+          <InspectorFlowPanel index="01" title="Reading Flow" pct={flowPct} learnPct={learnFlowPct} footnote={<>{formatCompactWords(m?.total_tokens || 0)} total</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-emerald-500" />
+          <InspectorFlowPanel index="02" title="Vocab Mastery" pct={vocabPct} learnPct={learnVocabPct} footnote={<>{formulaShort} {fh} · {dialOrWpm}</>} isAuthenticated={isAuthenticated} onSignIn={onRequireAuth} barColorClass="bg-emerald-400" />
         </div>
 
         {synopsis && (
