@@ -29,6 +29,7 @@ export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = (
   const [mode, setMode] = useState<BankMode>(userId ? "iplus1" : "all");
   const [rows, setRows] = useState<BankSentence[]>([]);
   const [loading, setLoading] = useState(false);
+  const [elapsedMs, setElapsedMs] = useState<number | null>(null);
 
   useEffect(() => {
     setMode(userId ? "iplus1" : "all");
@@ -37,13 +38,20 @@ export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = (
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setElapsedMs(null);
+    const t0 = performance.now();
     const req = fetchSentences
       ? fetchSentences(mode, canonicalId, userId)
       : mode !== "all" && userId
         ? fetchIPlusOneSentences(canonicalId, userId, undefined, 6, mode === "iplus2" ? 2 : 1)
         : fetchCanonicalSentences(canonicalId, undefined, 6);
     req
-      .then((res) => { if (!cancelled) setRows(res); })
+      .then((res) => {
+        if (!cancelled) {
+          setRows(res);
+          setElapsedMs(Math.round(performance.now() - t0));
+        }
+      })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [canonicalId, userId, mode, fetchSentences]);
@@ -56,7 +64,7 @@ export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = (
     <div className="border-t border-[#E2E8F0] pt-2.5 space-y-2">
       <div className="flex items-center justify-between gap-2">
         <span className="text-[10px] font-semibold uppercase tracking-[0.04em] text-[#94A3B8]">
-          Sentence Bank
+          Sentence Bank{elapsedMs !== null && !loading ? ` · ${elapsedMs}ms` : ""}
         </span>
         <div className="inline-flex gap-0.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-0.5">
           {modes.map((m) => (

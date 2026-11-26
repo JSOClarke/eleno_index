@@ -93,6 +93,18 @@ try {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ blocks }) });
   });
 
+  await page.route("**/rest/v1/rpc/get_word_sentences_fast", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([{
+        id: "ex-all-1", media_item_id: "m1", sentence: "Una lechuza blanca duerme aquí.", token_count: 5,
+        source_context: "Corpus All", canonical_ids: ["can-lechuza"],
+        tokens: [{ surface: "lechuza", start_char: 4, end_char: 11, canonical_id: "can-lechuza" }],
+      }]),
+    });
+  });
+
   await page.route("**/rest/v1/sentence_examples*", async (route) => {
     await route.fulfill({
       status: 200,

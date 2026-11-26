@@ -40,6 +40,16 @@ export async function fetchCanonicalSentences(
   mediaItemId?: string,
   limit = 3
 ): Promise<BankSentence[]> {
+  const { data: fastData, error: fastError } = await supabase.rpc("get_word_sentences_fast", {
+    p_canonical_id: canonicalId,
+    p_user_id: null,
+    p_i_plus_one: false,
+    p_media_item_id: mediaItemId ?? null,
+    p_limit: limit,
+    p_offset: 0,
+  });
+  if (!fastError && Array.isArray(fastData)) return fastData.map(toBankSentence);
+
   let query = supabase
     .from("sentence_examples")
     .select(SENTENCE_SELECT)
