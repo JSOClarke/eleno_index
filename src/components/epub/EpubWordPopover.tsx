@@ -49,22 +49,23 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const morphChips = parseMorphChips(ctx.token.morph, language);
   const pos = c?.pos || ctx.token.pos || "";
   const posMeta = getPosMeta(pos);
-  const bandInfo = getFrequencyBand(c?.tubelex_rank ?? c?.rank);
+  const bandInfo = getFrequencyBand(c?.rank ?? c?.tubelex_rank);
+  const rankSource = c?.rank_source || (c?.tubelex_rank ? "TubeLex" : "Rank");
+  const displayRank = c?.rank ?? c?.tubelex_rank ?? null;
+  const displayLevel = c?.level || c?.cefr || null;
   const showSurface = ctx.token.surface && ctx.token.surface.toLowerCase() !== lemma.toLowerCase();
 
   const handleTranslate = async () => {
     setTranslating(true);
-    try { setTranslation(await translateSentence(ctx.sentence, language)); }
-    catch { setTranslation("Could not translate sentence."); }
-    finally { setTranslating(false); }
+    try { setTranslation(await translateSentence(ctx.sentence, language)); } catch { setTranslation("Could not translate sentence."); } finally { setTranslating(false); }
   };
 
   const handleExportAnki = () => void downloadApkgDeck([{
-    canonical_id: canonicalId || lemma, lemma, pos: pos || "", cefr: c?.cefr || "",
-    ipa: c?.ipa || null, frequency: 1, first_occurrence_index: 0, first_timestamp_ms: null,
-    first_context_snippet: ctx.sentence, global_rank: c?.rank ?? null,
+    canonical_id: canonicalId || lemma, lemma, pos: pos || "", cefr: c?.level || c?.cefr || "",
+    ipa: c?.ipa || null, reading: c?.reading || null, frequency: 1, first_occurrence_index: 0, first_timestamp_ms: null,
+    first_context_snippet: ctx.sentence, global_rank: displayRank,
     definitions: enDefs.length ? enDefs : esDefs,
-    rankings: c?.rank ? [{ source: "tubelex_v2025", rank: c.rank, count: 0, cefr: c.cefr ?? null }] : [],
+    rankings: c?.rankings?.length ? c.rankings.map((r) => ({ source: r.source, rank: r.rank, count: r.count ?? null, cefr: r.level ?? null })) : [],
   }], statusMap, bookTitle);
 
   const topPos = Math.min(window.innerHeight - 380, ctx.anchorRect.bottom + 8);
@@ -100,9 +101,9 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-1 text-[10px] font-medium">
-            {c?.cefr && <span className="inline-flex items-center gap-1 rounded-full border border-[#0F172A] bg-[#0F172A] px-2 py-0.5 text-white"><GraduationCap className="h-2.5 w-2.5" />{c.cefr}</span>}
-            {(c?.tubelex_rank ?? c?.rank) && <span className="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F1F5F9] px-2 py-0.5 text-[#0F172A]"><Layers className="h-2.5 w-2.5" />TubeLex #{c?.tubelex_rank ?? c?.rank} ({bandInfo.label})</span>}
-            {c?.subtlex_rank && <span className="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569]">SUBTLEX #{c.subtlex_rank}</span>}
+            {displayLevel && <span className="inline-flex items-center gap-1 rounded-full border border-[#0F172A] bg-[#0F172A] px-2 py-0.5 text-white"><GraduationCap className="h-2.5 w-2.5" />{displayLevel}</span>}
+            {displayRank && <span className="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F1F5F9] px-2 py-0.5 text-[#0F172A]"><Layers className="h-2.5 w-2.5" />{rankSource} #{displayRank} ({bandInfo.label})</span>}
+            {c?.subtlex_rank && (!c?.rank_source || c.rank_source !== "SUBTLEX-CH") && <span className="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569]">SUBTLEX #{c.subtlex_rank}</span>}
             {(posMeta || pos) && (
               <button type="button" onClick={() => posMeta && setPosOpen((v) => !v)} className="rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-0.5 text-[#475569] hover:border-[#CBD5E1] hover:text-[#0F172A] cursor-pointer">
                 {posMeta ? posMeta.label : pos}

@@ -1,3 +1,4 @@
+import { normalizeLevelBucket } from "@/lib/proficiencyScale";
 import type { EpubHighlightMode, ParsedBlockResult, ParsedToken } from "@/types/epubReader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
@@ -121,10 +122,10 @@ export function getTokenHighlightClass(
   } else if (mode === "status") {
     classes.push("bg-[rgba(14,165,233,0.16)] rounded-[2px]");
   } else if (mode === "cefr") {
-    const lvl = (can?.cefr || "").toUpperCase();
+    const lvl = (can?.level_bucket || normalizeLevelBucket(can?.cefr)).toUpperCase();
     classes.push(CEFR_BG[lvl] || "bg-[rgba(14,165,233,0.16)]");
   } else if (mode === "rank") {
-    const rank = can?.tubelex_rank || can?.elelex_rank || can?.rank || null;
+    const rank = can?.rank ?? can?.tubelex_rank ?? can?.elelex_rank ?? null;
     const { band } = getFrequencyBand(rank);
     if (band !== "top1k") classes.push(RANK_BG[band]);
   }

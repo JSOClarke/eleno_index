@@ -5,10 +5,17 @@ export interface ParsedTokenCanonical {
   lemma: string;
   pos: string;
   cefr: string | null;
+  level?: string | null;
+  level_bucket?: string | null;
+  rank?: number | null;
+  rank_source?: string | null;
+  global_frequency?: number | null;
+  rankings?: Array<{ source: string; label: string; rank: number | null; count?: number | null; level?: string | null }>;
   tubelex_rank: number | null;
   elelex_rank: number | null;
   definitions: string[];
   ipa: string | null;
+  reading?: string | null;
 }
 
 export interface ParsedToken {

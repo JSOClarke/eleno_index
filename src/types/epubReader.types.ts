@@ -47,8 +47,14 @@ export interface ParsedCanonical {
   lemma: string;
   pos?: string | null;
   cefr?: string | null;
+  level?: string | null;
+  level_bucket?: string | null;
   ipa?: string | null;
+  reading?: string | null;
   rank?: number | null;
+  rank_source?: string | null;
+  global_frequency?: number | null;
+  rankings?: Array<{ source: string; label?: string; rank: number | null; count?: number | null; level?: string | null }>;
   tubelex_rank?: number | null;
   subtlex_rank?: number | null;
   elelex_rank?: number | null;
