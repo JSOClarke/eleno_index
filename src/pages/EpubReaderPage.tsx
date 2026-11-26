@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { EpubActionWheel } from "@/components/epub/EpubActionWheel";
 import { EpubBookshelf } from "@/components/epub/EpubBookshelf";
 import { EpubReaderHeader } from "@/components/epub/EpubReaderHeader";
@@ -22,10 +23,20 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
   onSetWordStatus,
   onRequireAuth,
 }) => {
+  const { bookId } = useParams<{ bookId?: string }>();
+  const navigate = useNavigate();
   const state = useEpubReaderState(userId);
   const [tocOpen, setTocOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [wheel, setWheel] = useState<{ ctx: import("@/types/epubReader.types").SelectedWordContext; x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    if (bookId && state.activeBook?.id !== bookId) {
+      void state.openBook(bookId);
+    } else if (!bookId && state.activeBook) {
+      state.setActiveBook(null);
+    }
+  }, [bookId, userId]);
 
   const handleWordStatus = (canonicalId: string, status: UserVocabStatus | null) => {
     if (!userId) {
@@ -35,6 +46,10 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
     onSetWordStatus(canonicalId, status);
   };
 
+  if (bookId && state.activeBook?.id !== bookId) {
+    return <div className="py-16 text-center text-sm text-slate-500">Loading book…</div>;
+  }
+
   if (!state.activeBook) {
     return (
       <EpubBookshelf
@@ -42,8 +57,8 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
         progressMap={state.progressMap}
         importing={state.importing}
         error={state.error}
-        onImportFile={state.importFile}
-        onOpenBook={state.openBook}
+        onImportFile={async (file) => { const b = await state.importFile(file); if (b) navigate(`/epub/${b.id}`); }}
+        onOpenBook={(id) => { void state.openBook(id); navigate(`/epub/${id}`); }}
         onDeleteBook={state.removeBook}
       />
     );
@@ -62,7 +77,7 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
         autoParse={state.settings.autoParse !== false}
         theme={state.settings.theme}
         scrollMode={state.settings.scrollMode}
-        onBack={() => { state.setActiveBook(null); void state.refreshShelf(); }}
+        onBack={() => { state.setActiveBook(null); navigate("/epub"); void state.refreshShelf(); }}
         onParseNow={state.parseCurrentTarget}
         onToggleToc={() => setTocOpen(true)}
         onToggleScrollMode={() =>

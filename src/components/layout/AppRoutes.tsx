@@ -49,17 +49,8 @@ export const AppRoutes: React.FC<AppRoutesProps> = ({
         element={<LandingPage isAuthenticated={Boolean(user)} onRequireAuth={onRequireAuth} />}
       />
       <Route path="/catalogue" element={<CataloguePage mode="catalogue" {...sharedCataloguePageProps} />} />
-      <Route
-        path="/epub"
-        element={
-          <EpubReaderPage
-            userId={user?.id}
-            statusMap={statusMap}
-            onSetWordStatus={onSetWordStatus}
-            onRequireAuth={onRequireAuth}
-          />
-        }
-      />
+      <Route path="/epub" element={<EpubReaderPage userId={user?.id} statusMap={statusMap} onSetWordStatus={onSetWordStatus} onRequireAuth={onRequireAuth} />} />
+      <Route path="/epub/:bookId" element={<EpubReaderPage userId={user?.id} statusMap={statusMap} onSetWordStatus={onSetWordStatus} onRequireAuth={onRequireAuth} />} />
       <Route path="/guide" element={<Navigate to="/" replace />} />
       <Route path="/saved" element={<CataloguePage mode="saved" {...sharedCataloguePageProps} />} />
       <Route

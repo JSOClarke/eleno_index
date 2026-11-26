@@ -104,8 +104,7 @@ export function useEpubReaderState(userId?: string | null) {
     try {
       const book = await importEpubEverywhere(file, userId);
       await refreshShelf();
-      setInitialPosition({ pageIndex: 0, scrollTop: 0, blockIndex: 0 });
-      setChapterIndex(0); setActiveBook(book);
+      setInitialPosition({ pageIndex: 0, scrollTop: 0, blockIndex: 0 }); setChapterIndex(0); setActiveBook(book); return book;
     } catch (err: any) { setError(err?.message || "Failed to read EPUB file."); }
     finally { setImporting(false); }
   };
