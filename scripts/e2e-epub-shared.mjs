@@ -162,6 +162,15 @@ try {
   assert.ok(popText.includes("TubeLex #8420"), "Popover should show rank");
   assert.ok(popText.includes("barn owl"), "Popover should show definition");
 
+  // Popover size toggle S -> M -> L
+  const wSm = await popover.evaluate((el) => el.getBoundingClientRect().width);
+  await popover.getByRole("button", { name: "M", exact: true }).click();
+  const wMd = await popover.evaluate((el) => el.getBoundingClientRect().width);
+  await popover.getByRole("button", { name: "L", exact: true }).click();
+  const wLg = await popover.evaluate((el) => el.getBoundingClientRect().width);
+  assert.ok(wSm < wMd && wMd < wLg, `Expected S < M < L popover widths, got ${wSm}, ${wMd}, ${wLg}`);
+  await popover.getByRole("button", { name: "S", exact: true }).click();
+
   // Sentence tab + Sentence Bank + Anki (.apkg)
   await popover.getByRole("button", { name: "Sentence" }).click();
   await page.waitForFunction(() => document.querySelector("[data-epub-popover]")?.textContent?.includes("Sentence Bank"), { timeout: 5000 });

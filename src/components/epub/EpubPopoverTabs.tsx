@@ -1,5 +1,6 @@
 import React from "react";
 import { Download, ExternalLink, Languages, Volume2 } from "lucide-react";
+import type { PopoverSizePreset } from "@/lib/epub/epubPopoverSize";
 import { speakSpanish, type WordImagePair } from "@/lib/epub/epubParseClient";
 import type { EpubPopoverAdapter, ParsedPhrase } from "@/types/epubReader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
@@ -24,11 +25,12 @@ interface EpubPopoverTabsProps {
   onTranslate: () => void;
   onExportAnki: () => void;
   adapter?: EpubPopoverAdapter;
+  sizePreset: PopoverSizePreset;
 }
 
 export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
   tab, defLang, onChangeDefLang, enDefs, esDefs, phrases, iPlusOne, sentence, language,
-  canonicalId, userId, statusMap, translation, translating, images, onTranslate, onExportAnki, adapter,
+  canonicalId, userId, statusMap, translation, translating, images, onTranslate, onExportAnki, adapter, sizePreset,
 }) => {
   if (tab === "defs") {
     return (
@@ -66,7 +68,7 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
               </div>
             )}
           </div>
-          <ul className="max-h-[155px] space-y-1.5 overflow-y-auto text-[13px] leading-[1.38]">
+          <ul className={`space-y-1.5 overflow-y-auto leading-[1.38] ${sizePreset.defsListClass}`}>
             {(defLang === "en" || defLang === "both" || esDefs.length === 0) && enDefs.slice(0, 5).map((d, i) => (
               <li key={`en-${i}`} className="flex items-start gap-2 text-[#0F172A]"><span className="text-[#94A3B8]">–</span><span>{d}</span></li>
             ))}
@@ -83,7 +85,7 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
   if (tab === "ctx") {
     return (
       <div className="space-y-2.5">
-        <p className="font-serif text-[14px] leading-[1.55] text-[#0F172A]">{sentence}</p>
+        <p className={`font-serif leading-[1.55] text-[#0F172A] ${sizePreset.sentenceClass}`}>{sentence}</p>
         {translation && <p className="border-t border-[#E2E8F0] pt-2 text-[12.5px] leading-[1.5] text-[#64748B]">{translation}</p>}
         <div className="flex flex-wrap gap-1.5 pt-0.5 text-[11px] font-medium">
           <button type="button" onClick={() => (adapter?.speak || speakSpanish)(sentence, language)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] hover:text-[#0F172A] cursor-pointer"><Volume2 className="h-3 w-3" /> Audio</button>
@@ -111,7 +113,7 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
             <span className="truncate">{hit!.source}</span>
             <ExternalLink className="h-2.5 w-2.5 shrink-0" />
           </div>
-          <img src={hit!.url} alt={hit!.title} className="h-24 w-full bg-[#F8FAFC] object-cover" />
+          <img src={hit!.url} alt={hit!.title} className={`w-full bg-[#F8FAFC] object-cover ${sizePreset.imageClass}`} />
         </a>
       ))}
     </div>

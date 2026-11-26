@@ -4,20 +4,16 @@ import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { downloadApkgDeck } from "@/lib/ankiApkgExport";
 import { getPosMeta, parseMorphChips } from "@/lib/epub/epubGrammarUtils";
 import { getFrequencyBand } from "@/lib/epub/epubHighlightUtils";
+import { loadPopoverSize, POPOVER_SIZE_PRESETS, savePopoverSize, type PopoverSize } from "@/lib/epub/epubPopoverSize";
 import { fetchWordImages, speakSpanish, translateSentence, type WordImagePair } from "@/lib/epub/epubParseClient";
 import { EpubPopoverTabs } from "./EpubPopoverTabs";
 import type { EpubPopoverAdapter, SelectedWordContext } from "@/types/epubReader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface EpubWordPopoverProps {
-  ctx: SelectedWordContext | null;
-  userId?: string | null;
-  language: string;
-  bookTitle: string;
-  statusMap: Record<string, UserVocabStatus>;
-  onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
-  onClose: () => void;
-  adapter?: EpubPopoverAdapter;
+  ctx: SelectedWordContext | null; userId?: string | null; language: string; bookTitle: string;
+  statusMap: Record<string, UserVocabStatus>; onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
+  onClose: () => void; adapter?: EpubPopoverAdapter;
 }
 
 export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
@@ -29,6 +25,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const [translating, setTranslating] = useState(false);
   const [images, setImages] = useState<WordImagePair | null>(null);
   const [posOpen, setPosOpen] = useState(false);
+  const [size, setSize] = useState<PopoverSize>(loadPopoverSize);
   const sheetRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const swipe = useSwipeDismiss(Boolean(ctx), onClose, sheetRef, bodyRef);
@@ -68,25 +65,22 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
     rankings: c?.rankings?.length ? c.rankings.map((r) => ({ source: r.source, rank: r.rank, count: r.count ?? null, cefr: r.level ?? null })) : [],
   }], statusMap, bookTitle, undefined, undefined, adapter?.locateWasm);
 
-  const topPos = Math.min(window.innerHeight - 380, ctx.anchorRect.bottom + 8);
-  const leftPos = Math.max(12, Math.min(window.innerWidth - 388, ctx.anchorRect.left));
+  const preset = POPOVER_SIZE_PRESETS[size];
+  const topPos = Math.min(window.innerHeight - preset.maxHNum, ctx.anchorRect.bottom + 8);
+  const leftPos = Math.max(12, Math.min(window.innerWidth - (preset.widthNum + 12), ctx.anchorRect.left));
 
   return (
     <div className="fixed inset-0 z-50 overscroll-none bg-[#0F172A]/15 md:bg-transparent" onClick={onClose}>
-      <div
-        ref={sheetRef}
-        data-epub-popover
-        onClick={(e) => e.stopPropagation()}
-        style={{ "--desk-top": `${Math.max(12, topPos)}px`, "--desk-left": `${leftPos}px`, transform: swipe.dragY > 0 ? `translateY(${swipe.dragY}px)` : undefined } as React.CSSProperties}
-        className={`fixed bottom-0 left-0 right-0 overscroll-none md:bottom-auto md:right-auto md:top-[var(--desk-top)] md:left-[var(--desk-left)] md:w-[376px] rounded-t-2xl md:rounded-2xl bg-white text-[#0F172A] shadow-[0_20px_45px_rgba(15,23,42,0.16),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden max-h-[82vh] flex flex-col ${swipe.dragY === 0 ? "transition-transform duration-200 ease-out" : ""}`}
-      >
+        <div ref={sheetRef} data-epub-popover data-popover-size={size} onClick={(e) => e.stopPropagation()}
+          style={{ "--desk-top": `${Math.max(12, topPos)}px`, "--desk-left": `${leftPos}px`, "--desk-w": `${preset.widthNum}px`, transform: swipe.dragY > 0 ? `translateY(${swipe.dragY}px)` : undefined } as React.CSSProperties}
+          className={`fixed bottom-0 left-0 right-0 overscroll-none md:bottom-auto md:right-auto md:top-[var(--desk-top)] md:left-[var(--desk-left)] md:w-[var(--desk-w)] ${preset.containerClass} rounded-t-2xl md:rounded-2xl bg-white text-[#0F172A] shadow-[0_20px_45px_rgba(15,23,42,0.16),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden flex flex-col ${swipe.dragY === 0 ? "transition-transform duration-200 ease-out" : ""}`}>
         <div className="h-[3px] w-full shrink-0 bg-[#0F172A]" />
         <div className="md:hidden flex justify-center pt-2 pb-0.5 shrink-0"><div className="h-1 w-9 rounded-full bg-slate-300" /></div>
         <div ref={bodyRef} className="px-[18px] py-3.5 space-y-3 overflow-y-auto flex-1">
           <div className="flex items-start justify-between gap-2">
             <div>
               <div className="flex flex-wrap items-end gap-2">
-                <span className="font-serif text-[30px] font-medium leading-[1.02] tracking-[-0.02em] text-[#0F172A]">{lemma}</span>
+                <span className={`font-serif font-medium leading-[1.02] tracking-[-0.02em] text-[#0F172A] ${preset.lemmaClass}`}>{lemma}</span>
                 {c?.ipa && <span className="pb-0.5 font-mono text-[11.5px] font-medium text-[#64748B]">{c.ipa}</span>}
                 <button type="button" onClick={(e) => (adapter?.speak || speakSpanish)(lemma, language, e.shiftKey ? 0.72 : 1.0)} onContextMenu={(e) => { e.preventDefault(); (adapter?.speak || speakSpanish)(lemma, language, 0.72); }} title="Play pronunciation · Right-click for 0.7x slow" className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F1F5F9] hover:text-[#0F172A] cursor-pointer">
                   <Volume2 className="h-3.5 w-3.5" />
@@ -95,7 +89,14 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
               {showSurface && <div className="mt-1 text-[11px] text-[#64748B]">In text: “{ctx.token.surface}”</div>}
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <span title="Threshold" className="p-1 text-[#0F172A]"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M2 20V14.75H8.5V9.5H15.5V4H22V20H2Z" fill="currentColor" /></svg></span>
+              <div className="inline-flex rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-0.5 text-[10px] font-semibold" role="group" aria-label="Popover size">
+                {(["sm", "md", "lg"] as const).map((sz) => (
+                  <button key={sz} type="button" onClick={() => { setSize(sz); savePopoverSize(sz); }} title={`Popover size: ${POPOVER_SIZE_PRESETS[sz].label}`}
+                    className={`rounded-md px-1.5 py-0.5 cursor-pointer transition ${size === sz ? "bg-[#0F172A] text-white" : "text-[#64748B] hover:text-[#0F172A]"}`}>
+                    {POPOVER_SIZE_PRESETS[sz].label}
+                  </button>
+                ))}
+              </div>
               <button type="button" onClick={onClose} title="Close (Esc)" className="rounded-lg p-1.5 text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] cursor-pointer"><X className="h-4 w-4" /></button>
             </div>
           </div>
@@ -118,13 +119,11 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
             </div>
           )}
 
-          <EpubPopoverTabs
-            tab={tab} defLang={defLang} onChangeDefLang={setDefLang} enDefs={enDefs} esDefs={esDefs}
+          <EpubPopoverTabs tab={tab} defLang={defLang} onChangeDefLang={setDefLang} enDefs={enDefs} esDefs={esDefs}
             phrases={ctx.phrases} iPlusOne={ctx.iPlusOne} sentence={ctx.sentence} language={language}
-            canonicalId={canonicalId} userId={userId} statusMap={statusMap}
-            translation={translation} translating={translating} images={images}
-            onTranslate={handleTranslate} onExportAnki={handleExportAnki} adapter={adapter}
-          />
+            canonicalId={canonicalId} userId={userId} statusMap={statusMap} translation={translation}
+            translating={translating} images={images} onTranslate={handleTranslate} onExportAnki={handleExportAnki}
+            adapter={adapter} sizePreset={preset} />
 
           {canonicalId && (
             <div className="flex items-center gap-2 pt-1">
