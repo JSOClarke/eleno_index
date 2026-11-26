@@ -11,6 +11,7 @@ interface EpubActionWheelProps {
   onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
   onInspect: (ctx: SelectedWordContext) => void;
   onClose: () => void;
+  speak?: (text: string, language?: string, rate?: number) => void;
 }
 
 function hitDirection(clientX: number, clientY: number, cx: number, cy: number): number {
@@ -22,7 +23,7 @@ function hitDirection(clientX: number, clientY: number, cx: number, cy: number):
 }
 
 export const EpubActionWheel: React.FC<EpubActionWheelProps> = ({
-  wheel, language, statusMap, onSetWordStatus, onInspect, onClose,
+  wheel, language, statusMap, onSetWordStatus, onInspect, onClose, speak,
 }) => {
   const [hoveredIdx, setHoveredIdx] = useState<number>(-1);
   const doneRef = useRef(false);
@@ -49,7 +50,7 @@ export const EpubActionWheel: React.FC<EpubActionWheelProps> = ({
       Icon: Volume2,
       left: "86%", top: "50%",
       activeCls: "bg-white text-[#0F172A]",
-      run: () => { speakSpanish(lemma, language); onClose(); },
+      run: () => { (speak || speakSpanish)(lemma, language); onClose(); },
     },
     {
       label: status === "learning" ? "Learning" : "Learn",

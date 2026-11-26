@@ -13,6 +13,8 @@ interface EpubSentenceBankSectionProps {
   userId?: string | null;
   language: string;
   statusMap: Record<string, UserVocabStatus>;
+  fetchSentences?: (mode: BankMode, canonicalId: string, userId?: string | null) => Promise<BankSentence[]>;
+  speak?: (text: string, language?: string, rate?: number) => void;
 }
 
 /** Sentence Bank lookup inside the EPUB word popover supporting i+1, i+2, and all corpus hits. */
@@ -21,6 +23,8 @@ export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = (
   userId,
   language,
   statusMap,
+  fetchSentences,
+  speak,
 }) => {
   const [mode, setMode] = useState<BankMode>(userId ? "iplus1" : "all");
   const [rows, setRows] = useState<BankSentence[]>([]);
@@ -33,15 +37,16 @@ export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = (
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    const req =
-      mode !== "all" && userId
+    const req = fetchSentences
+      ? fetchSentences(mode, canonicalId, userId)
+      : mode !== "all" && userId
         ? fetchIPlusOneSentences(canonicalId, userId, undefined, 6, mode === "iplus2" ? 2 : 1)
         : fetchCanonicalSentences(canonicalId, undefined, 6);
     req
       .then((res) => { if (!cancelled) setRows(res); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [canonicalId, userId, mode]);
+  }, [canonicalId, userId, mode, fetchSentences]);
 
   const modes: Array<{ id: BankMode; label: string }> = userId
     ? [{ id: "iplus1", label: "i+1" }, { id: "iplus2", label: "i+2" }, { id: "all", label: "All" }]
@@ -102,7 +107,7 @@ export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = (
                   )}
                   <button
                     type="button"
-                    onClick={() => speakSpanish(entry.sentence, language)}
+                    onClick={() => (speak || speakSpanish)(entry.sentence, language)}
                     title="Listen to example"
                     className="rounded p-0.5 text-[#64748B] hover:bg-white hover:text-[#0F172A] cursor-pointer"
                   >

@@ -1,7 +1,7 @@
 import React from "react";
 import { Download, ExternalLink, Languages, Volume2 } from "lucide-react";
 import { speakSpanish, type WordImagePair } from "@/lib/epub/epubParseClient";
-import type { ParsedPhrase } from "@/types/epubReader.types";
+import type { EpubPopoverAdapter, ParsedPhrase } from "@/types/epubReader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 import { EpubSentenceBankSection } from "./EpubSentenceBankSection";
 
@@ -23,11 +23,12 @@ interface EpubPopoverTabsProps {
   images: WordImagePair | null;
   onTranslate: () => void;
   onExportAnki: () => void;
+  adapter?: EpubPopoverAdapter;
 }
 
 export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
   tab, defLang, onChangeDefLang, enDefs, esDefs, phrases, iPlusOne, sentence, language,
-  canonicalId, userId, statusMap, translation, translating, images, onTranslate, onExportAnki,
+  canonicalId, userId, statusMap, translation, translating, images, onTranslate, onExportAnki, adapter,
 }) => {
   if (tab === "defs") {
     return (
@@ -85,7 +86,7 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
         <p className="font-serif text-[14px] leading-[1.55] text-[#0F172A]">{sentence}</p>
         {translation && <p className="border-t border-[#E2E8F0] pt-2 text-[12.5px] leading-[1.5] text-[#64748B]">{translation}</p>}
         <div className="flex flex-wrap gap-1.5 pt-0.5 text-[11px] font-medium">
-          <button type="button" onClick={() => speakSpanish(sentence, language)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] hover:text-[#0F172A] cursor-pointer"><Volume2 className="h-3 w-3" /> Audio</button>
+          <button type="button" onClick={() => (adapter?.speak || speakSpanish)(sentence, language)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] hover:text-[#0F172A] cursor-pointer"><Volume2 className="h-3 w-3" /> Audio</button>
           {!translation && (
             <button type="button" onClick={onTranslate} disabled={translating} className="inline-flex items-center gap-1.5 rounded-lg border border-[#0F172A] bg-[#0F172A] px-2.5 py-1.5 text-white hover:opacity-90 disabled:opacity-50 cursor-pointer">
               <Languages className="h-3 w-3" /> {translating ? "Translating…" : "Translate"}
@@ -94,7 +95,7 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
           <button type="button" onClick={onExportAnki} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] hover:text-[#0F172A] cursor-pointer"><Download className="h-3 w-3" /> Anki (.apkg)</button>
         </div>
         {canonicalId && (
-          <EpubSentenceBankSection canonicalId={canonicalId} userId={userId} language={language} statusMap={statusMap} />
+          <EpubSentenceBankSection canonicalId={canonicalId} userId={userId} language={language} statusMap={statusMap} fetchSentences={adapter?.fetchSentences} speak={adapter?.speak} />
         )}
       </div>
     );

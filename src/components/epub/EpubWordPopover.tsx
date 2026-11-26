@@ -6,7 +6,7 @@ import { getPosMeta, parseMorphChips } from "@/lib/epub/epubGrammarUtils";
 import { getFrequencyBand } from "@/lib/epub/epubHighlightUtils";
 import { fetchWordImages, speakSpanish, translateSentence, type WordImagePair } from "@/lib/epub/epubParseClient";
 import { EpubPopoverTabs } from "./EpubPopoverTabs";
-import type { SelectedWordContext } from "@/types/epubReader.types";
+import type { EpubPopoverAdapter, SelectedWordContext } from "@/types/epubReader.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface EpubWordPopoverProps {
@@ -17,13 +17,14 @@ interface EpubWordPopoverProps {
   statusMap: Record<string, UserVocabStatus>;
   onSetWordStatus: (canonicalId: string, status: UserVocabStatus | null) => void;
   onClose: () => void;
+  adapter?: EpubPopoverAdapter;
 }
 
 export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
-  ctx, userId, language, bookTitle, statusMap, onSetWordStatus, onClose,
+  ctx, userId, language, bookTitle, statusMap, onSetWordStatus, onClose, adapter,
 }) => {
   const [tab, setTab] = useState<"defs" | "ctx" | "img">("defs");
-  const [defLang, setDefLang] = useState<"en" | "es" | "both">("en");
+  const [defLang, setDefLang] = useState<"en" | "es" | "both">(adapter?.initialDefLang || "en");
   const [translation, setTranslation] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
   const [images, setImages] = useState<WordImagePair | null>(null);
@@ -35,29 +36,28 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const c = ctx?.token.canonical;
   const lemma = c?.lemma || ctx?.token.surface || "";
   const canonicalId = c?.canonical_id || c?.id || "";
-  const enDefs = c?.definitions || [];
-  const esDefs = c?.definitions_es || c?.es_definitions || [];
+  const enDefs = c?.definitions || [], esDefs = c?.definitions_es || c?.es_definitions || [];
 
   useEffect(() => { setTab("defs"); setTranslation(null); setImages(null); setPosOpen(false); }, [ctx]);
   useEffect(() => {
-    if (ctx && tab === "img" && !images) fetchWordImages(lemma, enDefs[0] || "", language).then(setImages);
-  }, [ctx, tab, images, lemma, enDefs, language]);
+    if (ctx && tab === "img" && !images) (adapter?.fetchImages || fetchWordImages)(lemma, enDefs[0] || "", language).then(setImages);
+  }, [ctx, tab, images, lemma, enDefs, language, adapter]);
 
   if (!ctx) return null;
 
   const status = (canonicalId ? statusMap[canonicalId] : undefined) || ctx.token.user_status || null;
   const morphChips = parseMorphChips(ctx.token.morph, language);
-  const pos = c?.pos || ctx.token.pos || "";
-  const posMeta = getPosMeta(pos);
-  const bandInfo = getFrequencyBand(c?.rank ?? c?.tubelex_rank);
-  const rankSource = c?.rank_source || (c?.tubelex_rank ? "TubeLex" : "Rank");
+  const pos = c?.pos || ctx.token.pos || "", posMeta = getPosMeta(pos);
   const displayRank = c?.rank ?? c?.tubelex_rank ?? null;
+  const bandInfo = getFrequencyBand(displayRank);
+  const rankSource = c?.rank_source || (c?.tubelex_rank ? "TubeLex" : "Rank");
   const displayLevel = c?.level || c?.cefr || null;
   const showSurface = ctx.token.surface && ctx.token.surface.toLowerCase() !== lemma.toLowerCase();
 
   const handleTranslate = async () => {
     setTranslating(true);
-    try { setTranslation(await translateSentence(ctx.sentence, language)); } catch { setTranslation("Could not translate sentence."); } finally { setTranslating(false); }
+    try { setTranslation(await (adapter?.translate || translateSentence)(ctx.sentence, language)); }
+    catch { setTranslation("Could not translate sentence."); } finally { setTranslating(false); }
   };
 
   const handleExportAnki = () => void downloadApkgDeck([{
@@ -66,7 +66,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
     first_context_snippet: ctx.sentence, global_rank: displayRank,
     definitions: enDefs.length ? enDefs : esDefs,
     rankings: c?.rankings?.length ? c.rankings.map((r) => ({ source: r.source, rank: r.rank, count: r.count ?? null, cefr: r.level ?? null })) : [],
-  }], statusMap, bookTitle);
+  }], statusMap, bookTitle, undefined, undefined, adapter?.locateWasm);
 
   const topPos = Math.min(window.innerHeight - 380, ctx.anchorRect.bottom + 8);
   const leftPos = Math.max(12, Math.min(window.innerWidth - 388, ctx.anchorRect.left));
@@ -88,7 +88,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
               <div className="flex flex-wrap items-end gap-2">
                 <span className="font-serif text-[30px] font-medium leading-[1.02] tracking-[-0.02em] text-[#0F172A]">{lemma}</span>
                 {c?.ipa && <span className="pb-0.5 font-mono text-[11.5px] font-medium text-[#64748B]">{c.ipa}</span>}
-                <button type="button" onClick={(e) => speakSpanish(lemma, language, e.shiftKey ? 0.72 : 1.0)} onContextMenu={(e) => { e.preventDefault(); speakSpanish(lemma, language, 0.72); }} title="Play pronunciation · Right-click for 0.7x slow" className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F1F5F9] hover:text-[#0F172A] cursor-pointer">
+                <button type="button" onClick={(e) => (adapter?.speak || speakSpanish)(lemma, language, e.shiftKey ? 0.72 : 1.0)} onContextMenu={(e) => { e.preventDefault(); (adapter?.speak || speakSpanish)(lemma, language, 0.72); }} title="Play pronunciation · Right-click for 0.7x slow" className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F1F5F9] hover:text-[#0F172A] cursor-pointer">
                   <Volume2 className="h-3.5 w-3.5" />
                 </button>
               </div>
@@ -123,15 +123,13 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
             phrases={ctx.phrases} iPlusOne={ctx.iPlusOne} sentence={ctx.sentence} language={language}
             canonicalId={canonicalId} userId={userId} statusMap={statusMap}
             translation={translation} translating={translating} images={images}
-            onTranslate={handleTranslate} onExportAnki={handleExportAnki}
+            onTranslate={handleTranslate} onExportAnki={handleExportAnki} adapter={adapter}
           />
 
           {canonicalId && (
             <div className="flex items-center gap-2 pt-1">
-              <button type="button" onClick={() => onSetWordStatus(canonicalId, status === "learning" ? null : "learning")}
-                className={`flex-1 rounded-lg py-[7px] text-[11.5px] cursor-pointer transition ${status === "learning" ? "bg-[#0F172A] font-semibold text-white hover:bg-[#1E293B]" : "bg-[#F1F5F9] font-medium text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A]"}`}>Learn</button>
-              <button type="button" onClick={() => onSetWordStatus(canonicalId, status === "known" ? null : "known")}
-                className={`flex-1 rounded-lg py-[7px] text-[11.5px] cursor-pointer transition ${status === "known" ? "bg-[#0F172A] font-semibold text-white hover:bg-[#1E293B]" : "bg-[#F1F5F9] font-medium text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A]"}`}>Known</button>
+              <button type="button" onClick={() => onSetWordStatus(canonicalId, status === "learning" ? null : "learning")} className={`flex-1 rounded-lg py-[7px] text-[11.5px] cursor-pointer transition ${status === "learning" ? "bg-[#0F172A] font-semibold text-white hover:bg-[#1E293B]" : "bg-[#F1F5F9] font-medium text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A]"}`}>Learn</button>
+              <button type="button" onClick={() => onSetWordStatus(canonicalId, status === "known" ? null : "known")} className={`flex-1 rounded-lg py-[7px] text-[11.5px] cursor-pointer transition ${status === "known" ? "bg-[#0F172A] font-semibold text-white hover:bg-[#1E293B]" : "bg-[#F1F5F9] font-medium text-[#475569] hover:bg-[#E2E8F0] hover:text-[#0F172A]"}`}>Known</button>
             </div>
           )}
         </div>

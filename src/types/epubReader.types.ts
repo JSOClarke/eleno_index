@@ -1,3 +1,5 @@
+import type { BankSentence } from "./sentence.types";
+
 export type EpubTheme = "light" | "sepia" | "dark";
 export type EpubScrollMode = "scroll" | "paged";
 export type EpubHighlightMode = "status" | "i1" | "cefr" | "rank" | "off";
@@ -101,4 +103,20 @@ export interface SelectedWordContext {
   phrases: ParsedPhrase[];
   iPlusOne?: { isTarget: boolean; targetSurface: string } | null;
   anchorRect: { top: number; left: number; bottom: number; width: number };
+}
+
+export interface EpubPopoverImageHit {
+  url: string;
+  source: string;
+  title: string;
+  page_url: string;
+}
+
+export interface EpubPopoverAdapter {
+  speak?: (text: string, language?: string, rate?: number) => void;
+  translate?: (sentence: string, language: string) => Promise<string>;
+  fetchImages?: (word: string, primaryDef: string, language: string) => Promise<{ word: string; en_query: string; es: EpubPopoverImageHit | null; en: EpubPopoverImageHit | null } | null>;
+  fetchSentences?: (mode: "iplus1" | "iplus2" | "all", canonicalId: string, userId?: string | null) => Promise<BankSentence[]>;
+  locateWasm?: (file: string) => string;
+  initialDefLang?: "en" | "es" | "both";
 }

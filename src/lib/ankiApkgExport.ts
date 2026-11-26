@@ -105,10 +105,11 @@ export async function downloadApkgDeck(
   statusMap: Record<string, UserVocabStatus>,
   mediaTitle?: string,
   mediaItemId?: string,
-  rankingSource: RankingSource = "tubelex_v2025"
+  rankingSource: RankingSource = "tubelex_v2025",
+  locateWasm?: (file: string) => string
 ): Promise<void> {
   const sentenceMap = mediaItemId ? await fetchSentenceMapForMedia(mediaItemId).catch(() => ({})) : undefined;
-  const bytes = await buildApkgBytes(words, statusMap, mediaTitle, rankingSource, undefined, sentenceMap);
+  const bytes = await buildApkgBytes(words, statusMap, mediaTitle, rankingSource, locateWasm, sentenceMap);
   const blob = new Blob([bytes as BlobPart], { type: "application/octet-stream" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
