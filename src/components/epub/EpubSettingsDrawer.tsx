@@ -1,18 +1,12 @@
 import React from "react";
 import { X } from "lucide-react";
+import { getProficiencySystemLabel } from "@/lib/proficiencyScale";
 import type { EpubHighlightMode, EpubScrollMode, EpubSettings, EpubTheme } from "@/types/epubReader.types";
-
-const HIGHLIGHT_MODES: { id: EpubHighlightMode; label: string }[] = [
-  { id: "status", label: "Status" },
-  { id: "i1", label: "i+1" },
-  { id: "cefr", label: "CEFR" },
-  { id: "rank", label: "Rank" },
-  { id: "off", label: "Off" },
-];
 
 interface EpubSettingsDrawerProps {
   open: boolean;
   settings: EpubSettings;
+  language?: string;
   onChange: (next: EpubSettings) => void;
   onClose: () => void;
 }
@@ -26,10 +20,19 @@ const THEMES: { id: EpubTheme; label: string; preview: string }[] = [
 export const EpubSettingsDrawer: React.FC<EpubSettingsDrawerProps> = ({
   open,
   settings,
+  language,
   onChange,
   onClose,
 }) => {
   if (!open) return null;
+
+  const highlightModes: { id: EpubHighlightMode; label: string }[] = [
+    { id: "status", label: "Status" },
+    { id: "i1", label: "i+1" },
+    { id: "cefr", label: language ? getProficiencySystemLabel(language) : "Level" },
+    { id: "rank", label: "Rank" },
+    { id: "off", label: "Off" },
+  ];
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end bg-slate-900/30 backdrop-blur-[1px]" onClick={onClose}>
@@ -108,7 +111,7 @@ export const EpubSettingsDrawer: React.FC<EpubSettingsDrawerProps> = ({
         <div className="space-y-2">
           <div className="text-xs font-medium text-slate-500">Highlight Mode</div>
           <div className="grid grid-cols-5 gap-1.5">
-            {HIGHLIGHT_MODES.map((hm) => (
+            {highlightModes.map((hm) => (
               <button
                 key={hm.id}
                 type="button"

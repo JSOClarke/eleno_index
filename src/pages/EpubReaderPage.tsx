@@ -116,6 +116,7 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
       <EpubSettingsDrawer
         open={settingsOpen}
         settings={state.settings}
+        language={state.activeBook.language}
         onChange={state.updateSettings}
         onClose={() => setSettingsOpen(false)}
       />

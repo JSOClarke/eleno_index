@@ -31,7 +31,7 @@ export const ReaderHighlightControls: React.FC<ReaderHighlightControlsProps> = (
                 : "text-[#666666] hover:text-[#111111] hover:bg-[#F4F4F2]"
             } ${m !== "none" ? "border-l border-[#111111]" : ""}`}
           >
-            {m === "none" ? "Bands: Off" : m}
+            {m === "none" ? "Bands: Off" : m === "cefr" ? "Level" : m}
           </button>
         ))}
       </div>
@@ -64,7 +64,7 @@ export const ReaderHighlightControls: React.FC<ReaderHighlightControlsProps> = (
         <div className="absolute right-0 top-full mt-2 z-40 bg-white border-2 border-[#111111] shadow-[3px_3px_0px_#111111] p-3 w-56">
           <div className="flex items-center justify-between pb-2 border-b border-[#EAEAE6]">
             <span className="font-bold text-[11px] tracking-wider uppercase text-[#111111]">
-              {mode === "cefr" ? "CEFR Difficulty Bands" : "Frequency Rank Bands"}
+              {mode === "cefr" ? "Difficulty Level Bands" : "Frequency Rank Bands"}
             </span>
             <button
               onClick={() => setShowLegend(false)}

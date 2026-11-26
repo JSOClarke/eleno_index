@@ -9,7 +9,7 @@ interface LandingPageProps {
 }
 
 const QUICK_LINKS = [
-  { to: "/catalogue", title: "Catalogue", desc: "Browse books ranked by Reading Flow & CEFR, inspect chapter pacing, and export i+1 Anki decks." },
+  { to: "/catalogue", title: "Catalogue", desc: "Browse books ranked by Reading Flow & proficiency level, inspect chapter pacing, and export i+1 Anki decks." },
   { to: "/dictionary", title: "Dictionary & Sentence Bank", desc: "Search lemmas or conjugated forms across millions of real corpus sentences." },
   { to: "/known-words", title: "Known Words", desc: "Track your vocabulary and apply frequency starter packs." },
 ];
