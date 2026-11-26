@@ -10,23 +10,25 @@ export async function fetchAllUserVocabulary(
   userId: string,
   language = "es"
 ): Promise<Record<string, UserVocabStatus>> {
-  const { data: rpcData, error: rpcErr } = await supabase.rpc("get_user_vocabulary_map", {
-    p_user_id: userId,
-    p_language: language,
-  });
-  if (!rpcErr && Array.isArray(rpcData)) {
-    const map: Record<string, UserVocabStatus> = {};
-    for (const row of rpcData as Array<{ canonical_id?: string; status?: string }>) {
-      if (row.canonical_id && row.status) map[row.canonical_id] = row.status as UserVocabStatus;
-    }
-    return map;
-  }
-
   const map: Record<string, UserVocabStatus> = {};
-  let from = 0;
   const pageSize = 1000;
+  let useRpc = true;
 
-  while (true) {
+  for (let from = 0; ; from += pageSize) {
+    if (useRpc) {
+      const { data: rpcData, error: rpcErr } = await supabase
+        .rpc("get_user_vocabulary_map", { p_user_id: userId, p_language: language })
+        .range(from, from + pageSize - 1);
+      if (!rpcErr && Array.isArray(rpcData)) {
+        for (const row of rpcData as Array<{ canonical_id?: string; status?: string }>) {
+          if (row.canonical_id && row.status) map[row.canonical_id] = row.status as UserVocabStatus;
+        }
+        if (rpcData.length < pageSize) break;
+        continue;
+      }
+      useRpc = false;
+    }
+
     const { data, error } = await supabase
       .from("user_vocabulary")
       .select("canonical_id, status, canonical_lexical_entity!inner(language)")
@@ -41,7 +43,6 @@ export async function fetchAllUserVocabulary(
       map[row.canonical_id] = row.status as UserVocabStatus;
     }
     if (data.length < pageSize) break;
-    from += pageSize;
   }
 
   return map;
