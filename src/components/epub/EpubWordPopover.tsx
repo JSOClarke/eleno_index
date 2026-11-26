@@ -4,7 +4,7 @@ import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { downloadApkgDeck } from "@/lib/ankiApkgExport";
 import { getPosMeta, parseMorphChips } from "@/lib/epub/epubGrammarUtils";
 import { getFrequencyBand } from "@/lib/epub/epubHighlightUtils";
-import { loadPopoverSize, POPOVER_SIZE_PRESETS, savePopoverSize, type PopoverSize } from "@/lib/epub/epubPopoverSize";
+import { loadPopoverSize, POPOVER_SIZE_PRESETS, type PopoverSize } from "@/lib/epub/epubPopoverSize";
 import { fetchWordImages, speakSpanish, translateSentence, type WordImagePair } from "@/lib/epub/epubParseClient";
 import { EpubPopoverTabs } from "./EpubPopoverTabs";
 import type { EpubPopoverAdapter, SelectedWordContext } from "@/types/epubReader.types";
@@ -26,7 +26,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   const [images, setImages] = useState<WordImagePair | null>(null);
   const [posOpen, setPosOpen] = useState(false);
   const [size, setSize] = useState<PopoverSize>(() => adapter?.initialSize || loadPopoverSize());
-  useEffect(() => { if (adapter?.initialSize) setSize(adapter.initialSize); }, [adapter?.initialSize]);
+  useEffect(() => { setSize(adapter?.initialSize || loadPopoverSize()); }, [ctx, adapter?.initialSize]);
   const sheetRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const swipe = useSwipeDismiss(Boolean(ctx), onClose, sheetRef, bodyRef);
@@ -90,14 +90,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
               {showSurface && <div className={`mt-1 text-[#64748B] ${preset.surfaceClass}`}>In text: “{ctx.token.surface}”</div>}
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <div className={`inline-flex rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-0.5 font-semibold ${preset.labelClass}`} role="group" aria-label="Popover size">
-                {(["sm", "md", "lg"] as const).map((sz) => (
-                  <button key={sz} type="button" onClick={() => { setSize(sz); savePopoverSize(sz); adapter?.onSizeChange?.(sz); }} title={`Popover size: ${POPOVER_SIZE_PRESETS[sz].label}`}
-                    className={`rounded-md px-1.5 py-0.5 cursor-pointer transition ${size === sz ? "bg-[#0F172A] text-white" : "text-[#64748B] hover:text-[#0F172A]"}`}>
-                    {POPOVER_SIZE_PRESETS[sz].label}
-                  </button>
-                ))}
-              </div>
+              <span title="Threshold" className="p-1 text-[#0F172A]"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M2 20V14.75H8.5V9.5H15.5V4H22V20H2Z" fill="currentColor" /></svg></span>
               <button type="button" onClick={onClose} title="Close (Esc)" className="rounded-lg p-1.5 text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] cursor-pointer"><X className={preset.tabIconClass} /></button>
             </div>
           </div>

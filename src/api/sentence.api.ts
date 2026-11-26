@@ -1,38 +1,47 @@
 import { supabase } from "@/lib/supabase";
 import type { BankSentence, CanonicalGloss, SentenceToken } from "@/types/sentence.types";
 
+const ADMIN_API_BASE = (import.meta.env.VITE_ADMIN_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
+
 const SENTENCE_SELECT =
   "id, media_item_id, sentence, token_count, source_context, canonical_ids, tokens";
 
 function toToken(raw: any): SentenceToken {
   return {
-    surface: String(raw?.surface ?? ""),
-    start_char: Number(raw?.start_char ?? 0),
-    end_char: Number(raw?.end_char ?? 0),
-    canonical_id: raw?.canonical_id ? String(raw.canonical_id) : null,
-    lemma: raw?.lemma ? String(raw.lemma) : null,
-    pos: raw?.pos ? String(raw.pos) : null,
-    morph: raw?.morph ? String(raw.morph) : null,
+    surface: String(raw?.surface ?? ""), start_char: Number(raw?.start_char ?? 0), end_char: Number(raw?.end_char ?? 0),
+    canonical_id: raw?.canonical_id ? String(raw.canonical_id) : null, lemma: raw?.lemma ? String(raw.lemma) : null,
+    pos: raw?.pos ? String(raw.pos) : null, morph: raw?.morph ? String(raw.morph) : null,
   };
 }
 
 function toBankSentence(raw: any): BankSentence {
-  const tokens = Array.isArray(raw?.tokens)
-    ? raw.tokens.map(toToken).filter((token: SentenceToken) => token.surface.length > 0)
-    : [];
+  const tokens = Array.isArray(raw?.tokens) ? raw.tokens.map(toToken).filter((t: SentenceToken) => t.surface.length > 0) : [];
   return {
-    id: String(raw?.id ?? ""),
-    media_item_id: String(raw?.media_item_id ?? ""),
-    sentence: String(raw?.sentence ?? ""),
-    token_count: Number(raw?.token_count ?? 0),
+    id: String(raw?.id ?? ""), media_item_id: String(raw?.media_item_id ?? ""),
+    sentence: String(raw?.sentence ?? ""), token_count: Number(raw?.token_count ?? 0),
     source_context: String(raw?.source_context ?? ""),
     canonical_ids: Array.isArray(raw?.canonical_ids) ? raw.canonical_ids.map(String) : [],
     tokens,
-    unknown_count:
-      raw?.unknown_count === null || raw?.unknown_count === undefined
-        ? undefined
-        : Number(raw.unknown_count),
+    unknown_count: raw?.unknown_count == null ? undefined : Number(raw.unknown_count),
   };
+}
+
+async function fetchViaApi(
+  canonicalId: string,
+  mode: "iplus1" | "iplus2" | "all",
+  userId?: string,
+  limit = 6
+): Promise<BankSentence[] | null> {
+  try {
+    const params = new URLSearchParams({ canonical_id: canonicalId, mode, limit: String(limit) });
+    if (userId) params.set("user_id", userId);
+    const res = await fetch(`${ADMIN_API_BASE}/api/sentence-bank?${params}`, { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return Array.isArray(data?.rows) ? data.rows.map(toBankSentence) : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchCanonicalSentences(
@@ -40,6 +49,10 @@ export async function fetchCanonicalSentences(
   mediaItemId?: string,
   limit = 3
 ): Promise<BankSentence[]> {
+  if (!mediaItemId) {
+    const apiRows = await fetchViaApi(canonicalId, "all", undefined, limit);
+    if (apiRows) return apiRows;
+  }
   const { data: fastData, error: fastError } = await supabase.rpc("get_word_sentences_fast", {
     p_canonical_id: canonicalId,
     p_user_id: null,
@@ -74,6 +87,11 @@ export async function fetchIPlusOneSentences(
   limit = 10,
   maxUnknown = 1
 ): Promise<BankSentence[]> {
+  if (!mediaItemId) {
+    const mode = maxUnknown >= 2 ? "iplus2" : "iplus1";
+    const apiRows = await fetchViaApi(canonicalId, mode, userId, limit);
+    if (apiRows) return apiRows;
+  }
   const { data, error } = await supabase.rpc("get_i_plus_one_sentences", {
     p_user_id: userId,
     p_canonical_id: canonicalId,
@@ -92,56 +110,36 @@ export async function fetchIPlusOneSentences(
 
 const glossCache = new Map<string, CanonicalGloss>();
 
-export async function fetchCanonicalGlosses(
-  canonicalIds: string[]
-): Promise<Record<string, CanonicalGloss>> {
+export async function fetchCanonicalGlosses(canonicalIds: string[]): Promise<Record<string, CanonicalGloss>> {
   const missing = canonicalIds.filter((id) => !glossCache.has(id));
   if (missing.length > 0) {
-    const { data, error } = await supabase
-      .from("canonical_lexical_entity")
-      .select("id, lemma, pos, definitions")
-      .in("id", missing);
+    const { data, error } = await supabase.from("canonical_lexical_entity").select("id, lemma, pos, definitions").in("id", missing);
     if (!error) {
       for (const row of data || []) {
         glossCache.set(String(row.id), {
-          id: String(row.id),
-          lemma: String(row.lemma ?? ""),
-          pos: String(row.pos ?? ""),
+          id: String(row.id), lemma: String(row.lemma ?? ""), pos: String(row.pos ?? ""),
           definitions: Array.isArray(row.definitions) ? row.definitions.map(String) : [],
         });
       }
     }
   }
-
   const result: Record<string, CanonicalGloss> = {};
-  for (const id of canonicalIds) {
-    const gloss = glossCache.get(id);
-    if (gloss) result[id] = gloss;
-  }
+  for (const id of canonicalIds) { const g = glossCache.get(id); if (g) result[id] = g; }
   return result;
 }
 
 /** Fetch one clean example sentence per canonical_id for Anki deck export. */
-export async function fetchSentenceMapForMedia(
-  mediaItemId: string
-): Promise<Record<string, string>> {
+export async function fetchSentenceMapForMedia(mediaItemId: string): Promise<Record<string, string>> {
   const { data, error } = await supabase
-    .from("sentence_examples")
-    .select("sentence, canonical_ids, token_count")
-    .eq("media_item_id", mediaItemId)
-    .gte("token_count", 4)
-    .lte("token_count", 28)
-    .order("token_count", { ascending: true })
-    .limit(3000);
+    .from("sentence_examples").select("sentence, canonical_ids, token_count")
+    .eq("media_item_id", mediaItemId).gte("token_count", 4).lte("token_count", 28)
+    .order("token_count", { ascending: true }).limit(3000);
   if (error || !data) return {};
   const map: Record<string, string> = {};
   for (const row of data) {
     const text = String(row.sentence || "").trim();
     if (!text) continue;
-    for (const cid of row.canonical_ids || []) {
-      const id = String(cid || "");
-      if (id && !map[id]) map[id] = text;
-    }
+    for (const cid of row.canonical_ids || []) { const id = String(cid || ""); if (id && !map[id]) map[id] = text; }
   }
   return map;
 }

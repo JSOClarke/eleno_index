@@ -93,6 +93,21 @@ try {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ blocks }) });
   });
 
+  await page.route("**/api/sentence-bank*", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        rows: [{
+          id: "ex-all-1", media_item_id: "m1", sentence: "Una lechuza blanca duerme aquí.", token_count: 5,
+          source_context: "Corpus All", canonical_ids: ["can-lechuza"],
+          tokens: [{ surface: "lechuza", start_char: 4, end_char: 11, canonical_id: "can-lechuza" }],
+        }],
+        elapsed_ms: 14,
+      }),
+    });
+  });
+
   await page.route("**/rest/v1/rpc/get_word_sentences_fast", async (route) => {
     await route.fulfill({
       status: 200,
@@ -162,28 +177,23 @@ try {
   assert.ok(popText.includes("TubeLex #8420"), "Popover should show rank");
   assert.ok(popText.includes("barn owl"), "Popover should show definition");
 
-  // Popover size toggle S -> M -> L (width AND proportional font scaling)
-  const measurePopover = () => popover.evaluate((el) => {
-    const lemmaEl = el.querySelector("[data-popover-lemma]");
-    const badgeEl = el.querySelector("[data-popover-badge]");
-    const defEl = el.querySelector("ul li");
-    return {
-      w: el.getBoundingClientRect().width,
-      lemma: parseFloat(getComputedStyle(lemmaEl).fontSize),
-      badge: parseFloat(getComputedStyle(badgeEl).fontSize),
-      def: parseFloat(getComputedStyle(defEl).fontSize),
-    };
-  });
+  // Verify S/M/L toggle is NOT directly on the word popover header, and size setting scales width & fonts
+  assert.equal(await popover.locator('[aria-label="Popover size"]').count(), 0, "Size toggle should not be directly on word popover");
+  const measurePopover = () => popover.evaluate((el) => ({
+    w: el.getBoundingClientRect().width,
+    lemma: parseFloat(getComputedStyle(el.querySelector("[data-popover-lemma]")).fontSize),
+    badge: parseFloat(getComputedStyle(el.querySelector("[data-popover-badge]")).fontSize),
+    def: parseFloat(getComputedStyle(el.querySelector("ul li")).fontSize),
+  }));
   const mSm = await measurePopover();
-  await popover.getByRole("button", { name: "M", exact: true }).click();
-  const mMd = await measurePopover();
-  await popover.getByRole("button", { name: "L", exact: true }).click();
+  await popover.getByTitle("Close (Esc)").click();
+  await page.evaluate(() => localStorage.setItem("threshold_popover_size", "lg"));
+  await wordBtn.click();
+  await popover.waitFor({ state: "visible", timeout: 5000 });
   const mLg = await measurePopover();
-  assert.ok(mSm.w < mMd.w && mMd.w < mLg.w, `Expected S < M < L widths, got ${JSON.stringify({ mSm, mMd, mLg })}`);
-  assert.ok(mSm.lemma < mMd.lemma && mMd.lemma < mLg.lemma, `Expected S < M < L lemma font, got ${JSON.stringify({ mSm, mMd, mLg })}`);
-  assert.ok(mSm.badge < mMd.badge && mMd.badge < mLg.badge, `Expected S < M < L badge font, got ${JSON.stringify({ mSm, mMd, mLg })}`);
-  assert.ok(mSm.def < mMd.def && mMd.def < mLg.def, `Expected S < M < L def font, got ${JSON.stringify({ mSm, mMd, mLg })}`);
-  await popover.getByRole("button", { name: "S", exact: true }).click();
+  assert.ok(mSm.w < mLg.w && mSm.lemma < mLg.lemma && mSm.badge < mLg.badge && mSm.def < mLg.def,
+    `Expected lg > sm across width & fonts, got ${JSON.stringify({ mSm, mLg })}`);
+  await page.evaluate(() => localStorage.setItem("threshold_popover_size", "sm"));
 
   // Sentence tab + Sentence Bank + Anki (.apkg)
   await popover.getByRole("button", { name: "Sentence" }).click();
