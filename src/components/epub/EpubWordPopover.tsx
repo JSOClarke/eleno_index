@@ -40,8 +40,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
 
   useEffect(() => { setTab("defs"); setTranslation(null); setImages(null); setPosOpen(false); }, [ctx]);
   useEffect(() => {
-    if (!ctx || tab !== "img" || images) return;
-    fetchWordImages(lemma, enDefs[0] || "", language).then(setImages);
+    if (ctx && tab === "img" && !images) fetchWordImages(lemma, enDefs[0] || "", language).then(setImages);
   }, [ctx, tab, images, lemma, enDefs, language]);
 
   if (!ctx) return null;
