@@ -162,13 +162,27 @@ try {
   assert.ok(popText.includes("TubeLex #8420"), "Popover should show rank");
   assert.ok(popText.includes("barn owl"), "Popover should show definition");
 
-  // Popover size toggle S -> M -> L
-  const wSm = await popover.evaluate((el) => el.getBoundingClientRect().width);
+  // Popover size toggle S -> M -> L (width AND proportional font scaling)
+  const measurePopover = () => popover.evaluate((el) => {
+    const lemmaEl = el.querySelector("[data-popover-lemma]");
+    const badgeEl = el.querySelector("[data-popover-badge]");
+    const defEl = el.querySelector("ul li");
+    return {
+      w: el.getBoundingClientRect().width,
+      lemma: parseFloat(getComputedStyle(lemmaEl).fontSize),
+      badge: parseFloat(getComputedStyle(badgeEl).fontSize),
+      def: parseFloat(getComputedStyle(defEl).fontSize),
+    };
+  });
+  const mSm = await measurePopover();
   await popover.getByRole("button", { name: "M", exact: true }).click();
-  const wMd = await popover.evaluate((el) => el.getBoundingClientRect().width);
+  const mMd = await measurePopover();
   await popover.getByRole("button", { name: "L", exact: true }).click();
-  const wLg = await popover.evaluate((el) => el.getBoundingClientRect().width);
-  assert.ok(wSm < wMd && wMd < wLg, `Expected S < M < L popover widths, got ${wSm}, ${wMd}, ${wLg}`);
+  const mLg = await measurePopover();
+  assert.ok(mSm.w < mMd.w && mMd.w < mLg.w, `Expected S < M < L widths, got ${JSON.stringify({ mSm, mMd, mLg })}`);
+  assert.ok(mSm.lemma < mMd.lemma && mMd.lemma < mLg.lemma, `Expected S < M < L lemma font, got ${JSON.stringify({ mSm, mMd, mLg })}`);
+  assert.ok(mSm.badge < mMd.badge && mMd.badge < mLg.badge, `Expected S < M < L badge font, got ${JSON.stringify({ mSm, mMd, mLg })}`);
+  assert.ok(mSm.def < mMd.def && mMd.def < mLg.def, `Expected S < M < L def font, got ${JSON.stringify({ mSm, mMd, mLg })}`);
   await popover.getByRole("button", { name: "S", exact: true }).click();
 
   // Sentence tab + Sentence Bank + Anki (.apkg)

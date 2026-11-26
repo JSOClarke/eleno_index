@@ -40,13 +40,13 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
           const title = p.canonical_phrase || p.phrase || "";
           const gloss = p.gloss || p.definitions?.[0] || p.phrase || "";
           return (
-            <div key={i} className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 text-[11px] leading-[1.38] text-[#0F172A]">
+            <div key={i} className={`rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2 ${sizePreset.calloutClass} leading-[1.38] text-[#0F172A]`}>
               <strong>{kindLabel} · {title}</strong>{gloss ? ` — ${gloss}` : ""}
             </div>
           );
         })}
         {iPlusOne && (
-          <div className="rounded-xl border border-[#0F172A] bg-[#0F172A] px-3 py-2 text-[11px] leading-[1.38] text-white">
+          <div className={`rounded-xl border border-[#0F172A] bg-[#0F172A] px-3 py-2 ${sizePreset.calloutClass} leading-[1.38] text-white`}>
             {iPlusOne.isTarget ? (
               <><strong>i+1 Target</strong> · Only unknown word in this sentence — ideal to learn</>
             ) : (
@@ -56,12 +56,12 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
         )}
         <div className="border-t border-[#E2E8F0] pt-2.5 space-y-2">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.04em] text-[#94A3B8]">Definitions</span>
+            <span className={`${sizePreset.labelClass} font-semibold uppercase tracking-[0.04em] text-[#94A3B8]`}>Definitions</span>
             {esDefs.length > 0 && (
               <div className="inline-flex gap-0.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-0.5">
                 {(["en", "es", "both"] as const).map((dl) => (
                   <button key={dl} type="button" onClick={() => onChangeDefLang(dl)}
-                    className={`rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase cursor-pointer ${defLang === dl ? "bg-[#0F172A] text-white" : "text-[#64748B]"}`}>
+                    className={`rounded-md px-2 py-0.5 ${sizePreset.labelClass} font-semibold uppercase cursor-pointer ${defLang === dl ? "bg-[#0F172A] text-white" : "text-[#64748B]"}`}>
                     {dl}
                   </button>
                 ))}
@@ -86,18 +86,18 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
     return (
       <div className="space-y-2.5">
         <p className={`font-serif leading-[1.55] text-[#0F172A] ${sizePreset.sentenceClass}`}>{sentence}</p>
-        {translation && <p className="border-t border-[#E2E8F0] pt-2 text-[12.5px] leading-[1.5] text-[#64748B]">{translation}</p>}
-        <div className="flex flex-wrap gap-1.5 pt-0.5 text-[11px] font-medium">
-          <button type="button" onClick={() => (adapter?.speak || speakSpanish)(sentence, language)} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] hover:text-[#0F172A] cursor-pointer"><Volume2 className="h-3 w-3" /> Audio</button>
+        {translation && <p className={`border-t border-[#E2E8F0] pt-2 ${sizePreset.translationClass} leading-[1.5] text-[#64748B]`}>{translation}</p>}
+        <div className="flex flex-wrap gap-1.5 pt-0.5 font-medium">
+          <button type="button" onClick={() => (adapter?.speak || speakSpanish)(sentence, language)} className={`inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white ${sizePreset.actionBtnClass} text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] hover:text-[#0F172A] cursor-pointer`}><Volume2 className="h-3.5 w-3.5" /> Audio</button>
           {!translation && (
-            <button type="button" onClick={onTranslate} disabled={translating} className="inline-flex items-center gap-1.5 rounded-lg border border-[#0F172A] bg-[#0F172A] px-2.5 py-1.5 text-white hover:opacity-90 disabled:opacity-50 cursor-pointer">
-              <Languages className="h-3 w-3" /> {translating ? "Translating…" : "Translate"}
+            <button type="button" onClick={onTranslate} disabled={translating} className={`inline-flex items-center gap-1.5 rounded-lg border border-[#0F172A] bg-[#0F172A] ${sizePreset.actionBtnClass} text-white hover:opacity-90 disabled:opacity-50 cursor-pointer`}>
+              <Languages className="h-3.5 w-3.5" /> {translating ? "Translating…" : "Translate"}
             </button>
           )}
-          <button type="button" onClick={onExportAnki} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] hover:text-[#0F172A] cursor-pointer"><Download className="h-3 w-3" /> Anki (.apkg)</button>
+          <button type="button" onClick={onExportAnki} className={`inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white ${sizePreset.actionBtnClass} text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] hover:text-[#0F172A] cursor-pointer`}><Download className="h-3.5 w-3.5" /> Anki (.apkg)</button>
         </div>
         {canonicalId && (
-          <EpubSentenceBankSection canonicalId={canonicalId} userId={userId} language={language} statusMap={statusMap} fetchSentences={adapter?.fetchSentences} speak={adapter?.speak} />
+          <EpubSentenceBankSection canonicalId={canonicalId} userId={userId} language={language} statusMap={statusMap} fetchSentences={adapter?.fetchSentences} speak={adapter?.speak} sizePreset={sizePreset} />
         )}
       </div>
     );

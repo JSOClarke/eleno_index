@@ -119,4 +119,6 @@ export interface EpubPopoverAdapter {
   fetchSentences?: (mode: "iplus1" | "iplus2" | "all", canonicalId: string, userId?: string | null) => Promise<BankSentence[]>;
   locateWasm?: (file: string) => string;
   initialDefLang?: "en" | "es" | "both";
+  initialSize?: "sm" | "md" | "lg";
+  onSizeChange?: (size: "sm" | "md" | "lg") => void;
 }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Volume2 } from "lucide-react";
 import { fetchCanonicalSentences, fetchIPlusOneSentences } from "@/api/sentence.api";
 import { SentenceTokenLine } from "@/components/inspector/SentenceTokenLine";
+import type { PopoverSizePreset } from "@/lib/epub/epubPopoverSize";
 import { speakSpanish } from "@/lib/epub/epubParseClient";
 import type { BankSentence } from "@/types/sentence.types";
 import type { UserVocabStatus } from "@/types/vocabulary.types";
@@ -15,16 +16,12 @@ interface EpubSentenceBankSectionProps {
   statusMap: Record<string, UserVocabStatus>;
   fetchSentences?: (mode: BankMode, canonicalId: string, userId?: string | null) => Promise<BankSentence[]>;
   speak?: (text: string, language?: string, rate?: number) => void;
+  sizePreset?: PopoverSizePreset;
 }
 
 /** Sentence Bank lookup inside the EPUB word popover supporting i+1, i+2, and all corpus hits. */
 export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = ({
-  canonicalId,
-  userId,
-  language,
-  statusMap,
-  fetchSentences,
-  speak,
+  canonicalId, userId, language, statusMap, fetchSentences, speak, sizePreset,
 }) => {
   const [mode, setMode] = useState<BankMode>(userId ? "iplus1" : "all");
   const [rows, setRows] = useState<BankSentence[]>([]);
@@ -63,7 +60,7 @@ export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = (
   return (
     <div className="border-t border-[#E2E8F0] pt-2.5 space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.04em] text-[#94A3B8]">
+        <span className={`${sizePreset?.labelClass || "text-[10px]"} font-semibold uppercase tracking-[0.04em] text-[#94A3B8]`}>
           Sentence Bank{elapsedMs !== null && !loading ? ` · ${elapsedMs}ms` : ""}
         </span>
         <div className="inline-flex gap-0.5 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] p-0.5">
@@ -72,7 +69,7 @@ export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = (
               key={m.id}
               type="button"
               onClick={() => setMode(m.id)}
-              className={`rounded-md px-2 py-0.5 text-[10px] font-semibold cursor-pointer ${
+              className={`rounded-md px-2 py-0.5 ${sizePreset?.labelClass || "text-[10px]"} font-semibold cursor-pointer ${
                 mode === m.id ? "bg-[#0F172A] text-white" : "text-[#64748B] hover:text-[#0F172A]"
               }`}
             >
@@ -94,10 +91,10 @@ export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = (
             : `No ${mode === "iplus2" ? "i+2" : "i+1"} sentences found with your known words.`}
         </div>
       ) : (
-        <div className="max-h-[155px] space-y-1.5 overflow-y-auto pr-0.5">
+        <div className={`${sizePreset?.bankListClass || "max-h-[155px]"} space-y-1.5 overflow-y-auto pr-0.5`}>
           {rows.map((entry) => (
             <div key={entry.id} className="rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-2 space-y-1">
-              <p className="text-[12.5px] leading-[1.45] text-[#0F172A]">
+              <p className={`${sizePreset?.bankTextClass || "text-[12.5px]"} leading-[1.45] text-[#0F172A]`}>
                 <SentenceTokenLine
                   sentence={entry.sentence}
                   tokens={entry.tokens}
@@ -105,7 +102,7 @@ export const EpubSentenceBankSection: React.FC<EpubSentenceBankSectionProps> = (
                   statusMap={statusMap}
                 />
               </p>
-              <div className="flex items-center justify-between gap-2 text-[10px] text-[#64748B]">
+              <div className={`flex items-center justify-between gap-2 ${sizePreset?.bankMetaClass || "text-[10px]"} text-[#64748B]`}>
                 <span className="truncate">{entry.source_context || `${entry.token_count} words`}</span>
                 <div className="flex items-center gap-1.5 shrink-0">
                   {entry.unknown_count != null && (
