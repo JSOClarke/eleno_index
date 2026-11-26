@@ -1,6 +1,6 @@
-# InputHub (`inputhub /es | /fr | /zh`)
+# Threshold (`threshold /es | /fr | /zh | /ru`)
 
-A Neo-Swiss brutalist **"Dense Faceted Index"** frontend for multi-language corpus-driven language acquisition (`es`, `fr`, `zh`), built with React 19, TypeScript, Tailwind CSS, and Supabase. Companion frontend to [`eleno_backend`](file:///home/drjopari/Documents/eleno_backend).
+A Neo-Swiss **"Dense Faceted Index"** frontend for multi-language corpus-driven language acquisition (`es`, `fr`, `zh`, `ru`), built with React 18, TypeScript, Tailwind CSS, and Supabase. Companion frontend to [`eleno_backend`](file:///home/drjopari/Documents/eleno_backend) and [`eleno_extension`](file:///home/drjopari/Documents/eleno_extension).
 
 ---
 
@@ -96,18 +96,29 @@ src/
    - The `<Quote />` drawer renders every sentence token-by-token: Volt target word, dotted unknown words, Learning/known states, and click-through Kaikki definitions with Learn/Known toggles.
    - Segmented `All Examples | i+1 Comprehensible Only` filter calls `get_i_plus_one_sentences` to surface sentences where the target word is the only unknown.
    - Migration: [`eleno_backend/supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql`](file:///home/drjopari/Documents/eleno_backend/supabase/migrations/20261103090000_open_tokenized_sentence_bank.sql).
-6. **Admin Import Workbench (`/admin/imports`)**:
-   - Supports both single EPUB staging and folder batch scanning (`/admin/imports/batch/scan`), bulk candidate approval, and sequentially queued ingestion jobs.
+6. **BYO EPUB Reader (`/epub`) & Shared Extension UI**:
+   - Client-side `.epub` parsing (`src/lib/epub/`), progressive viewport-first NLP parsing, native `CSS.highlights`, right-click Action Wheel (`EpubActionWheel.tsx`), and word popover (`EpubWordPopover.tsx`, `EpubPopoverTabs.tsx`, `EpubSentenceBankSection.tsx`).
+   - Also compiled by `eleno_extension` into its Shadow DOM bundle so web EPUB and browser extension stay in parity.
+   - `EpubWordPopover` supports proportional `sm` / `md` / `lg` sizing (`src/lib/epub/epubPopoverSize.ts`) via `localStorage` or `EpubPopoverAdapter`.
+7. **Sentence Bank API Integration (`src/api/sentence.api.ts`)**:
+   - `fetchCanonicalSentences` and `fetchIPlusOneSentences` call `GET ${VITE_ADMIN_API_URL}/api/sentence-bank` first for sub-second `i+1`, `i+2`, and `All` lookups, falling back to Supabase RPCs if unreachable.
+8. **Admin Import Workbench (`/admin/imports`)**:
+   - Supports single `.epub`/`.srt`/`.vtt` staging and multi-episode batch imports (`/admin/imports/batch`), bulk approval, and queued ingestion jobs.
+   - Production builds use `.env.production` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_ADMIN_API_URL`).
 
 ---
 
-## 4. Development & Build
+## 4. Development, Build & Testing
 > Full local stack start-up (local Supabase in Docker, Admin API, GPU ingestion, `.env` setup) is documented in [`eleno_backend/README.md` §0 Quick Start](file:///home/drjopari/Documents/eleno_backend/README.md).
 
 ```bash
 npm install
-npm run dev -- --host 0.0.0.0   # Starts Vite dev server on http://localhost:3001 and LAN IP
-npm run build                   # Runs tsc && vite build
+npm run dev -- --host 0.0.0.0     # Starts Vite dev server on http://localhost:3001 and LAN IP
+npm run build                     # Runs tsc && vite build
+npm test                          # Vitest unit tests
+npm run test:e2e                  # Playwright sorting E2E
+npm run test:e2e:epub             # Playwright BYO EPUB + shared popover E2E
+npm run test:e2e:admin-import     # Playwright /admin/imports .srt staging E2E
 ```
 
 Image providers are registered in `src/lib/imageProviders.ts`. Wikipedia works without credentials. Pixabay is opt-in: the reader adds their own API key from the image panel, and it is stored only in that browser's localStorage. Additional providers can be attached with `registerImageProvider(...)`.
