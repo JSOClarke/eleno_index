@@ -61,13 +61,15 @@ export async function fetchIPlusOneSentences(
   canonicalId: string,
   userId: string,
   mediaItemId?: string,
-  limit = 10
+  limit = 10,
+  maxUnknown = 1
 ): Promise<BankSentence[]> {
   const { data, error } = await supabase.rpc("get_i_plus_one_sentences", {
     p_user_id: userId,
     p_canonical_id: canonicalId,
     p_media_item_id: mediaItemId ?? null,
     p_limit: Math.min(Math.max(limit * 10, limit), 50),
+    p_max_unknown: maxUnknown,
   });
 
   if (error) {

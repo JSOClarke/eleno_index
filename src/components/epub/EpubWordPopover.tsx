@@ -11,6 +11,7 @@ import type { UserVocabStatus } from "@/types/vocabulary.types";
 
 interface EpubWordPopoverProps {
   ctx: SelectedWordContext | null;
+  userId?: string | null;
   language: string;
   bookTitle: string;
   statusMap: Record<string, UserVocabStatus>;
@@ -19,7 +20,7 @@ interface EpubWordPopoverProps {
 }
 
 export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
-  ctx, language, bookTitle, statusMap, onSetWordStatus, onClose,
+  ctx, userId, language, bookTitle, statusMap, onSetWordStatus, onClose,
 }) => {
   const [tab, setTab] = useState<"defs" | "ctx" | "img">("defs");
   const [defLang, setDefLang] = useState<"en" | "es" | "both">("en");
@@ -121,6 +122,7 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
           <EpubPopoverTabs
             tab={tab} defLang={defLang} onChangeDefLang={setDefLang} enDefs={enDefs} esDefs={esDefs}
             phrases={ctx.phrases} iPlusOne={ctx.iPlusOne} sentence={ctx.sentence} language={language}
+            canonicalId={canonicalId} userId={userId} statusMap={statusMap}
             translation={translation} translating={translating} images={images}
             onTranslate={handleTranslate} onExportAnki={handleExportAnki}
           />

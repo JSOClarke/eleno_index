@@ -2,6 +2,8 @@ import React from "react";
 import { Download, ExternalLink, Languages, Volume2 } from "lucide-react";
 import { speakSpanish, type WordImagePair } from "@/lib/epub/epubParseClient";
 import type { ParsedPhrase } from "@/types/epubReader.types";
+import type { UserVocabStatus } from "@/types/vocabulary.types";
+import { EpubSentenceBankSection } from "./EpubSentenceBankSection";
 
 interface EpubPopoverTabsProps {
   tab: "defs" | "ctx" | "img";
@@ -13,6 +15,9 @@ interface EpubPopoverTabsProps {
   iPlusOne?: { isTarget: boolean; targetSurface: string } | null;
   sentence: string;
   language: string;
+  canonicalId?: string;
+  userId?: string | null;
+  statusMap: Record<string, UserVocabStatus>;
   translation: string | null;
   translating: boolean;
   images: WordImagePair | null;
@@ -22,7 +27,7 @@ interface EpubPopoverTabsProps {
 
 export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
   tab, defLang, onChangeDefLang, enDefs, esDefs, phrases, iPlusOne, sentence, language,
-  translation, translating, images, onTranslate, onExportAnki,
+  canonicalId, userId, statusMap, translation, translating, images, onTranslate, onExportAnki,
 }) => {
   if (tab === "defs") {
     return (
@@ -88,6 +93,9 @@ export const EpubPopoverTabs: React.FC<EpubPopoverTabsProps> = ({
           )}
           <button type="button" onClick={onExportAnki} className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-[#64748B] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] hover:text-[#0F172A] cursor-pointer"><Download className="h-3 w-3" /> Anki (.apkg)</button>
         </div>
+        {canonicalId && (
+          <EpubSentenceBankSection canonicalId={canonicalId} userId={userId} language={language} statusMap={statusMap} />
+        )}
       </div>
     );
   }

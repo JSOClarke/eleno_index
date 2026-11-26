@@ -115,6 +115,7 @@ export const EpubReaderPage: React.FC<EpubReaderPageProps> = ({
       />
       <EpubWordPopover
         ctx={state.selected?.ctx ?? null}
+        userId={userId}
         language={state.activeBook.language}
         bookTitle={state.activeBook.title}
         statusMap={statusMap}
