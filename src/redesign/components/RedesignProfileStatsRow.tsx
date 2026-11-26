@@ -11,22 +11,22 @@ export const RedesignProfileStatsRow: React.FC<RedesignProfileStatsRowProps> = (
 }) => {
   if (!metrics) return null;
 
-  const cefr = metrics.cefr_level || "B1";
-  const fh = (metrics.readability_score || 70).toFixed(1);
+  const cefr = metrics.cefr_level || "";
+  const fh = metrics.readability_score != null ? metrics.readability_score.toFixed(1) : "—";
   const isKm = (metrics as any).readability_details?.formula === "Kandel-Moles";
-  const subjPct = formatPercent(metrics.verb_profile?.subjunctive_load ?? 0.064, 1);
+  const subjPct = metrics.verb_profile?.subjunctive_load != null ? formatPercent(metrics.verb_profile.subjunctive_load, 1) : "—";
   const wpm = metrics.words_per_minute ? Math.round(metrics.words_per_minute) : null;
   const speechDensity = metrics.speech_density
     ? `${metrics.speech_density.toFixed(1)}% speech density`
     : "active speech cadence";
   const dialPct = formatPercent(metrics.dialogue_ratio, 1);
-  const cov95 = metrics.coverage_95_lemmas || Math.round(metrics.unique_words_count * 0.42);
+  const cov95 = metrics.coverage_95_lemmas ?? null;
 
   const cards = [
     {
-      label: "CEFR & Readability",
-      value: `${cefr} · ${isKm ? "K-M" : "F-H"} ${fh}`,
-      sub: isKm ? "Kandel-Moles scale" : "Fernández Huerta scale",
+      label: "Level & Readability",
+      value: [cefr, `${isKm ? "K-M" : "Readability"} ${fh}`].filter(Boolean).join(" · "),
+      sub: isKm ? "Kandel-Moles scale" : "Readability score",
     },
     {
       label: "Subjunctive Load",
@@ -40,7 +40,7 @@ export const RedesignProfileStatsRow: React.FC<RedesignProfileStatsRowProps> = (
     },
     {
       label: "95% Target Threshold",
-      value: `${formatNumber(cov95)} lemmas`,
+      value: cov95 != null ? `${formatNumber(cov95)} lemmas` : "—",
       sub: "for unassisted reading",
     },
   ];

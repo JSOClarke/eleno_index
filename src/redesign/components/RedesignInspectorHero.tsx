@@ -12,8 +12,8 @@ interface RedesignInspectorHeroProps {
 export const RedesignInspectorHero: React.FC<RedesignInspectorHeroProps> = ({ item }) => {
   const [imgError, setImgError] = useState(false);
   const m = item.metrics;
-  const level = m?.cefr_level || "B1";
-  const fh = (m?.readability_score || 70).toFixed(1);
+  const level = m?.cefr_level || "";
+  const fh = m?.readability_score != null ? m.readability_score.toFixed(1) : "—";
   const wpm = m?.words_per_minute ? Math.round(m.words_per_minute) : null;
   const dialOrWpm = wpm ? `${wpm} WPM` : `Dial ${formatPercent(m?.dialogue_ratio, 1)}`;
 

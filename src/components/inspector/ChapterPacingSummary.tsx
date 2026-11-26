@@ -61,7 +61,7 @@ export const ChapterPacingSummary: React.FC<ChapterPacingSummaryProps> = ({
       </div>
       <div className="flex flex-wrap items-center gap-4 tabular-nums">
         <span>
-          F-H: <strong className="text-slate-900">{(readability || 70).toFixed(1)}</strong>
+          Readability: <strong className="text-slate-900">{readability != null ? readability.toFixed(1) : "—"}</strong>
         </span>
         <span>
           Dialogue: <strong className="text-slate-900">{formatPercent(dialogue, 1)}</strong>
@@ -69,7 +69,7 @@ export const ChapterPacingSummary: React.FC<ChapterPacingSummaryProps> = ({
         {flowPct !== null && (
           <span>
             Flow: <strong className="text-emerald-700">{flowPct.toFixed(1)}%</strong>
-            {learnFlowPct > 0 ? <span className="ml-1 text-[#111111]">({formatLearningDelta(learnFlowPct)} learning)</span> : ""}
+            {learnFlowPct > 0 ? <span className="ml-1 text-sky-700">({formatLearningDelta(learnFlowPct)} learning)</span> : ""}
           </span>
         )}
       </div>

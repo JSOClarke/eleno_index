@@ -51,9 +51,11 @@ export const RedesignChapterBreakdown: React.FC<RedesignChapterBreakdownProps> =
                   <h3 className="text-sm font-semibold text-slate-900 truncate">
                     {ch.chapter_title}
                   </h3>
-                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(ch.cefr_level || "B1")}`}>
-                    {ch.cefr_level || "B1"}
-                  </span>
+                  {ch.cefr_level && (
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${getCefrBadgeClass(ch.cefr_level)}`}>
+                      {ch.cefr_level}
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">

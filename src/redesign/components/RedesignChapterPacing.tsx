@@ -107,9 +107,7 @@ export const RedesignChapterPacing: React.FC<RedesignChapterPacingProps> = ({
               >
                 <div className="flex items-center justify-between text-[10px]">
                   <span className="font-semibold text-slate-800">{unitShort}.{ch.chapter_index}</span>
-                  <span className={`rounded-full px-1.5 py-0.2 font-semibold ${getCefrBadgeClass(ch.cefr_level || "B1")}`}>
-                    {ch.cefr_level || "B1"}
-                  </span>
+                  {ch.cefr_level && <span className={`rounded-full px-1.5 py-0.2 font-semibold ${getCefrBadgeClass(ch.cefr_level)}`}>{ch.cefr_level}</span>}
                 </div>
                 <div className="mt-2 mb-1.5 flex h-11 items-end px-1">
                   <div className="flex w-full flex-col justify-end overflow-hidden rounded-md bg-slate-100" style={{ height: `${heightPct}%` }}>
@@ -135,7 +133,7 @@ export const RedesignChapterPacing: React.FC<RedesignChapterPacingProps> = ({
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-4 tabular-nums">
-          <span>F-H: <strong className="text-slate-900">{(sumFh || 70).toFixed(1)}</strong></span>
+          <span>Readability: <strong className="text-slate-900">{sumFh != null ? sumFh.toFixed(1) : "—"}</strong></span>
           <span>Dialogue: <strong className="text-slate-900">{formatPercent(sumDial, 1)}</strong></span>
           {sumFlow !== null && (
             <span>

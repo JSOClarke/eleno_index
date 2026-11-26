@@ -18,7 +18,7 @@ export const RedesignMediaCard: React.FC<RedesignMediaCardProps> = ({
   onToggleSave,
 }) => {
   const m = item.metrics;
-  const level = m?.cefr_level || "B1";
+  const level = m?.cefr_level || "";
   const englishTitle = item.work_title || item.title;
   const targetTitle = item.work_title && item.title !== item.work_title ? item.title : null;
   const synopsis = item.work_synopsis || item.sampleSnippet;
