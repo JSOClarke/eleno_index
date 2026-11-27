@@ -199,6 +199,12 @@ try {
   await popover.getByRole("button", { name: "Sentence" }).click();
   await page.waitForFunction(() => document.querySelector("[data-epub-popover]")?.textContent?.includes("Sentence Bank"), { timeout: 5000 });
   assert.ok((await popover.innerText()).includes("Corpus All"), "Sentence Bank All mode should render");
+  const popBox = await popover.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return { top: r.top, bottom: r.bottom, left: r.left, right: r.right, vh: window.innerHeight, vw: window.innerWidth };
+  });
+  assert.ok(popBox.top >= 8 && popBox.bottom <= popBox.vh - 8, `Popover clipped vertically: ${JSON.stringify(popBox)}`);
+  assert.ok(popBox.left >= 8 && popBox.right <= popBox.vw - 8, `Popover clipped horizontally: ${JSON.stringify(popBox)}`);
 
   await popover.getByRole("button", { name: "Translate" }).click();
   await page.waitForFunction(() => document.querySelector("[data-epub-popover]")?.textContent?.includes("The great owl"), { timeout: 5000 });

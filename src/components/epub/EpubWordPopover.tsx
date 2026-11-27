@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BookOpen, FileText, GraduationCap, Image as ImageIcon, Layers, Volume2, X } from "lucide-react";
+import { usePopoverPosition } from "@/hooks/usePopoverPosition";
 import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { downloadApkgDeck } from "@/lib/ankiApkgExport";
 import { getPosMeta, parseMorphChips } from "@/lib/epub/epubGrammarUtils";
@@ -29,6 +30,8 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
   useEffect(() => { setSize(adapter?.initialSize || loadPopoverSize()); }, [ctx, adapter?.initialSize]);
   const sheetRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const preset = POPOVER_SIZE_PRESETS[size];
+  const { top: topPos, left: leftPos } = usePopoverPosition(ctx?.anchorRect, sheetRef, preset.widthNum, preset.maxHNum);
   const swipe = useSwipeDismiss(Boolean(ctx), onClose, sheetRef, bodyRef);
 
   const c = ctx?.token.canonical;
@@ -66,14 +69,10 @@ export const EpubWordPopover: React.FC<EpubWordPopoverProps> = ({
     rankings: c?.rankings?.length ? c.rankings.map((r) => ({ source: r.source, rank: r.rank, count: r.count ?? null, cefr: r.level ?? null })) : [],
   }], statusMap, bookTitle, undefined, undefined, adapter?.locateWasm);
 
-  const preset = POPOVER_SIZE_PRESETS[size];
-  const topPos = Math.min(window.innerHeight - preset.maxHNum, ctx.anchorRect.bottom + 8);
-  const leftPos = Math.max(12, Math.min(window.innerWidth - (preset.widthNum + 12), ctx.anchorRect.left));
-
   return (
     <div className="fixed inset-0 z-50 overscroll-none bg-[#0F172A]/15 md:bg-transparent" onClick={onClose}>
         <div ref={sheetRef} data-epub-popover data-popover-size={size} onClick={(e) => e.stopPropagation()}
-          style={{ "--desk-top": `${Math.max(12, topPos)}px`, "--desk-left": `${leftPos}px`, "--desk-w": `${preset.widthNum}px`, transform: swipe.dragY > 0 ? `translateY(${swipe.dragY}px)` : undefined } as React.CSSProperties}
+          style={{ "--desk-top": `${topPos}px`, "--desk-left": `${leftPos}px`, "--desk-w": `${preset.widthNum}px`, transform: swipe.dragY > 0 ? `translateY(${swipe.dragY}px)` : undefined } as React.CSSProperties}
           className={`fixed bottom-0 left-0 right-0 overscroll-none md:bottom-auto md:right-auto md:top-[var(--desk-top)] md:left-[var(--desk-left)] md:w-[var(--desk-w)] ${preset.containerClass} rounded-t-2xl md:rounded-2xl bg-white text-[#0F172A] shadow-[0_20px_45px_rgba(15,23,42,0.16),0_4px_12px_rgba(15,23,42,0.08)] overflow-hidden flex flex-col ${swipe.dragY === 0 ? "transition-transform duration-200 ease-out" : ""}`}>
         <div className="h-[3px] w-full shrink-0 bg-[#0F172A]" />
         <div className="md:hidden flex justify-center pt-2 pb-0.5 shrink-0"><div className="h-1 w-9 rounded-full bg-slate-300" /></div>
